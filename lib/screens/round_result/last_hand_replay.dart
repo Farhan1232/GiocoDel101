@@ -1,0 +1,237 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import '../../core/constants/app_durations.dart';
+import '../../core/constants/app_spacing.dart';
+import '../../core/utils/motion.dart';
+import '../../data/app_strings.dart';
+import '../../models/game_action.dart';
+import '../../models/game_card.dart';
+import '../../models/match_state.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_typography.dart';
+import '../../widgets/cards/playing_card.dart';
+import '../../widgets/common/premium_button.dart';
+
+/// §36 "Rivedi ultima mano" — replays the closing moves.
+///
+/// It reads the action history the engine already keeps, so nothing extra is
+/// recorded during play and there is no separate replay screen: this is an
+/// overlay over the round results.
+class LastHandReplay extends StatefulWidget {
+  const LastHandReplay({
+    super.key,
+    required this.match,
+    required this.onClose,
+    this.accent,
+  });
+
+  final MatchState match;
+  final VoidCallback onClose;
+  final Color? accent;
+
+  /// How many closing actions to show.
+  static const int window = 6;
+
+  static bool isAvailable(MatchState match) =>
+      match.history.any((a) => a.type == GameActionType.play);
+
+  @override
+  State<LastHandReplay> createState() => _LastHandReplayState();
+}
+
+class _LastHandReplayState extends State<LastHandReplay> {
+  late final List<GameAction> _steps;
+  int _index = -1;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    final relevant = widget.match.history
+        .where((a) =>
+            a.type == GameActionType.play ||
+            a.type == GameActionType.draw ||
+            a.type == GameActionType.penaltyDraw ||
+            a.type == GameActionType.skip)
+        .toList();
+    _steps = relevant.length <= LastHandReplay.window
+        ? relevant
+        : relevant.sublist(relevant.length - LastHandReplay.window);
+    _advance();
+  }
+
+  void _advance() {
+    _timer?.cancel();
+    if (_index + 1 >= _steps.length) {
+      setState(() => _index = _steps.length - 1);
+      return;
+    }
+    setState(() => _index++);
+    _timer = Timer(
+      Motion.scale(const Duration(milliseconds: 700)),
+      _advance,
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _nameOf(String id) =>
+      widget.match.playerById(id)?.name ?? '';
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = widget.accent ?? AppColors.antiqueGold;
+    final shown = _index < 0 ? <GameAction>[] : _steps.take(_index + 1).toList();
+    final current = shown.isEmpty ? null : shown.last;
+
+    return GestureDetector(
+      onTap: widget.onClose,
+      child: ColoredBox(
+        color: AppColors.inkDeep.withValues(alpha: 0.92),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.gutter),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(Strings.s.replayLastHand.toUpperCase(),
+                    style: AppText.sectionTitle),
+                const SizedBox(height: AppSpacing.xl),
+                SizedBox(
+                  height: 190,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      for (var i = 0; i < shown.length; i++)
+                        _step(shown[i], i, shown.length),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                SizedBox(
+                  height: 44,
+                  child: current == null
+                      ? const SizedBox.shrink()
+                      : Column(
+                          children: [
+                            Text(_nameOf(current.playerId),
+                                style: AppText.body.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: accent)),
+                            Text(_describe(current), style: AppText.caption),
+                          ],
+                        ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    PremiumButton(
+                      label: 'Rivedi',
+                      size: ButtonSize.small,
+                      variant: ButtonVariant.secondary,
+                      expand: false,
+                      onPressed: () {
+                        setState(() => _index = -1);
+                        _advance();
+                      },
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    PremiumButton(
+                      label: 'Chiudi',
+                      size: ButtonSize.small,
+                      variant: ButtonVariant.ghost,
+                      expand: false,
+                      onPressed: widget.onClose,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _step(GameAction action, int i, int total) {
+    final isLatest = i == total - 1;
+    final offset = (i - (total - 1)) * 16.0;
+    final card = action.card;
+
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('$i-${action.card?.id}-${action.type}'),
+      tween: Tween(begin: 0, end: 1),
+      duration: Motion.scale(AppDurations.cardPlay),
+      curve: Curves.easeOutCubic,
+      builder: (context, t, child) => Transform.translate(
+        offset: Offset(offset * t, (1 - t) * -50),
+        child: Opacity(opacity: (0.35 + t * 0.65) * (isLatest ? 1 : 0.55),
+            child: child),
+      ),
+      child: Transform.rotate(
+        angle: (i - (total - 1)) * 0.06,
+        child: card != null
+            ? PlayingCard(width: 96, card: card, elevation: isLatest ? 1.4 : 0.4)
+            : _tokenCard(action),
+      ),
+    );
+  }
+
+  Widget _tokenCard(GameAction action) {
+    final label = switch (action.type) {
+      GameActionType.draw => '+1',
+      GameActionType.penaltyDraw => '+${action.count ?? 0}',
+      GameActionType.skip => '×',
+      _ => '',
+    };
+    return Container(
+      width: 96,
+      height: 96 * 1.55,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(96 * 0.075),
+        color: AppColors.surfaceRaised,
+        border: Border.all(color: AppColors.hairline),
+      ),
+      alignment: Alignment.center,
+      child: Text(label, style: AppText.scoreLarge),
+    );
+  }
+
+  String _describe(GameAction action) {
+    final s = Strings.s;
+    return switch (action.type) {
+      GameActionType.play => _cardName(action.card),
+      GameActionType.draw => s.drawCard,
+      GameActionType.penaltyDraw => '${s.takePenalty} +${action.count ?? 0}',
+      GameActionType.skip => s.turnSkipped,
+      _ => '',
+    };
+  }
+
+  static String _cardName(GameCard? card) {
+    if (card == null) return '';
+    final s = Strings.s;
+    final rank = switch (card.rank.name) {
+      'ace' => s.rankAce,
+      'fante' => s.rankFante,
+      'cavallo' => s.rankCavallo,
+      're' => s.rankRe,
+      _ => '${card.rank.value}',
+    };
+    final suit = switch (card.suit.name) {
+      'denari' => s.suitDenari,
+      'coppe' => s.suitCoppe,
+      'spade' => s.suitSpade,
+      _ => s.suitBastoni,
+    };
+    return '$rank di $suit';
+  }
+}
