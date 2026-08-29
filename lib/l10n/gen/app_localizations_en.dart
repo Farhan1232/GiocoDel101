@@ -9,6 +9,21 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get accountGuestLabel => 'Guest';
+
+  @override
+  String get accountGuestUpgradeHint =>
+      'Create an account to keep your progress on every device.';
+
+  @override
+  String accountSignedInAs(String name) {
+    return 'Signed in as $name';
+  }
+
+  @override
+  String get accountSignedOut => 'Not signed in';
+
+  @override
   String get achCatenaBody => 'Take a chain of 2s up to +6';
 
   @override
@@ -101,10 +116,46 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign-in becomes active once the online service is connected.';
 
   @override
+  String authConfirmEmailBody(String email) {
+    return 'We sent a confirmation link to $email. Open it, then sign in.';
+  }
+
+  @override
+  String get authConfirmEmailTitle => 'Check your email';
+
+  @override
   String get authContinueWithApple => 'Continue with Apple';
 
   @override
   String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authErrorEmailTaken =>
+      'An account with this email already exists.';
+
+  @override
+  String get authErrorGuestDisabled =>
+      'Guest access is not enabled on this server.';
+
+  @override
+  String get authErrorInvalidCredentials => 'Email or password is not correct.';
+
+  @override
+  String get authErrorNetwork =>
+      'No connection. Check your network and try again.';
+
+  @override
+  String get authErrorRateLimited =>
+      'Too many attempts. Wait a moment and try again.';
+
+  @override
+  String get authErrorUnknown => 'Something went wrong while signing in.';
+
+  @override
+  String get authErrorWeakPassword => 'Choose a stronger password.';
+
+  @override
+  String get authGuestFailed => 'We couldn\'t start a guest session.';
 
   @override
   String get authGuestHint => 'You can create an account at any time.';
@@ -255,6 +306,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyReward => 'Reward';
 
   @override
+  String dailyRewardBalance(int coins) {
+    return '$coins coins';
+  }
+
+  @override
   String get dailyRewardBody =>
       'Come back every day — the reward grows up to the seventh.';
 
@@ -262,12 +318,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyRewardClaim => 'CLAIM';
 
   @override
+  String get dailyRewardClaimFailed => 'Could not claim the reward. Try again.';
+
+  @override
   String get dailyRewardClaimed => 'Claimed';
+
+  @override
+  String get dailyRewardClaimedToday => 'Claimed today. Come back tomorrow!';
 
   @override
   String dailyRewardDay(int day) {
     return 'Day $day';
   }
+
+  @override
+  String get dailyRewardGuestHint =>
+      'Create an account to claim daily rewards.';
 
   @override
   String get dailyRewardTitle => 'Daily reward';
@@ -352,6 +418,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotCta => 'SEND LINK';
 
   @override
+  String forgotSentBody(String email) {
+    return 'If an account exists for $email, a reset link is on its way.';
+  }
+
+  @override
+  String get forgotSentTitle => 'Email sent';
+
+  @override
   String get forgotTitle => 'Reset your password';
 
   @override
@@ -430,6 +504,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get leaderboardEmpty => 'The leaderboard arrives with online play.';
 
   @override
+  String get leaderboardLoadFailed => 'Could not load the leaderboard.';
+
+  @override
+  String get leaderboardNoScoresYet =>
+      'No scores yet — play online matches to appear here.';
+
+  @override
   String get leaderboardPoints => 'Points';
 
   @override
@@ -474,6 +555,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lobbyStart => 'START MATCH';
 
   @override
+  String get lobbyStartPending =>
+      'Starting online matches arrives in the next update.';
+
+  @override
   String get lobbyTitle => 'Lobby';
 
   @override
@@ -512,6 +597,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String matchmakingFound(int found, int total) {
     return '$found of $total players';
   }
+
+  @override
+  String get matchmakingPending => 'Quick match queues are not open yet.';
 
   @override
   String get matchmakingTitle => 'Searching';
@@ -580,6 +668,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineQuickMatchHint => 'We find you an open table';
 
   @override
+  String get onlineSignInRequired =>
+      'Sign in or play as a guest to use online features.';
+
+  @override
   String get onlineTitle => 'Play online';
 
   @override
@@ -630,6 +722,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileMatches => 'Matches';
+
+  @override
+  String get profileNicknameTaken => 'That nickname is already taken.';
+
+  @override
+  String get profileRating => 'Rating';
+
+  @override
+  String get profileSaveFailed => 'Could not save your profile. Try again.';
 
   @override
   String get profileWinRate => 'Win rate';
@@ -707,6 +808,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resumeMatchHint => 'Pick up where you left off';
 
   @override
+  String get roomCreateFailed => 'Could not open the room. Try again.';
+
+  @override
+  String get roomFull => 'That room is full.';
+
+  @override
+  String get roomJoinFailed => 'Could not join the room. Try again.';
+
+  @override
+  String get roomNotFound => 'No open room has that code.';
+
+  @override
   String get round => 'Round';
 
   @override
@@ -777,6 +890,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLogout => 'Sign out';
+
+  @override
+  String get settingsLogoutBody =>
+      'You will be signed out on this device. Progress saved to your account stays.';
 
   @override
   String get settingsPrivacy => 'Privacy policy';

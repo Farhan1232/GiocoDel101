@@ -1,4 +1,6 @@
 import '../../settings/domain/settings_model.dart';
+import 'level_ladder.dart';
+import 'remote_profile.dart';
 import 'statistics_model.dart';
 
 /// Everything the Profile screen draws, in one value object.
@@ -25,6 +27,8 @@ class ProfileSummary {
     required this.longestChain,
     required this.largestComeback,
     this.isPlaceholderProgression = true,
+    this.rating,
+    this.isGuest = false,
   });
 
   final String nickname;
@@ -50,6 +54,12 @@ class ProfileSummary {
   /// True while level/XP are the local formula rather than server progression.
   final bool isPlaceholderProgression;
 
+  /// Server ranking points; null without a server profile.
+  final int? rating;
+
+  /// True for an anonymous (guest) account.
+  final bool isGuest;
+
   int get matchesLost => (matchesPlayed - matchesWon).clamp(0, matchesPlayed);
 
   int get winPercentage =>
@@ -60,29 +70,21 @@ class ProfileSummary {
 
   /// Every match is worth some experience, a win rather more. Levels get
   /// steadily longer so the bar keeps moving early and slows down later.
-  static const int _xpPerMatch = 20;
-  static const int _xpPerWin = 45;
-  static const int _baseLevelCost = 120;
-  static const int _levelCostStep = 40;
-
+  /// The ladder itself lives in [LevelLadder], shared with the server copy.
   factory ProfileSummary.fromLocal(
     SettingsModel settings,
     StatisticsModel stats,
   ) {
-    var xp = stats.matchesPlayed * _xpPerMatch + stats.matchesWon * _xpPerWin;
-    var level = 1;
-    var cost = _baseLevelCost;
-    while (xp >= cost) {
-      xp -= cost;
-      level++;
-      cost += _levelCostStep;
-    }
+    final position = LevelLadder.resolve(
+      stats.matchesPlayed * LevelLadder.xpPerMatch +
+          stats.matchesWon * LevelLadder.xpPerWin,
+    );
     return ProfileSummary(
       nickname: settings.playerName,
       avatarId: settings.avatarId,
-      level: level,
-      xpIntoLevel: xp,
-      xpForLevel: cost,
+      level: position.level,
+      xpIntoLevel: position.xpIntoLevel,
+      xpForLevel: position.xpForLevel,
       matchesPlayed: stats.matchesPlayed,
       matchesWon: stats.matchesWon,
       roundsWon: stats.roundsWon,
@@ -91,6 +93,37 @@ class ProfileSummary {
       resets101: stats.resets101,
       longestChain: stats.longestChain,
       largestComeback: stats.largestComeback,
+    );
+  }
+
+  /// The server-owned profile. Identity, level/XP, wins, losses, streaks and
+  /// rating come from `profiles`; the "101" counters from `player_stats`,
+  /// falling back to the local counters while the online game does not
+  /// record them yet.
+  factory ProfileSummary.fromRemote(
+    RemoteProfile remote,
+    RemotePlayerStats? remoteStats,
+    StatisticsModel localStats,
+  ) {
+    final position = LevelLadder.resolve(remote.xp);
+    return ProfileSummary(
+      nickname: remote.nickname,
+      avatarId: remote.avatarId,
+      level: remote.level,
+      xpIntoLevel: position.xpIntoLevel,
+      xpForLevel: position.xpForLevel,
+      matchesPlayed: remote.matches,
+      matchesWon: remote.wins,
+      roundsWon: remoteStats?.roundsWon ?? localStats.roundsWon,
+      currentStreak: remote.currentStreak,
+      bestStreak: remote.bestStreak,
+      resets101: remoteStats?.resets101 ?? localStats.resets101,
+      longestChain: remoteStats?.longestChain ?? localStats.longestChain,
+      largestComeback:
+          remoteStats?.largestComeback ?? localStats.largestComeback,
+      isPlaceholderProgression: false,
+      rating: remote.rating,
+      isGuest: remote.isGuest,
     );
   }
 }

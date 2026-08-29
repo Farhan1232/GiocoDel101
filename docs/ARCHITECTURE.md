@@ -131,30 +131,39 @@ place. Screens never hard-code a colour.
 `core/widgets/` takes its copy as arguments — it never reaches for a
 localization bundle, which is what keeps it feature-agnostic.
 
-## Backend: Supabase, not yet present
+## Backend: Supabase (Session 3)
 
-No Supabase client, no networking, no credentials. What exists is the seam:
+Two public compile-time values (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`,
+via `--dart-define-from-file=env/supabase.dev.json`) are all the client
+knows. Without them nothing changes from Session 1: `OnlineStatus` stays
+`notConfigured` and every online surface says so. With them:
 
-`features/online/domain/online_status.dart` holds one constant,
-`OnlineStatus.availability`, hard-coded to `BackendAvailability.notConfigured`.
-Every online surface reads it and states plainly that the service is not
-connected. **An optimistic default here is what would turn a shell into a lie**,
-so it stays a constant until there is something real behind it.
-
-Session 3 replaces that constant with a real check and fills in:
-
-| Seam | Becomes |
+| Seam | Now |
 |---|---|
-| `AuthController.submit()` | a Supabase auth call |
-| `RoomConfig` → lobby | a row in a `rooms` table |
-| `RoomLobbyState` | a realtime subscription |
-| `LeaderboardBoard` | a query (needs the §12b formula first) |
-| `ProfileSummary.fromLocal` | server-owned level/XP |
-| `TableSessionStatus` | live connection + turn clock |
-| `GameSession` state | replaced by server snapshots; actions posted instead of applied locally |
+| `OnlineStatus.availability` | set once at boot from a real `Supabase.initialize` (`ready`), otherwise `notConfigured` — observable, never guessed |
+| `AuthGateway` (`features/auth/domain`) | `SupabaseAuthGateway` — email sign-up/sign-in, anonymous guest, password reset, sign-out; `NoBackendAuthGateway` in tests |
+| `SessionController` | the one owner of "who is signed in"; restored session available before the first frame |
+| `ProfileController` / `ProfileRepository` | `profiles` + `player_stats`; edits limited to nickname/avatar by the database itself |
+| `LeaderboardRepository` | one RPC, `leaderboard(scope, limit)` |
+| `DailyRewardRepository` | `my_daily_reward_status()` / `claim_daily_reward()` — the server picks day and amount |
+| `RoomsRepository` | `create_room` / `join_room` / `leave_room` / `set_ready` / `room_heartbeat`; the lobby polls seats every 3 s (realtime is Session 4) |
+| `BootRouter` (`features/splash/domain`) | pure decision: onboarding → account choice → home |
 
-None of those requires a widget change. The engine's conformance fixtures
-(`test/fixtures/game_conformance/`) are the acceptance test for the server.
+`app/bindings/backend_services.dart` builds either the Supabase set or the
+no-backend set once; `InitialBinding` registers it. Nothing in
+`presentation/` imports `supabase_flutter`.
+
+**Hidden information is enforced by the database, not the UI.** The full
+`GameState` (seed, deck order, hands) lives in `app_private`; clients can only
+select a redacted public state and their own `match_private_state` row. XP,
+level, wins, rating and achievements are written only by `app_private.*`
+functions. See `docs/SUPABASE_SECURITY.md` and `docs/DATABASE_SCHEMA.md`.
+
+Still to come (Session 4): the authoritative match function that runs
+`GameEngine.applyAction` server-side and calls
+`app_private.publish_match_state`; realtime subscriptions for lobby and
+table; matchmaking. The engine's conformance fixtures
+(`test/fixtures/game_conformance/`) remain its acceptance test.
 
 ## Testing
 

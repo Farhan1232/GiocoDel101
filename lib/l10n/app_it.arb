@@ -1,8 +1,29 @@
 {
   "@@locale": "it",
+  "@accountSignedInAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@authConfirmEmailBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "@createRoomTimerSeconds": {
     "placeholders": {
       "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@dailyRewardBalance": {
+    "placeholders": {
+      "coins": {
         "type": "int"
       }
     }
@@ -11,6 +32,13 @@
     "placeholders": {
       "day": {
         "type": "int"
+      }
+    }
+  },
+  "@forgotSentBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
       }
     }
   },
@@ -62,6 +90,10 @@
       }
     }
   },
+  "accountGuestLabel": "Ospite",
+  "accountGuestUpgradeHint": "Crea un account per conservare i progressi su tutti i dispositivi.",
+  "accountSignedInAs": "Accesso come {name}",
+  "accountSignedOut": "Non hai effettuato l’accesso",
   "achCatenaBody": "Porta una catena di 2 fino a +6",
   "achCatenaTitle": "Catena!",
   "achCentounoBody": "Arriva a 101 esatti e torna a zero",
@@ -92,8 +124,18 @@
   "appName": "Gioco del 101",
   "appTagline": "Il classico napoletano, rivisitato",
   "authBackendPending": "L’accesso sarà attivo quando il servizio online sarà collegato.",
+  "authConfirmEmailBody": "Abbiamo inviato un link di conferma a {email}. Aprilo, poi accedi.",
+  "authConfirmEmailTitle": "Controlla la tua email",
   "authContinueWithApple": "Continua con Apple",
   "authContinueWithGoogle": "Continua con Google",
+  "authErrorEmailTaken": "Esiste già un account con questa email.",
+  "authErrorGuestDisabled": "L’accesso ospite non è attivo su questo server.",
+  "authErrorInvalidCredentials": "Email o password non corretti.",
+  "authErrorNetwork": "Nessuna connessione. Controlla la rete e riprova.",
+  "authErrorRateLimited": "Troppi tentativi. Attendi un momento e riprova.",
+  "authErrorUnknown": "Qualcosa è andato storto durante l’accesso.",
+  "authErrorWeakPassword": "Scegli una password più sicura.",
+  "authGuestFailed": "Impossibile avviare la sessione ospite.",
   "authGuestHint": "Puoi creare un account in qualsiasi momento.",
   "authPlayAsGuest": "GIOCA COME OSPITE",
   "authRegister": "Registrati",
@@ -142,10 +184,14 @@
   "dailyChallengeDone": "Sfida completata",
   "dailyCompleted": "Completata oggi",
   "dailyReward": "Ricompensa",
+  "dailyRewardBalance": "{coins} monete",
   "dailyRewardBody": "Torna ogni giorno: la ricompensa cresce fino al settimo.",
   "dailyRewardClaim": "RITIRA",
+  "dailyRewardClaimFailed": "Impossibile riscuotere il premio. Riprova.",
   "dailyRewardClaimed": "Ritirata",
+  "dailyRewardClaimedToday": "Riscosso oggi. Torna domani!",
   "dailyRewardDay": "Giorno {day}",
+  "dailyRewardGuestHint": "Crea un account per riscuotere i premi giornalieri.",
   "dailyRewardTitle": "Ricompensa giornaliera",
   "dailyRewardTomorrow": "Torna domani",
   "dailyStartHint": "Una configurazione diversa ogni giorno.",
@@ -173,6 +219,8 @@
   "forgotBackToLogin": "Torna all’accesso",
   "forgotBody": "Inserisci la tua email: ti invieremo un link per reimpostare la password.",
   "forgotCta": "INVIA IL LINK",
+  "forgotSentBody": "Se esiste un account per {email}, il link per reimpostare la password è in arrivo.",
+  "forgotSentTitle": "Email inviata",
   "forgotTitle": "Recupera la password",
   "gotIt": "Ho capito",
   "haptics": "Vibrazione",
@@ -199,6 +247,8 @@
   "lastCard": "ULTIMA CARTA",
   "leaderboardAllTime": "Di sempre",
   "leaderboardEmpty": "La classifica sarà disponibile con il gioco online.",
+  "leaderboardLoadFailed": "Impossibile caricare la classifica.",
+  "leaderboardNoScoresYet": "Ancora nessun punteggio: gioca partite online per comparire qui.",
   "leaderboardPoints": "Punti",
   "leaderboardRank": "Pos.",
   "leaderboardTitle": "Classifica",
@@ -213,6 +263,7 @@
   "lobbyRoomCode": "Codice stanza",
   "lobbyShare": "Condividi il codice",
   "lobbyStart": "INIZIA LA PARTITA",
+  "lobbyStartPending": "L’avvio delle partite online arriva con il prossimo aggiornamento.",
   "lobbyTitle": "Sala d’attesa",
   "locked": "Da sbloccare",
   "loginCta": "ACCEDI",
@@ -225,6 +276,7 @@
   "matchmakingCancel": "Annulla la ricerca",
   "matchmakingElapsed": "Tempo di attesa {seconds}s",
   "matchmakingFound": "{found} di {total} giocatori",
+  "matchmakingPending": "Le code per la partita rapida non sono ancora aperte.",
   "matchmakingTitle": "Ricerca in corso",
   "mode": "Modalità",
   "modePassAndPlay": "Passa & Gioca",
@@ -246,6 +298,7 @@
   "onlineCreateRoomHint": "Invita gli amici con un codice",
   "onlineJoinRoomHint": "Hai un codice? Entra subito",
   "onlineQuickMatchHint": "Ti troviamo un tavolo libero",
+  "onlineSignInRequired": "Accedi o gioca come ospite per usare le funzioni online.",
   "onlineTitle": "Gioca online",
   "passPhoneHint": "Le carte restano coperte fino al tuo tocco",
   "passPhoneTo": "PASSA IL TELEFONO A {name}",
@@ -262,6 +315,9 @@
   "profileLevelValue": "Livello {level}",
   "profileLosses": "Sconfitte",
   "profileMatches": "Partite",
+  "profileNicknameTaken": "Questo nickname è già in uso.",
+  "profileRating": "Punteggio",
+  "profileSaveFailed": "Impossibile salvare il profilo. Riprova.",
   "profileWinRate": "Vittorie %",
   "profileWins": "Vittorie",
   "profileXp": "Esperienza",
@@ -286,6 +342,10 @@
   "resetStatisticsBody": "Tutti i progressi locali verranno cancellati. Vuoi continuare?",
   "resumeMatch": "Riprendi Partita",
   "resumeMatchHint": "Continua da dove eri rimasto",
+  "roomCreateFailed": "Impossibile aprire la stanza. Riprova.",
+  "roomFull": "La stanza è piena.",
+  "roomJoinFailed": "Impossibile entrare nella stanza. Riprova.",
+  "roomNotFound": "Nessuna stanza aperta con questo codice.",
   "round": "Round",
   "roundComplete": "ROUND COMPLETATO",
   "roundWinner": "Vince il round",
@@ -310,6 +370,7 @@
   "settingsLanguageItalian": "Italiano",
   "settingsLinkPending": "Il link sarà disponibile alla pubblicazione.",
   "settingsLogout": "Esci dall’account",
+  "settingsLogoutBody": "Uscirai dall’account su questo dispositivo. I progressi salvati sull’account restano.",
   "settingsPrivacy": "Informativa sulla privacy",
   "settingsTerms": "Termini di servizio",
   "showPassword": "Mostra la password",

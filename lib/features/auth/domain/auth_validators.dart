@@ -26,4 +26,4 @@ class AuthValidators {
 }
 
 /// What the auth form is doing right now.
-enum AuthFormStatus { idle, submitting, unavailable }
+enum AuthFormStatus { idle, submitting, unavailable, failed, succeeded }

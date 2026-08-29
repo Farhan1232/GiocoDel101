@@ -9,10 +9,11 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../application/auth_controller.dart';
+import '../application/session_controller.dart';
 import '../domain/auth_validators.dart';
 import 'auth_form_scaffold.dart';
 
-/// §D — email and password, validated locally.
+/// §D — email and password, validated locally, authenticated by Supabase.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -24,7 +25,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  late final AuthController _auth = Get.put(AuthController(), tag: 'login');
+  late final AuthController _auth = Get.put(
+    AuthController(Get.find<SessionController>()),
+    tag: 'login',
+  );
 
   @override
   void dispose() {
@@ -122,5 +126,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _submit() => AuthFormScaffold.submit(formKey: _formKey, auth: _auth);
+  void _submit() => AuthFormScaffold.submit(
+    formKey: _formKey,
+    auth: _auth,
+    action: () =>
+        _auth.session.signIn(email: _email.text, password: _password.text),
+    onSuccess: (_) async => Get.offAllNamed<void>(AppRoutes.home),
+  );
 }

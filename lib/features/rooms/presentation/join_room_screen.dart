@@ -10,7 +10,12 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
+import '../../../app/bindings/backend_services.dart';
+import '../../../core/widgets/app_dialog.dart';
+import '../../auth/application/session_controller.dart';
+import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
+import '../domain/remote_room.dart';
 import '../domain/room_models.dart';
 
 /// §J — six characters, pasteable, validated.
@@ -24,6 +29,10 @@ class JoinRoomScreen extends StatefulWidget {
 class _JoinRoomScreenState extends State<JoinRoomScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _code = TextEditingController();
+  bool _joining = false;
+
+  bool get _canJoinOnline =>
+      OnlineStatus.isConfigured && Get.find<SessionController>().isSignedIn;
 
   String get _value => RoomCode.normalise(_code.text);
 
@@ -102,11 +111,12 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                 accent: accent,
                 // Disabled until the code is well formed — no request is even
                 // attempted with an obviously wrong code.
+                loading: _joining,
                 onPressed: RoomCode.isValid(_value) ? _join : null,
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                s.authBackendPending,
+                _canJoinOnline ? s.lobbyStartPending : s.authBackendPending,
                 style: AppText.caption.copyWith(color: AppColors.textMuted),
                 textAlign: TextAlign.center,
               ),
@@ -118,9 +128,32 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
     );
   }
 
-  void _join() {
+  Future<void> _join() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    Get.toNamed<void>(AppRoutes.roomLobby, arguments: _value);
+    if (_joining) return;
+    if (!_canJoinOnline) {
+      await Get.toNamed<void>(AppRoutes.roomLobby, arguments: _value);
+      return;
+    }
+    setState(() => _joining = true);
+    try {
+      final room = await Get.find<BackendServices>().rooms.join(_value);
+      if (!mounted) return;
+      await Get.toNamed<void>(AppRoutes.roomLobby, arguments: room);
+    } on RoomException catch (error) {
+      final s = Strings.s;
+      await AppDialog.notice(
+        title: s.commonErrorTitle,
+        body: switch (error.error) {
+          RoomError.notFound || RoomError.invalidCode => s.roomNotFound,
+          RoomError.full => s.roomFull,
+          _ => s.roomJoinFailed,
+        },
+        dismissLabel: s.gotIt,
+      );
+    } finally {
+      if (mounted) setState(() => _joining = false);
+    }
   }
 }
 

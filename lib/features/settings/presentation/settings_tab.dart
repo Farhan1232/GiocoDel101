@@ -21,7 +21,9 @@ import '../../../core/widgets/segmented_control.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/premium_button.dart';
+import '../../auth/application/session_controller.dart';
 import '../../online/domain/online_status.dart';
+import '../../profile/application/profile_controller.dart';
 
 /// §39 — the settings half.
 class SettingsTab extends StatefulWidget {
@@ -389,9 +391,11 @@ class _SettingsTabState extends State<SettingsTab> {
     );
   }
 
-  /// §U — where the account rows will live. The legal links always show; the
-  /// sign-out row only appears once there is a session to end, which is never
-  /// in Session 1.
+  /// §U — the account rows.
+  ///
+  /// Shows who is signed in (email, or "Guest" for an anonymous session),
+  /// offers sign-in when a backend exists and nobody is, and sign-out when a
+  /// real session exists. The legal links always show.
   Widget _accountPanel(AppLocalizations s, Color accent) {
     void pending(String title) => AppDialog.notice(
       title: title,
@@ -399,10 +403,47 @@ class _SettingsTabState extends State<SettingsTab> {
       dismissLabel: s.gotIt,
     );
 
+    final session = Get.find<SessionController>();
+    final profile = Get.find<ProfileController>();
+
     return AppPanel(
       child: Column(
         children: [
           SectionHeading(s.settingsAccount),
+          if (OnlineStatus.isConfigured)
+            Obx(() {
+              final current = session.session.value;
+              final nickname = profile.profile.value?.nickname;
+              final String line;
+              if (current == null) {
+                line = s.accountSignedOut;
+              } else if (current.isGuest) {
+                line = s.accountSignedInAs(nickname ?? s.accountGuestLabel);
+              } else {
+                line = s.accountSignedInAs(current.email ?? nickname ?? '');
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(line, style: AppText.bodySmall),
+                    if (current?.isGuest ?? false) ...[
+                      const SizedBox(height: AppSpacing.xxs),
+                      Text(
+                        s.accountGuestUpgradeHint,
+                        style: AppText.caption.copyWith(
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            }),
           SettingRow(
             title: s.profile,
             icon: AppIcon.players,
@@ -435,15 +476,40 @@ class _SettingsTabState extends State<SettingsTab> {
           ),
           if (OnlineStatus.isConfigured) ...[
             const SizedBox(height: AppSpacing.md),
-            PremiumButton(
-              label: s.settingsLogout,
-              variant: ButtonVariant.danger,
-              size: ButtonSize.small,
-              onPressed: null,
-            ),
+            Obx(() {
+              final current = session.session.value;
+              if (current == null || current.isGuest) {
+                return PremiumButton(
+                  label: current == null ? s.authSignIn : s.authRegister,
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.small,
+                  onPressed: () => Get.toNamed<void>(AppRoutes.authLanding),
+                );
+              }
+              return PremiumButton(
+                label: s.settingsLogout,
+                variant: ButtonVariant.danger,
+                size: ButtonSize.small,
+                onPressed: () => _signOut(session),
+              );
+            }),
           ],
         ],
       ),
     );
+  }
+
+  Future<void> _signOut(SessionController session) async {
+    final s = Strings.s;
+    final ok = await AppDialog.confirm(
+      title: s.settingsLogout,
+      body: s.settingsLogoutBody,
+      confirmLabel: s.settingsLogout,
+      cancelLabel: s.cancel,
+      destructive: true,
+    );
+    if (!ok) return;
+    await session.signOut();
+    await Get.offAllNamed<void>(AppRoutes.authLanding);
   }
 }

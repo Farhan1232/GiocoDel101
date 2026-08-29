@@ -13,8 +13,11 @@ import '../../../core/widgets/cards/playing_card.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../game/domain/card_rank.dart';
 import '../../game/domain/card_suit.dart';
+import '../../auth/application/session_controller.dart';
 import '../../game/domain/game_card.dart';
+import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
+import '../../splash/domain/boot_router.dart';
 
 /// First run — three pages, then never again (§B).
 ///
@@ -45,7 +48,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _finish() async {
     await _settings.completeOnboarding();
-    await Get.offAllNamed<void>(AppRoutes.home);
+    // Same decision the splash makes: a configured backend with nobody
+    // signed in goes to the account choice, everything else to Home.
+    final session = Get.isRegistered<SessionController>()
+        ? Get.find<SessionController>().current
+        : null;
+    final destination = BootRouter.resolve(
+      onboardingComplete: true,
+      availability: OnlineStatus.availability,
+      session: session,
+    );
+    await Get.offAllNamed<void>(switch (destination) {
+      BootDestination.authLanding => AppRoutes.authLanding,
+      BootDestination.onboarding || BootDestination.home => AppRoutes.home,
+    });
   }
 
   void _next() {

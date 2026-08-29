@@ -14,10 +14,15 @@ import '../../../core/widgets/screen_scaffold.dart';
 import '../../../core/widgets/stat_card.dart';
 import '../../../core/widgets/xp_bar.dart';
 import '../../settings/application/settings_controller.dart';
+import '../application/profile_controller.dart';
 import '../application/stats_controller.dart';
 import '../domain/profile_summary.dart';
 
 /// §P — who the player is, drawn entirely from a [ProfileSummary].
+///
+/// With a signed-in session and a loaded server row the summary comes from
+/// `profiles` / `player_stats`; otherwise it is the local placeholder, and
+/// the level bar says so.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -26,15 +31,20 @@ class ProfileScreen extends StatelessWidget {
     final s = Strings.s;
     final settings = Get.find<SettingsController>();
     final stats = Get.find<StatsController>();
+    final remote = Get.find<ProfileController>();
 
     return ScreenScaffold(
       title: s.profile,
       child: Obx(() {
         final accent = settings.theme.accent;
-        final profile = ProfileSummary.fromLocal(
-          settings.settings,
-          stats.stats,
-        );
+        final server = remote.profile.value;
+        final profile = server == null
+            ? ProfileSummary.fromLocal(settings.settings, stats.stats)
+            : ProfileSummary.fromRemote(
+                server,
+                remote.stats.value,
+                stats.stats,
+              );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -71,6 +81,15 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       s.commonComingSoon,
+                      style: AppText.caption.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ] else if (profile.isGuest) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      s.accountGuestUpgradeHint,
+                      textAlign: TextAlign.center,
                       style: AppText.caption.copyWith(
                         color: AppColors.textMuted,
                       ),
@@ -116,6 +135,13 @@ class ProfileScreen extends StatelessWidget {
                   value: '${profile.currentStreak}',
                   icon: AppIcon.restart,
                 ),
+                if (profile.rating != null)
+                  StatCard(
+                    label: s.profileRating,
+                    value: '${profile.rating}',
+                    icon: AppIcon.trophy,
+                    accent: accent,
+                  ),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),

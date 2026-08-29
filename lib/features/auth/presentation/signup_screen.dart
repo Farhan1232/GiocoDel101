@@ -6,13 +6,20 @@ import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/premium_button.dart';
+import '../../settings/application/settings_controller.dart';
 import '../application/auth_controller.dart';
+import '../application/session_controller.dart';
 import '../domain/auth_validators.dart';
 import 'auth_form_scaffold.dart';
 
 /// §E — nickname, email and a confirmed password.
+///
+/// The nickname and the locally chosen avatar travel with the sign-up as user
+/// metadata; the database trigger that creates the profile validates both
+/// again and resolves nickname collisions server-side.
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -26,7 +33,10 @@ class _SignupScreenState extends State<SignupScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
-  late final AuthController _auth = Get.put(AuthController(), tag: 'signup');
+  late final AuthController _auth = Get.put(
+    AuthController(Get.find<SessionController>()),
+    tag: 'signup',
+  );
 
   @override
   void dispose() {
@@ -145,5 +155,32 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  void _submit() => AuthFormScaffold.submit(formKey: _formKey, auth: _auth);
+  void _submit() {
+    final settings = Get.find<SettingsController>();
+    AuthFormScaffold.submit(
+      formKey: _formKey,
+      auth: _auth,
+      action: () => _auth.session.signUp(
+        email: _email.text,
+        password: _password.text,
+        nickname: _nickname.text,
+        avatarId: settings.settings.avatarId,
+      ),
+      onSuccess: (_) async {
+        // The server owns the nickname now; keep the local copy in step.
+        await settings.setPlayerName(_nickname.text);
+        await Get.offAllNamed<void>(AppRoutes.home);
+      },
+      onConfirmation: (outcome) async {
+        final s = Strings.s;
+        await AppDialog.notice(
+          title: s.authConfirmEmailTitle,
+          body: s.authConfirmEmailBody(outcome.email),
+          dismissLabel: s.gotIt,
+        );
+        await settings.setPlayerName(_nickname.text);
+        await Get.offNamed<void>(AppRoutes.login);
+      },
+    );
+  }
 }

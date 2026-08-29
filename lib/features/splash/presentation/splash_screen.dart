@@ -6,7 +6,10 @@ import 'package:get/get.dart';
 
 import '../../../app/router/app_router.dart';
 import '../../../core/utils/motion.dart';
+import '../../auth/application/session_controller.dart';
+import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
+import '../domain/boot_router.dart';
 import '../../game/domain/card_suit.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../app/theme/app_colors.dart';
@@ -21,6 +24,11 @@ import '../../../core/widgets/logo_101.dart';
 /// A card rises from the bottom, the four suits settle into orbit, and gold
 /// light crosses the 101. It runs about 1.7s and never stalls: if the app is
 /// ready sooner the route change simply happens at the end of the beat.
+///
+/// Where it goes is decided once, by [BootRouter], from state that is already
+/// final when this screen builds: onboarding done or not, whether a backend
+/// is configured, and the session Supabase restored before the first frame.
+/// So there is exactly one navigation and no intermediate route.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -44,11 +52,7 @@ class _SplashScreenState extends State<SplashScreen>
     _c.forward();
     _c.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
-        // First run goes through onboarding; everyone else straight to Home.
-        final settings = Get.find<SettingsController>();
-        Get.offNamed<void>(
-          settings.onboardingComplete ? AppRoutes.home : AppRoutes.onboarding,
-        );
+        Get.offNamed<void>(_destination());
       }
     });
     // A single soft riffle as the logo lands. Held so it can be cancelled if
@@ -59,6 +63,22 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Timer? _riffle;
+
+  static String _destination() {
+    final settings = Get.find<SettingsController>();
+    final session = Get.isRegistered<SessionController>()
+        ? Get.find<SessionController>().current
+        : null;
+    return switch (BootRouter.resolve(
+      onboardingComplete: settings.onboardingComplete,
+      availability: OnlineStatus.availability,
+      session: session,
+    )) {
+      BootDestination.onboarding => AppRoutes.onboarding,
+      BootDestination.authLanding => AppRoutes.authLanding,
+      BootDestination.home => AppRoutes.home,
+    };
+  }
 
   @override
   void dispose() {

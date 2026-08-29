@@ -9,6 +9,21 @@ class AppLocalizationsIt extends AppLocalizations {
   AppLocalizationsIt([String locale = 'it']) : super(locale);
 
   @override
+  String get accountGuestLabel => 'Ospite';
+
+  @override
+  String get accountGuestUpgradeHint =>
+      'Crea un account per conservare i progressi su tutti i dispositivi.';
+
+  @override
+  String accountSignedInAs(String name) {
+    return 'Accesso come $name';
+  }
+
+  @override
+  String get accountSignedOut => 'Non hai effettuato l’accesso';
+
+  @override
   String get achCatenaBody => 'Porta una catena di 2 fino a +6';
 
   @override
@@ -102,10 +117,45 @@ class AppLocalizationsIt extends AppLocalizations {
       'L’accesso sarà attivo quando il servizio online sarà collegato.';
 
   @override
+  String authConfirmEmailBody(String email) {
+    return 'Abbiamo inviato un link di conferma a $email. Aprilo, poi accedi.';
+  }
+
+  @override
+  String get authConfirmEmailTitle => 'Controlla la tua email';
+
+  @override
   String get authContinueWithApple => 'Continua con Apple';
 
   @override
   String get authContinueWithGoogle => 'Continua con Google';
+
+  @override
+  String get authErrorEmailTaken => 'Esiste già un account con questa email.';
+
+  @override
+  String get authErrorGuestDisabled =>
+      'L’accesso ospite non è attivo su questo server.';
+
+  @override
+  String get authErrorInvalidCredentials => 'Email o password non corretti.';
+
+  @override
+  String get authErrorNetwork =>
+      'Nessuna connessione. Controlla la rete e riprova.';
+
+  @override
+  String get authErrorRateLimited =>
+      'Troppi tentativi. Attendi un momento e riprova.';
+
+  @override
+  String get authErrorUnknown => 'Qualcosa è andato storto durante l’accesso.';
+
+  @override
+  String get authErrorWeakPassword => 'Scegli una password più sicura.';
+
+  @override
+  String get authGuestFailed => 'Impossibile avviare la sessione ospite.';
 
   @override
   String get authGuestHint => 'Puoi creare un account in qualsiasi momento.';
@@ -258,6 +308,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dailyReward => 'Ricompensa';
 
   @override
+  String dailyRewardBalance(int coins) {
+    return '$coins monete';
+  }
+
+  @override
   String get dailyRewardBody =>
       'Torna ogni giorno: la ricompensa cresce fino al settimo.';
 
@@ -265,12 +320,23 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dailyRewardClaim => 'RITIRA';
 
   @override
+  String get dailyRewardClaimFailed =>
+      'Impossibile riscuotere il premio. Riprova.';
+
+  @override
   String get dailyRewardClaimed => 'Ritirata';
+
+  @override
+  String get dailyRewardClaimedToday => 'Riscosso oggi. Torna domani!';
 
   @override
   String dailyRewardDay(int day) {
     return 'Giorno $day';
   }
+
+  @override
+  String get dailyRewardGuestHint =>
+      'Crea un account per riscuotere i premi giornalieri.';
 
   @override
   String get dailyRewardTitle => 'Ricompensa giornaliera';
@@ -355,6 +421,14 @@ class AppLocalizationsIt extends AppLocalizations {
   String get forgotCta => 'INVIA IL LINK';
 
   @override
+  String forgotSentBody(String email) {
+    return 'Se esiste un account per $email, il link per reimpostare la password è in arrivo.';
+  }
+
+  @override
+  String get forgotSentTitle => 'Email inviata';
+
+  @override
   String get forgotTitle => 'Recupera la password';
 
   @override
@@ -435,6 +509,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'La classifica sarà disponibile con il gioco online.';
 
   @override
+  String get leaderboardLoadFailed => 'Impossibile caricare la classifica.';
+
+  @override
+  String get leaderboardNoScoresYet =>
+      'Ancora nessun punteggio: gioca partite online per comparire qui.';
+
+  @override
   String get leaderboardPoints => 'Punti';
 
   @override
@@ -479,6 +560,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get lobbyStart => 'INIZIA LA PARTITA';
 
   @override
+  String get lobbyStartPending =>
+      'L’avvio delle partite online arriva con il prossimo aggiornamento.';
+
+  @override
   String get lobbyTitle => 'Sala d’attesa';
 
   @override
@@ -517,6 +602,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String matchmakingFound(int found, int total) {
     return '$found di $total giocatori';
   }
+
+  @override
+  String get matchmakingPending =>
+      'Le code per la partita rapida non sono ancora aperte.';
 
   @override
   String get matchmakingTitle => 'Ricerca in corso';
@@ -585,6 +674,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get onlineQuickMatchHint => 'Ti troviamo un tavolo libero';
 
   @override
+  String get onlineSignInRequired =>
+      'Accedi o gioca come ospite per usare le funzioni online.';
+
+  @override
   String get onlineTitle => 'Gioca online';
 
   @override
@@ -635,6 +728,15 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get profileMatches => 'Partite';
+
+  @override
+  String get profileNicknameTaken => 'Questo nickname è già in uso.';
+
+  @override
+  String get profileRating => 'Punteggio';
+
+  @override
+  String get profileSaveFailed => 'Impossibile salvare il profilo. Riprova.';
 
   @override
   String get profileWinRate => 'Vittorie %';
@@ -712,6 +814,18 @@ class AppLocalizationsIt extends AppLocalizations {
   String get resumeMatchHint => 'Continua da dove eri rimasto';
 
   @override
+  String get roomCreateFailed => 'Impossibile aprire la stanza. Riprova.';
+
+  @override
+  String get roomFull => 'La stanza è piena.';
+
+  @override
+  String get roomJoinFailed => 'Impossibile entrare nella stanza. Riprova.';
+
+  @override
+  String get roomNotFound => 'Nessuna stanza aperta con questo codice.';
+
+  @override
   String get round => 'Round';
 
   @override
@@ -783,6 +897,10 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get settingsLogout => 'Esci dall’account';
+
+  @override
+  String get settingsLogoutBody =>
+      'Uscirai dall’account su questo dispositivo. I progressi salvati sull’account restano.';
 
   @override
   String get settingsPrivacy => 'Informativa sulla privacy';

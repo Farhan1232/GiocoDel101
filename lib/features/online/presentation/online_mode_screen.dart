@@ -10,6 +10,8 @@ import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_panel.dart';
 import '../../../core/widgets/network_banner.dart';
 import '../../../core/widgets/screen_scaffold.dart';
+import '../../../core/widgets/premium_button.dart';
+import '../../auth/application/session_controller.dart';
 import '../../settings/application/settings_controller.dart';
 import '../domain/online_status.dart';
 
@@ -21,6 +23,7 @@ class OnlineModeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = Strings.s;
     final settings = Get.find<SettingsController>();
+    final session = Get.find<SessionController>();
 
     return ScreenScaffold(
       title: s.onlineTitle,
@@ -66,7 +69,21 @@ class OnlineModeScreen extends StatelessWidget {
                 s.authBackendPending,
                 style: AppText.caption,
                 textAlign: TextAlign.center,
+              )
+            else if (!session.isSignedIn) ...[
+              Text(
+                s.onlineSignInRequired,
+                style: AppText.caption,
+                textAlign: TextAlign.center,
               ),
+              const SizedBox(height: AppSpacing.md),
+              PremiumButton(
+                label: s.authSignIn,
+                variant: ButtonVariant.secondary,
+                size: ButtonSize.medium,
+                onPressed: () => Get.toNamed<void>(AppRoutes.authLanding),
+              ),
+            ],
             const SizedBox(height: AppSpacing.xl),
           ],
         );

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../app/bindings/backend_services.dart';
 import '../../../app/localization/app_strings.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
@@ -13,15 +16,22 @@ import '../../../core/widgets/network_banner.dart';
 import '../../../core/widgets/player_slot.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
+import '../../auth/application/session_controller.dart';
 import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
+import '../domain/remote_room.dart';
 import '../domain/room_models.dart';
 
 /// §K — the waiting room.
 ///
-/// Renders entirely from a [RoomLobbyState]. Session 3 will feed it a live
-/// state from the backend; today it builds one locally with only the host
-/// seated, and no seat is ever shown as filled by an invented player.
+/// Renders entirely from a [RoomLobbyState]. Given a [RemoteRoom] (created or
+/// joined through the backend) it shows the real code and the real seats,
+/// refreshed every few seconds with a presence heartbeat, and leaving really
+/// leaves. Given only a [RoomConfig] or a code it builds the local pending
+/// state with the host seated and says the service is not connected. No
+/// seat is ever shown as filled by an invented player, and Start stays
+/// disabled: dealing the first hand is the authoritative match function of
+/// the next session.
 class RoomLobbyScreen extends StatefulWidget {
   const RoomLobbyScreen({super.key});
 
@@ -31,19 +41,94 @@ class RoomLobbyScreen extends StatefulWidget {
 
 class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
   late final SettingsController _settings = Get.find<SettingsController>();
-  late final RoomLobbyState _state = _initialState();
 
-  RoomLobbyState _initialState() {
+  RemoteRoom? _room;
+  late RoomLobbyState _state;
+  Timer? _refresh;
+  bool _leaving = false;
+
+  @override
+  void initState() {
+    super.initState();
     final args = Get.arguments;
-    // Arrived from Create Room with a config, or from Join Room with a code.
-    final config = args is RoomConfig ? args : const RoomConfig();
-    final code = args is String ? args : '';
-    return RoomLobbyState.pending(
-      config: config,
-      hostNickname: _settings.settings.playerName,
-      hostAvatarId: _settings.settings.avatarId,
-      code: code,
+    if (args is RemoteRoom) {
+      _room = args;
+      _state = _fromRemote(args);
+      _refresh = Timer.periodic(const Duration(seconds: 3), (_) => _poll());
+    } else {
+      // Arrived from Create Room with a config, or from Join Room with a code.
+      final config = args is RoomConfig ? args : const RoomConfig();
+      final code = args is String ? args : '';
+      _state = RoomLobbyState.pending(
+        config: config,
+        hostNickname: _settings.settings.playerName,
+        hostAvatarId: _settings.settings.avatarId,
+        code: code,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _refresh?.cancel();
+    super.dispose();
+  }
+
+  bool get _isLive => _room != null;
+
+  RoomLobbyState _fromRemote(RemoteRoom room) {
+    final self = Get.find<SessionController>().current?.userId;
+    final bySeat = {for (final s in room.seats) s.seat: s};
+    return RoomLobbyState(
+      code: room.code,
+      config: RoomConfig(
+        name: room.name,
+        playerCount: room.maxPlayers,
+        isPrivate: room.isPrivate,
+        turnTimer: TurnTimer.values.firstWhere(
+          (t) => t.seconds == room.turnTimerSeconds,
+          orElse: () => TurnTimer.thirty,
+        ),
+      ),
+      selfIsHost: room.hostId == self,
+      seats: [
+        for (var i = 0; i < room.maxPlayers; i++)
+          if (bySeat[i] case final seat?)
+            RoomSeat(
+              index: i,
+              nickname: seat.nickname,
+              avatarId: seat.avatarId,
+              isHost: seat.isHost,
+              isReady: seat.isReady,
+              isSelf: seat.userId == self,
+            )
+          else
+            RoomSeat(index: i),
+      ],
     );
+  }
+
+  Future<void> _poll() async {
+    final room = _room;
+    if (room == null || _leaving) return;
+    final rooms = Get.find<BackendServices>().rooms;
+    unawaited(rooms.heartbeat(room.id));
+    try {
+      final next = await rooms.load(room.id);
+      if (!mounted || _leaving) return;
+      if (next == null || !next.isOpen) {
+        // Cancelled or started elsewhere: nothing to wait in any more.
+        _refresh?.cancel();
+        Get.back<void>();
+        return;
+      }
+      setState(() {
+        _room = next;
+        _state = _fromRemote(next);
+      });
+    } on RoomException {
+      // A failed refresh keeps the last known seats; the next tick retries.
+    }
   }
 
   Future<void> _leave() async {
@@ -55,7 +140,18 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
       cancelLabel: s.cancel,
       destructive: true,
     );
-    if (ok) Get.back<void>();
+    if (!ok) return;
+    final room = _room;
+    if (room != null) {
+      _leaving = true;
+      _refresh?.cancel();
+      try {
+        await Get.find<BackendServices>().rooms.leave(room.id);
+      } on RoomException {
+        // Leaving is best effort; a stale seat expires server-side.
+      }
+    }
+    Get.back<void>();
   }
 
   Future<void> _share() async {
@@ -125,13 +221,13 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
               PremiumButton(
                 label: s.lobbyStart,
                 accent: accent,
-                // The host cannot start a match that has no other players and
-                // no service to run it.
+                // Dealing the first hand is the authoritative match function
+                // (Session 4); until it exists the host cannot start.
                 onPressed: null,
               ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              s.authBackendPending,
+              _isLive ? s.lobbyStartPending : s.authBackendPending,
               style: AppText.caption.copyWith(color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),

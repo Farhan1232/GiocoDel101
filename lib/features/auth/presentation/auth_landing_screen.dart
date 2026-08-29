@@ -10,14 +10,53 @@ import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/logo_101.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
+import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
+import '../application/session_controller.dart';
+import '../domain/auth_session.dart';
+import 'auth_error_copy.dart';
 
 /// §C — the choice between playing now and having an account.
 ///
+/// "Play as guest" creates a real anonymous Supabase user when a backend is
+/// configured. If that fails the player is told why and still reaches the
+/// offline game — signed out, with every online surface saying so.
+///
 /// The social buttons are drawn but explicitly inert: tapping one says so
 /// rather than starting a flow that cannot finish.
-class AuthLandingScreen extends StatelessWidget {
+class AuthLandingScreen extends StatefulWidget {
   const AuthLandingScreen({super.key});
+
+  @override
+  State<AuthLandingScreen> createState() => _AuthLandingScreenState();
+}
+
+class _AuthLandingScreenState extends State<AuthLandingScreen> {
+  bool _busy = false;
+
+  Future<void> _playAsGuest() async {
+    if (_busy) return;
+    if (!OnlineStatus.isConfigured) {
+      await Get.offAllNamed<void>(AppRoutes.home);
+      return;
+    }
+    setState(() => _busy = true);
+    final session = Get.find<SessionController>();
+    final outcome = session.isSignedIn
+        ? AuthSuccess(session.current!)
+        : await session.signInAsGuest();
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (outcome is AuthFailed) {
+      final s = Strings.s;
+      await AppDialog.notice(
+        title: s.authGuestFailed,
+        body: s.authError(outcome.code),
+        dismissLabel: s.gotIt,
+      );
+    }
+    await Get.offAllNamed<void>(AppRoutes.home);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +88,8 @@ class AuthLandingScreen extends StatelessWidget {
               label: s.authPlayAsGuest,
               icon: AppIcon.play,
               accent: accent,
-              onPressed: () => Get.offAllNamed<void>(AppRoutes.home),
+              loading: _busy,
+              onPressed: _playAsGuest,
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(s.authGuestHint, style: AppText.caption),

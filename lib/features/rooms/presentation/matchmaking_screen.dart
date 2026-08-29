@@ -92,8 +92,9 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
             ),
             const SizedBox(height: AppSpacing.xxl),
             Text(
+              // No queue exists yet (Session 4); say so rather than search.
               OnlineStatus.isConfigured
-                  ? s.matchmakingBody
+                  ? s.matchmakingPending
                   : s.authBackendPending,
               style: AppText.body.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,

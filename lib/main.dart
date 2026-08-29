@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/app.dart';
+import 'app/bindings/backend_services.dart';
 import 'app/bindings/initial_binding.dart';
 import 'core/services/audio_service.dart';
+import 'core/services/supabase_bootstrap.dart';
 import 'core/storage/local_storage.dart';
+import 'features/online/domain/online_status.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,9 +34,23 @@ Future<void> main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   final storage = await LocalStorage.open();
+
+  // Supabase, when credentials are compiled in (--dart-define). Session
+  // restore happens inside initialise, so by the time the first frame draws
+  // the app already knows whether someone is signed in — no route flashes.
+  final client = await SupabaseBootstrap.initialize();
+  OnlineStatus.report(
+    client == null
+        ? BackendAvailability.notConfigured
+        : BackendAvailability.ready,
+  );
+  final backend = client == null
+      ? BackendServices.none()
+      : BackendServices.supabase(client);
+
   // Registered before the first frame so the app shell can read the chosen
   // language (and everything else) while it builds.
-  InitialBinding(storage).dependencies();
+  InitialBinding(storage, backend: backend).dependencies();
   // Audio warms up in the background: the splash must not wait on it (§24).
   unawaited(AudioService.instance.init());
 

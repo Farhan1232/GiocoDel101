@@ -98,6 +98,30 @@ abstract class AppLocalizations {
     Locale('it'),
   ];
 
+  /// No description provided for @accountGuestLabel.
+  ///
+  /// In it, this message translates to:
+  /// **'Ospite'**
+  String get accountGuestLabel;
+
+  /// No description provided for @accountGuestUpgradeHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Crea un account per conservare i progressi su tutti i dispositivi.'**
+  String get accountGuestUpgradeHint;
+
+  /// No description provided for @accountSignedInAs.
+  ///
+  /// In it, this message translates to:
+  /// **'Accesso come {name}'**
+  String accountSignedInAs(String name);
+
+  /// No description provided for @accountSignedOut.
+  ///
+  /// In it, this message translates to:
+  /// **'Non hai effettuato l’accesso'**
+  String get accountSignedOut;
+
   /// No description provided for @achCatenaBody.
   ///
   /// In it, this message translates to:
@@ -278,6 +302,18 @@ abstract class AppLocalizations {
   /// **'L’accesso sarà attivo quando il servizio online sarà collegato.'**
   String get authBackendPending;
 
+  /// No description provided for @authConfirmEmailBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Abbiamo inviato un link di conferma a {email}. Aprilo, poi accedi.'**
+  String authConfirmEmailBody(String email);
+
+  /// No description provided for @authConfirmEmailTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Controlla la tua email'**
+  String get authConfirmEmailTitle;
+
   /// No description provided for @authContinueWithApple.
   ///
   /// In it, this message translates to:
@@ -289,6 +325,54 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Continua con Google'**
   String get authContinueWithGoogle;
+
+  /// No description provided for @authErrorEmailTaken.
+  ///
+  /// In it, this message translates to:
+  /// **'Esiste già un account con questa email.'**
+  String get authErrorEmailTaken;
+
+  /// No description provided for @authErrorGuestDisabled.
+  ///
+  /// In it, this message translates to:
+  /// **'L’accesso ospite non è attivo su questo server.'**
+  String get authErrorGuestDisabled;
+
+  /// No description provided for @authErrorInvalidCredentials.
+  ///
+  /// In it, this message translates to:
+  /// **'Email o password non corretti.'**
+  String get authErrorInvalidCredentials;
+
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuna connessione. Controlla la rete e riprova.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorRateLimited.
+  ///
+  /// In it, this message translates to:
+  /// **'Troppi tentativi. Attendi un momento e riprova.'**
+  String get authErrorRateLimited;
+
+  /// No description provided for @authErrorUnknown.
+  ///
+  /// In it, this message translates to:
+  /// **'Qualcosa è andato storto durante l’accesso.'**
+  String get authErrorUnknown;
+
+  /// No description provided for @authErrorWeakPassword.
+  ///
+  /// In it, this message translates to:
+  /// **'Scegli una password più sicura.'**
+  String get authErrorWeakPassword;
+
+  /// No description provided for @authGuestFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile avviare la sessione ospite.'**
+  String get authGuestFailed;
 
   /// No description provided for @authGuestHint.
   ///
@@ -578,6 +662,12 @@ abstract class AppLocalizations {
   /// **'Ricompensa'**
   String get dailyReward;
 
+  /// No description provided for @dailyRewardBalance.
+  ///
+  /// In it, this message translates to:
+  /// **'{coins} monete'**
+  String dailyRewardBalance(int coins);
+
   /// No description provided for @dailyRewardBody.
   ///
   /// In it, this message translates to:
@@ -590,17 +680,35 @@ abstract class AppLocalizations {
   /// **'RITIRA'**
   String get dailyRewardClaim;
 
+  /// No description provided for @dailyRewardClaimFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile riscuotere il premio. Riprova.'**
+  String get dailyRewardClaimFailed;
+
   /// No description provided for @dailyRewardClaimed.
   ///
   /// In it, this message translates to:
   /// **'Ritirata'**
   String get dailyRewardClaimed;
 
+  /// No description provided for @dailyRewardClaimedToday.
+  ///
+  /// In it, this message translates to:
+  /// **'Riscosso oggi. Torna domani!'**
+  String get dailyRewardClaimedToday;
+
   /// No description provided for @dailyRewardDay.
   ///
   /// In it, this message translates to:
   /// **'Giorno {day}'**
   String dailyRewardDay(int day);
+
+  /// No description provided for @dailyRewardGuestHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Crea un account per riscuotere i premi giornalieri.'**
+  String get dailyRewardGuestHint;
 
   /// No description provided for @dailyRewardTitle.
   ///
@@ -764,6 +872,18 @@ abstract class AppLocalizations {
   /// **'INVIA IL LINK'**
   String get forgotCta;
 
+  /// No description provided for @forgotSentBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Se esiste un account per {email}, il link per reimpostare la password è in arrivo.'**
+  String forgotSentBody(String email);
+
+  /// No description provided for @forgotSentTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Email inviata'**
+  String get forgotSentTitle;
+
   /// No description provided for @forgotTitle.
   ///
   /// In it, this message translates to:
@@ -920,6 +1040,18 @@ abstract class AppLocalizations {
   /// **'La classifica sarà disponibile con il gioco online.'**
   String get leaderboardEmpty;
 
+  /// No description provided for @leaderboardLoadFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile caricare la classifica.'**
+  String get leaderboardLoadFailed;
+
+  /// No description provided for @leaderboardNoScoresYet.
+  ///
+  /// In it, this message translates to:
+  /// **'Ancora nessun punteggio: gioca partite online per comparire qui.'**
+  String get leaderboardNoScoresYet;
+
   /// No description provided for @leaderboardPoints.
   ///
   /// In it, this message translates to:
@@ -1004,6 +1136,12 @@ abstract class AppLocalizations {
   /// **'INIZIA LA PARTITA'**
   String get lobbyStart;
 
+  /// No description provided for @lobbyStartPending.
+  ///
+  /// In it, this message translates to:
+  /// **'L’avvio delle partite online arriva con il prossimo aggiornamento.'**
+  String get lobbyStartPending;
+
   /// No description provided for @lobbyTitle.
   ///
   /// In it, this message translates to:
@@ -1075,6 +1213,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'{found} di {total} giocatori'**
   String matchmakingFound(int found, int total);
+
+  /// No description provided for @matchmakingPending.
+  ///
+  /// In it, this message translates to:
+  /// **'Le code per la partita rapida non sono ancora aperte.'**
+  String get matchmakingPending;
 
   /// No description provided for @matchmakingTitle.
   ///
@@ -1202,6 +1346,12 @@ abstract class AppLocalizations {
   /// **'Ti troviamo un tavolo libero'**
   String get onlineQuickMatchHint;
 
+  /// No description provided for @onlineSignInRequired.
+  ///
+  /// In it, this message translates to:
+  /// **'Accedi o gioca come ospite per usare le funzioni online.'**
+  String get onlineSignInRequired;
+
   /// No description provided for @onlineTitle.
   ///
   /// In it, this message translates to:
@@ -1297,6 +1447,24 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Partite'**
   String get profileMatches;
+
+  /// No description provided for @profileNicknameTaken.
+  ///
+  /// In it, this message translates to:
+  /// **'Questo nickname è già in uso.'**
+  String get profileNicknameTaken;
+
+  /// No description provided for @profileRating.
+  ///
+  /// In it, this message translates to:
+  /// **'Punteggio'**
+  String get profileRating;
+
+  /// No description provided for @profileSaveFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile salvare il profilo. Riprova.'**
+  String get profileSaveFailed;
 
   /// No description provided for @profileWinRate.
   ///
@@ -1442,6 +1610,30 @@ abstract class AppLocalizations {
   /// **'Continua da dove eri rimasto'**
   String get resumeMatchHint;
 
+  /// No description provided for @roomCreateFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile aprire la stanza. Riprova.'**
+  String get roomCreateFailed;
+
+  /// No description provided for @roomFull.
+  ///
+  /// In it, this message translates to:
+  /// **'La stanza è piena.'**
+  String get roomFull;
+
+  /// No description provided for @roomJoinFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile entrare nella stanza. Riprova.'**
+  String get roomJoinFailed;
+
+  /// No description provided for @roomNotFound.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuna stanza aperta con questo codice.'**
+  String get roomNotFound;
+
   /// No description provided for @round.
   ///
   /// In it, this message translates to:
@@ -1585,6 +1777,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Esci dall’account'**
   String get settingsLogout;
+
+  /// No description provided for @settingsLogoutBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Uscirai dall’account su questo dispositivo. I progressi salvati sull’account restano.'**
+  String get settingsLogoutBody;
 
   /// No description provided for @settingsPrivacy.
   ///

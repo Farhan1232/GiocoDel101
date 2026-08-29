@@ -52,6 +52,16 @@ and what would make networking possible later (§10 below).
 
 ## 2. How to run
 
+The game runs fully offline with no configuration. To connect it to the
+Supabase development project (accounts, guests, profiles, rooms,
+leaderboards) pass the two public values with a git-ignored define file —
+see `docs/SUPABASE_SETUP.md`:
+
+```bash
+cp env/supabase.dev.json.example env/supabase.dev.json
+flutter run --dart-define-from-file=env/supabase.dev.json
+```
+
 Requires Flutter 3.44 or newer.
 
 ```bash

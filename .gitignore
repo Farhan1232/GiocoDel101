@@ -45,3 +45,14 @@ app.*.map.json
 /android/app/release
 
 # Generated localizations are committed so the analyzer and CI need no extra step.
+
+# Supabase — local, per-developer, never committed.
+env/*
+!env/*.example
+!env/README.md
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+supabase/.env.*
+.env
+.env.*

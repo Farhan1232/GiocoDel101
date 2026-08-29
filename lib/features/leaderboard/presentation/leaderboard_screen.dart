@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../app/bindings/backend_services.dart';
 import '../../../app/localization/app_strings.dart';
+import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -11,14 +13,16 @@ import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/screen_scaffold.dart';
 import '../../../core/widgets/segmented_control.dart';
 import '../../../core/widgets/state_views.dart';
+import '../../auth/application/session_controller.dart';
+import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
 import '../domain/leaderboard_models.dart';
 
 /// §R — weekly and all-time boards.
 ///
-/// Model-driven: the list is built from [LeaderboardBoard]. There is no
-/// ranking service yet, so both boards are empty and say so — no placeholder
-/// names, no invented scores.
+/// Model-driven: the list is built from a [LeaderboardBoard] that comes from
+/// one real query (`public.leaderboard`). Without a backend or a session both
+/// boards are empty and say so — no placeholder names, no invented scores.
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
 
@@ -28,9 +32,47 @@ class LeaderboardScreen extends StatefulWidget {
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
   LeaderboardScope _scope = LeaderboardScope.weekly;
+  LeaderboardBoard? _board;
+  bool _loading = false;
+  bool _failed = false;
+  int _request = 0;
 
-  /// Session 3 replaces this with a repository call.
-  LeaderboardBoard get _board => LeaderboardBoard(scope: _scope);
+  bool get _canQuery =>
+      OnlineStatus.isConfigured && Get.find<SessionController>().isSignedIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (!_canQuery) {
+      setState(() => _board = LeaderboardBoard(scope: _scope));
+      return;
+    }
+    final id = ++_request;
+    setState(() {
+      _loading = true;
+      _failed = false;
+    });
+    try {
+      final board = await Get.find<BackendServices>().leaderboards.load(_scope);
+      if (!mounted || id != _request) return;
+      setState(() => _board = board);
+    } catch (_) {
+      if (!mounted || id != _request) return;
+      setState(() => _failed = true);
+    } finally {
+      if (mounted && id == _request) setState(() => _loading = false);
+    }
+  }
+
+  void _select(LeaderboardScope scope) {
+    if (scope == _scope) return;
+    setState(() => _scope = scope);
+    _load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +84,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       scrollable: false,
       child: Obx(() {
         final accent = settings.theme.accent;
-        final board = _board;
+        final board = _board ?? LeaderboardBoard(scope: _scope);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -50,7 +92,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             SegmentedControl<LeaderboardScope>(
               value: _scope,
               accent: accent,
-              onChanged: (v) => setState(() => _scope = v),
+              onChanged: _select,
               options: [
                 SegmentOption(
                   value: LeaderboardScope.weekly,
@@ -63,25 +105,47 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: board.isEmpty
-                  ? EmptyView(
-                      icon: AppIcon.trophy,
-                      title: s.commonEmptyTitle,
-                      message: s.leaderboardEmpty,
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-                      itemCount: board.entries.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: AppSpacing.sm),
-                      itemBuilder: (context, i) =>
-                          _Row(entry: board.entries[i], accent: accent),
-                    ),
-            ),
+            Expanded(child: _body(s, board, accent)),
           ],
         );
       }),
+    );
+  }
+
+  Widget _body(AppLocalizations s, LeaderboardBoard board, Color accent) {
+    if (_loading && board.isEmpty) return LoadingView(accent: accent);
+    if (_failed) {
+      return ErrorView(
+        title: s.commonErrorTitle,
+        message: s.leaderboardLoadFailed,
+        retryLabel: s.commonRetry,
+        onRetry: _load,
+      );
+    }
+    if (OnlineStatus.isConfigured && !_canQuery) {
+      return EmptyView(
+        icon: AppIcon.trophy,
+        title: s.commonEmptyTitle,
+        message: s.onlineSignInRequired,
+        actionLabel: s.authSignIn,
+        onAction: () => Get.toNamed<void>(AppRoutes.authLanding),
+      );
+    }
+    if (board.isEmpty) {
+      return EmptyView(
+        icon: AppIcon.trophy,
+        title: s.commonEmptyTitle,
+        message: board.isAvailable
+            ? s.leaderboardNoScoresYet
+            : s.leaderboardEmpty,
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+      itemCount: board.entries.length,
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (context, i) =>
+          _Row(entry: board.entries[i], accent: accent),
     );
   }
 }

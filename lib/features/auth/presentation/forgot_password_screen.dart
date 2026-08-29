@@ -5,13 +5,18 @@ import '../../../app/localization/app_strings.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../application/auth_controller.dart';
+import '../application/session_controller.dart';
 import '../domain/auth_validators.dart';
 import 'auth_form_scaffold.dart';
 
 /// §F — one field, full validation, honest outcome.
+///
+/// Sends the Supabase reset email. The copy is the same whether or not the
+/// address exists, so the form cannot be used to probe for accounts.
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -22,7 +27,10 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
-  late final AuthController _auth = Get.put(AuthController(), tag: 'forgot');
+  late final AuthController _auth = Get.put(
+    AuthController(Get.find<SessionController>()),
+    tag: 'forgot',
+  );
 
   @override
   void dispose() {
@@ -79,5 +87,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  void _submit() => AuthFormScaffold.submit(formKey: _formKey, auth: _auth);
+  void _submit() => AuthFormScaffold.submit(
+    formKey: _formKey,
+    auth: _auth,
+    action: () => _auth.session.sendPasswordReset(_email.text),
+    onConfirmation: (_) async {
+      final s = Strings.s;
+      await AppDialog.notice(
+        title: s.forgotSentTitle,
+        body: s.forgotSentBody(_email.text.trim()),
+        dismissLabel: s.gotIt,
+      );
+      _auth.reset();
+      Get.back<void>();
+    },
+  );
 }

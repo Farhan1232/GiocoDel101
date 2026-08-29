@@ -12,7 +12,12 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
 import '../../../core/widgets/segmented_control.dart';
+import '../../../app/bindings/backend_services.dart';
+import '../../../core/widgets/app_dialog.dart';
+import '../../auth/application/session_controller.dart';
+import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
+import '../domain/remote_room.dart';
 import '../application/create_room_controller.dart';
 import '../domain/room_models.dart';
 
@@ -33,6 +38,37 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     _name.dispose();
     Get.delete<CreateRoomController>();
     super.dispose();
+  }
+
+  bool _creating = false;
+
+  bool get _canCreateOnline =>
+      OnlineStatus.isConfigured && Get.find<SessionController>().isSignedIn;
+
+  /// With a signed-in session the room is created on the server and the
+  /// lobby receives the real row (code included). Otherwise the lobby is
+  /// shown with the config alone and says the service is not connected.
+  Future<void> _create(RoomConfig config) async {
+    if (_creating) return;
+    if (!_canCreateOnline) {
+      await Get.toNamed<void>(AppRoutes.roomLobby, arguments: config);
+      return;
+    }
+    setState(() => _creating = true);
+    try {
+      final room = await Get.find<BackendServices>().rooms.create(config);
+      if (!mounted) return;
+      await Get.toNamed<void>(AppRoutes.roomLobby, arguments: room);
+    } on RoomException {
+      final s = Strings.s;
+      await AppDialog.notice(
+        title: s.commonErrorTitle,
+        body: s.roomCreateFailed,
+        dismissLabel: s.gotIt,
+      );
+    } finally {
+      if (mounted) setState(() => _creating = false);
+    }
   }
 
   @override
@@ -162,12 +198,12 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             PremiumButton(
               label: s.createRoomCta,
               accent: accent,
-              onPressed: () =>
-                  Get.toNamed<void>(AppRoutes.roomLobby, arguments: config),
+              loading: _creating,
+              onPressed: () => _create(config),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              s.authBackendPending,
+              _canCreateOnline ? s.lobbyStartPending : s.authBackendPending,
               style: AppText.caption.copyWith(color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),

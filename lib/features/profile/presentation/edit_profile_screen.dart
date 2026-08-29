@@ -8,11 +8,18 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
+import '../../../core/widgets/app_dialog.dart';
 import '../../auth/domain/auth_validators.dart';
 import '../../settings/application/settings_controller.dart';
+import '../application/profile_controller.dart';
 import '../domain/avatars.dart';
+import '../domain/remote_profile.dart';
 
-/// §Q — nickname and avatar, saved locally.
+/// §Q — nickname and avatar.
+///
+/// Saved locally always, and to `profiles` when a session exists. Those are
+/// the only two columns the database lets a client write; a taken nickname
+/// comes back as a field error, never as a silent overwrite.
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -23,10 +30,14 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late final SettingsController _settings = Get.find<SettingsController>();
+  late final ProfileController _profile = Get.find<ProfileController>();
   late final TextEditingController _nickname = TextEditingController(
-    text: _settings.settings.playerName,
+    text: _profile.profile.value?.nickname ?? _settings.settings.playerName,
   );
-  late String _avatarId = _settings.settings.avatarId;
+  late String _avatarId =
+      _profile.profile.value?.avatarId ?? _settings.settings.avatarId;
+  String? _nicknameError;
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -35,10 +46,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _save() async {
+    setState(() => _nicknameError = null);
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    await _settings.setPlayerName(_nickname.text);
-    await _settings.setAvatar(_avatarId);
-    Get.back<void>();
+    if (_saving) return;
+    setState(() => _saving = true);
+    try {
+      if (_profile.hasRemoteProfile) {
+        await _profile.updateProfile(
+          nickname: _nickname.text,
+          avatarId: _avatarId,
+        );
+      }
+      await _settings.setPlayerName(_nickname.text);
+      await _settings.setAvatar(_avatarId);
+      Get.back<void>();
+    } on ProfileException catch (error) {
+      final s = Strings.s;
+      if (error.error == ProfileError.nicknameTaken) {
+        setState(() => _nicknameError = s.profileNicknameTaken);
+        _formKey.currentState?.validate();
+      } else {
+        await AppDialog.notice(
+          title: s.commonErrorTitle,
+          body: s.profileSaveFailed,
+          dismissLabel: s.gotIt,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -67,7 +103,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 controller: _nickname,
                 maxLength: AuthValidators.maxNicknameLength,
                 textCapitalization: TextCapitalization.words,
+                onChanged: (_) {
+                  if (_nicknameError != null) {
+                    setState(() => _nicknameError = null);
+                  }
+                },
                 validator: (v) {
+                  if (_nicknameError != null) return _nicknameError;
                   if ((v ?? '').trim().isEmpty) return s.valRequired;
                   if (v!.trim().length < AuthValidators.minNicknameLength) {
                     return s.valNicknameShort;
@@ -116,6 +158,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               PremiumButton(
                 label: s.commonSave,
                 accent: accent,
+                loading: _saving,
                 onPressed: _save,
               ),
               const SizedBox(height: AppSpacing.xl),
