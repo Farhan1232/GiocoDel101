@@ -23,8 +23,16 @@ class SettingsController extends GetxController {
 
   SettingsModel get settings => _settings.value;
 
+  /// The active language, on its own observable.
+  ///
+  /// Deliberately *not* derived from [settings]: the app shell rebuilds the
+  /// entire `GetMaterialApp` when this changes, and reading the whole settings
+  /// blob there would make every unrelated preference toggle — sound, avatar,
+  /// a coach mark — rebuild the whole app and the navigator with it.
+  final RxString _localeCode = 'it'.obs;
+
   /// The active language, narrowed to one the app actually ships.
-  Locale get locale => Strings.resolve(Locale(settings.localeCode));
+  Locale get locale => Strings.resolve(Locale(_localeCode.value));
 
   bool get onboardingComplete => settings.onboardingComplete;
 
@@ -48,6 +56,8 @@ class SettingsController extends GetxController {
     // Controllers and services read copy without a BuildContext, so the
     // resolved bundle has to be swapped here rather than in the widget tree.
     Strings.use(Locale(s.localeCode));
+    // Rx dedupes, so this only notifies when the language actually changed.
+    _localeCode.value = s.localeCode;
     Motion.speedFactor = s.animationSpeed.factor;
     Motion.reduceMotion = s.reduceMotion;
     HapticService.instance.configure(enabled: s.hapticsEnabled);

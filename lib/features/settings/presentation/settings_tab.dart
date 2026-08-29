@@ -40,7 +40,12 @@ class _SettingsTabState extends State<SettingsTab> {
 
   @override
   void dispose() {
-    widget.settings.setPlayerName(_name.text);
+    // Nothing is written here on purpose. Persisting from dispose() mutates
+    // the settings Rx while the framework is unmounting the tree, which marks
+    // still-mounted ancestor Obx widgets dirty during a locked phase and
+    // throws "setState() called during build". The name is committed as it is
+    // typed instead (see onChanged below), so leaving the screen has nothing
+    // left to save.
     _name.dispose();
     super.dispose();
   }
@@ -75,6 +80,11 @@ class _SettingsTabState extends State<SettingsTab> {
                       maxLength: 16,
                       style: AppText.body,
                       cursorColor: accent,
+                      // Committed per keystroke rather than on teardown.
+                      // The field keeps its own controller, so the rebuild
+                      // this triggers does not disturb the cursor, and the
+                      // name now survives the app being killed mid-edit.
+                      onChanged: c.setPlayerName,
                       onSubmitted: c.setPlayerName,
                       decoration: InputDecoration(
                         counterText: '',
