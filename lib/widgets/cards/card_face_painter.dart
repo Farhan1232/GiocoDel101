@@ -230,7 +230,7 @@ class CardFacePainter extends CustomPainter {
 
   void _paintCentre(Canvas canvas, Size size, SuitPalette palette) {
     if (card.rank.isFigure) {
-      _paintCourt(canvas, size, palette);
+      _paintCourt(canvas, size);
       return;
     }
     if (card.rank == CardRank.ace) {
@@ -305,74 +305,31 @@ class CardFacePainter extends CustomPainter {
     }
   }
 
-  /// Court cards: an arched niche, an emblem, and the suit beneath it.
-  void _paintCourt(Canvas canvas, Size size, SuitPalette palette) {
-    final niche = Rect.fromLTWH(
-      size.width * 0.185,
-      size.height * 0.165,
-      size.width * 0.63,
-      size.height * 0.60,
-    );
-    final path = FigureArt.niche(niche);
+  /// Court cards: a full-length Neapolitan figure on its ground bar.
+  ///
+  /// The figure box is cut to [FigureArt.aspect] and centred, so the art is
+  /// scaled uniformly — outlines keep one weight — and lands clear of both
+  /// corner indices.
+  void _paintCourt(Canvas canvas, Size size) {
+    final w = size.width * 0.62;
+    final h = w * FigureArt.aspect;
+    final rect =
+        Rect.fromLTWH((size.width - w) / 2, (size.height - h) / 2, w, h);
 
-    canvas.drawPath(
-      path,
-      Paint()
-        ..shader = ui.Gradient.linear(
-          niche.topLeft,
-          niche.bottomRight,
-          [
-            palette.light.withValues(alpha: 0.30),
-            palette.primary.withValues(alpha: 0.10),
-          ],
-        ),
-    );
-    canvas.drawPath(
-      path,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(0.8, size.width * 0.010)
-        ..color = palette.deep.withValues(alpha: 0.55),
-    );
+    // Fine engraving — faces, hatching, jewels — is dropped on the small
+    // cards in a tight fan, where it would only turn to mud.
+    final detail = size.width > 96 ? 1.0 : (size.width > 62 ? 0.6 : 0.3);
 
-    final emblem = Rect.fromCenter(
-      center: Offset(niche.center.dx, niche.top + niche.height * 0.44),
-      width: niche.width * 0.72,
-      height: niche.height * 0.62,
-    );
     switch (card.rank) {
-      case CardRank.fante:
-        FigureArt.helm(canvas, emblem, palette);
       case CardRank.cavallo:
-        FigureArt.horse(canvas, emblem, palette);
+        FigureArt.rider(canvas, rect, card.suit, detail: detail);
       case CardRank.re:
-        FigureArt.crown(canvas, emblem, palette);
+        FigureArt.standing(canvas, rect, card.suit,
+            king: true, detail: detail);
       default:
-        break;
+        FigureArt.standing(canvas, rect, card.suit,
+            king: false, detail: detail);
     }
-
-    // Plinth line under the niche, then the suit badge below it.
-    final y = niche.bottom + size.height * 0.015;
-    canvas.drawLine(
-      Offset(niche.left - size.width * 0.02, y),
-      Offset(niche.right + size.width * 0.02, y),
-      Paint()
-        ..strokeWidth = math.max(0.8, size.width * 0.010)
-        ..color = palette.deep.withValues(alpha: 0.5),
-    );
-
-    final badge = size.width * 0.155;
-    SuitArt.draw(
-      canvas,
-      Rect.fromCenter(
-        center: Offset(size.width * 0.5, size.height * 0.855),
-        width: badge,
-        height: badge,
-      ),
-      card.suit,
-      palette,
-      detail: 0.6,
-    );
   }
 
   // --------------------------------------------------------------- helpers

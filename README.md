@@ -178,8 +178,11 @@ as vector art at paint time:
 - `lib/widgets/cards/suit_art.dart` — the four suit emblems (coin, chalice,
   sword, cudgel), authored in a unit square and scaled to anything from a 14 px
   corner pip to a 90 px centrepiece.
-- `lib/widgets/cards/figure_art.dart` — the court emblems: a plumed helm
-  (Fante), a horse in profile (Cavallo), a crown (Re).
+- `lib/widgets/cards/figure_art.dart` — the three court figures, drawn full
+  length in the Neapolitan woodcut manner: a page under a plumed cap (Fante),
+  a rider on horseback (Cavallo), a crowned king (Re), each carrying the sign
+  of its own suit. Each suit dresses its court in its own colours, so the
+  twelve court cards stay tellable apart by cloth as well as by sign.
 - `lib/widgets/cards/card_face_painter.dart` — stock, paper grain, bevel, double
   rule, corner indices, pip layouts.
 - `lib/widgets/cards/card_back_painter.dart` — the four backs.
