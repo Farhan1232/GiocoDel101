@@ -120,15 +120,21 @@ class _Option extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppText.button.copyWith(fontSize: 15, letterSpacing: 1.6),
+                    style: AppText.button.copyWith(
+                      fontSize: 15,
+                      letterSpacing: 1.6,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(subtitle, style: AppText.caption),
                 ],
               ),
             ),
-            const AppIconView(AppIcon.chevronDown,
-                size: 16, color: AppColors.textMuted),
+            const AppIconView(
+              AppIcon.chevronDown,
+              size: 16,
+              color: AppColors.textMuted,
+            ),
           ],
         ),
       ),

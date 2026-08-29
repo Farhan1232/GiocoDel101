@@ -19,7 +19,8 @@ class Motion {
       return Duration(milliseconds: math.max(1, ms));
     }
     return Duration(
-        milliseconds: math.max(1, (base.inMilliseconds * speedFactor).round()));
+      milliseconds: math.max(1, (base.inMilliseconds * speedFactor).round()),
+    );
   }
 
   /// Decorative motion (particles, ambient drift, shimmer) is dropped

@@ -57,18 +57,26 @@ class SuitArt {
   // ------------------------------------------------------------- DENARI
   // A struck coin: milled rim, engraved field, eight-point rosette.
 
-  static void _denari(
-      Canvas canvas, SuitPalette p, double detail, double o) {
+  static void _denari(Canvas canvas, SuitPalette p, double detail, double o) {
     const c = Offset(0.5, 0.5);
     final shader = ui.Gradient.linear(
       const Offset(0.15, 0.1),
       const Offset(0.85, 0.92),
-      [p.light.withValues(alpha: o), p.primary.withValues(alpha: o),
-        p.deep.withValues(alpha: o)],
+      [
+        p.light.withValues(alpha: o),
+        p.primary.withValues(alpha: o),
+        p.deep.withValues(alpha: o),
+      ],
       const [0.0, 0.55, 1.0],
     );
 
-    canvas.drawCircle(c, 0.47, Paint()..shader = shader..isAntiAlias = true);
+    canvas.drawCircle(
+      c,
+      0.47,
+      Paint()
+        ..shader = shader
+        ..isAntiAlias = true,
+    );
     canvas.drawCircle(c, 0.47, _stroke(p.deep, 0.035, o));
     canvas.drawCircle(c, 0.385, _stroke(p.deep, 0.022, o * 0.85));
 
@@ -79,7 +87,11 @@ class SuitArt {
         final a = (i / ticks) * math.pi * 2;
         final outer = c + Offset(math.cos(a), math.sin(a)) * 0.465;
         final inner = c + Offset(math.cos(a), math.sin(a)) * 0.415;
-        canvas.drawLine(inner, outer, _stroke(p.deep, 0.014, o * 0.55 * detail));
+        canvas.drawLine(
+          inner,
+          outer,
+          _stroke(p.deep, 0.014, o * 0.55 * detail),
+        );
       }
     }
 
@@ -113,11 +125,16 @@ class SuitArt {
     final shader = ui.Gradient.linear(
       const Offset(0.2, 0.05),
       const Offset(0.8, 0.95),
-      [p.light.withValues(alpha: o), p.primary.withValues(alpha: o),
-        p.deep.withValues(alpha: o)],
+      [
+        p.light.withValues(alpha: o),
+        p.primary.withValues(alpha: o),
+        p.deep.withValues(alpha: o),
+      ],
       const [0.0, 0.5, 1.0],
     );
-    final body = Paint()..shader = shader..isAntiAlias = true;
+    final body = Paint()
+      ..shader = shader
+      ..isAntiAlias = true;
 
     // Bowl.
     final bowl = Path()
@@ -129,8 +146,11 @@ class SuitArt {
     canvas.drawPath(bowl, _stroke(p.deep, 0.028, o));
 
     // Lip.
-    canvas.drawLine(const Offset(0.185, 0.34), const Offset(0.815, 0.34),
-        _stroke(p.deep, 0.034, o));
+    canvas.drawLine(
+      const Offset(0.185, 0.34),
+      const Offset(0.815, 0.34),
+      _stroke(p.deep, 0.034, o),
+    );
 
     // Domed lid and finial.
     final dome = Path()
@@ -140,7 +160,11 @@ class SuitArt {
     canvas.drawPath(dome, body);
     canvas.drawPath(dome, _stroke(p.deep, 0.024, o));
     canvas.drawCircle(const Offset(0.5, 0.135), 0.055, body);
-    canvas.drawCircle(const Offset(0.5, 0.135), 0.055, _stroke(p.deep, 0.022, o));
+    canvas.drawCircle(
+      const Offset(0.5, 0.135),
+      0.055,
+      _stroke(p.deep, 0.022, o),
+    );
 
     // Stem, knop and foot.
     final stem = Path()
@@ -152,11 +176,21 @@ class SuitArt {
     canvas.drawPath(stem, body);
     canvas.drawPath(stem, _stroke(p.deep, 0.02, o));
     canvas.drawOval(
-        Rect.fromCenter(center: const Offset(0.5, 0.80), width: 0.20, height: 0.075),
-        body);
+      Rect.fromCenter(
+        center: const Offset(0.5, 0.80),
+        width: 0.20,
+        height: 0.075,
+      ),
+      body,
+    );
     canvas.drawOval(
-        Rect.fromCenter(center: const Offset(0.5, 0.80), width: 0.20, height: 0.075),
-        _stroke(p.deep, 0.02, o));
+      Rect.fromCenter(
+        center: const Offset(0.5, 0.80),
+        width: 0.20,
+        height: 0.075,
+      ),
+      _stroke(p.deep, 0.02, o),
+    );
 
     final foot = Path()
       ..moveTo(0.30, 0.90)
@@ -167,10 +201,16 @@ class SuitArt {
 
     if (detail > 0.45) {
       // Engraved band across the bowl.
-      canvas.drawLine(const Offset(0.235, 0.50), const Offset(0.765, 0.50),
-          _stroke(p.deep, 0.016, o * 0.6 * detail));
-      canvas.drawLine(const Offset(0.255, 0.555), const Offset(0.745, 0.555),
-          _stroke(p.deep, 0.012, o * 0.4 * detail));
+      canvas.drawLine(
+        const Offset(0.235, 0.50),
+        const Offset(0.765, 0.50),
+        _stroke(p.deep, 0.016, o * 0.6 * detail),
+      );
+      canvas.drawLine(
+        const Offset(0.255, 0.555),
+        const Offset(0.745, 0.555),
+        _stroke(p.deep, 0.012, o * 0.4 * detail),
+      );
     }
   }
 
@@ -182,8 +222,11 @@ class SuitArt {
       ..shader = ui.Gradient.linear(
         const Offset(0.38, 0.0),
         const Offset(0.62, 1.0),
-        [p.light.withValues(alpha: o), p.primary.withValues(alpha: o),
-          p.deep.withValues(alpha: o)],
+        [
+          p.light.withValues(alpha: o),
+          p.primary.withValues(alpha: o),
+          p.deep.withValues(alpha: o),
+        ],
         const [0.0, 0.45, 1.0],
       )
       ..isAntiAlias = true;
@@ -200,8 +243,11 @@ class SuitArt {
     canvas.drawPath(blade, _stroke(p.deep, 0.024, o));
 
     if (detail > 0.4) {
-      canvas.drawLine(const Offset(0.5, 0.11), const Offset(0.5, 0.60),
-          _stroke(p.deep, 0.016, o * 0.55 * detail));
+      canvas.drawLine(
+        const Offset(0.5, 0.11),
+        const Offset(0.5, 0.60),
+        _stroke(p.deep, 0.016, o * 0.55 * detail),
+      );
     }
 
     // Quillons.
@@ -225,14 +271,21 @@ class SuitArt {
     if (detail > 0.45) {
       for (var i = 0; i < 3; i++) {
         final y = 0.735 + i * 0.045;
-        canvas.drawLine(Offset(0.455, y), Offset(0.545, y),
-            _stroke(p.deep, 0.014, o * 0.6 * detail));
+        canvas.drawLine(
+          Offset(0.455, y),
+          Offset(0.545, y),
+          _stroke(p.deep, 0.014, o * 0.6 * detail),
+        );
       }
     }
 
     // Pommel.
     canvas.drawCircle(const Offset(0.5, 0.925), 0.065, steel);
-    canvas.drawCircle(const Offset(0.5, 0.925), 0.065, _stroke(p.deep, 0.024, o));
+    canvas.drawCircle(
+      const Offset(0.5, 0.925),
+      0.065,
+      _stroke(p.deep, 0.024, o),
+    );
   }
 
   // ------------------------------------------------------------ BASTONI
@@ -240,8 +293,7 @@ class SuitArt {
   // heavy knuckled head, tapering shaft, bark rings, trimmed knots. No long
   // side branches — those read as a plant rather than a club.
 
-  static void _bastoni(
-      Canvas canvas, SuitPalette p, double detail, double o) {
+  static void _bastoni(Canvas canvas, SuitPalette p, double detail, double o) {
     canvas.save();
     canvas.translate(0.5, 0.5);
     canvas.rotate(-0.20);
@@ -251,8 +303,11 @@ class SuitArt {
       ..shader = ui.Gradient.linear(
         const Offset(0.30, 0.05),
         const Offset(0.72, 0.95),
-        [p.light.withValues(alpha: o), p.primary.withValues(alpha: o),
-          p.deep.withValues(alpha: o)],
+        [
+          p.light.withValues(alpha: o),
+          p.primary.withValues(alpha: o),
+          p.deep.withValues(alpha: o),
+        ],
         const [0.0, 0.46, 1.0],
       )
       ..isAntiAlias = true;
@@ -279,8 +334,11 @@ class SuitArt {
     canvas.drawPath(club, _stroke(p.deep, 0.030, o));
 
     // The waist under the head is the shape's strongest read.
-    canvas.drawLine(const Offset(0.340, 0.398), const Offset(0.660, 0.398),
-        _stroke(p.deep, 0.028, o * 0.95));
+    canvas.drawLine(
+      const Offset(0.340, 0.398),
+      const Offset(0.660, 0.398),
+      _stroke(p.deep, 0.028, o * 0.95),
+    );
 
     if (detail > 0.4) {
       // Grain across the head and bark rings down the shaft.
@@ -291,13 +349,22 @@ class SuitArt {
         false,
         _stroke(p.deep, 0.020, o * 0.55 * detail),
       );
-      canvas.drawLine(const Offset(0.362, 0.592), const Offset(0.638, 0.592),
-          _stroke(p.deep, 0.018, o * 0.5 * detail));
-      canvas.drawLine(const Offset(0.392, 0.870), const Offset(0.608, 0.870),
-          _stroke(p.deep, 0.018, o * 0.5 * detail));
+      canvas.drawLine(
+        const Offset(0.362, 0.592),
+        const Offset(0.638, 0.592),
+        _stroke(p.deep, 0.018, o * 0.5 * detail),
+      );
+      canvas.drawLine(
+        const Offset(0.392, 0.870),
+        const Offset(0.608, 0.870),
+        _stroke(p.deep, 0.018, o * 0.5 * detail),
+      );
       // A cut knot, flush with the shaft.
-      canvas.drawCircle(const Offset(0.500, 0.700), 0.038,
-          _stroke(p.deep, 0.018, o * 0.6 * detail));
+      canvas.drawCircle(
+        const Offset(0.500, 0.700),
+        0.038,
+        _stroke(p.deep, 0.018, o * 0.6 * detail),
+      );
     }
     canvas.restore();
   }

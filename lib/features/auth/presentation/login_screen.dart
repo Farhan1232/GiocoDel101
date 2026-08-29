@@ -24,8 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  late final AuthController _auth =
-      Get.put(AuthController(), tag: 'login');
+  late final AuthController _auth = Get.put(AuthController(), tag: 'login');
 
   @override
   void dispose() {
@@ -54,7 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
               autofillHints: const [AutofillHints.email],
               validator: (v) {
                 if ((v ?? '').trim().isEmpty) return s.valRequired;
-                return AuthValidators.isEmailValid(v!) ? null : s.valEmailInvalid;
+                return AuthValidators.isEmailValid(v!)
+                    ? null
+                    : s.valEmailInvalid;
               },
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -121,6 +122,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _submit() =>
-      AuthFormScaffold.submit(formKey: _formKey, auth: _auth);
+  void _submit() => AuthFormScaffold.submit(formKey: _formKey, auth: _auth);
 }

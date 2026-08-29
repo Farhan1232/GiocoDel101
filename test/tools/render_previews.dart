@@ -8,6 +8,9 @@
 //   PREVIEW=table   flutter test test/tools/render_previews.dart
 //   PREVIEW=results flutter test test/tools/render_previews.dart
 //   PREVIEW=deck    flutter test test/tools/render_previews.dart
+//   PREVIEW=account flutter test test/tools/render_previews.dart
+//   PREVIEW=rooms   flutter test test/tools/render_previews.dart
+//   PREVIEW=player  flutter test test/tools/render_previews.dart
 //
 // Each writes preview/<name>_gallery.png.
 import 'dart:io';
@@ -44,43 +47,66 @@ import 'package:gioco_del_101/core/storage/local_storage.dart';
 import 'package:gioco_del_101/app/theme/app_theme.dart';
 import 'package:gioco_del_101/app/theme/card_backs.dart';
 import 'package:gioco_del_101/core/widgets/cards/playing_card.dart';
+import 'package:gioco_del_101/features/achievements/presentation/achievements_screen.dart';
+import 'package:gioco_del_101/features/auth/presentation/auth_landing_screen.dart';
+import 'package:gioco_del_101/features/auth/presentation/login_screen.dart';
+import 'package:gioco_del_101/features/auth/presentation/signup_screen.dart';
+import 'package:gioco_del_101/features/leaderboard/presentation/leaderboard_screen.dart';
+import 'package:gioco_del_101/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:gioco_del_101/features/online/presentation/online_mode_screen.dart';
+import 'package:gioco_del_101/features/profile/presentation/edit_profile_screen.dart';
+import 'package:gioco_del_101/features/profile/presentation/profile_screen.dart';
+import 'package:gioco_del_101/features/rewards/presentation/daily_reward_screen.dart';
+import 'package:gioco_del_101/features/rooms/presentation/create_room_screen.dart';
+import 'package:gioco_del_101/features/rooms/presentation/join_room_screen.dart';
+import 'package:gioco_del_101/features/rooms/presentation/matchmaking_screen.dart';
+import 'package:gioco_del_101/features/rooms/presentation/room_lobby_screen.dart';
 
 const Size phone = Size(390, 844);
 
 Future<void> _fonts() async {
   for (final e in const [
-    ('Cinzel', [
-      'assets/fonts/Cinzel-Regular.ttf',
-      'assets/fonts/Cinzel-SemiBold.ttf',
-      'assets/fonts/Cinzel-Bold.ttf',
-    ]),
-    ('Manrope', [
-      'assets/fonts/Manrope-Regular.ttf',
-      'assets/fonts/Manrope-Medium.ttf',
-      'assets/fonts/Manrope-SemiBold.ttf',
-      'assets/fonts/Manrope-Bold.ttf',
-      'assets/fonts/Manrope-ExtraBold.ttf',
-    ]),
+    (
+      'Cinzel',
+      [
+        'assets/fonts/Cinzel-Regular.ttf',
+        'assets/fonts/Cinzel-SemiBold.ttf',
+        'assets/fonts/Cinzel-Bold.ttf',
+      ],
+    ),
+    (
+      'Manrope',
+      [
+        'assets/fonts/Manrope-Regular.ttf',
+        'assets/fonts/Manrope-Medium.ttf',
+        'assets/fonts/Manrope-SemiBold.ttf',
+        'assets/fonts/Manrope-Bold.ttf',
+        'assets/fonts/Manrope-ExtraBold.ttf',
+      ],
+    ),
   ]) {
     final loader = FontLoader(e.$1);
     for (final path in e.$2) {
       loader.addFont(
-          Future.value(ByteData.sublistView(File(path).readAsBytesSync())));
+        Future.value(ByteData.sublistView(File(path).readAsBytesSync())),
+      );
     }
     await loader.load();
   }
 }
 
 Widget _frame(Widget screen) => SizedBox(
-      width: phone.width,
-      height: phone.height,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.build(),
-        home:
-            MediaQuery(data: const MediaQueryData(size: phone), child: screen),
-      ),
-    );
+  width: phone.width,
+  height: phone.height,
+  child: MaterialApp(
+    debugShowCheckedModeBanner: false,
+    theme: AppTheme.build(),
+    home: MediaQuery(
+      data: const MediaQueryData(size: phone),
+      child: screen,
+    ),
+  ),
+);
 
 Future<void> _sheet(
   WidgetTester tester,
@@ -94,27 +120,31 @@ Future<void> _sheet(
   final width = panelWidth ?? phone.width;
   final height = panelHeight ?? phone.height;
   final key = GlobalKey();
-  final total =
-      Size(width * panels.length + 40 * (panels.length + 1), height + 80);
+  final total = Size(
+    width * panels.length + 40 * (panels.length + 1),
+    height + 80,
+  );
   tester.view.physicalSize = total;
   tester.view.devicePixelRatio = 1.0;
 
-  await tester.pumpWidget(Directionality(
-    textDirection: TextDirection.ltr,
-    child: RepaintBoundary(
-      key: key,
-      child: Container(
-        width: total.width,
-        height: total.height,
-        color: const Color(0xFF05070E),
-        padding: const EdgeInsets.all(40),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: panels,
+  await tester.pumpWidget(
+    Directionality(
+      textDirection: TextDirection.ltr,
+      child: RepaintBoundary(
+        key: key,
+        child: Container(
+          width: total.width,
+          height: total.height,
+          color: const Color(0xFF05070E),
+          padding: const EdgeInsets.all(40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: panels,
+          ),
         ),
       ),
     ),
-  ));
+  );
   for (var i = 0; i < frames; i++) {
     await tester.pump(const Duration(milliseconds: 60));
   }
@@ -124,8 +154,9 @@ Future<void> _sheet(
   final image = await boundary.toImage(pixelRatio: scale);
   final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
   Directory('preview').createSync(recursive: true);
-  File('preview/${name}_gallery.png')
-      .writeAsBytesSync(bytes!.buffer.asUint8List());
+  File(
+    'preview/${name}_gallery.png',
+  ).writeAsBytesSync(bytes!.buffer.asUint8List());
   stdout.writeln('wrote preview/${name}_gallery.png');
 }
 
@@ -141,7 +172,7 @@ Future<SettingsController> _boot() async {
     'coach_match',
     'coach_draw',
     'coach_specials',
-    'coach_ring'
+    'coach_ring',
   ]) {
     await settings.markCoachMarkSeen(id);
   }
@@ -149,8 +180,13 @@ Future<SettingsController> _boot() async {
   return settings;
 }
 
-GameController _seatTable(SettingsController settings,
-    {int players = 3, bool finished = false, int penalty = 0, int chain = 0}) {
+GameController _seatTable(
+  SettingsController settings, {
+  int players = 3,
+  bool finished = false,
+  int penalty = 0,
+  int chain = 0,
+}) {
   final setup = MatchFactory.vsComputer(
     playerName: 'Farhan',
     avatarId: 'lucia',
@@ -193,13 +229,15 @@ GameController _seatTable(SettingsController settings,
         ..eliminated = true;
     }
   }
-  return Get.put(GameController(
-    engine: setup.engine,
-    storage: Get.find<GameStorageService>(),
-    settings: settings,
-    stats: Get.find<StatsController>(),
-    humanIds: setup.humanIds,
-  ));
+  return Get.put(
+    GameController(
+      engine: setup.engine,
+      storage: Get.find<GameStorageService>(),
+      settings: settings,
+      stats: Get.find<StatsController>(),
+      humanIds: setup.humanIds,
+    ),
+  );
 }
 
 void main() {
@@ -225,38 +263,47 @@ void main() {
           matchOver: false,
           rows: [
             PlayerRoundResult(
-                playerId: c.state.players.first.id,
-                name: c.state.players.first.name,
-                cardsLeft: 0,
-                penalty: 0,
-                previousScore: 0,
-                newScore: 0,
-                hitExact101: false,
-                eliminated: false),
+              playerId: c.state.players.first.id,
+              name: c.state.players.first.name,
+              cardsLeft: 0,
+              penalty: 0,
+              previousScore: 0,
+              newScore: 0,
+              hitExact101: false,
+              eliminated: false,
+            ),
             PlayerRoundResult(
-                playerId: c.state.players[1].id,
-                name: c.state.players[1].name,
-                cardsLeft: 3,
-                penalty: 7,
-                previousScore: 94,
-                newScore: 0,
-                hitExact101: true,
-                eliminated: false),
+              playerId: c.state.players[1].id,
+              name: c.state.players[1].name,
+              cardsLeft: 3,
+              penalty: 7,
+              previousScore: 94,
+              newScore: 0,
+              hitExact101: true,
+              eliminated: false,
+            ),
             PlayerRoundResult(
-                playerId: c.state.players[2].id,
-                name: c.state.players[2].name,
-                cardsLeft: 5,
-                penalty: 22,
-                previousScore: 82,
-                newScore: 104,
-                hitExact101: false,
-                eliminated: true),
+              playerId: c.state.players[2].id,
+              name: c.state.players[2].name,
+              cardsLeft: 5,
+              penalty: 22,
+              previousScore: 82,
+              newScore: 104,
+              hitExact101: false,
+              eliminated: true,
+            ),
           ],
         );
-        await _sheet(tester, 'results', [
-          _frame(const RoundResultScreen()),
-          _frame(const MatchResultScreen()),
-        ], frames: 60, scale: 1.6);
+        await _sheet(
+          tester,
+          'results',
+          [
+            _frame(const RoundResultScreen()),
+            _frame(const MatchResultScreen()),
+          ],
+          frames: 60,
+          scale: 1.6,
+        );
 
       case 'deck':
         final deck = DeckFactory.ordered();
@@ -278,10 +325,13 @@ void main() {
                         children: [
                           for (var col = 0; col < 10; col++)
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 5),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                              ),
                               child: PlayingCard(
-                                  width: 104, card: deck[row * 10 + col]),
+                                width: 104,
+                                card: deck[row * 10 + col],
+                              ),
                             ),
                         ],
                       ),
@@ -294,7 +344,10 @@ void main() {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: PlayingCard(
-                              width: 104, faceUp: false, backId: back.id),
+                            width: 104,
+                            faceUp: false,
+                            backId: back.id,
+                          ),
                         ),
                     ],
                   ),
@@ -307,6 +360,32 @@ void main() {
           frames: 6,
           scale: 1.5,
         );
+
+      case 'account':
+        await _sheet(tester, 'account', [
+          _frame(const OnboardingScreen()),
+          _frame(const AuthLandingScreen()),
+          _frame(const LoginScreen()),
+          _frame(const SignupScreen()),
+        ]);
+
+      case 'rooms':
+        await _sheet(tester, 'rooms', [
+          _frame(const OnlineModeScreen()),
+          _frame(const CreateRoomScreen()),
+          _frame(const JoinRoomScreen()),
+          _frame(const RoomLobbyScreen()),
+          _frame(const MatchmakingScreen()),
+        ]);
+
+      case 'player':
+        await _sheet(tester, 'player', [
+          _frame(const ProfileScreen()),
+          _frame(const EditProfileScreen()),
+          _frame(const AchievementsScreen()),
+          _frame(const LeaderboardScreen()),
+          _frame(const DailyRewardScreen()),
+        ]);
 
       default:
         await _sheet(tester, 'menus', [

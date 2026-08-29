@@ -59,7 +59,9 @@ class CardFacePainter extends CustomPainter {
 
     if (dimmed) {
       canvas.drawRect(
-          rect, Paint()..color = AppColors.inkDeep.withValues(alpha: 0.20));
+        rect,
+        Paint()..color = AppColors.inkDeep.withValues(alpha: 0.20),
+      );
     }
     canvas.restore();
 
@@ -82,7 +84,11 @@ class CardFacePainter extends CustomPainter {
         ..shader = ui.Gradient.linear(
           Offset(size.width * 0.15, 0),
           Offset(size.width * 0.85, size.height),
-          const [Color(0xFFFDF6E9), AppColors.cardIvory, AppColors.cardIvoryShade],
+          const [
+            Color(0xFFFDF6E9),
+            AppColors.cardIvory,
+            AppColors.cardIvoryShade,
+          ],
           const [0.0, 0.55, 1.0],
         ),
     );
@@ -106,8 +112,7 @@ class CardFacePainter extends CustomPainter {
         fibre,
       );
     }
-    final speck = Paint()
-      ..color = AppColors.goldDeep.withValues(alpha: 0.05);
+    final speck = Paint()..color = AppColors.goldDeep.withValues(alpha: 0.05);
     for (var i = 0; i < 16; i++) {
       canvas.drawCircle(
         Offset(rng.nextDouble() * size.width, rng.nextDouble() * size.height),
@@ -122,7 +127,12 @@ class CardFacePainter extends CustomPainter {
   void _paintBevel(Canvas canvas, Size size, double radius) {
     final inset = size.width * 0.014;
     final inner = RRect.fromRectAndRadius(
-      Rect.fromLTWH(inset, inset, size.width - inset * 2, size.height - inset * 2),
+      Rect.fromLTWH(
+        inset,
+        inset,
+        size.width - inset * 2,
+        size.height - inset * 2,
+      ),
       Radius.circular(radius * 0.85),
     );
     canvas.drawRRect(
@@ -151,19 +161,32 @@ class CardFacePainter extends CustomPainter {
         : palette.deep;
 
     final outer = RRect.fromRectAndRadius(
-      Rect.fromLTWH(m * 0.62, m * 0.62, size.width - m * 1.24, size.height - m * 1.24),
+      Rect.fromLTWH(
+        m * 0.62,
+        m * 0.62,
+        size.width - m * 1.24,
+        size.height - m * 1.24,
+      ),
       Radius.circular(size.width * 0.045),
     );
     canvas.drawRRect(
       outer,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.0, size.width * (highContrast ? 0.017 : 0.013))
+        ..strokeWidth = math.max(
+          1.0,
+          size.width * (highContrast ? 0.017 : 0.013),
+        )
         ..color = ink.withValues(alpha: 0.75),
     );
 
     final inner = RRect.fromRectAndRadius(
-      Rect.fromLTWH(m * 0.95, m * 0.95, size.width - m * 1.9, size.height - m * 1.9),
+      Rect.fromLTWH(
+        m * 0.95,
+        m * 0.95,
+        size.width - m * 1.9,
+        size.height - m * 1.9,
+      ),
       Radius.circular(size.width * 0.035),
     );
     canvas.drawRRect(
@@ -313,8 +336,12 @@ class CardFacePainter extends CustomPainter {
   void _paintCourt(Canvas canvas, Size size) {
     final w = size.width * 0.62;
     final h = w * FigureArt.aspect;
-    final rect =
-        Rect.fromLTWH((size.width - w) / 2, (size.height - h) / 2, w, h);
+    final rect = Rect.fromLTWH(
+      (size.width - w) / 2,
+      (size.height - h) / 2,
+      w,
+      h,
+    );
 
     // Fine engraving — faces, hatching, jewels — is dropped on the small
     // cards in a tight fan, where it would only turn to mud.
@@ -324,11 +351,15 @@ class CardFacePainter extends CustomPainter {
       case CardRank.cavallo:
         FigureArt.rider(canvas, rect, card.suit, detail: detail);
       case CardRank.re:
-        FigureArt.standing(canvas, rect, card.suit,
-            king: true, detail: detail);
+        FigureArt.standing(canvas, rect, card.suit, king: true, detail: detail);
       default:
-        FigureArt.standing(canvas, rect, card.suit,
-            king: false, detail: detail);
+        FigureArt.standing(
+          canvas,
+          rect,
+          card.suit,
+          king: false,
+          detail: detail,
+        );
     }
   }
 
@@ -358,27 +389,37 @@ class CardFacePainter extends CustomPainter {
         return const [Offset(0.5, 0.255), Offset(0.5, 0.5), Offset(0.5, 0.745)];
       case 4:
         return const [
-          Offset(0.325, 0.30), Offset(0.675, 0.30),
-          Offset(0.325, 0.70), Offset(0.675, 0.70),
+          Offset(0.325, 0.30),
+          Offset(0.675, 0.30),
+          Offset(0.325, 0.70),
+          Offset(0.675, 0.70),
         ];
       case 5:
         return const [
-          Offset(0.315, 0.285), Offset(0.685, 0.285),
+          Offset(0.315, 0.285),
+          Offset(0.685, 0.285),
           Offset(0.5, 0.5),
-          Offset(0.315, 0.715), Offset(0.685, 0.715),
+          Offset(0.315, 0.715),
+          Offset(0.685, 0.715),
         ];
       case 6:
         return const [
-          Offset(0.315, 0.265), Offset(0.685, 0.265),
-          Offset(0.315, 0.5), Offset(0.685, 0.5),
-          Offset(0.315, 0.735), Offset(0.685, 0.735),
+          Offset(0.315, 0.265),
+          Offset(0.685, 0.265),
+          Offset(0.315, 0.5),
+          Offset(0.685, 0.5),
+          Offset(0.315, 0.735),
+          Offset(0.685, 0.735),
         ];
       case 7:
         return const [
-          Offset(0.315, 0.245), Offset(0.685, 0.245),
+          Offset(0.315, 0.245),
+          Offset(0.685, 0.245),
           Offset(0.5, 0.375),
-          Offset(0.315, 0.505), Offset(0.685, 0.505),
-          Offset(0.315, 0.765), Offset(0.685, 0.765),
+          Offset(0.315, 0.505),
+          Offset(0.685, 0.505),
+          Offset(0.315, 0.765),
+          Offset(0.685, 0.765),
         ];
       default:
         return const [Offset(0.5, 0.5)];

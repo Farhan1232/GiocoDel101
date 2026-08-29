@@ -108,13 +108,13 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _Placeholder(
-        icon: AppIcon.close,
-        tint: AppColors.terracottaCoral,
-        title: title,
-        message: message,
-        actionLabel: retryLabel,
-        onAction: onRetry,
-      );
+    icon: AppIcon.close,
+    tint: AppColors.terracottaCoral,
+    title: title,
+    message: message,
+    actionLabel: retryLabel,
+    onAction: onRetry,
+  );
 }
 
 /// Nothing to show, and that is not an error.
@@ -136,13 +136,13 @@ class EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _Placeholder(
-        icon: icon,
-        tint: AppColors.textMuted,
-        title: title,
-        message: message,
-        actionLabel: actionLabel,
-        onAction: onAction,
-      );
+    icon: icon,
+    tint: AppColors.textMuted,
+    title: title,
+    message: message,
+    actionLabel: actionLabel,
+    onAction: onAction,
+  );
 }
 
 class _Placeholder extends StatelessWidget {
@@ -181,11 +181,18 @@ class _Placeholder extends StatelessWidget {
               child: Center(child: AppIconView(icon, size: 26, color: tint)),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text(title, style: AppText.screenTitle.copyWith(fontSize: 18),
-                textAlign: TextAlign.center),
+            Text(
+              title,
+              style: AppText.screenTitle.copyWith(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
             if (message != null) ...[
               const SizedBox(height: AppSpacing.sm),
-              Text(message!, style: AppText.bodySmall, textAlign: TextAlign.center),
+              Text(
+                message!,
+                style: AppText.bodySmall,
+                textAlign: TextAlign.center,
+              ),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSpacing.xl),

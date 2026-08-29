@@ -9,7 +9,7 @@ import '../../../core/storage/storage_keys.dart';
 /// §26 — the choices made on the setup screen, remembered between sessions.
 class SetupController extends GetxController {
   SetupController(this._storage, {required BotDifficulty defaultDifficulty})
-      : difficulty = defaultDifficulty.obs;
+    : difficulty = defaultDifficulty.obs;
 
   final LocalStorage _storage;
 
@@ -27,8 +27,11 @@ class SetupController extends GetxController {
   final RxBool exactReset = true.obs;
 
   /// Names for the extra people in Pass & Play (index 0 is the owner).
-  final RxList<String> passAndPlayNames =
-      <String>['Giocatore 2', 'Giocatore 3', 'Giocatore 4'].obs;
+  final RxList<String> passAndPlayNames = <String>[
+    'Giocatore 2',
+    'Giocatore 3',
+    'Giocatore 4',
+  ].obs;
 
   @override
   void onInit() {
@@ -37,8 +40,9 @@ class SetupController extends GetxController {
     if (json == null) return;
     mode.value = GameMode.fromKey(json['mode'] as String? ?? 'vsComputer');
     playerCount.value = (json['playerCount'] as num?)?.toInt().clamp(2, 4) ?? 2;
-    difficulty.value =
-        BotDifficulty.fromKey(json['difficulty'] as String? ?? 'normal');
+    difficulty.value = BotDifficulty.fromKey(
+      json['difficulty'] as String? ?? 'normal',
+    );
     startingHand.value =
         (json['startingHand'] as num?)?.toInt().clamp(3, 10) ?? 5;
     stackTwos.value = json['stackTwos'] as bool? ?? true;
@@ -51,28 +55,28 @@ class SetupController extends GetxController {
   }
 
   Future<void> persist() => _storage.writeJson(StorageKeys.setupPreferences, {
-        'mode': mode.value.key,
-        'playerCount': playerCount.value,
-        'difficulty': difficulty.value.key,
-        'startingHand': startingHand.value,
-        'stackTwos': stackTwos.value,
-        'wildNine': wildNine.value,
-        'voluntaryDraw': voluntaryDraw.value,
-        'eliminate': eliminate.value,
-        'exactReset': exactReset.value,
-        'names': passAndPlayNames.toList(),
-      });
+    'mode': mode.value.key,
+    'playerCount': playerCount.value,
+    'difficulty': difficulty.value.key,
+    'startingHand': startingHand.value,
+    'stackTwos': stackTwos.value,
+    'wildNine': wildNine.value,
+    'voluntaryDraw': voluntaryDraw.value,
+    'eliminate': eliminate.value,
+    'exactReset': exactReset.value,
+    'names': passAndPlayNames.toList(),
+  });
 
   /// Builds the rule set from the advanced panel. Defaults come from
   /// [GameRulesConfig] itself, never from literals scattered here (§71).
   GameRulesConfig buildRules() => const GameRulesConfig().copyWith(
-        startingHandSize: startingHand.value,
-        stackDrawTwos: stackTwos.value,
-        wildNineCanAlwaysPlay: wildNine.value,
-        allowVoluntaryDraw: voluntaryDraw.value,
-        eliminateAbove101: eliminate.value,
-        exact101ResetsToZero: exactReset.value,
-      );
+    startingHandSize: startingHand.value,
+    stackDrawTwos: stackTwos.value,
+    wildNineCanAlwaysPlay: wildNine.value,
+    allowVoluntaryDraw: voluntaryDraw.value,
+    eliminateAbove101: eliminate.value,
+    exact101ResetsToZero: exactReset.value,
+  );
 
   bool get isDefaultRules {
     const d = GameRulesConfig();

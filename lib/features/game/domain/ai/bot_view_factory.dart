@@ -50,17 +50,16 @@ class BotViewFactory {
     GamePlayer p,
     List<String>? voids,
     int seatsAway,
-  ) =>
-      OpponentInfo(
-        id: p.id,
-        name: p.name,
-        // Only the count. Never the cards.
-        cardCount: p.hand.length,
-        score: p.score,
-        eliminated: p.eliminated,
-        voidSuits: (voids ?? const <String>[])
-            .map(CardSuit.fromKey)
-            .toList(growable: false),
-        seatsAway: seatsAway,
-      );
+  ) => OpponentInfo(
+    id: p.id,
+    name: p.name,
+    // Only the count. Never the cards.
+    cardCount: p.hand.length,
+    score: p.score,
+    eliminated: p.eliminated,
+    voidSuits: (voids ?? const <String>[])
+        .map(CardSuit.fromKey)
+        .toList(growable: false),
+    seatsAway: seatsAway,
+  );
 }

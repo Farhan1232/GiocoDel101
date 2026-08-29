@@ -33,8 +33,7 @@ class ChainStorm extends StatefulWidget {
   State<ChainStorm> createState() => _ChainStormState();
 }
 
-class _ChainStormState extends State<ChainStorm>
-    with TickerProviderStateMixin {
+class _ChainStormState extends State<ChainStorm> with TickerProviderStateMixin {
   late final AnimationController _pulse;
 
   late final AnimationController _burst;
@@ -43,13 +42,13 @@ class _ChainStormState extends State<ChainStorm>
   void initState() {
     super.initState();
     _pulse = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1100),
-  );
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    );
     _burst = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 620),
-  );
+      vsync: this,
+      duration: const Duration(milliseconds: 620),
+    );
     if (widget.level > 0) _engage();
   }
 
@@ -69,7 +68,8 @@ class _ChainStormState extends State<ChainStorm>
     if (!Motion.allowAmbient) return;
     // The chain breathes faster the deeper it gets.
     _pulse.duration = Duration(
-        milliseconds: math.max(420, 1100 - widget.level * 180));
+      milliseconds: math.max(420, 1100 - widget.level * 180),
+    );
     if (!_pulse.isAnimating) _pulse.repeat(reverse: true);
   }
 
@@ -124,8 +124,9 @@ class _ChainStormState extends State<ChainStorm>
           border: Border.all(color: AppColors.goldLight.withValues(alpha: 0.7)),
           boxShadow: [
             BoxShadow(
-              color: AppColors.terracottaCoral
-                  .withValues(alpha: 0.4 + 0.25 * _pulse.value),
+              color: AppColors.terracottaCoral.withValues(
+                alpha: 0.4 + 0.25 * _pulse.value,
+              ),
               blurRadius: 16,
               spreadRadius: -2,
             ),
@@ -167,23 +168,26 @@ class _ChainPainter extends CustomPainter {
     final linkH = linkW * 1.55;
     for (var i = 0; i < links; i++) {
       final a = (i / links) * math.pi * 2 + pulse * 0.12;
-      final at = centre +
-          Offset(math.cos(a), math.sin(a)) * (radius + pulse * 2.0);
+      final at =
+          centre + Offset(math.cos(a), math.sin(a)) * (radius + pulse * 2.0);
       canvas.save();
       canvas.translate(at.dx, at.dy);
       canvas.rotate(a + math.pi / 2);
       final paint = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = math.max(1.4, linkW * 0.24)
-        ..color = Color.lerp(AppColors.goldMid, AppColors.terracottaCoral,
-                intensity)!
-            .withValues(alpha: 0.55 + 0.4 * intensity);
+        ..color = Color.lerp(
+          AppColors.goldMid,
+          AppColors.terracottaCoral,
+          intensity,
+        )!.withValues(alpha: 0.55 + 0.4 * intensity);
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromCenter(
-              center: Offset(0, i.isEven ? -linkH * 0.18 : linkH * 0.18),
-              width: linkW,
-              height: linkH),
+            center: Offset(0, i.isEven ? -linkH * 0.18 : linkH * 0.18),
+            width: linkW,
+            height: linkH,
+          ),
           Radius.circular(linkW * 0.5),
         ),
         paint,
@@ -242,9 +246,11 @@ class _ChainPainter extends CustomPainter {
           at,
           (1.4 + rng.nextDouble() * 2.4) * (1 - burst),
           Paint()
-            ..color = Color.lerp(AppColors.goldLight,
-                    AppColors.terracottaCoral, rng.nextDouble())!
-                .withValues(alpha: (1 - burst) * 0.9),
+            ..color = Color.lerp(
+              AppColors.goldLight,
+              AppColors.terracottaCoral,
+              rng.nextDouble(),
+            )!.withValues(alpha: (1 - burst) * 0.9),
         );
       }
     }

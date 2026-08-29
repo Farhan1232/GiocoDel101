@@ -50,7 +50,8 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
   @override
   void initState() {
     super.initState();
-    result = c.lastRoundResult.value ??
+    result =
+        c.lastRoundResult.value ??
         const RoundResult(
           roundNumber: 0,
           winnerId: '',
@@ -58,11 +59,13 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
           rows: [],
           matchOver: false,
         );
-    unawaited(stats.recordRound(
-      match: c.state,
-      result: result,
-      humanId: c.humanIds.first,
-    ));
+    unawaited(
+      stats.recordRound(
+        match: c.state,
+        result: result,
+        humanId: c.humanIds.first,
+      ),
+    );
     _revealNext();
   }
 
@@ -94,7 +97,10 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
     } else if (row.penalty > 0) {
       AudioService.instance.play(Sfx.scoreTick, volume: 0.8);
     }
-    _timer = Timer(Motion.scale(const Duration(milliseconds: 620)), _revealNext);
+    _timer = Timer(
+      Motion.scale(const Duration(milliseconds: 620)),
+      _revealNext,
+    );
   }
 
   void _goToMatchResult() {
@@ -146,13 +152,15 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
                     Expanded(
                       child: ListView.separated(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.gutter),
+                          horizontal: AppSpacing.gutter,
+                        ),
                         itemCount: result.rows.length,
                         separatorBuilder: (context, i) =>
                             const SizedBox(height: AppSpacing.sm),
                         itemBuilder: (context, i) => AnimatedOpacity(
                           duration: Motion.scale(
-                              const Duration(milliseconds: 300)),
+                            const Duration(milliseconds: 300),
+                          ),
                           opacity: i < _revealed ? 1 : 0.18,
                           child: _row(result.rows[i], theme.accent),
                         ),
@@ -165,8 +173,9 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
                         children: [
                           if (LastHandReplay.isAvailable(c.state))
                             Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: AppSpacing.sm),
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpacing.sm,
+                              ),
                               child: PremiumButton(
                                 label: s.replayLastHand,
                                 variant: ButtonVariant.ghost,
@@ -222,9 +231,14 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
       children: [
         AvatarMedallion(avatarId: winner.avatarId, size: 64, active: true),
         const SizedBox(height: AppSpacing.sm),
-        Text(winner.name,
-            style: AppText.body.copyWith(
-                fontSize: 16, fontWeight: FontWeight.w800, color: accent)),
+        Text(
+          winner.name,
+          style: AppText.body.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: accent,
+          ),
+        ),
         Text(Strings.s.roundWinner, style: AppText.caption),
       ],
     );
@@ -238,10 +252,12 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
       accent: row.eliminated
           ? AppColors.danger
           : row.hitExact101
-              ? AppColors.goldLight
-              : accent,
+          ? AppColors.goldLight
+          : accent,
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       child: Row(
         children: [
           FateRing(
@@ -269,7 +285,9 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppText.body.copyWith(
-                            fontSize: 14.5, fontWeight: FontWeight.w700),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
@@ -292,18 +310,23 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
 
   Widget _scoreChange(PlayerRoundResult row) {
     if (row.eliminated) {
-      return Text(Strings.s.eliminated,
-          style: AppText.label.copyWith(color: AppColors.danger, fontSize: 11));
+      return Text(
+        Strings.s.eliminated,
+        style: AppText.label.copyWith(color: AppColors.danger, fontSize: 11),
+      );
     }
     if (row.hitExact101) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text('${row.previousScore} + ${row.penalty}',
-              style: AppText.caption),
-          Text(Strings.s.savedFrom101,
-              style: AppText.label
-                  .copyWith(color: AppColors.goldLight, fontSize: 12)),
+          Text('${row.previousScore} + ${row.penalty}', style: AppText.caption),
+          Text(
+            Strings.s.savedFrom101,
+            style: AppText.label.copyWith(
+              color: AppColors.goldLight,
+              fontSize: 12,
+            ),
+          ),
         ],
       );
     }
@@ -313,7 +336,9 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
         Text('${row.previousScore} + ${row.penalty}', style: AppText.caption),
         TweenAnimationBuilder<double>(
           tween: Tween(
-              begin: row.previousScore.toDouble(), end: row.newScore.toDouble()),
+            begin: row.previousScore.toDouble(),
+            end: row.newScore.toDouble(),
+          ),
           duration: Motion.scale(const Duration(milliseconds: 620)),
           curve: Curves.easeOutCubic,
           builder: (context, value, _) => Text(
@@ -334,22 +359,29 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
           for (final id in ids)
             Container(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.xs,
+              ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadii.pill),
                 color: AppColors.goldMid.withValues(alpha: 0.16),
                 border: Border.all(
-                    color: AppColors.goldMid.withValues(alpha: 0.55)),
+                  color: AppColors.goldMid.withValues(alpha: 0.55),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppIconView(AppIcon.trophy,
-                      size: 14, color: AppColors.goldLight),
+                  const AppIconView(
+                    AppIcon.trophy,
+                    size: 14,
+                    color: AppColors.goldLight,
+                  ),
                   const SizedBox(width: AppSpacing.xs),
-                  Text(Strings.s.achievementTitle(id),
-                      style: AppText.caption
-                          .copyWith(color: AppColors.goldLight)),
+                  Text(
+                    Strings.s.achievementTitle(id),
+                    style: AppText.caption.copyWith(color: AppColors.goldLight),
+                  ),
                 ],
               ),
             ),

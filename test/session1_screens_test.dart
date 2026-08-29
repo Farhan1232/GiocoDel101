@@ -31,11 +31,7 @@ import 'package:gioco_del_101/features/settings/application/settings_controller.
 
 /// §7 — the same three sizes the existing suite uses: a modern phone, the
 /// small-Android floor, and a tablet.
-const sizes = <Size>[
-  Size(390, 844),
-  Size(360, 640),
-  Size(834, 1112),
-];
+const sizes = <Size>[Size(390, 844), Size(360, 640), Size(834, 1112)];
 
 Future<void> _boot() async {
   SharedPreferences.setMockInitialValues({});
@@ -46,18 +42,27 @@ Future<void> _boot() async {
   Strings.use(const Locale('it'));
 }
 
-Future<void> _render(WidgetTester tester, Widget child, Size size,
-    {int frames = 12}) async {
+Future<void> _render(
+  WidgetTester tester,
+  Widget child,
+  Size size, {
+  int frames = 12,
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(GetMaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: AppTheme.build(),
-    // The real route table, so a screen that navigates actually can.
-    getPages: AppPages.pages,
-    home: MediaQuery(data: MediaQueryData(size: size), child: child),
-  ));
+  await tester.pumpWidget(
+    GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.build(),
+      // The real route table, so a screen that navigates actually can.
+      getPages: AppPages.pages,
+      home: MediaQuery(
+        data: MediaQueryData(size: size),
+        child: child,
+      ),
+    ),
+  );
   for (var i = 0; i < frames; i++) {
     await tester.pump(const Duration(milliseconds: 60));
   }
@@ -95,11 +100,13 @@ void main() {
   group('Every new screen renders clean at three sizes (§7)', () {
     for (final entry in screens.entries) {
       for (final size in sizes) {
-        testWidgets('${entry.key} at ${size.width.toInt()}x${size.height.toInt()}',
-            (tester) async {
-          await _render(tester, entry.value(), size);
-          expect(tester.takeException(), isNull);
-        });
+        testWidgets(
+          '${entry.key} at ${size.width.toInt()}x${size.height.toInt()}',
+          (tester) async {
+            await _render(tester, entry.value(), size);
+            expect(tester.takeException(), isNull);
+          },
+        );
       }
     }
   });
@@ -136,8 +143,9 @@ void main() {
   });
 
   group('Forms validate before they submit (§D, §E)', () {
-    testWidgets('login rejects a bad email and a short password',
-        (tester) async {
+    testWidgets('login rejects a bad email and a short password', (
+      tester,
+    ) async {
       await _render(tester, const LoginScreen(), sizes.first);
       final s = Strings.s;
 
@@ -169,13 +177,16 @@ void main() {
       expect(find.text(s.valPasswordMismatch), findsOneWidget);
     });
 
-    testWidgets('a valid submission is told the service is not connected',
-        (tester) async {
+    testWidgets('a valid submission is told the service is not connected', (
+      tester,
+    ) async {
       await _render(tester, const ForgotPasswordScreen(), sizes.first);
       final s = Strings.s;
 
       await tester.enterText(
-          find.byType(TextFormField).first, 'farhan@example.com');
+        find.byType(TextFormField).first,
+        'farhan@example.com',
+      );
       await tester.pump();
       await tester.tap(find.text(s.forgotCta));
       // Long enough for the submit cycle to settle.
@@ -189,8 +200,9 @@ void main() {
   });
 
   group('Nothing pretends to be online (§H, §K, §L, §R)', () {
-    testWidgets('the lobby seats only the player and cannot start',
-        (tester) async {
+    testWidgets('the lobby seats only the player and cannot start', (
+      tester,
+    ) async {
       await _render(tester, const RoomLobbyScreen(), sizes.first);
       final s = Strings.s;
 
@@ -258,14 +270,15 @@ void main() {
   });
 
   group('Room code entry (§J)', () {
-    testWidgets('Join stays disabled until six characters are typed',
-        (tester) async {
+    testWidgets('Join stays disabled until six characters are typed', (
+      tester,
+    ) async {
       await _render(tester, const JoinRoomScreen(), sizes.first);
       final s = Strings.s;
 
       PremiumButton joinButton() => tester.widget<PremiumButton>(
-            find.widgetWithText(PremiumButton, s.joinRoomCta),
-          );
+        find.widgetWithText(PremiumButton, s.joinRoomCta),
+      );
 
       expect(joinButton().onPressed, isNull);
 
@@ -295,10 +308,14 @@ void main() {
           frames: 6,
         );
         expect(tester.takeException(), isNull);
-        expect(find.text('offline'),
-            status == NetworkStatus.offline ? findsOneWidget : findsNothing);
-        expect(find.text('connecting'),
-            status == NetworkStatus.connecting ? findsOneWidget : findsNothing);
+        expect(
+          find.text('offline'),
+          status == NetworkStatus.offline ? findsOneWidget : findsNothing,
+        );
+        expect(
+          find.text('connecting'),
+          status == NetworkStatus.connecting ? findsOneWidget : findsNothing,
+        );
       }
     });
   });

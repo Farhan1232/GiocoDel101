@@ -26,11 +26,11 @@ enum Sfx {
 
   /// §11 — the Chain Storm rises in pitch as the stack grows.
   static Sfx chainForLevel(int level) => switch (level.clamp(1, 4)) {
-        1 => Sfx.chain1,
-        2 => Sfx.chain2,
-        3 => Sfx.chain3,
-        _ => Sfx.chain4,
-      };
+    1 => Sfx.chain1,
+    2 => Sfx.chain2,
+    3 => Sfx.chain3,
+    _ => Sfx.chain4,
+  };
 }
 
 /// Plays the bundled sound set. All assets are local; nothing streams.

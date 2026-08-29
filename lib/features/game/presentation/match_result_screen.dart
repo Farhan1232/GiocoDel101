@@ -53,9 +53,12 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
             playerName: settings.settings.playerName,
             avatarId: settings.settings.avatarId,
             playerCount: state.players.length,
-            difficulty: state.players
-                    .firstWhere((p) => p.isBot,
-                        orElse: () => state.players.first)
+            difficulty:
+                state.players
+                    .firstWhere(
+                      (p) => p.isBot,
+                      orElse: () => state.players.first,
+                    )
                     .difficulty ??
                 settings.settings.defaultDifficulty,
             rules: state.rules,
@@ -92,7 +95,8 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.gutter),
+                      horizontal: AppSpacing.gutter,
+                    ),
                     child: Column(
                       children: [
                         const SizedBox(height: AppSpacing.lg),
@@ -102,8 +106,7 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              VictoryFlourish(
-                                  size: 190, accent: theme.accent),
+                              VictoryFlourish(size: 190, accent: theme.accent),
                             ],
                           ),
                         ),
@@ -134,21 +137,33 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                           accent: theme.accent,
                           child: Column(
                             children: [
-                              _stat(AppIcon.restart, s.roundsPlayed,
-                                  '${c.state.roundNumber}'),
+                              _stat(
+                                AppIcon.restart,
+                                s.roundsPlayed,
+                                '${c.state.roundNumber}',
+                              ),
                               _divider(),
-                              _stat(AppIcon.cards, s.cardsPlayed,
-                                  '${stats.cardsPlayed}'),
+                              _stat(
+                                AppIcon.cards,
+                                s.cardsPlayed,
+                                '${stats.cardsPlayed}',
+                              ),
                               _divider(),
-                              _stat(AppIcon.chain, s.longestChain,
-                                  stats.longestChain == 0
-                                      ? '—'
-                                      : '+${stats.longestChain * c.state.rules.drawTwoPenalty}'),
+                              _stat(
+                                AppIcon.chain,
+                                s.longestChain,
+                                stats.longestChain == 0
+                                    ? '—'
+                                    : '+${stats.longestChain * c.state.rules.drawTwoPenalty}',
+                              ),
                               _divider(),
-                              _stat(AppIcon.ring, s.bestComeback,
-                                  stats.bestComeback <= 0
-                                      ? '—'
-                                      : '${stats.bestComeback}'),
+                              _stat(
+                                AppIcon.ring,
+                                s.bestComeback,
+                                stats.bestComeback <= 0
+                                    ? '—'
+                                    : '${stats.bestComeback}',
+                              ),
                             ],
                           ),
                         ),
@@ -180,8 +195,10 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                               // when it shares the row with Home.
                               size: ButtonSize.small,
                               onPressed: () {
-                                Get.until((route) =>
-                                    route.settings.name == AppRoutes.home);
+                                Get.until(
+                                  (route) =>
+                                      route.settings.name == AppRoutes.home,
+                                );
                                 Get.toNamed<void>(AppRoutes.setup);
                               },
                             ),
@@ -213,13 +230,13 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
       const Divider(color: AppColors.hairline, height: AppSpacing.lg);
 
   Widget _stat(AppIcon icon, String label, String value) => Row(
-        children: [
-          AppIconView(icon, size: 17, color: AppColors.textSecondary),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(child: Text(label, style: AppText.bodySmall)),
-          Text(value, style: AppText.scoreSmall.copyWith(fontSize: 15)),
-        ],
-      );
+    children: [
+      AppIconView(icon, size: 17, color: AppColors.textSecondary),
+      const SizedBox(width: AppSpacing.md),
+      Expanded(child: Text(label, style: AppText.bodySmall)),
+      Text(value, style: AppText.scoreSmall.copyWith(fontSize: 15)),
+    ],
+  );
 
   Widget _finalTable(Color accent) {
     final players = List<GamePlayer>.of(c.state.players)
@@ -235,7 +252,9 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
             child: AppPanel(
               accent: p.eliminated ? AppColors.danger : accent,
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
               child: Row(
                 children: [
                   AvatarMedallion(
@@ -253,12 +272,18 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                     ),
                   ),
                   if (p.eliminated)
-                    Text(Strings.s.eliminated,
-                        style: AppText.caption
-                            .copyWith(color: AppColors.danger, fontSize: 10))
+                    Text(
+                      Strings.s.eliminated,
+                      style: AppText.caption.copyWith(
+                        color: AppColors.danger,
+                        fontSize: 10,
+                      ),
+                    )
                   else
-                    Text('${p.score}',
-                        style: AppText.scoreSmall.copyWith(fontSize: 15)),
+                    Text(
+                      '${p.score}',
+                      style: AppText.scoreSmall.copyWith(fontSize: 15),
+                    ),
                 ],
               ),
             ),

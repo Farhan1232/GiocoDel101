@@ -147,8 +147,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 title: s.dailyRewardTitle,
                                 subtitle: s.dailyRewardTomorrow,
                                 accent: AppColors.goldLight,
-                                onTap: () => Get.toNamed<void>(
-                                    AppRoutes.dailyReward),
+                                onTap: () =>
+                                    Get.toNamed<void>(AppRoutes.dailyReward),
                               ),
                             ),
                             const SizedBox(height: AppSpacing.md),
@@ -246,20 +246,20 @@ class _HomeScreenState extends State<HomeScreen>
         onTap: () => Get.toNamed<void>(AppRoutes.profile),
         behavior: HitTestBehavior.opaque,
         child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AvatarMedallion(avatarId: _settings.settings.avatarId, size: 38),
-          const SizedBox(width: AppSpacing.sm),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 120),
-            child: Text(
-              _settings.settings.playerName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppText.label.copyWith(color: AppColors.textPrimary),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AvatarMedallion(avatarId: _settings.settings.avatarId, size: 38),
+            const SizedBox(width: AppSpacing.sm),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 120),
+              child: Text(
+                _settings.settings.playerName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.label.copyWith(color: AppColors.textPrimary),
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -268,8 +268,16 @@ class _HomeScreenState extends State<HomeScreen>
   /// The four ways into a game that are not the headline button.
   Widget _secondaryActions(AppLocalizations s) {
     final entries = <({String label, AppIcon icon, String route})>[
-      (label: s.homeQuickMatch, icon: AppIcon.play, route: AppRoutes.matchmaking),
-      (label: s.homeCreateRoom, icon: AppIcon.players, route: AppRoutes.createRoom),
+      (
+        label: s.homeQuickMatch,
+        icon: AppIcon.play,
+        route: AppRoutes.matchmaking,
+      ),
+      (
+        label: s.homeCreateRoom,
+        icon: AppIcon.players,
+        route: AppRoutes.createRoom,
+      ),
       (label: s.homeJoinRoom, icon: AppIcon.cards, route: AppRoutes.joinRoom),
       (label: s.homePlayOffline, icon: AppIcon.draw, route: AppRoutes.setup),
     ];
@@ -286,7 +294,6 @@ class _HomeScreenState extends State<HomeScreen>
                 width: width,
                 child: PremiumButton(
                   label: entry.label,
-                  icon: entry.icon,
                   variant: ButtonVariant.secondary,
                   size: ButtonSize.small,
                   onPressed: () async {
@@ -346,8 +353,16 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _shortcuts(AppLocalizations s, Color accent) {
     final entries = <({String label, AppIcon icon, String route})>[
       (label: s.profile, icon: AppIcon.players, route: AppRoutes.profile),
-      (label: s.homeLeaderboard, icon: AppIcon.trophy, route: AppRoutes.leaderboard),
-      (label: s.achievements, icon: AppIcon.ring, route: AppRoutes.achievements),
+      (
+        label: s.homeLeaderboard,
+        icon: AppIcon.trophy,
+        route: AppRoutes.leaderboard,
+      ),
+      (
+        label: s.achievements,
+        icon: AppIcon.ring,
+        route: AppRoutes.achievements,
+      ),
       (label: s.settings, icon: AppIcon.settings, route: AppRoutes.settings),
     ];
     return Row(

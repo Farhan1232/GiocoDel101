@@ -102,7 +102,8 @@ class _Row extends StatelessWidget {
         vertical: AppSpacing.md,
       ),
       child: Semantics(
-        label: '${s.leaderboardRank} ${entry.rank}. '
+        label:
+            '${s.leaderboardRank} ${entry.rank}. '
             '${entry.nickname}. ${entry.points} ${s.leaderboardPoints}',
         excludeSemantics: true,
         child: Row(

@@ -72,8 +72,7 @@ class BotView {
   final bool canDraw;
   final bool canEndTurn;
 
-  OpponentInfo? get nextOpponent =>
-      opponents.isEmpty ? null : opponents.first;
+  OpponentInfo? get nextOpponent => opponents.isEmpty ? null : opponents.first;
 
   int get handSize => hand.length;
 

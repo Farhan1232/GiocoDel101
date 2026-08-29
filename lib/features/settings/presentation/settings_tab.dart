@@ -34,8 +34,9 @@ class SettingsTab extends StatefulWidget {
 }
 
 class _SettingsTabState extends State<SettingsTab> {
-  late final TextEditingController _name =
-      TextEditingController(text: widget.settings.settings.playerName);
+  late final TextEditingController _name = TextEditingController(
+    text: widget.settings.settings.playerName,
+  );
 
   @override
   void dispose() {
@@ -53,7 +54,11 @@ class _SettingsTabState extends State<SettingsTab> {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.xxl),
+        AppSpacing.gutter,
+        0,
+        AppSpacing.gutter,
+        AppSpacing.xxl,
+      ),
       children: [
         AppPanel(
           accent: accent,
@@ -156,9 +161,13 @@ class _SettingsTabState extends State<SettingsTab> {
                 onChanged: c.setAnimationSpeed,
                 options: [
                   SegmentOption(
-                      value: AnimationSpeed.normal, label: s.animationNormal),
+                    value: AnimationSpeed.normal,
+                    label: s.animationNormal,
+                  ),
                   SegmentOption(
-                      value: AnimationSpeed.fast, label: s.animationFast),
+                    value: AnimationSpeed.fast,
+                    label: s.animationFast,
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -172,11 +181,17 @@ class _SettingsTabState extends State<SettingsTab> {
                 onChanged: c.setDefaultDifficulty,
                 options: [
                   SegmentOption(
-                      value: BotDifficulty.easy, label: s.difficultyEasy),
+                    value: BotDifficulty.easy,
+                    label: s.difficultyEasy,
+                  ),
                   SegmentOption(
-                      value: BotDifficulty.normal, label: s.difficultyNormal),
+                    value: BotDifficulty.normal,
+                    label: s.difficultyNormal,
+                  ),
                   SegmentOption(
-                      value: BotDifficulty.hard, label: s.difficultyHard),
+                    value: BotDifficulty.hard,
+                    label: s.difficultyHard,
+                  ),
                 ],
               ),
               SettingRow(
@@ -251,11 +266,17 @@ class _SettingsTabState extends State<SettingsTab> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             if (!unlocked)
-                              const AppIconView(AppIcon.lock,
-                                  size: 14, color: AppColors.textSecondary)
+                              const AppIconView(
+                                AppIcon.lock,
+                                size: 14,
+                                color: AppColors.textSecondary,
+                              )
                             else if (selected)
-                              const AppIconView(AppIcon.check,
-                                  size: 14, color: AppColors.warmIvory)
+                              const AppIconView(
+                                AppIcon.check,
+                                size: 14,
+                                color: AppColors.warmIvory,
+                              )
                             else
                               const SizedBox(height: 14),
                             Text(
@@ -296,9 +317,7 @@ class _SettingsTabState extends State<SettingsTab> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(AppRadii.sm),
                             border: Border.all(
-                              color: selected
-                                  ? accent
-                                  : Colors.transparent,
+                              color: selected ? accent : Colors.transparent,
                               width: 2,
                             ),
                           ),
@@ -306,10 +325,16 @@ class _SettingsTabState extends State<SettingsTab> {
                             alignment: Alignment.center,
                             children: [
                               PlayingCard(
-                                  width: 44, faceUp: false, backId: b.id),
+                                width: 44,
+                                faceUp: false,
+                                backId: b.id,
+                              ),
                               if (!unlocked)
-                                const AppIconView(AppIcon.lock,
-                                    size: 16, color: AppColors.warmIvory),
+                                const AppIconView(
+                                  AppIcon.lock,
+                                  size: 16,
+                                  color: AppColors.warmIvory,
+                                ),
                             ],
                           ),
                         ),
@@ -331,7 +356,10 @@ class _SettingsTabState extends State<SettingsTab> {
 
   /// §9 — Italian and English, switched live.
   Widget _languagePanel(
-      AppLocalizations s, SettingsController c, Color accent) {
+    AppLocalizations s,
+    SettingsController c,
+    Color accent,
+  ) {
     return AppPanel(
       child: Column(
         children: [
@@ -356,10 +384,10 @@ class _SettingsTabState extends State<SettingsTab> {
   /// in Session 1.
   Widget _accountPanel(AppLocalizations s, Color accent) {
     void pending(String title) => AppDialog.notice(
-          title: title,
-          body: s.settingsLinkPending,
-          dismissLabel: s.gotIt,
-        );
+      title: title,
+      body: s.settingsLinkPending,
+      dismissLabel: s.gotIt,
+    );
 
     return AppPanel(
       child: Column(
@@ -368,22 +396,31 @@ class _SettingsTabState extends State<SettingsTab> {
           SettingRow(
             title: s.profile,
             icon: AppIcon.players,
-            trailing: const AppIconView(AppIcon.chevronDown,
-                size: 14, color: AppColors.textMuted),
+            trailing: const AppIconView(
+              AppIcon.chevronDown,
+              size: 14,
+              color: AppColors.textMuted,
+            ),
             onTap: () => Get.toNamed<void>(AppRoutes.profile),
           ),
           SettingRow(
             title: s.settingsPrivacy,
             icon: AppIcon.rules,
-            trailing: const AppIconView(AppIcon.chevronDown,
-                size: 14, color: AppColors.textMuted),
+            trailing: const AppIconView(
+              AppIcon.chevronDown,
+              size: 14,
+              color: AppColors.textMuted,
+            ),
             onTap: () => pending(s.settingsPrivacy),
           ),
           SettingRow(
             title: s.settingsTerms,
             icon: AppIcon.rules,
-            trailing: const AppIconView(AppIcon.chevronDown,
-                size: 14, color: AppColors.textMuted),
+            trailing: const AppIconView(
+              AppIcon.chevronDown,
+              size: 14,
+              color: AppColors.textMuted,
+            ),
             onTap: () => pending(s.settingsTerms),
           ),
           if (OnlineStatus.isConfigured) ...[

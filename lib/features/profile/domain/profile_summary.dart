@@ -50,8 +50,7 @@ class ProfileSummary {
   /// True while level/XP are the local formula rather than server progression.
   final bool isPlaceholderProgression;
 
-  int get matchesLost =>
-      (matchesPlayed - matchesWon).clamp(0, matchesPlayed);
+  int get matchesLost => (matchesPlayed - matchesWon).clamp(0, matchesPlayed);
 
   int get winPercentage =>
       matchesPlayed == 0 ? 0 : ((matchesWon / matchesPlayed) * 100).round();

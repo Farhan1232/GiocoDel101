@@ -64,9 +64,9 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _shake = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 340),
-  );
+      vsync: this,
+      duration: const Duration(milliseconds: 340),
+    );
   }
 
   @override
@@ -129,7 +129,14 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
     );
   }
 
-  Widget _card(int i, int n, double cw, double ch, double step, double fanWidth) {
+  Widget _card(
+    int i,
+    int n,
+    double cw,
+    double ch,
+    double step,
+    double fanWidth,
+  ) {
     final card = widget.cards[i];
     final centre = (n - 1) / 2;
     final rel = i - centre;
@@ -137,8 +144,8 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
     // Gentle arc: the further from the middle, the lower and more turned.
     final spread = math.min(0.075, 0.55 / math.max(1, n));
     final angle = rel * spread;
-    final lift = -math.pow(rel / math.max(1, centre == 0 ? 1 : centre), 2)
-            .toDouble() *
+    final lift =
+        -math.pow(rel / math.max(1, centre == 0 ? 1 : centre), 2).toDouble() *
         (n > 2 ? 10.0 : 0.0);
 
     final isSelected = widget.selected == card;

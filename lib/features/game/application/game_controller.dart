@@ -175,15 +175,17 @@ class GameController extends GetxController {
       case CardPlayedEvent():
         _queue.add(PlayCardCue(event.playerId, event.card));
       case CardsDrawnEvent():
-        _queue.add(DrawCue(event.playerId, event.cards,
-            isPenalty: event.isPenalty));
+        _queue.add(
+          DrawCue(event.playerId, event.cards, isPenalty: event.isPenalty),
+        );
       case TurnSkippedEvent():
         _queue.add(SkipCue(event.playerId));
       case ChainGrewEvent():
         _queue.add(ChainGrowCue(event.total, event.chainLength));
       case ChainResolvedEvent():
         _queue.add(
-            ChainBreakCue(event.playerId, event.total, event.chainLength));
+          ChainBreakCue(event.playerId, event.total, event.chainLength),
+        );
       case SuitChosenEvent():
         _queue.add(SuitChosenCue(event.playerId, event.suit));
       case SuitChoiceRequestedEvent():
@@ -193,8 +195,9 @@ class GameController extends GetxController {
       case InvalidMoveEvent():
         _queue.add(InvalidCue(event.card));
       case TurnChangedEvent():
-        _queue.add(TurnCue(event.playerId,
-            isHuman: isHumanSeat(event.playerId)));
+        _queue.add(
+          TurnCue(event.playerId, isHuman: isHumanSeat(event.playerId)),
+        );
       case RoundEndedEvent():
         lastRoundResult.value = event.result;
       case Exact101Event():
@@ -375,8 +378,10 @@ class GameController extends GetxController {
     final decision = bot.decide(view);
     switch (decision.action) {
       case BotAction.play:
-        final result =
-            engine.playCard(decision.card!, chosenSuit: decision.suit);
+        final result = engine.playCard(
+          decision.card!,
+          chosenSuit: decision.suit,
+        );
         if (!result.accepted) {
           // A bot proposing an illegal move is a bug, not a stall: fall back.
           if (engine.canDraw) {
@@ -411,9 +416,11 @@ class GameController extends GetxController {
 
   /// §53 — bots pause long enough to feel deliberate, no longer.
   Future<void> _pauseForBot({bool short = false}) async {
-    final span = AppDurations.botThinkMax.inMilliseconds -
+    final span =
+        AppDurations.botThinkMax.inMilliseconds -
         AppDurations.botThinkMin.inMilliseconds;
-    final base = AppDurations.botThinkMin.inMilliseconds +
+    final base =
+        AppDurations.botThinkMin.inMilliseconds +
         _random.nextInt(span <= 0 ? 1 : span);
     final ms = short ? (base * 0.5).round() : base;
     await Future<void>.delayed(Motion.scale(Duration(milliseconds: ms)));
@@ -457,8 +464,9 @@ class GameController extends GetxController {
           HapticService.instance.strong();
         }
       case DrawCue():
-        AudioService.instance
-            .play(cue.isPenalty ? Sfx.cardDrop : Sfx.cardPickup);
+        AudioService.instance.play(
+          cue.isPenalty ? Sfx.cardDrop : Sfx.cardPickup,
+        );
         HapticService.instance.medium();
       case ChainGrowCue():
         chainTotal.value = cue.total;

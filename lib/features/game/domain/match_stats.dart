@@ -13,9 +13,9 @@ class MatchStats {
     Map<String, int>? roundsWon,
     Map<String, List<String>>? cavalloSuits,
     Map<String, int>? suitsPlayed,
-  })  : roundsWon = roundsWon ?? <String, int>{},
-        cavalloSuits = cavalloSuits ?? <String, List<String>>{},
-        suitsPlayed = suitsPlayed ?? <String, int>{};
+  }) : roundsWon = roundsWon ?? <String, int>{},
+       cavalloSuits = cavalloSuits ?? <String, List<String>>{},
+       suitsPlayed = suitsPlayed ?? <String, int>{};
 
   int cardsPlayed;
   int acesPlayed;
@@ -44,33 +44,35 @@ class MatchStats {
   }
 
   Map<String, dynamic> toJson() => {
-        'cardsPlayed': cardsPlayed,
-        'acesPlayed': acesPlayed,
-        'twosPlayed': twosPlayed,
-        'longestChain': longestChain,
-        'resets101': resets101,
-        'bestComeback': bestComeback,
-        'roundsWon': roundsWon,
-        'cavalloSuits': cavalloSuits,
-        'suitsPlayed': suitsPlayed,
-      };
+    'cardsPlayed': cardsPlayed,
+    'acesPlayed': acesPlayed,
+    'twosPlayed': twosPlayed,
+    'longestChain': longestChain,
+    'resets101': resets101,
+    'bestComeback': bestComeback,
+    'roundsWon': roundsWon,
+    'cavalloSuits': cavalloSuits,
+    'suitsPlayed': suitsPlayed,
+  };
 
   factory MatchStats.fromJson(Map<String, dynamic> json) => MatchStats(
-        cardsPlayed: (json['cardsPlayed'] as num?)?.toInt() ?? 0,
-        acesPlayed: (json['acesPlayed'] as num?)?.toInt() ?? 0,
-        twosPlayed: (json['twosPlayed'] as num?)?.toInt() ?? 0,
-        longestChain: (json['longestChain'] as num?)?.toInt() ?? 0,
-        resets101: (json['resets101'] as num?)?.toInt() ?? 0,
-        bestComeback: (json['bestComeback'] as num?)?.toInt() ?? 0,
-        roundsWon: ((json['roundsWon'] as Map?) ?? const {})
-            .map((k, v) => MapEntry(k as String, (v as num).toInt())),
-        cavalloSuits: ((json['cavalloSuits'] as Map?) ?? const {}).map(
-          (k, v) => MapEntry(
-            k as String,
-            ((v as List?) ?? const []).map((e) => e as String).toList(),
-          ),
-        ),
-        suitsPlayed: ((json['suitsPlayed'] as Map?) ?? const {})
-            .map((k, v) => MapEntry(k as String, (v as num).toInt())),
-      );
+    cardsPlayed: (json['cardsPlayed'] as num?)?.toInt() ?? 0,
+    acesPlayed: (json['acesPlayed'] as num?)?.toInt() ?? 0,
+    twosPlayed: (json['twosPlayed'] as num?)?.toInt() ?? 0,
+    longestChain: (json['longestChain'] as num?)?.toInt() ?? 0,
+    resets101: (json['resets101'] as num?)?.toInt() ?? 0,
+    bestComeback: (json['bestComeback'] as num?)?.toInt() ?? 0,
+    roundsWon: ((json['roundsWon'] as Map?) ?? const {}).map(
+      (k, v) => MapEntry(k as String, (v as num).toInt()),
+    ),
+    cavalloSuits: ((json['cavalloSuits'] as Map?) ?? const {}).map(
+      (k, v) => MapEntry(
+        k as String,
+        ((v as List?) ?? const []).map((e) => e as String).toList(),
+      ),
+    ),
+    suitsPlayed: ((json['suitsPlayed'] as Map?) ?? const {}).map(
+      (k, v) => MapEntry(k as String, (v as num).toInt()),
+    ),
+  );
 }

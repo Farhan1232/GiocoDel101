@@ -123,9 +123,7 @@ void main() {
     });
 
     test('stacks to +4 then +6 and hits the player who cannot answer', () {
-      final deck = [
-        for (final r in CardRank.values) c(CardSuit.bastoni, r),
-      ];
+      final deck = [for (final r in CardRank.values) c(CardSuit.bastoni, r)];
       final e = buildEngine(
         hands: [
           [c(CardSuit.coppe, CardRank.two), c(CardSuit.coppe, CardRank.re)],
@@ -167,7 +165,7 @@ void main() {
         chainLength: 1,
         drawPile: [
           c(CardSuit.bastoni, CardRank.four),
-          c(CardSuit.bastoni, CardRank.six)
+          c(CardSuit.bastoni, CardRank.six),
         ],
       );
       e.drawCard();

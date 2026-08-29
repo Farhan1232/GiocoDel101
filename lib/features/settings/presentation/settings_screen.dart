@@ -49,8 +49,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter,
-                      AppSpacing.md, AppSpacing.gutter, AppSpacing.sm),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.gutter,
+                    AppSpacing.md,
+                    AppSpacing.gutter,
+                    AppSpacing.sm,
+                  ),
                   child: Row(
                     children: [
                       IconPill(icon: AppIcon.back, onTap: Get.back<void>),
@@ -70,7 +74,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.gutter),
+                    horizontal: AppSpacing.gutter,
+                  ),
                   child: SegmentedControl<int>(
                     accent: theme.accent,
                     value: _tab,
@@ -80,13 +85,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                     options: [
                       SegmentOption(
-                          value: 0,
-                          label: s.sectionSettings,
-                          icon: AppIcon.settings),
+                        value: 0,
+                        label: s.sectionSettings,
+                        icon: AppIcon.settings,
+                      ),
                       SegmentOption(
-                          value: 1,
-                          label: s.sectionStatistics,
-                          icon: AppIcon.stats),
+                        value: 1,
+                        label: s.sectionStatistics,
+                        icon: AppIcon.stats,
+                      ),
                     ],
                   ),
                 ),
@@ -114,4 +121,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 }
-

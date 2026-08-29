@@ -12,9 +12,10 @@ import 'bot_view.dart';
 /// times its Aces and 2s against the player about to go out.
 class NormalBot extends BotStrategy {
   NormalBot({BotPersonality? personality, Random? random, BotWeights? weights})
-      : weights = (weights ?? const BotWeights())
-            .scaledBy(BotWeights.forPersonality(personality)),
-        super(personality, random ?? Random());
+    : weights = (weights ?? const BotWeights()).scaledBy(
+        BotWeights.forPersonality(personality),
+      ),
+      super(personality, random ?? Random());
 
   final BotWeights weights;
 
@@ -36,8 +37,10 @@ class NormalBot extends BotStrategy {
       }
     }
     best ??= view.playable.first;
-    return BotDecision.play(best,
-        suit: best.isCavallo ? chooseSuit(view) : null);
+    return BotDecision.play(
+      best,
+      suit: best.isCavallo ? chooseSuit(view) : null,
+    );
   }
 
   /// Higher is better. Subclasses extend rather than replace this.
@@ -57,10 +60,10 @@ class NormalBot extends BotStrategy {
     final pressure = next == null
         ? 0.0
         : next.cardCount <= 2
-            ? 2.4
-            : next.cardCount <= 4
-                ? 1.2
-                : 0.7;
+        ? 2.4
+        : next.cardCount <= 4
+        ? 1.2
+        : 0.7;
 
     if (card.isAce) {
       // With one opponent left, a skip is simply another turn for us.

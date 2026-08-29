@@ -33,8 +33,18 @@ void main() {
       expect(CardRank.fante.value, 8);
       expect(CardRank.cavallo.value, 9);
       expect(CardRank.re.value, 10);
-      expect(CardRank.values.map((r) => r.value).toList(),
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      expect(CardRank.values.map((r) => r.value).toList(), [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+      ]);
     });
 
     test('shuffle is reproducible for a given seed', () {

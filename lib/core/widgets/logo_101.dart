@@ -91,19 +91,31 @@ class _Logo101Painter extends CustomPainter {
 
     // Cast shadow, then the struck body, then a lit top edge.
     for (final (painter, px) in positions) {
-      _paintTinted(canvas, painter, Offset(px + glyphSize * 0.035,
-          y + glyphSize * 0.05), AppColors.inkDeep.withValues(alpha: 0.55));
+      _paintTinted(
+        canvas,
+        painter,
+        Offset(px + glyphSize * 0.035, y + glyphSize * 0.05),
+        AppColors.inkDeep.withValues(alpha: 0.55),
+      );
     }
     for (final (painter, px) in positions) {
-      _paintTinted(canvas, painter, Offset(px, y + glyphSize * 0.018),
-          AppColors.goldShadow.withValues(alpha: 0.9));
+      _paintTinted(
+        canvas,
+        painter,
+        Offset(px, y + glyphSize * 0.018),
+        AppColors.goldShadow.withValues(alpha: 0.9),
+      );
     }
     for (final (painter, px) in positions) {
       _paintShaded(canvas, painter, Offset(px, y), bodyShader);
     }
     for (final (painter, px) in positions) {
-      _paintTinted(canvas, painter, Offset(px, y - glyphSize * 0.012),
-          AppColors.goldLight.withValues(alpha: 0.34));
+      _paintTinted(
+        canvas,
+        painter,
+        Offset(px, y - glyphSize * 0.012),
+        AppColors.goldLight.withValues(alpha: 0.34),
+      );
     }
 
     // Strike the central zero into a coin. The medallion is centred on the
@@ -185,13 +197,22 @@ class _Logo101Painter extends CustomPainter {
     }
     star.close();
     canvas.drawPath(
-        star, Paint()..color = AppColors.goldShadow.withValues(alpha: 0.75));
+      star,
+      Paint()..color = AppColors.goldShadow.withValues(alpha: 0.75),
+    );
     canvas.drawCircle(
-        centre, radius * 0.17, Paint()..color = AppColors.goldLight);
+      centre,
+      radius * 0.17,
+      Paint()..color = AppColors.goldLight,
+    );
   }
 
   void _paintTinted(
-      Canvas canvas, TextPainter painter, Offset at, Color color) {
+    Canvas canvas,
+    TextPainter painter,
+    Offset at,
+    Color color,
+  ) {
     canvas.saveLayer(at & Size(painter.width, painter.height), Paint());
     painter.paint(canvas, at);
     canvas.drawRect(
@@ -204,7 +225,11 @@ class _Logo101Painter extends CustomPainter {
   }
 
   void _paintShaded(
-      Canvas canvas, TextPainter painter, Offset at, Shader shader) {
+    Canvas canvas,
+    TextPainter painter,
+    Offset at,
+    Shader shader,
+  ) {
     canvas.saveLayer(at & Size(painter.width, painter.height), Paint());
     painter.paint(canvas, at);
     canvas.drawRect(
@@ -262,11 +287,13 @@ class LogoLockup extends StatelessWidget {
           width: size * 1.25,
           height: 1,
           decoration: const BoxDecoration(
-            gradient: LinearGradient(colors: [
-              Color(0x00D9A441),
-              AppColors.antiqueGold,
-              Color(0x00D9A441),
-            ]),
+            gradient: LinearGradient(
+              colors: [
+                Color(0x00D9A441),
+                AppColors.antiqueGold,
+                Color(0x00D9A441),
+              ],
+            ),
           ),
         ),
         SizedBox(height: size * 0.12),

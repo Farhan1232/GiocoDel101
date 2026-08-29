@@ -50,11 +50,13 @@ class _LastHandReplayState extends State<LastHandReplay> {
   void initState() {
     super.initState();
     final relevant = widget.match.history
-        .where((a) =>
-            a.type == GameActionType.play ||
-            a.type == GameActionType.draw ||
-            a.type == GameActionType.penaltyDraw ||
-            a.type == GameActionType.skip)
+        .where(
+          (a) =>
+              a.type == GameActionType.play ||
+              a.type == GameActionType.draw ||
+              a.type == GameActionType.penaltyDraw ||
+              a.type == GameActionType.skip,
+        )
         .toList();
     _steps = relevant.length <= LastHandReplay.window
         ? relevant
@@ -69,10 +71,7 @@ class _LastHandReplayState extends State<LastHandReplay> {
       return;
     }
     setState(() => _index++);
-    _timer = Timer(
-      Motion.scale(const Duration(milliseconds: 700)),
-      _advance,
-    );
+    _timer = Timer(Motion.scale(const Duration(milliseconds: 700)), _advance);
   }
 
   @override
@@ -81,13 +80,14 @@ class _LastHandReplayState extends State<LastHandReplay> {
     super.dispose();
   }
 
-  String _nameOf(String id) =>
-      widget.match.playerById(id)?.name ?? '';
+  String _nameOf(String id) => widget.match.playerById(id)?.name ?? '';
 
   @override
   Widget build(BuildContext context) {
     final accent = widget.accent ?? AppColors.antiqueGold;
-    final shown = _index < 0 ? <GameAction>[] : _steps.take(_index + 1).toList();
+    final shown = _index < 0
+        ? <GameAction>[]
+        : _steps.take(_index + 1).toList();
     final current = shown.isEmpty ? null : shown.last;
 
     return GestureDetector(
@@ -100,8 +100,10 @@ class _LastHandReplayState extends State<LastHandReplay> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(Strings.s.replayLastHand.toUpperCase(),
-                    style: AppText.sectionTitle),
+                Text(
+                  Strings.s.replayLastHand.toUpperCase(),
+                  style: AppText.sectionTitle,
+                ),
                 const SizedBox(height: AppSpacing.xl),
                 SizedBox(
                   height: 190,
@@ -121,10 +123,13 @@ class _LastHandReplayState extends State<LastHandReplay> {
                       ? const SizedBox.shrink()
                       : Column(
                           children: [
-                            Text(_nameOf(current.playerId),
-                                style: AppText.body.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: accent)),
+                            Text(
+                              _nameOf(current.playerId),
+                              style: AppText.body.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: accent,
+                              ),
+                            ),
                             Text(_describe(current), style: AppText.caption),
                           ],
                         ),
@@ -173,13 +178,19 @@ class _LastHandReplayState extends State<LastHandReplay> {
       curve: Curves.easeOutCubic,
       builder: (context, t, child) => Transform.translate(
         offset: Offset(offset * t, (1 - t) * -50),
-        child: Opacity(opacity: (0.35 + t * 0.65) * (isLatest ? 1 : 0.55),
-            child: child),
+        child: Opacity(
+          opacity: (0.35 + t * 0.65) * (isLatest ? 1 : 0.55),
+          child: child,
+        ),
       ),
       child: Transform.rotate(
         angle: (i - (total - 1)) * 0.06,
         child: card != null
-            ? PlayingCard(width: 96, card: card, elevation: isLatest ? 1.4 : 0.4)
+            ? PlayingCard(
+                width: 96,
+                card: card,
+                elevation: isLatest ? 1.4 : 0.4,
+              )
             : _tokenCard(action),
       ),
     );

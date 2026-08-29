@@ -39,9 +39,9 @@ class _AppBackgroundState extends State<AppBackground>
   void initState() {
     super.initState();
     _drift = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 42),
-  );
+      vsync: this,
+      duration: const Duration(seconds: 42),
+    );
     if (_needsMotionLayer) _drift.repeat();
   }
 
@@ -147,10 +147,7 @@ class BackdropPainter extends CustomPainter {
         ..shader = ui.Gradient.radial(
           Offset(size.width * 0.5, size.height * 0.42),
           size.height * 0.85,
-          [
-            Colors.transparent,
-            AppColors.inkDeep.withValues(alpha: 0.55),
-          ],
+          [Colors.transparent, AppColors.inkDeep.withValues(alpha: 0.55)],
           const [0.55, 1.0],
         ),
     );
@@ -266,8 +263,9 @@ class _EmberPainter extends CustomPainter {
         Offset(x * size.width, y * size.height),
         r,
         Paint()
-          ..color = theme.particle
-              .withValues(alpha: (0.10 + rng.nextDouble() * 0.18) * strength),
+          ..color = theme.particle.withValues(
+            alpha: (0.10 + rng.nextDouble() * 0.18) * strength,
+          ),
       );
     }
   }

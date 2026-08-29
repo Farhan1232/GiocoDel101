@@ -31,8 +31,10 @@ class ProfileScreen extends StatelessWidget {
       title: s.profile,
       child: Obx(() {
         final accent = settings.theme.accent;
-        final profile =
-            ProfileSummary.fromLocal(settings.settings, stats.stats);
+        final profile = ProfileSummary.fromLocal(
+          settings.settings,
+          stats.stats,
+        );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

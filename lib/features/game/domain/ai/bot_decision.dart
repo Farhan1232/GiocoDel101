@@ -6,15 +6,12 @@ enum BotAction { play, draw, endTurn }
 /// A bot's move, plus the reaction line it feels like throwing out (§23).
 class BotDecision {
   const BotDecision.play(GameCard this.card, {this.suit})
-      : action = BotAction.play;
-  const BotDecision.draw()
-      : action = BotAction.draw,
-        card = null,
-        suit = null;
+    : action = BotAction.play;
+  const BotDecision.draw() : action = BotAction.draw, card = null, suit = null;
   const BotDecision.endTurn()
-      : action = BotAction.endTurn,
-        card = null,
-        suit = null;
+    : action = BotAction.endTurn,
+      card = null,
+      suit = null;
 
   final BotAction action;
   final GameCard? card;

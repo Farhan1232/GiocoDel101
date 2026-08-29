@@ -52,15 +52,15 @@ extension AppLocalizationsExtras on AppLocalizations {
   /// §23 — exactly eight reaction lines. ARB has no list type, so they are
   /// eight keys joined here rather than eight call sites.
   List<String> get reactions8 => [
-        reaction1,
-        reaction2,
-        reaction3,
-        reaction4,
-        reaction5,
-        reaction6,
-        reaction7,
-        reaction8,
-      ];
+    reaction1,
+    reaction2,
+    reaction3,
+    reaction4,
+    reaction5,
+    reaction6,
+    reaction7,
+    reaction8,
+  ];
 
   /// 'it' or 'en' — used by the settings language row.
   String get languageCode => localeName;

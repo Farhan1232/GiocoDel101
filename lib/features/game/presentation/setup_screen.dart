@@ -41,8 +41,9 @@ class _SetupScreenState extends State<SetupScreen> {
       defaultDifficulty: _settings.settings.defaultDifficulty,
     ),
   );
-  late final TextEditingController _name =
-      TextEditingController(text: _settings.settings.playerName);
+  late final TextEditingController _name = TextEditingController(
+    text: _settings.settings.playerName,
+  );
 
   @override
   void dispose() {
@@ -65,8 +66,7 @@ class _SetupScreenState extends State<SetupScreen> {
         : MatchFactory.passAndPlay(
             names: [
               _settings.settings.playerName,
-              ..._setup.passAndPlayNames
-                  .take(_setup.playerCount.value - 1),
+              ..._setup.passAndPlayNames.take(_setup.playerCount.value - 1),
             ],
             avatarIds: [
               _settings.settings.avatarId,
@@ -94,51 +94,71 @@ class _SetupScreenState extends State<SetupScreen> {
                 _header(s.newGame),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0,
-                        AppSpacing.gutter, AppSpacing.lg),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.gutter,
+                      0,
+                      AppSpacing.gutter,
+                      AppSpacing.lg,
+                    ),
                     children: [
                       _tablePreview(accent),
                       const SizedBox(height: AppSpacing.lg),
-                      _block(s.mode, SegmentedControl<GameMode>(
-                        accent: accent,
-                        value: _setup.mode.value,
-                        onChanged: (v) => _setup.mode.value = v,
-                        options: [
-                          SegmentOption(
-                              value: GameMode.vsComputer,
-                              label: s.modeVsComputer,
-                              icon: AppIcon.difficulty),
-                          SegmentOption(
-                              value: GameMode.passAndPlay,
-                              label: s.modePassAndPlay,
-                              icon: AppIcon.players),
-                        ],
-                      )),
-                      _block(s.playersCount, SegmentedControl<int>(
-                        accent: accent,
-                        value: _setup.playerCount.value,
-                        onChanged: (v) => _setup.playerCount.value = v,
-                        options: const [
-                          SegmentOption(value: 2, label: '2'),
-                          SegmentOption(value: 3, label: '3'),
-                          SegmentOption(value: 4, label: '4'),
-                        ],
-                      )),
-                      if (_setup.mode.value == GameMode.vsComputer)
-                        _block(s.difficulty, SegmentedControl<BotDifficulty>(
+                      _block(
+                        s.mode,
+                        SegmentedControl<GameMode>(
                           accent: accent,
-                          value: _setup.difficulty.value,
-                          onChanged: (v) => _setup.difficulty.value = v,
+                          value: _setup.mode.value,
+                          onChanged: (v) => _setup.mode.value = v,
                           options: [
                             SegmentOption(
-                                value: BotDifficulty.easy, label: s.difficultyEasy),
+                              value: GameMode.vsComputer,
+                              label: s.modeVsComputer,
+                              icon: AppIcon.difficulty,
+                            ),
                             SegmentOption(
-                                value: BotDifficulty.normal,
-                                label: s.difficultyNormal),
-                            SegmentOption(
-                                value: BotDifficulty.hard, label: s.difficultyHard),
+                              value: GameMode.passAndPlay,
+                              label: s.modePassAndPlay,
+                              icon: AppIcon.players,
+                            ),
                           ],
-                        )),
+                        ),
+                      ),
+                      _block(
+                        s.playersCount,
+                        SegmentedControl<int>(
+                          accent: accent,
+                          value: _setup.playerCount.value,
+                          onChanged: (v) => _setup.playerCount.value = v,
+                          options: const [
+                            SegmentOption(value: 2, label: '2'),
+                            SegmentOption(value: 3, label: '3'),
+                            SegmentOption(value: 4, label: '4'),
+                          ],
+                        ),
+                      ),
+                      if (_setup.mode.value == GameMode.vsComputer)
+                        _block(
+                          s.difficulty,
+                          SegmentedControl<BotDifficulty>(
+                            accent: accent,
+                            value: _setup.difficulty.value,
+                            onChanged: (v) => _setup.difficulty.value = v,
+                            options: [
+                              SegmentOption(
+                                value: BotDifficulty.easy,
+                                label: s.difficultyEasy,
+                              ),
+                              SegmentOption(
+                                value: BotDifficulty.normal,
+                                label: s.difficultyNormal,
+                              ),
+                              SegmentOption(
+                                value: BotDifficulty.hard,
+                                label: s.difficultyHard,
+                              ),
+                            ],
+                          ),
+                        ),
                       _block(s.playerName, _nameField(accent)),
                       if (_setup.mode.value == GameMode.passAndPlay)
                         _passAndPlayNames(accent),
@@ -149,8 +169,12 @@ class _SetupScreenState extends State<SetupScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0,
-                      AppSpacing.gutter, AppSpacing.lg),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.gutter,
+                    0,
+                    AppSpacing.gutter,
+                    AppSpacing.lg,
+                  ),
                   child: PremiumButton(
                     label: s.startMatch,
                     icon: AppIcon.play,
@@ -167,53 +191,64 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   Widget _header(String title) => Padding(
-        padding: const EdgeInsets.fromLTRB(
-            AppSpacing.gutter, AppSpacing.md, AppSpacing.gutter, AppSpacing.md),
-        child: Row(
-          children: [
-            IconPill(icon: AppIcon.back, onTap: Get.back<void>),
-            Expanded(
-              child: Text(title,
-                  textAlign: TextAlign.center, style: AppText.screenTitle),
-            ),
-            const SizedBox(width: 44),
-          ],
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.gutter,
+      AppSpacing.md,
+      AppSpacing.gutter,
+      AppSpacing.md,
+    ),
+    child: Row(
+      children: [
+        IconPill(icon: AppIcon.back, onTap: Get.back<void>),
+        Expanded(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: AppText.screenTitle,
+          ),
         ),
-      );
+        const SizedBox(width: 44),
+      ],
+    ),
+  );
 
   Widget _block(String label, Widget child) => Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: AppSpacing.xs, bottom: AppSpacing.sm),
-              child: Text(label.toUpperCase(), style: AppText.label),
-            ),
-            child,
-          ],
+    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: AppSpacing.xs,
+            bottom: AppSpacing.sm,
+          ),
+          child: Text(label.toUpperCase(), style: AppText.label),
         ),
-      );
+        child,
+      ],
+    ),
+  );
 
   Widget _nameField(Color accent) => TextField(
-        controller: _name,
-        maxLength: 16,
-        textCapitalization: TextCapitalization.words,
-        style: AppText.body,
-        cursorColor: accent,
-        decoration: InputDecoration(
-          counterText: '',
-          hintText: Strings.s.playerName,
-          prefixIcon: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: AppIconView(AppIcon.edit,
-                size: 18, color: AppColors.textSecondary),
-          ),
-          prefixIconConstraints:
-              const BoxConstraints(minWidth: 46, minHeight: 46),
+    controller: _name,
+    maxLength: 16,
+    textCapitalization: TextCapitalization.words,
+    style: AppText.body,
+    cursorColor: accent,
+    decoration: InputDecoration(
+      counterText: '',
+      hintText: Strings.s.playerName,
+      prefixIcon: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: AppIconView(
+          AppIcon.edit,
+          size: 18,
+          color: AppColors.textSecondary,
         ),
-      );
+      ),
+      prefixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
+    ),
+  );
 
   Widget _passAndPlayNames(Color accent) {
     return _block(
@@ -224,15 +259,17 @@ class _SetupScreenState extends State<SetupScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: TextField(
-                controller: TextEditingController(
-                    text: _setup.passAndPlayNames[i])
-                  ..selection = TextSelection.collapsed(
-                      offset: _setup.passAndPlayNames[i].length),
+                controller:
+                    TextEditingController(text: _setup.passAndPlayNames[i])
+                      ..selection = TextSelection.collapsed(
+                        offset: _setup.passAndPlayNames[i].length,
+                      ),
                 maxLength: 16,
                 style: AppText.body,
                 cursorColor: accent,
-                onChanged: (v) => _setup.passAndPlayNames[i] =
-                    v.trim().isEmpty ? 'Giocatore ${i + 2}' : v.trim(),
+                onChanged: (v) => _setup.passAndPlayNames[i] = v.trim().isEmpty
+                    ? 'Giocatore ${i + 2}'
+                    : v.trim(),
                 decoration: InputDecoration(
                   counterText: '',
                   hintText: 'Giocatore ${i + 2}',
@@ -250,7 +287,8 @@ class _SetupScreenState extends State<SetupScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: TableThemes.all.length,
-        separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.md),
+        separatorBuilder: (context, index) =>
+            const SizedBox(width: AppSpacing.md),
         itemBuilder: (context, i) {
           final t = TableThemes.all[i];
           final unlocked = _settings.isThemeUnlocked(t.id);
@@ -297,7 +335,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(AppRadii.md)),
+                          bottom: Radius.circular(AppRadii.md),
+                        ),
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -312,8 +351,11 @@ class _SetupScreenState extends State<SetupScreen> {
                   if (!unlocked)
                     const Align(
                       alignment: Alignment.topRight,
-                      child: AppIconView(AppIcon.lock,
-                          size: 16, color: AppColors.warmIvory),
+                      child: AppIconView(
+                        AppIcon.lock,
+                        size: 16,
+                        color: AppColors.warmIvory,
+                      ),
                     ),
                   Align(
                     alignment: Alignment.bottomLeft,
@@ -321,14 +363,16 @@ class _SetupScreenState extends State<SetupScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(t.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppText.body.copyWith(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            )),
+                        Text(
+                          t.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.body.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           unlocked ? t.tagline : Strings.s.locked,
@@ -353,12 +397,13 @@ class _SetupScreenState extends State<SetupScreen> {
     return AppPanel(
       accent: accent,
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       child: Column(
         children: [
           InkWell(
-            onTap: () =>
-                _setup.advancedOpen.value = !_setup.advancedOpen.value,
+            onTap: () => _setup.advancedOpen.value = !_setup.advancedOpen.value,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: Row(
@@ -366,9 +411,10 @@ class _SetupScreenState extends State<SetupScreen> {
                   AppIconView(AppIcon.rules, size: 18, color: accent),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
-                    child: Text(Strings.s.advancedRules,
-                        style:
-                            AppText.body.copyWith(fontWeight: FontWeight.w700)),
+                    child: Text(
+                      Strings.s.advancedRules,
+                      style: AppText.body.copyWith(fontWeight: FontWeight.w700),
+                    ),
                   ),
                   if (!_setup.isDefaultRules)
                     Padding(
@@ -378,8 +424,11 @@ class _SetupScreenState extends State<SetupScreen> {
                   AnimatedRotation(
                     duration: Motion.scale(AppDurations.quick),
                     turns: _setup.advancedOpen.value ? 0.5 : 0,
-                    child: const AppIconView(AppIcon.chevronDown,
-                        size: 18, color: AppColors.textSecondary),
+                    child: const AppIconView(
+                      AppIcon.chevronDown,
+                      size: 18,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -404,20 +453,42 @@ class _SetupScreenState extends State<SetupScreen> {
                     onChanged: (v) => _setup.startingHand.value = v,
                   ),
                 ),
-                _ruleSwitch(Strings.s.ruleStackTwos, Strings.s.ruleStackTwosHint,
-                    _setup.stackTwos, accent),
-                _ruleSwitch(Strings.s.ruleWildNine, Strings.s.ruleWildNineHint,
-                    _setup.wildNine, accent),
-                _ruleSwitch(Strings.s.ruleVoluntaryDraw,
-                    Strings.s.ruleVoluntaryDrawHint, _setup.voluntaryDraw, accent),
-                _ruleSwitch(Strings.s.ruleExactReset,
-                    Strings.s.ruleExactResetHint, _setup.exactReset, accent),
-                _ruleSwitch(Strings.s.ruleEliminate,
-                    Strings.s.ruleEliminateHint, _setup.eliminate, accent),
+                _ruleSwitch(
+                  Strings.s.ruleStackTwos,
+                  Strings.s.ruleStackTwosHint,
+                  _setup.stackTwos,
+                  accent,
+                ),
+                _ruleSwitch(
+                  Strings.s.ruleWildNine,
+                  Strings.s.ruleWildNineHint,
+                  _setup.wildNine,
+                  accent,
+                ),
+                _ruleSwitch(
+                  Strings.s.ruleVoluntaryDraw,
+                  Strings.s.ruleVoluntaryDrawHint,
+                  _setup.voluntaryDraw,
+                  accent,
+                ),
+                _ruleSwitch(
+                  Strings.s.ruleExactReset,
+                  Strings.s.ruleExactResetHint,
+                  _setup.exactReset,
+                  accent,
+                ),
+                _ruleSwitch(
+                  Strings.s.ruleEliminate,
+                  Strings.s.ruleEliminateHint,
+                  _setup.eliminate,
+                  accent,
+                ),
                 if (!_setup.isDefaultRules)
                   Padding(
                     padding: const EdgeInsets.only(
-                        top: AppSpacing.sm, bottom: AppSpacing.md),
+                      top: AppSpacing.sm,
+                      bottom: AppSpacing.md,
+                    ),
                     child: PremiumButton(
                       label: 'Ripristina regole',
                       variant: ButtonVariant.ghost,
@@ -456,13 +527,21 @@ class _SetupScreenState extends State<SetupScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _stepButton('−', value > min ? () => onChanged(value - 1) : null, accent),
+        _stepButton(
+          '−',
+          value > min ? () => onChanged(value - 1) : null,
+          accent,
+        ),
         Container(
           width: 40,
           alignment: Alignment.center,
           child: Text('$value', style: AppText.scoreSmall),
         ),
-        _stepButton('+', value < max ? () => onChanged(value + 1) : null, accent),
+        _stepButton(
+          '+',
+          value < max ? () => onChanged(value + 1) : null,
+          accent,
+        ),
       ],
     );
   }
@@ -481,9 +560,14 @@ class _SetupScreenState extends State<SetupScreen> {
             border: Border.all(color: accent.withValues(alpha: 0.35)),
           ),
           alignment: Alignment.center,
-          child: Text(glyph,
-              style: AppText.body
-                  .copyWith(fontSize: 18, color: accent, height: 1)),
+          child: Text(
+            glyph,
+            style: AppText.body.copyWith(
+              fontSize: 18,
+              color: accent,
+              height: 1,
+            ),
+          ),
         ),
       ),
     );
@@ -517,21 +601,21 @@ class _SetupScreenState extends State<SetupScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(54),
               gradient: RadialGradient(
-                colors: [
-                  _settings.theme.feltInner,
-                  _settings.theme.feltOuter,
-                ],
+                colors: [_settings.theme.feltInner, _settings.theme.feltOuter],
               ),
               border: Border.all(
-                  color: _settings.theme.feltRim.withValues(alpha: 0.55),
-                  width: 2),
+                color: _settings.theme.feltRim.withValues(alpha: 0.55),
+                width: 2,
+              ),
             ),
             alignment: Alignment.center,
-            child: Text('101',
-                style: AppText.screenTitle.copyWith(
-                  fontSize: 22,
-                  color: _settings.theme.feltRim.withValues(alpha: 0.75),
-                )),
+            child: Text(
+              '101',
+              style: AppText.screenTitle.copyWith(
+                fontSize: 22,
+                color: _settings.theme.feltRim.withValues(alpha: 0.75),
+              ),
+            ),
           ),
           for (var i = 0; i < count; i++)
             _seat(i, count, names[i], avatars[i], accent),
@@ -540,7 +624,13 @@ class _SetupScreenState extends State<SetupScreen> {
     );
   }
 
-  Widget _seat(int index, int count, String name, String avatarId, Color accent) {
+  Widget _seat(
+    int index,
+    int count,
+    String name,
+    String avatarId,
+    Color accent,
+  ) {
     // Index 0 always sits at the bottom; the rest spread around the felt.
     return Transform.translate(
       key: ValueKey('seat_${count}_$index'),
@@ -548,11 +638,7 @@ class _SetupScreenState extends State<SetupScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AvatarMedallion(
-            avatarId: avatarId,
-            size: 40,
-            active: index == 0,
-          ),
+          AvatarMedallion(avatarId: avatarId, size: 40, active: index == 0),
           const SizedBox(height: AppSpacing.xs),
           SizedBox(
             width: 68,

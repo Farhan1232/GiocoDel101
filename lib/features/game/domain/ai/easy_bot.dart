@@ -10,7 +10,7 @@ import 'bot_view.dart';
 /// about to win and little else.
 class EasyBot extends BotStrategy {
   EasyBot({BotPersonality? personality, Random? random})
-      : super(personality, random ?? Random());
+    : super(personality, random ?? Random());
 
   @override
   BotDifficulty get difficulty => BotDifficulty.easy;
@@ -23,13 +23,17 @@ class EasyBot extends BotStrategy {
     // Even a beginner spots the winning card.
     for (final card in view.playable) {
       if (view.handSize == 1) {
-        return BotDecision.play(card,
-            suit: card.isCavallo ? chooseSuit(view) : null);
+        return BotDecision.play(
+          card,
+          suit: card.isCavallo ? chooseSuit(view) : null,
+        );
       }
     }
     final card = view.playable[random.nextInt(view.playable.length)];
-    return BotDecision.play(card,
-        suit: card.isCavallo ? chooseSuit(view) : null);
+    return BotDecision.play(
+      card,
+      suit: card.isCavallo ? chooseSuit(view) : null,
+    );
   }
 
   @override

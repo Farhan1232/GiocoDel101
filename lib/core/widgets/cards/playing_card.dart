@@ -66,8 +66,11 @@ class PlayingCard extends StatelessWidget {
               borderRadius: radius,
               color: showFace
                   ? AppColors.cardEdge
-                  : Color.lerp(CardBacks.byId(backId).baseBottom,
-                      Colors.black, 0.35)!,
+                  : Color.lerp(
+                      CardBacks.byId(backId).baseBottom,
+                      Colors.black,
+                      0.35,
+                    )!,
             ),
           ),
         ),
@@ -82,10 +85,7 @@ class PlayingCard extends StatelessWidget {
                     dimmed: dimmed,
                     glow: glow,
                   )
-                : CardBackPainter(
-                    design: CardBacks.byId(backId),
-                    shine: shine,
-                  ),
+                : CardBackPainter(design: CardBacks.byId(backId), shine: shine),
           ),
         ),
       ],

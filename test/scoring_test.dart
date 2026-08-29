@@ -69,7 +69,9 @@ void main() {
     });
 
     test('the reset can be switched off', () {
-      const noReset = ScoreCalculator(GameRulesConfig(exact101ResetsToZero: false));
+      const noReset = ScoreCalculator(
+        GameRulesConfig(exact101ResetsToZero: false),
+      );
       final out = noReset.apply(previousScore: 94, penalty: 7);
       expect(out.newScore, 101);
       expect(out.hitExact101, isFalse);
@@ -95,7 +97,10 @@ void main() {
       final e = buildEngine(
         hands: [
           [c(CardSuit.coppe, CardRank.re)],
-          [c(CardSuit.spade, CardRank.three), c(CardSuit.spade, CardRank.fante)],
+          [
+            c(CardSuit.spade, CardRank.three),
+            c(CardSuit.spade, CardRank.fante),
+          ],
           [c(CardSuit.denari, CardRank.seven)],
         ],
         top: c(CardSuit.coppe, CardRank.five),
@@ -106,7 +111,11 @@ void main() {
       expect(e.round.phase, TurnPhase.roundOver);
       final result = e.lastRoundResult!;
       expect(result.winnerId, 'p0');
-      expect(e.state.playerById('p0')!.score, 10, reason: 'winner adds nothing');
+      expect(
+        e.state.playerById('p0')!.score,
+        10,
+        reason: 'winner adds nothing',
+      );
       expect(e.state.playerById('p1')!.score, 20 + 3 + 8);
       expect(e.state.playerById('p2')!.score, 30 + 7);
       expect(result.rows, hasLength(3));
@@ -132,7 +141,10 @@ void main() {
           [c(CardSuit.spade, CardRank.three)],
         ],
         top: c(CardSuit.coppe, CardRank.five),
-        drawPile: [c(CardSuit.bastoni, CardRank.re), c(CardSuit.bastoni, CardRank.six)],
+        drawPile: [
+          c(CardSuit.bastoni, CardRank.re),
+          c(CardSuit.bastoni, CardRank.six),
+        ],
       );
       e.playCard(c(CardSuit.coppe, CardRank.two));
       expect(e.round.phase, TurnPhase.roundOver);
@@ -148,7 +160,10 @@ void main() {
           [c(CardSuit.spade, CardRank.three)],
         ],
         top: c(CardSuit.coppe, CardRank.five),
-        drawPile: [c(CardSuit.bastoni, CardRank.re), c(CardSuit.bastoni, CardRank.six)],
+        drawPile: [
+          c(CardSuit.bastoni, CardRank.re),
+          c(CardSuit.bastoni, CardRank.six),
+        ],
         rules: const GameRulesConfig(pendingPenaltyAppliesAfterWin: true),
       );
       e.playCard(c(CardSuit.coppe, CardRank.two));
@@ -252,20 +267,23 @@ void main() {
       expect(seen, isNot(contains('p1')));
     });
 
-    test('with elimination disabled the lowest score wins on any overshoot', () {
-      final e = buildEngine(
-        hands: [
-          [c(CardSuit.coppe, CardRank.re)],
-          [c(CardSuit.spade, CardRank.re), c(CardSuit.spade, CardRank.fante)],
-        ],
-        top: c(CardSuit.coppe, CardRank.five),
-        scores: [20, 95],
-        rules: const GameRulesConfig(eliminateAbove101: false),
-      );
-      e.playCard(c(CardSuit.coppe, CardRank.re));
-      expect(e.state.playerById('p1')!.eliminated, isFalse);
-      expect(e.state.matchOver, isTrue);
-      expect(e.state.matchWinnerId, 'p0');
-    });
+    test(
+      'with elimination disabled the lowest score wins on any overshoot',
+      () {
+        final e = buildEngine(
+          hands: [
+            [c(CardSuit.coppe, CardRank.re)],
+            [c(CardSuit.spade, CardRank.re), c(CardSuit.spade, CardRank.fante)],
+          ],
+          top: c(CardSuit.coppe, CardRank.five),
+          scores: [20, 95],
+          rules: const GameRulesConfig(eliminateAbove101: false),
+        );
+        e.playCard(c(CardSuit.coppe, CardRank.re));
+        expect(e.state.playerById('p1')!.eliminated, isFalse);
+        expect(e.state.matchOver, isTrue);
+        expect(e.state.matchWinnerId, 'p0');
+      },
+    );
   });
 }

@@ -29,15 +29,15 @@ class CreateRoomController extends GetxController {
   void setRules(GameRulesConfig value) =>
       config.value = config.value.copyWith(rules: value);
 
-  void toggleStackTwos(bool value) => setRules(
-      config.value.rules.copyWith(stackDrawTwos: value));
+  void toggleStackTwos(bool value) =>
+      setRules(config.value.rules.copyWith(stackDrawTwos: value));
 
-  void toggleWildNine(bool value) => setRules(
-      config.value.rules.copyWith(wildNineCanAlwaysPlay: value));
+  void toggleWildNine(bool value) =>
+      setRules(config.value.rules.copyWith(wildNineCanAlwaysPlay: value));
 
-  void toggleExactReset(bool value) => setRules(
-      config.value.rules.copyWith(exact101ResetsToZero: value));
+  void toggleExactReset(bool value) =>
+      setRules(config.value.rules.copyWith(exact101ResetsToZero: value));
 
-  void toggleEliminate(bool value) => setRules(
-      config.value.rules.copyWith(eliminateAbove101: value));
+  void toggleEliminate(bool value) =>
+      setRules(config.value.rules.copyWith(eliminateAbove101: value));
 }

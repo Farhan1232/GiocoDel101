@@ -36,20 +36,18 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     _c = AnimationController(
-    vsync: this,
-    duration: Motion.reduceMotion
-        ? const Duration(milliseconds: 650)
-        : const Duration(milliseconds: 1750),
-  );
+      vsync: this,
+      duration: Motion.reduceMotion
+          ? const Duration(milliseconds: 650)
+          : const Duration(milliseconds: 1750),
+    );
     _c.forward();
     _c.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
         // First run goes through onboarding; everyone else straight to Home.
         final settings = Get.find<SettingsController>();
         Get.offNamed<void>(
-          settings.onboardingComplete
-              ? AppRoutes.home
-              : AppRoutes.onboarding,
+          settings.onboardingComplete ? AppRoutes.home : AppRoutes.onboarding,
         );
       }
     });
@@ -86,9 +84,11 @@ class _SplashScreenState extends State<SplashScreen>
             builder: (context, _) {
               final t = _c.value;
               final cardRise = Curves.easeOutCubic.transform(
-                  ((t - 0.02) / 0.42).clamp(0.0, 1.0));
+                ((t - 0.02) / 0.42).clamp(0.0, 1.0),
+              );
               final logoIn = Curves.easeOutBack.transform(
-                  ((t - 0.24) / 0.40).clamp(0.0, 1.0));
+                ((t - 0.24) / 0.40).clamp(0.0, 1.0),
+              );
               final orbit = ((t - 0.32) / 0.55).clamp(0.0, 1.0);
               final shimmer = ((t - 0.55) / 0.40).clamp(0.0, 1.0);
               final fadeOut = ((t - 0.90) / 0.10).clamp(0.0, 1.0);

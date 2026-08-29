@@ -90,8 +90,10 @@ class _DepthTransition extends CustomTransition {
     return FadeTransition(
       opacity: eased,
       child: SlideTransition(
-        position: Tween(begin: Offset(0, slide), end: Offset.zero)
-            .animate(eased),
+        position: Tween(
+          begin: Offset(0, slide),
+          end: Offset.zero,
+        ).animate(eased),
         child: ScaleTransition(
           scale: Tween(begin: from, end: 1.0).animate(eased),
           child: child,

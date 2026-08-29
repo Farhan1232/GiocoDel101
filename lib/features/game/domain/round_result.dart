@@ -24,15 +24,15 @@ class PlayerRoundResult {
   final bool eliminated;
 
   Map<String, dynamic> toJson() => {
-        'playerId': playerId,
-        'name': name,
-        'cardsLeft': cardsLeft,
-        'penalty': penalty,
-        'previousScore': previousScore,
-        'newScore': newScore,
-        'hitExact101': hitExact101,
-        'eliminated': eliminated,
-      };
+    'playerId': playerId,
+    'name': name,
+    'cardsLeft': cardsLeft,
+    'penalty': penalty,
+    'previousScore': previousScore,
+    'newScore': newScore,
+    'hitExact101': hitExact101,
+    'eliminated': eliminated,
+  };
 
   factory PlayerRoundResult.fromJson(Map<String, dynamic> json) =>
       PlayerRoundResult(
@@ -65,22 +65,22 @@ class RoundResult {
   final String? matchWinnerId;
 
   Map<String, dynamic> toJson() => {
-        'roundNumber': roundNumber,
-        'winnerId': winnerId,
-        'winnerName': winnerName,
-        'rows': rows.map((r) => r.toJson()).toList(),
-        'matchOver': matchOver,
-        'matchWinnerId': matchWinnerId,
-      };
+    'roundNumber': roundNumber,
+    'winnerId': winnerId,
+    'winnerName': winnerName,
+    'rows': rows.map((r) => r.toJson()).toList(),
+    'matchOver': matchOver,
+    'matchWinnerId': matchWinnerId,
+  };
 
   factory RoundResult.fromJson(Map<String, dynamic> json) => RoundResult(
-        roundNumber: (json['roundNumber'] as num).toInt(),
-        winnerId: json['winnerId'] as String,
-        winnerName: json['winnerName'] as String,
-        rows: ((json['rows'] as List?) ?? const [])
-            .map((e) => PlayerRoundResult.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        matchOver: json['matchOver'] as bool? ?? false,
-        matchWinnerId: json['matchWinnerId'] as String?,
-      );
+    roundNumber: (json['roundNumber'] as num).toInt(),
+    winnerId: json['winnerId'] as String,
+    winnerName: json['winnerName'] as String,
+    rows: ((json['rows'] as List?) ?? const [])
+        .map((e) => PlayerRoundResult.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    matchOver: json['matchOver'] as bool? ?? false,
+    matchWinnerId: json['matchWinnerId'] as String?,
+  );
 }

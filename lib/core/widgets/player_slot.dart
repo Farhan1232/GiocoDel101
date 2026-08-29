@@ -48,9 +48,7 @@ class PlayerSlotTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tint = accent ?? AppColors.antiqueGold;
-    final status = _empty
-        ? null
-        : (isReady ? readyLabel : waitingLabel);
+    final status = _empty ? null : (isReady ? readyLabel : waitingLabel);
 
     return AppPanel(
       onTap: onTap,
@@ -101,29 +99,28 @@ class PlayerSlotTile extends StatelessWidget {
   }
 
   Widget _emptyMedallion() => Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.surfaceSunken,
-          border: Border.all(color: AppColors.hairline),
-        ),
-        child: const Center(
-          child: AppIconView(AppIcon.players, size: 18,
-              color: AppColors.textMuted),
-        ),
-      );
+    width: 44,
+    height: 44,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: AppColors.surfaceSunken,
+      border: Border.all(color: AppColors.hairline),
+    ),
+    child: const Center(
+      child: AppIconView(AppIcon.players, size: 18, color: AppColors.textMuted),
+    ),
+  );
 
   Widget _tag(String label, Color tint) => Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.xxs,
-        ),
-        decoration: BoxDecoration(
-          color: tint.withValues(alpha: 0.16),
-          borderRadius: BorderRadius.circular(AppRadii.pill),
-          border: Border.all(color: tint.withValues(alpha: 0.5)),
-        ),
-        child: Text(label, style: AppText.caption.copyWith(color: tint)),
-      );
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.sm,
+      vertical: AppSpacing.xxs,
+    ),
+    decoration: BoxDecoration(
+      color: tint.withValues(alpha: 0.16),
+      borderRadius: BorderRadius.circular(AppRadii.pill),
+      border: Border.all(color: tint.withValues(alpha: 0.5)),
+    ),
+    child: Text(label, style: AppText.caption.copyWith(color: tint)),
+  );
 }

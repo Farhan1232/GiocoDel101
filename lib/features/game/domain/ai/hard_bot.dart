@@ -25,8 +25,7 @@ class HardBot extends NormalBot {
     for (final card in view.playedCards) {
       if (card.suit == suit) seen++;
     }
-    if (!view.playedCards.contains(view.topCard) &&
-        view.topCard.suit == suit) {
+    if (!view.playedCards.contains(view.topCard) && view.topCard.suit == suit) {
       seen++;
     }
     for (final card in view.hand) {
@@ -78,10 +77,12 @@ class HardBot extends NormalBot {
     }
 
     // Somebody within one round of elimination? End the round on them.
-    final doomed = view.opponents.any((o) =>
-        !o.eliminated &&
-        o.cardCount >= 3 &&
-        view.rules.targetScore - o.score <= 18);
+    final doomed = view.opponents.any(
+      (o) =>
+          !o.eliminated &&
+          o.cardCount >= 3 &&
+          view.rules.targetScore - o.score <= 18,
+    );
     if (doomed) score += card.value * 1.1;
 
     if (card.isCavallo) {

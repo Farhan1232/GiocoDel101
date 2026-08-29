@@ -60,8 +60,11 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.lg),
-              Text(s.joinRoomBody,
-                  style: AppText.bodySmall, textAlign: TextAlign.center),
+              Text(
+                s.joinRoomBody,
+                style: AppText.bodySmall,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: AppSpacing.xxl),
               AppTextField(
                 label: s.lobbyRoomCode,
@@ -80,9 +83,8 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                   }),
                 ],
                 onChanged: (_) => setState(() {}),
-                validator: (v) => RoomCode.isValid(v ?? '')
-                    ? null
-                    : s.joinRoomInvalid,
+                validator: (v) =>
+                    RoomCode.isValid(v ?? '') ? null : s.joinRoomInvalid,
                 trailing: TextButton(
                   onPressed: _paste,
                   style: TextButton.styleFrom(

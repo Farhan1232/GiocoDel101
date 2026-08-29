@@ -14,11 +14,7 @@ import '../../../core/widgets/app_icons.dart';
 
 /// §39/§41 — lifetime numbers and the achievement shelf, in one place.
 class StatisticsTab extends StatelessWidget {
-  const StatisticsTab({
-    super.key,
-    required this.stats,
-    required this.accent,
-  });
+  const StatisticsTab({super.key, required this.stats, required this.accent});
 
   final StatsController stats;
   final Color accent;
@@ -31,7 +27,11 @@ class StatisticsTab extends StatelessWidget {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.xxl),
+        AppSpacing.gutter,
+        0,
+        AppSpacing.gutter,
+        AppSpacing.xxl,
+      ),
       children: [
         if (empty)
           AppPanel(
@@ -54,8 +54,11 @@ class StatisticsTab extends StatelessWidget {
                 const SectionHeading('PARTITE'),
                 _row(AppIcon.play, s.statMatches, '${v.matchesPlayed}'),
                 _row(AppIcon.trophy, s.statWins, '${v.matchesWon}'),
-                _row(AppIcon.restart, s.statRoundsWon,
-                    '${v.roundsWon} / ${v.roundsPlayed}'),
+                _row(
+                  AppIcon.restart,
+                  s.statRoundsWon,
+                  '${v.roundsWon} / ${v.roundsPlayed}',
+                ),
                 _row(AppIcon.difficulty, s.statStreak, '${v.currentStreak}'),
                 _row(AppIcon.ring, s.statBestStreak, '${v.bestStreak}'),
               ],
@@ -70,8 +73,11 @@ class StatisticsTab extends StatelessWidget {
                 _row(AppIcon.cards, s.statCards, '${v.cardsPlayed}'),
                 _row(AppIcon.play, s.statAces, '${v.acesPlayed}'),
                 _row(AppIcon.draw, s.statTwos, '${v.twosPlayed}'),
-                _row(AppIcon.chain, s.statChain,
-                    v.longestChain == 0 ? '—' : '+${v.longestChain * 2}'),
+                _row(
+                  AppIcon.chain,
+                  s.statChain,
+                  v.longestChain == 0 ? '—' : '+${v.longestChain * 2}',
+                ),
                 _suitRow(s.statFavouriteSuit, v.favouriteSuit),
               ],
             ),
@@ -83,10 +89,16 @@ class StatisticsTab extends StatelessWidget {
               children: [
                 const SectionHeading('IL 101'),
                 _row(AppIcon.ring, s.statResets, '${v.resets101}'),
-                _row(AppIcon.stats, s.statComeback,
-                    v.largestComeback <= 0 ? '—' : '${v.largestComeback}'),
-                _row(AppIcon.calendar, s.dailyChallenge,
-                    '${v.dailyChallengesCompleted}'),
+                _row(
+                  AppIcon.stats,
+                  s.statComeback,
+                  v.largestComeback <= 0 ? '—' : '${v.largestComeback}',
+                ),
+                _row(
+                  AppIcon.calendar,
+                  s.dailyChallenge,
+                  '${v.dailyChallengesCompleted}',
+                ),
               ],
             ),
           ),
@@ -118,15 +130,21 @@ class StatisticsTab extends StatelessWidget {
                 CustomPaint(
                   size: const Size.square(84),
                   painter: _WinRingPainter(
-                      percent: percent / 100, accent: accent),
+                    percent: percent / 100,
+                    accent: accent,
+                  ),
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('$percent%', style: AppText.scoreLarge.copyWith(
-                        fontSize: 22)),
-                    Text(Strings.s.statWinRate.split(' ').first.toUpperCase(),
-                        style: AppText.caption.copyWith(fontSize: 8.5)),
+                    Text(
+                      '$percent%',
+                      style: AppText.scoreLarge.copyWith(fontSize: 22),
+                    ),
+                    Text(
+                      Strings.s.statWinRate.split(' ').first.toUpperCase(),
+                      style: AppText.caption.copyWith(fontSize: 8.5),
+                    ),
                   ],
                 ),
               ],
@@ -139,8 +157,10 @@ class StatisticsTab extends StatelessWidget {
               children: [
                 Text(Strings.s.statWinRate, style: AppText.label),
                 const SizedBox(height: AppSpacing.xs),
-                Text('$won / $played',
-                    style: AppText.scoreLarge.copyWith(fontSize: 26)),
+                Text(
+                  '$won / $played',
+                  style: AppText.scoreLarge.copyWith(fontSize: 26),
+                ),
               ],
             ),
           ),
@@ -150,36 +170,39 @@ class StatisticsTab extends StatelessWidget {
   }
 
   Widget _row(AppIcon icon, String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm - 2),
-        child: Row(
-          children: [
-            AppIconView(icon, size: 16, color: AppColors.textSecondary),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(child: Text(label, style: AppText.bodySmall)),
-            Text(value, style: AppText.scoreSmall.copyWith(fontSize: 14)),
-          ],
-        ),
-      );
+    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm - 2),
+    child: Row(
+      children: [
+        AppIconView(icon, size: 16, color: AppColors.textSecondary),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(child: Text(label, style: AppText.bodySmall)),
+        Text(value, style: AppText.scoreSmall.copyWith(fontSize: 14)),
+      ],
+    ),
+  );
 
   Widget _suitRow(String label, CardSuit? suit) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm - 2),
-        child: Row(
-          children: [
-            const AppIconView(AppIcon.suits,
-                size: 16, color: AppColors.textSecondary),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(child: Text(label, style: AppText.bodySmall)),
-            if (suit == null)
-              Text('—', style: AppText.scoreSmall.copyWith(fontSize: 14))
-            else
-              SizedBox(
-                width: 26,
-                height: 26,
-                child: CustomPaint(painter: _SuitGlyphPainter(suit)),
-              ),
-          ],
+    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm - 2),
+    child: Row(
+      children: [
+        const AppIconView(
+          AppIcon.suits,
+          size: 16,
+          color: AppColors.textSecondary,
         ),
-      );
+        const SizedBox(width: AppSpacing.md),
+        Expanded(child: Text(label, style: AppText.bodySmall)),
+        if (suit == null)
+          Text('—', style: AppText.scoreSmall.copyWith(fontSize: 14))
+        else
+          SizedBox(
+            width: 26,
+            height: 26,
+            child: CustomPaint(painter: _SuitGlyphPainter(suit)),
+          ),
+      ],
+    ),
+  );
 
   /// §41 — achievements live inside Statistics, never on a screen of their own.
   Widget _achievements() {
@@ -218,9 +241,7 @@ class StatisticsTab extends StatelessWidget {
                       ),
                       child: Center(
                         child: AppIconView(
-                          stats.hasAchievement(a.id)
-                              ? a.icon
-                              : AppIcon.lock,
+                          stats.hasAchievement(a.id) ? a.icon : AppIcon.lock,
                           size: 16,
                           color: stats.hasAchievement(a.id)
                               ? AppColors.goldLight
@@ -233,12 +254,17 @@ class StatisticsTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(Strings.s.achievementTitle(a.id),
-                              style: AppText.body.copyWith(
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w700)),
-                          Text(Strings.s.achievementDescription(a.id),
-                              style: AppText.caption),
+                          Text(
+                            Strings.s.achievementTitle(a.id),
+                            style: AppText.body.copyWith(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            Strings.s.achievementDescription(a.id),
+                            style: AppText.caption,
+                          ),
                         ],
                       ),
                     ),
@@ -250,7 +276,6 @@ class StatisticsTab extends StatelessWidget {
       ),
     );
   }
-
 
   Future<void> _confirmReset(BuildContext context) async {
     final s = Strings.s;
@@ -264,11 +289,16 @@ class StatisticsTab extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(s.resetStatistics,
-                  style: AppText.screenTitle.copyWith(fontSize: 19)),
+              Text(
+                s.resetStatistics,
+                style: AppText.screenTitle.copyWith(fontSize: 19),
+              ),
               const SizedBox(height: AppSpacing.md),
-              Text(s.resetStatisticsBody,
-                  textAlign: TextAlign.center, style: AppText.bodySmall),
+              Text(
+                s.resetStatisticsBody,
+                textAlign: TextAlign.center,
+                style: AppText.bodySmall,
+              ),
               const SizedBox(height: AppSpacing.xl),
               PremiumButton(
                 label: s.cancel,
@@ -334,8 +364,13 @@ class _SuitGlyphPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    SuitArt.draw(canvas, Offset.zero & size, suit, SuitPalette.of(suit),
-        detail: 0.5);
+    SuitArt.draw(
+      canvas,
+      Offset.zero & size,
+      suit,
+      SuitPalette.of(suit),
+      detail: 0.5,
+    );
   }
 
   @override

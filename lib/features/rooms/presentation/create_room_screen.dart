@@ -97,7 +97,10 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
               compact: true,
               onChanged: _room.setTurnTimer,
               options: [
-                SegmentOption(value: TurnTimer.off, label: s.createRoomTimerOff),
+                SegmentOption(
+                  value: TurnTimer.off,
+                  label: s.createRoomTimerOff,
+                ),
                 for (final t in const [
                   TurnTimer.fifteen,
                   TurnTimer.thirty,
@@ -159,10 +162,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             PremiumButton(
               label: s.createRoomCta,
               accent: accent,
-              onPressed: () => Get.toNamed<void>(
-                AppRoutes.roomLobby,
-                arguments: config,
-              ),
+              onPressed: () =>
+                  Get.toNamed<void>(AppRoutes.roomLobby, arguments: config),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(

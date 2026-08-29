@@ -48,23 +48,22 @@ class StatsController extends GetxController {
     required MatchState match,
     required RoundResult result,
     required String humanId,
-  }) =>
-      _commit(_service.applyRound(
-        stats: stats,
-        match: match,
-        result: result,
-        humanId: humanId,
-      ));
+  }) => _commit(
+    _service.applyRound(
+      stats: stats,
+      match: match,
+      result: result,
+      humanId: humanId,
+    ),
+  );
 
   Future<void> recordMatch({
     required MatchState match,
     required String humanId,
   }) async {
-    await _commit(_service.applyMatch(
-      stats: stats,
-      match: match,
-      humanId: humanId,
-    ));
+    await _commit(
+      _service.applyMatch(stats: stats, match: match, humanId: humanId),
+    );
     if (match.isDailyChallenge && match.matchWinnerId == humanId) {
       await markDailyCompleted();
     }

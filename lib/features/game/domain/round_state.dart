@@ -36,9 +36,9 @@ class RoundState {
     Map<String, int>? drawsByPlayer,
     List<GameCard>? playedCards,
     Map<String, List<String>>? voidSuits,
-  })  : drawsByPlayer = drawsByPlayer ?? <String, int>{},
-        playedCards = playedCards ?? <GameCard>[],
-        voidSuits = voidSuits ?? <String, List<String>>{};
+  }) : drawsByPlayer = drawsByPlayer ?? <String, int>{},
+       playedCards = playedCards ?? <GameCard>[],
+       voidSuits = voidSuits ?? <String, List<String>>{};
 
   /// Face-down stock. The last element is the next card to be dealt.
   final List<GameCard> drawPile;
@@ -95,21 +95,21 @@ class RoundState {
   bool get isPenaltyPending => pendingPenalty > 0;
 
   Map<String, dynamic> toJson() => {
-        'drawPile': drawPile.map((c) => c.toStorage()).toList(),
-        'discardPile': discardPile.map((c) => c.toStorage()).toList(),
-        'activeSuit': activeSuit.key,
-        'currentIndex': currentIndex,
-        'pendingPenalty': pendingPenalty,
-        'chainLength': chainLength,
-        'hasDrawnThisTurn': hasDrawnThisTurn,
-        'drawnCard': drawnCard?.toStorage(),
-        'phase': phase.name,
-        'roundWinnerId': roundWinnerId,
-        'turnNumber': turnNumber,
-        'drawsByPlayer': drawsByPlayer,
-        'playedCards': playedCards.map((c) => c.toStorage()).toList(),
-        'voidSuits': voidSuits,
-      };
+    'drawPile': drawPile.map((c) => c.toStorage()).toList(),
+    'discardPile': discardPile.map((c) => c.toStorage()).toList(),
+    'activeSuit': activeSuit.key,
+    'currentIndex': currentIndex,
+    'pendingPenalty': pendingPenalty,
+    'chainLength': chainLength,
+    'hasDrawnThisTurn': hasDrawnThisTurn,
+    'drawnCard': drawnCard?.toStorage(),
+    'phase': phase.name,
+    'roundWinnerId': roundWinnerId,
+    'turnNumber': turnNumber,
+    'drawsByPlayer': drawsByPlayer,
+    'playedCards': playedCards.map((c) => c.toStorage()).toList(),
+    'voidSuits': voidSuits,
+  };
 
   factory RoundState.fromJson(Map<String, dynamic> json) {
     List<GameCard> cards(Object? raw) => ((raw as List?) ?? const [])
@@ -136,8 +136,9 @@ class RoundState {
       ),
       roundWinnerId: json['roundWinnerId'] as String?,
       turnNumber: (json['turnNumber'] as num?)?.toInt() ?? 0,
-      drawsByPlayer: ((json['drawsByPlayer'] as Map?) ?? const {})
-          .map((k, v) => MapEntry(k as String, (v as num).toInt())),
+      drawsByPlayer: ((json['drawsByPlayer'] as Map?) ?? const {}).map(
+        (k, v) => MapEntry(k as String, (v as num).toInt()),
+      ),
       playedCards: cards(json['playedCards']),
       voidSuits: ((json['voidSuits'] as Map?) ?? const {}).map(
         (k, v) => MapEntry(

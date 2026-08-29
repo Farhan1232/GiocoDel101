@@ -57,12 +57,13 @@ class _FateRingState extends State<FateRing> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _reset = AnimationController(
-      vsync: this,
-      duration: Motion.scale(AppDurations.fateRingReset),
-    )..addStatusListener((s) {
-        if (s == AnimationStatus.completed) widget.onResetFinished?.call();
-      });
+    _reset =
+        AnimationController(
+          vsync: this,
+          duration: Motion.scale(AppDurations.fateRingReset),
+        )..addStatusListener((s) {
+          if (s == AnimationStatus.completed) widget.onResetFinished?.call();
+        });
     _pulse = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -89,7 +90,8 @@ class _FateRingState extends State<FateRing> with TickerProviderStateMixin {
   }
 
   void _syncPulse() {
-    final tense = !widget.eliminated &&
+    final tense =
+        !widget.eliminated &&
         widget.score >= widget.target - 2 &&
         Motion.allowAmbient;
     if (tense && !_pulse.isAnimating) {
@@ -162,15 +164,14 @@ class _FateRingState extends State<FateRing> with TickerProviderStateMixin {
             scale: salvo ? 1.12 : 1.0,
             child: Text(
               widget.eliminated ? '—' : '$value',
-              style: (widget.size > 64
-                      ? AppText.scoreLarge
-                      : AppText.scoreSmall)
-                  .copyWith(
-                fontSize: widget.size * 0.30,
-                color: widget.eliminated
-                    ? AppColors.textMuted
-                    : AppColors.textPrimary,
-              ),
+              style:
+                  (widget.size > 64 ? AppText.scoreLarge : AppText.scoreSmall)
+                      .copyWith(
+                        fontSize: widget.size * 0.30,
+                        color: widget.eliminated
+                            ? AppColors.textMuted
+                            : AppColors.textPrimary,
+                      ),
             ),
           ),
           if (widget.showLabel && widget.size > 58)
@@ -188,7 +189,9 @@ class _FateRingState extends State<FateRing> with TickerProviderStateMixin {
                       ),
                     )
                   : Text(
-                      widget.eliminated ? Strings.s.eliminated : '/ ${widget.target}',
+                      widget.eliminated
+                          ? Strings.s.eliminated
+                          : '/ ${widget.target}',
                       style: AppText.caption.copyWith(
                         fontSize: widget.size * 0.10,
                         color: widget.eliminated
@@ -253,7 +256,9 @@ class _FateRingPainter extends CustomPainter {
           outer,
           Paint()
             ..strokeWidth = size.width * 0.012
-            ..color = AppColors.warmIvory.withValues(alpha: i == 10 ? 0.55 : 0.20),
+            ..color = AppColors.warmIvory.withValues(
+              alpha: i == 10 ? 0.55 : 0.20,
+            ),
         );
       }
     }
@@ -329,8 +334,7 @@ class _FateRingPainter extends CustomPainter {
       canvas.drawCircle(
         c,
         r * (1 + t * 0.9),
-        Paint()
-          ..color = AppColors.goldMid.withValues(alpha: (1 - t) * 0.16),
+        Paint()..color = AppColors.goldMid.withValues(alpha: (1 - t) * 0.16),
       );
     }
 
@@ -343,8 +347,9 @@ class _FateRingPainter extends CustomPainter {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = width * 1.25
-          ..color = AppColors.goldLight
-              .withValues(alpha: math.sin(t * math.pi) * 0.9),
+          ..color = AppColors.goldLight.withValues(
+            alpha: math.sin(t * math.pi) * 0.9,
+          ),
       );
     }
   }
@@ -379,8 +384,11 @@ class _FateRingPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
           ..strokeWidth = width
-          ..color = Color.lerp(AppColors.goldLight, AppColors.goldMid, t)!
-              .withValues(alpha: 0.55 + 0.45 * t),
+          ..color = Color.lerp(
+            AppColors.goldLight,
+            AppColors.goldMid,
+            t,
+          )!.withValues(alpha: 0.55 + 0.45 * t),
       );
       canvas.restore();
     }

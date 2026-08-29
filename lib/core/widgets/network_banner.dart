@@ -29,8 +29,9 @@ class NetworkStatusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final visible = status != NetworkStatus.online;
     final offline = status == NetworkStatus.offline;
-    final tint =
-        offline ? AppColors.terracottaCoral : AppColors.mediterraneanTeal;
+    final tint = offline
+        ? AppColors.terracottaCoral
+        : AppColors.mediterraneanTeal;
 
     return AnimatedSize(
       duration: AppDurations.quick,
@@ -61,7 +62,10 @@ class NetworkStatusBanner extends StatelessWidget {
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: tint,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Flexible(

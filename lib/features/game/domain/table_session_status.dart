@@ -34,10 +34,10 @@ class TableSessionStatus {
       : 0.0;
 
   /// True when the player should be told the connection is not healthy.
-  bool get showsConnection =>
-      isOnline && connection != NetworkStatus.online;
+  bool get showsConnection => isOnline && connection != NetworkStatus.online;
 
   /// The only value Session 1 ever produces.
-  static const TableSessionStatus offlineLocal =
-      TableSessionStatus(isOnline: false);
+  static const TableSessionStatus offlineLocal = TableSessionStatus(
+    isOnline: false,
+  );
 }

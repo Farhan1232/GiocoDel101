@@ -56,23 +56,24 @@ class _PremiumButtonState extends State<PremiumButton> {
   bool get _enabled => widget.onPressed != null && !widget.loading;
 
   double get _height => switch (widget.size) {
-        ButtonSize.large => 60,
-        ButtonSize.medium => 50,
-        ButtonSize.small => 40,
-      };
+    ButtonSize.large => 60,
+    ButtonSize.medium => 50,
+    ButtonSize.small => 40,
+  };
 
   double get _fontSize => switch (widget.size) {
-        ButtonSize.large => 17,
-        ButtonSize.medium => 15,
-        ButtonSize.small => 13,
-      };
+    ButtonSize.large => 17,
+    ButtonSize.medium => 15,
+    ButtonSize.small => 13,
+  };
 
   @override
   Widget build(BuildContext context) {
     final base = widget.accent ?? _baseColour(widget.variant);
     final depth = _down ? 2.0 : 5.0;
     final radius = BorderRadius.circular(
-        widget.size == ButtonSize.small ? AppRadii.sm : AppRadii.md);
+      widget.size == ButtonSize.small ? AppRadii.sm : AppRadii.md,
+    );
 
     final content = widget.loading
         ? SizedBox(
@@ -86,32 +87,38 @@ class _PremiumButtonState extends State<PremiumButton> {
             ),
           )
         : Row(
-      mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (widget.icon != null) ...[
-          AppIconView(
-            widget.icon!,
-            size: _fontSize * 1.35,
-            color: _labelColour(widget.variant, base),
-          ),
-          const SizedBox(width: AppSpacing.sm + 2),
-        ],
-        Flexible(
-          child: Text(
-            widget.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: AppText.button.copyWith(
-              fontSize: _fontSize,
-              color: _labelColour(widget.variant, base),
-              letterSpacing: widget.size == ButtonSize.small ? 1.4 : 2.4,
-            ),
-          ),
-        ),
-      ],
-    );
+            mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.icon != null) ...[
+                AppIconView(
+                  widget.icon!,
+                  size: _fontSize * 1.35,
+                  color: _labelColour(widget.variant, base),
+                ),
+                const SizedBox(width: AppSpacing.sm + 2),
+              ],
+              Flexible(
+                // A long Italian label shrinks to fit rather than losing its
+                // tail to an ellipsis.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: AppText.button.copyWith(
+                      fontSize: _fontSize,
+                      color: _labelColour(widget.variant, base),
+                      letterSpacing: widget.size == ButtonSize.small
+                          ? 1.4
+                          : 2.4,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
 
     return Semantics(
       button: true,
@@ -151,8 +158,11 @@ class _PremiumButtonState extends State<PremiumButton> {
                 border: Border.all(
                   color: widget.variant == ButtonVariant.ghost
                       ? base.withValues(alpha: 0.42)
-                      : Color.lerp(base, Colors.white, 0.35)!
-                          .withValues(alpha: 0.5),
+                      : Color.lerp(
+                          base,
+                          Colors.white,
+                          0.35,
+                        )!.withValues(alpha: 0.5),
                   width: 1,
                 ),
                 boxShadow: widget.variant == ButtonVariant.ghost
@@ -204,18 +214,18 @@ class _PremiumButtonState extends State<PremiumButton> {
   }
 
   static Color _baseColour(ButtonVariant v) => switch (v) {
-        ButtonVariant.primary => AppColors.antiqueGold,
-        ButtonVariant.secondary => AppColors.surfaceRaised,
-        ButtonVariant.ghost => AppColors.warmIvory,
-        ButtonVariant.danger => AppColors.danger,
-      };
+    ButtonVariant.primary => AppColors.antiqueGold,
+    ButtonVariant.secondary => AppColors.surfaceRaised,
+    ButtonVariant.ghost => AppColors.warmIvory,
+    ButtonVariant.danger => AppColors.danger,
+  };
 
   static Color _labelColour(ButtonVariant v, Color base) => switch (v) {
-        ButtonVariant.primary => AppColors.inkDeep,
-        ButtonVariant.secondary => AppColors.textPrimary,
-        ButtonVariant.ghost => base,
-        ButtonVariant.danger => AppColors.warmIvory,
-      };
+    ButtonVariant.primary => AppColors.inkDeep,
+    ButtonVariant.secondary => AppColors.textPrimary,
+    ButtonVariant.ghost => base,
+    ButtonVariant.danger => AppColors.warmIvory,
+  };
 
   static Gradient? _bodyGradient(ButtonVariant v, Color base) {
     if (v == ButtonVariant.ghost) return null;

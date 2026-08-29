@@ -80,8 +80,10 @@ class DrawPileView extends StatelessWidget {
               Positioned(
                 bottom: 0,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
                     color: AppColors.inkDeep.withValues(alpha: 0.75),
@@ -98,16 +100,16 @@ class DrawPileView extends StatelessWidget {
   }
 
   Widget _emptySlot(double cw) => Container(
-        width: cw,
-        height: cw * 1.55,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(cw * AppRadii.cardCornerRatio),
-          border: Border.all(
-            color: AppColors.warmIvory.withValues(alpha: 0.16),
-            width: 1.2,
-          ),
-        ),
-      );
+    width: cw,
+    height: cw * 1.55,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(cw * AppRadii.cardCornerRatio),
+      border: Border.all(
+        color: AppColors.warmIvory.withValues(alpha: 0.16),
+        width: 1.2,
+      ),
+    ),
+  );
 }
 
 /// The discard pile: the live card, with a couple of earlier cards showing
@@ -207,13 +209,12 @@ class ActiveSuitBadge extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   center: const Alignment(-0.3, -0.4),
-                  colors: [
-                    AppColors.surfaceRaised,
-                    AppColors.surfaceSunken,
-                  ],
+                  colors: [AppColors.surfaceRaised, AppColors.surfaceSunken],
                 ),
-                border: Border.all(color: p.primary.withValues(alpha: 0.75),
-                    width: 1.6),
+                border: Border.all(
+                  color: p.primary.withValues(alpha: 0.75),
+                  width: 1.6,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: p.primary.withValues(alpha: 0.28),
@@ -242,11 +243,11 @@ class ActiveSuitBadge extends StatelessWidget {
   }
 
   static String _name(CardSuit suit) => switch (suit) {
-        CardSuit.denari => Strings.s.suitDenari,
-        CardSuit.coppe => Strings.s.suitCoppe,
-        CardSuit.spade => Strings.s.suitSpade,
-        CardSuit.bastoni => Strings.s.suitBastoni,
-      };
+    CardSuit.denari => Strings.s.suitDenari,
+    CardSuit.coppe => Strings.s.suitCoppe,
+    CardSuit.spade => Strings.s.suitSpade,
+    CardSuit.bastoni => Strings.s.suitBastoni,
+  };
 }
 
 class _BadgePainter extends CustomPainter {

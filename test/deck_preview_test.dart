@@ -20,14 +20,24 @@ import 'package:gioco_del_101/core/widgets/cards/playing_card.dart';
 /// ```
 Future<void> _loadFonts() async {
   for (final entry in const [
-    ('Cinzel', ['assets/fonts/Cinzel-Regular.ttf', 'assets/fonts/Cinzel-Bold.ttf']),
-    ('Manrope', ['assets/fonts/Manrope-Regular.ttf', 'assets/fonts/Manrope-Bold.ttf',
-      'assets/fonts/Manrope-ExtraBold.ttf']),
+    (
+      'Cinzel',
+      ['assets/fonts/Cinzel-Regular.ttf', 'assets/fonts/Cinzel-Bold.ttf'],
+    ),
+    (
+      'Manrope',
+      [
+        'assets/fonts/Manrope-Regular.ttf',
+        'assets/fonts/Manrope-Bold.ttf',
+        'assets/fonts/Manrope-ExtraBold.ttf',
+      ],
+    ),
   ]) {
     final loader = FontLoader(entry.$1);
     for (final path in entry.$2) {
-      loader.addFont(Future.value(
-          ByteData.sublistView(File(path).readAsBytesSync())));
+      loader.addFont(
+        Future.value(ByteData.sublistView(File(path).readAsBytesSync())),
+      );
     }
     await loader.load();
   }
@@ -67,7 +77,9 @@ void main() {
                         children: [
                           for (var col = 0; col < 10; col++)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                              ),
                               child: PlayingCard(
                                 width: cardWidth,
                                 card: deck[row * 10 + col],
@@ -89,10 +101,7 @@ void main() {
                           ),
                         ),
                       const SizedBox(width: 24),
-                      PlayingCard(
-                        width: cardWidth * 1.4,
-                        card: deck[8],
-                      ),
+                      PlayingCard(width: cardWidth * 1.4, card: deck[8]),
                     ],
                   ),
                 ],
@@ -113,8 +122,9 @@ void main() {
       final image = await boundary.toImage(pixelRatio: 1.6);
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
       Directory('preview').createSync(recursive: true);
-      File('preview/deck_contact_sheet.png')
-          .writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        'preview/deck_contact_sheet.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     }
   });
 }

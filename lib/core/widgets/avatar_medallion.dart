@@ -117,13 +117,14 @@ class _MedallionPainter extends CustomPainter {
                 ]
               : [
                   def.rim.withValues(alpha: 0.85 * alpha),
-                  Color.lerp(def.rim, Colors.black, 0.45)!
-                      .withValues(alpha: 0.85 * alpha),
+                  Color.lerp(
+                    def.rim,
+                    Colors.black,
+                    0.45,
+                  )!.withValues(alpha: 0.85 * alpha),
                   def.rim.withValues(alpha: 0.85 * alpha),
                 ],
-          active
-              ? const [0.0, 0.25, 0.5, 0.75, 1.0]
-              : const [0.0, 0.5, 1.0],
+          active ? const [0.0, 0.25, 0.5, 0.75, 1.0] : const [0.0, 0.5, 1.0],
         ),
     );
   }
@@ -165,12 +166,17 @@ class _MedallionPainter extends CustomPainter {
         final p = Path()
           ..moveTo(c.dx - r * 0.72, c.dy + r * 0.85)
           ..lineTo(c.dx - r * 0.72, c.dy - r * 0.1)
-          ..arcToPoint(Offset(c.dx + r * 0.72, c.dy - r * 0.1),
-              radius: Radius.circular(r * 0.72))
+          ..arcToPoint(
+            Offset(c.dx + r * 0.72, c.dy - r * 0.1),
+            radius: Radius.circular(r * 0.72),
+          )
           ..lineTo(c.dx + r * 0.72, c.dy + r * 0.85);
         canvas.drawPath(p, stroke);
-        canvas.drawLine(Offset(c.dx - r * 0.95, c.dy + r * 0.85),
-            Offset(c.dx + r * 0.95, c.dy + r * 0.85), stroke);
+        canvas.drawLine(
+          Offset(c.dx - r * 0.95, c.dy + r * 0.85),
+          Offset(c.dx + r * 0.95, c.dy + r * 0.85),
+          stroke,
+        );
       case MedallionMotif.lyre:
         canvas.drawArc(
           Rect.fromCenter(center: c, width: r * 1.7, height: r * 1.8),
@@ -180,27 +186,39 @@ class _MedallionPainter extends CustomPainter {
           stroke,
         );
         for (var i = -1; i <= 1; i++) {
-          canvas.drawLine(Offset(c.dx + i * r * 0.32, c.dy - r * 0.75),
-              Offset(c.dx + i * r * 0.32, c.dy + r * 0.55), stroke);
+          canvas.drawLine(
+            Offset(c.dx + i * r * 0.32, c.dy - r * 0.75),
+            Offset(c.dx + i * r * 0.32, c.dy + r * 0.55),
+            stroke,
+          );
         }
-        canvas.drawLine(Offset(c.dx - r * 0.72, c.dy - r * 0.75),
-            Offset(c.dx + r * 0.72, c.dy - r * 0.75), stroke);
+        canvas.drawLine(
+          Offset(c.dx - r * 0.72, c.dy - r * 0.75),
+          Offset(c.dx + r * 0.72, c.dy - r * 0.75),
+          stroke,
+        );
       case MedallionMotif.olive:
-        canvas.drawLine(Offset(c.dx - r * 0.1, c.dy + r * 0.9),
-            Offset(c.dx + r * 0.15, c.dy - r * 0.85), stroke);
+        canvas.drawLine(
+          Offset(c.dx - r * 0.1, c.dy + r * 0.9),
+          Offset(c.dx + r * 0.15, c.dy - r * 0.85),
+          stroke,
+        );
         for (var i = 0; i < 4; i++) {
           final t = i / 3.0;
           final base = Offset(
-              c.dx - r * 0.1 + r * 0.25 * (1 - t), c.dy + r * 0.9 - r * 1.75 * t);
+            c.dx - r * 0.1 + r * 0.25 * (1 - t),
+            c.dy + r * 0.9 - r * 1.75 * t,
+          );
           for (final dir in const [-1.0, 1.0]) {
             canvas.save();
             canvas.translate(base.dx, base.dy);
             canvas.rotate(dir * 0.9);
             canvas.drawOval(
               Rect.fromCenter(
-                  center: Offset(dir * r * 0.3, 0),
-                  width: r * 0.55,
-                  height: r * 0.26),
+                center: Offset(dir * r * 0.3, 0),
+                width: r * 0.55,
+                height: r * 0.26,
+              ),
               fill,
             );
             canvas.restore();
@@ -209,29 +227,46 @@ class _MedallionPainter extends CustomPainter {
       case MedallionMotif.mask:
         final p = Path()
           ..moveTo(c.dx - r * 0.85, c.dy - r * 0.6)
-          ..cubicTo(c.dx - r * 0.95, c.dy + r * 0.5, c.dx - r * 0.4,
-              c.dy + r * 0.95, c.dx, c.dy + r * 0.95)
-          ..cubicTo(c.dx + r * 0.4, c.dy + r * 0.95, c.dx + r * 0.95,
-              c.dy + r * 0.5, c.dx + r * 0.85, c.dy - r * 0.6)
+          ..cubicTo(
+            c.dx - r * 0.95,
+            c.dy + r * 0.5,
+            c.dx - r * 0.4,
+            c.dy + r * 0.95,
+            c.dx,
+            c.dy + r * 0.95,
+          )
+          ..cubicTo(
+            c.dx + r * 0.4,
+            c.dy + r * 0.95,
+            c.dx + r * 0.95,
+            c.dy + r * 0.5,
+            c.dx + r * 0.85,
+            c.dy - r * 0.6,
+          )
           ..close();
         canvas.drawPath(p, stroke);
         canvas.drawOval(
-            Rect.fromCenter(
-                center: Offset(c.dx - r * 0.36, c.dy - r * 0.12),
-                width: r * 0.42,
-                height: r * 0.30),
-            fill);
+          Rect.fromCenter(
+            center: Offset(c.dx - r * 0.36, c.dy - r * 0.12),
+            width: r * 0.42,
+            height: r * 0.30,
+          ),
+          fill,
+        );
         canvas.drawOval(
-            Rect.fromCenter(
-                center: Offset(c.dx + r * 0.36, c.dy - r * 0.12),
-                width: r * 0.42,
-                height: r * 0.30),
-            fill);
+          Rect.fromCenter(
+            center: Offset(c.dx + r * 0.36, c.dy - r * 0.12),
+            width: r * 0.42,
+            height: r * 0.30,
+          ),
+          fill,
+        );
         canvas.drawArc(
           Rect.fromCenter(
-              center: Offset(c.dx, c.dy + r * 0.3),
-              width: r * 0.8,
-              height: r * 0.5),
+            center: Offset(c.dx, c.dy + r * 0.3),
+            width: r * 0.8,
+            height: r * 0.5,
+          ),
           0.15,
           math.pi - 0.3,
           false,
@@ -239,13 +274,22 @@ class _MedallionPainter extends CustomPainter {
         );
       case MedallionMotif.anchor:
         canvas.drawCircle(Offset(c.dx, c.dy - r * 0.7), r * 0.2, stroke);
-        canvas.drawLine(Offset(c.dx, c.dy - r * 0.5),
-            Offset(c.dx, c.dy + r * 0.85), stroke);
-        canvas.drawLine(Offset(c.dx - r * 0.45, c.dy - r * 0.28),
-            Offset(c.dx + r * 0.45, c.dy - r * 0.28), stroke);
+        canvas.drawLine(
+          Offset(c.dx, c.dy - r * 0.5),
+          Offset(c.dx, c.dy + r * 0.85),
+          stroke,
+        );
+        canvas.drawLine(
+          Offset(c.dx - r * 0.45, c.dy - r * 0.28),
+          Offset(c.dx + r * 0.45, c.dy - r * 0.28),
+          stroke,
+        );
         canvas.drawArc(
-          Rect.fromCenter(center: Offset(c.dx, c.dy + r * 0.28),
-              width: r * 1.6, height: r * 1.35),
+          Rect.fromCenter(
+            center: Offset(c.dx, c.dy + r * 0.28),
+            width: r * 1.6,
+            height: r * 1.35,
+          ),
           0.12,
           math.pi - 0.24,
           false,

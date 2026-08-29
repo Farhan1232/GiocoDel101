@@ -73,7 +73,11 @@ class StatCard extends StatelessWidget {
 
 /// Lays stat cards out in a grid that reflows rather than overflowing (§7).
 class StatCardGrid extends StatelessWidget {
-  const StatCardGrid({super.key, required this.children, this.minTileWidth = 150});
+  const StatCardGrid({
+    super.key,
+    required this.children,
+    this.minTileWidth = 150,
+  });
 
   final List<Widget> children;
   final double minTileWidth;
@@ -83,8 +87,7 @@ class StatCardGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, box) {
         final columns = (box.maxWidth / minTileWidth).floor().clamp(2, 4);
-        final width =
-            (box.maxWidth - AppSpacing.md * (columns - 1)) / columns;
+        final width = (box.maxWidth - AppSpacing.md * (columns - 1)) / columns;
         return Wrap(
           spacing: AppSpacing.md,
           runSpacing: AppSpacing.md,

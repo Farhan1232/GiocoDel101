@@ -121,14 +121,11 @@ class CardBackPainter extends CustomPainter {
       centre,
       r,
       Paint()
-        ..shader = ui.Gradient.radial(
-          centre.translate(-r * 0.3, -r * 0.35),
-          r * 1.5,
-          [
-            Color.lerp(design.baseTop, Colors.black, 0.25)!,
-            Color.lerp(design.baseBottom, Colors.black, 0.45)!,
-          ],
-        ),
+        ..shader =
+            ui.Gradient.radial(centre.translate(-r * 0.3, -r * 0.35), r * 1.5, [
+              Color.lerp(design.baseTop, Colors.black, 0.25)!,
+              Color.lerp(design.baseBottom, Colors.black, 0.45)!,
+            ]),
     );
     canvas.drawCircle(
       centre,
@@ -149,13 +146,13 @@ class CardBackPainter extends CustomPainter {
 
     if (size.width > 44) {
       final label = _label('101', size.width * 0.175, design.medallion);
-      label.paint(
-        canvas,
-        centre - Offset(label.width / 2, label.height / 2),
-      );
+      label.paint(canvas, centre - Offset(label.width / 2, label.height / 2));
     } else {
       canvas.drawCircle(
-          centre, r * 0.32, Paint()..color = design.medallion.withValues(alpha: 0.85));
+        centre,
+        r * 0.32,
+        Paint()..color = design.medallion.withValues(alpha: 0.85),
+      );
     }
   }
 

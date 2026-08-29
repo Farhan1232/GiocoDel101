@@ -43,8 +43,7 @@ class XpBar extends StatelessWidget {
                 children: [
                   if (label != null)
                     Expanded(child: Text(label!, style: AppText.label)),
-                  if (caption != null)
-                    Text(caption!, style: AppText.caption),
+                  if (caption != null) Text(caption!, style: AppText.caption),
                 ],
               ),
             ),
@@ -67,7 +66,10 @@ class XpBar extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(height),
                       gradient: LinearGradient(
-                        colors: [tint.withValues(alpha: 0.75), AppColors.goldLight],
+                        colors: [
+                          tint.withValues(alpha: 0.75),
+                          AppColors.goldLight,
+                        ],
                       ),
                     ),
                   ),

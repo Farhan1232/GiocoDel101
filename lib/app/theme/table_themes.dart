@@ -50,7 +50,8 @@ class TableTheme {
   /// null for the theme that is available from the first launch.
   final String? unlockAchievementId;
 
-  Color get onFelt => isLight ? const Color(0xFF25324A) : const Color(0xFFF3E9D8);
+  Color get onFelt =>
+      isLight ? const Color(0xFF25324A) : const Color(0xFFF3E9D8);
 }
 
 /// The geometric motif painted faintly into the felt.

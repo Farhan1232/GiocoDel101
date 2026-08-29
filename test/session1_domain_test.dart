@@ -126,7 +126,9 @@ void main() {
 
     test('a fresh player is level 1 with an empty bar', () {
       final profile = ProfileSummary.fromLocal(
-          const SettingsModel(), const StatisticsModel());
+        const SettingsModel(),
+        const StatisticsModel(),
+      );
       expect(profile.level, 1);
       expect(profile.xpIntoLevel, 0);
       expect(profile.levelProgress, 0);
@@ -145,15 +147,21 @@ void main() {
         expect(profile.xpIntoLevel, lessThan(profile.xpForLevel));
       }
       final novice = ProfileSummary.fromLocal(
-          const SettingsModel(), const StatisticsModel(matchesPlayed: 1));
+        const SettingsModel(),
+        const StatisticsModel(matchesPlayed: 1),
+      );
       final veteran = ProfileSummary.fromLocal(
-          const SettingsModel(), const StatisticsModel(matchesPlayed: 200));
+        const SettingsModel(),
+        const StatisticsModel(matchesPlayed: 200),
+      );
       expect(veteran.level, greaterThan(novice.level));
     });
 
     test('progression is still flagged as a placeholder', () {
       final profile = ProfileSummary.fromLocal(
-          const SettingsModel(), const StatisticsModel());
+        const SettingsModel(),
+        const StatisticsModel(),
+      );
       expect(profile.isPlaceholderProgression, isTrue);
     });
   });
@@ -161,8 +169,10 @@ void main() {
   group('Daily reward (§T)', () {
     test('the ladder is seven days and ends on the biggest prize', () {
       expect(DailyRewardCalendar.ladder, hasLength(7));
-      expect(DailyRewardCalendar.ladder.last,
-          greaterThan(DailyRewardCalendar.ladder.first));
+      expect(
+        DailyRewardCalendar.ladder.last,
+        greaterThan(DailyRewardCalendar.ladder.first),
+      );
     });
 
     test('a new player has day one claimable and nothing claimed', () {
@@ -214,9 +224,13 @@ void main() {
     test('the connection dot only shows for an unhealthy online match', () {
       const healthy = TableSessionStatus(isOnline: true);
       const dropped = TableSessionStatus(
-          isOnline: true, connection: NetworkStatus.offline);
+        isOnline: true,
+        connection: NetworkStatus.offline,
+      );
       const offlineGame = TableSessionStatus(
-          isOnline: false, connection: NetworkStatus.offline);
+        isOnline: false,
+        connection: NetworkStatus.offline,
+      );
       expect(healthy.showsConnection, isFalse);
       expect(dropped.showsConnection, isTrue);
       expect(offlineGame.showsConnection, isFalse);
@@ -265,16 +279,21 @@ void main() {
           jsonDecode(File('lib/l10n/$name').readAsStringSync())
               as Map<String, dynamic>;
 
-      Set<String> keys(Map<String, dynamic> arb) => arb.keys
-          .where((k) => !k.startsWith('@'))
-          .toSet();
+      Set<String> keys(Map<String, dynamic> arb) =>
+          arb.keys.where((k) => !k.startsWith('@')).toSet();
 
       final it = load('app_it.arb');
       final en = load('app_en.arb');
-      expect(keys(en).difference(keys(it)), isEmpty,
-          reason: 'English has keys Italian does not');
-      expect(keys(it).difference(keys(en)), isEmpty,
-          reason: 'Italian has keys English does not');
+      expect(
+        keys(en).difference(keys(it)),
+        isEmpty,
+        reason: 'English has keys Italian does not',
+      );
+      expect(
+        keys(it).difference(keys(en)),
+        isEmpty,
+        reason: 'Italian has keys English does not',
+      );
     });
 
     test('no string is left untranslated by accident', () {
@@ -288,18 +307,33 @@ void main() {
       // Words that are genuinely the same in both languages: proper nouns,
       // loanwords ("round", "nickname") and symbol-only strings.
       const identicalIsFine = {
-        'appName', 'fieldEmail', 'fieldPassword', 'fieldNickname',
-        'lobbyHost', 'reaction4', 'settingsAccount', 'profileXpProgress',
-        'suitSpade', 'rankRe', 'dailyReward', 'commonLoading',
-        'achVendettaTitle', 'home', 'modeVsComputer', 'round',
+        'appName',
+        'fieldEmail',
+        'fieldPassword',
+        'fieldNickname',
+        'lobbyHost',
+        'reaction4',
+        'settingsAccount',
+        'profileXpProgress',
+        'suitSpade',
+        'rankRe',
+        'dailyReward',
+        'commonLoading',
+        'achVendettaTitle',
+        'home',
+        'modeVsComputer',
+        'round',
       };
       final suspicious = <String>[];
       for (final key in it.keys.where((k) => !k.startsWith('@'))) {
         if (identicalIsFine.contains(key)) continue;
         if (it[key] == en[key]) suspicious.add(key);
       }
-      expect(suspicious, isEmpty,
-          reason: 'these keys are identical in both languages: $suspicious');
+      expect(
+        suspicious,
+        isEmpty,
+        reason: 'these keys are identical in both languages: $suspicious',
+      );
     });
   });
 }

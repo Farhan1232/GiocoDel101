@@ -33,8 +33,11 @@ void main() {
 
       e.drawCard();
 
-      expect(e.round.discardPile.last, c(CardSuit.coppe, CardRank.five),
-          reason: 'the top card stays on the table');
+      expect(
+        e.round.discardPile.last,
+        c(CardSuit.coppe, CardRank.five),
+        reason: 'the top card stays on the table',
+      );
       expect(e.round.discardPile, hasLength(1));
       // Three buried cards were recycled; one of them was just drawn.
       expect(e.round.drawPile, hasLength(2));
@@ -128,10 +131,17 @@ void main() {
       final players = [
         for (var i = 0; i < 4; i++)
           GamePlayer(
-              id: 'p$i', name: 'P$i', type: PlayerType.bot, avatarId: 'marco'),
+            id: 'p$i',
+            name: 'P$i',
+            type: PlayerType.bot,
+            avatarId: 'marco',
+          ),
       ];
       final e = GameEngine.newMatch(
-          players: players, mode: GameMode.vsComputer, random: rng);
+        players: players,
+        mode: GameMode.vsComputer,
+        random: rng,
+      );
 
       int total() =>
           e.round.drawPile.length +
@@ -163,9 +173,12 @@ void main() {
       expect(
         () => MatchState.fromJson({
           'players': [
-            {'id': 'p0', 'name': 'Solo', 'type': 'humanLocal', 'hand': []}
+            {'id': 'p0', 'name': 'Solo', 'type': 'humanLocal', 'hand': []},
           ],
-          'round': {'discardPile': ['coppe_five'], 'activeSuit': 'coppe'},
+          'round': {
+            'discardPile': ['coppe_five'],
+            'activeSuit': 'coppe',
+          },
         }),
         throwsFormatException,
       );
@@ -237,7 +250,10 @@ void main() {
 
       final restored = MatchState.fromJson(e.state.toJson());
 
-      expect(restored.players.map((p) => p.id), e.state.players.map((p) => p.id));
+      expect(
+        restored.players.map((p) => p.id),
+        e.state.players.map((p) => p.id),
+      );
       for (var i = 0; i < restored.players.length; i++) {
         expect(restored.players[i].hand, e.state.players[i].hand);
         expect(restored.players[i].score, e.state.players[i].score);
@@ -264,8 +280,9 @@ void main() {
         top: c(CardSuit.coppe, CardRank.five),
         drawPile: [c(CardSuit.bastoni, CardRank.six)],
       );
-      final resumed =
-          GameEngine.fromState(MatchState.fromJson(e.state.toJson()));
+      final resumed = GameEngine.fromState(
+        MatchState.fromJson(e.state.toJson()),
+      );
       expect(resumed.canPlay(c(CardSuit.coppe, CardRank.re)), isTrue);
       resumed.playCard(c(CardSuit.coppe, CardRank.re));
       expect(resumed.currentPlayer.id, 'p1');
@@ -283,8 +300,9 @@ void main() {
       e.playCard(c(CardSuit.spade, CardRank.cavallo));
       expect(e.round.phase, TurnPhase.awaitingSuitChoice);
 
-      final resumed =
-          GameEngine.fromState(MatchState.fromJson(e.state.toJson()));
+      final resumed = GameEngine.fromState(
+        MatchState.fromJson(e.state.toJson()),
+      );
       expect(resumed.round.phase, TurnPhase.awaitingSuitChoice);
       expect(resumed.currentPlayer.id, 'p0');
       resumed.chooseSuit(CardSuit.coppe);
@@ -297,10 +315,17 @@ void main() {
       final players = [
         for (var i = 0; i < 2; i++)
           GamePlayer(
-              id: 'p$i', name: 'P$i', type: PlayerType.bot, avatarId: 'luca'),
+            id: 'p$i',
+            name: 'P$i',
+            type: PlayerType.bot,
+            avatarId: 'luca',
+          ),
       ];
       final e = GameEngine.newMatch(
-          players: players, mode: GameMode.vsComputer, random: rng);
+        players: players,
+        mode: GameMode.vsComputer,
+        random: rng,
+      );
       var steps = 0;
       while (!e.state.matchOver && steps++ < 3000) {
         if (e.round.phase == TurnPhase.roundOver) {
@@ -318,8 +343,10 @@ void main() {
           e.drawCard();
           if (e.round.drawnCard == null && e.canEndTurn) e.endTurn();
         }
-        expect(e.state.history.length,
-            lessThanOrEqualTo(MatchState.historyLimit));
+        expect(
+          e.state.history.length,
+          lessThanOrEqualTo(MatchState.historyLimit),
+        );
       }
     });
   });

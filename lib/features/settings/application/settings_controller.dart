@@ -51,7 +51,10 @@ class SettingsController extends GetxController {
     Motion.speedFactor = s.animationSpeed.factor;
     Motion.reduceMotion = s.reduceMotion;
     HapticService.instance.configure(enabled: s.hapticsEnabled);
-    AudioService.instance.configure(sound: s.soundEnabled, music: s.musicEnabled);
+    AudioService.instance.configure(
+      sound: s.soundEnabled,
+      music: s.musicEnabled,
+    );
   }
 
   Future<void> _update(SettingsModel next) async {
@@ -92,7 +95,9 @@ class SettingsController extends GetxController {
     // The table dressing brings its own card back unless the player has
     // deliberately chosen another unlocked one.
     final t = TableThemes.byId(id);
-    final back = isCardBackUnlocked(t.cardBackId) ? t.cardBackId : settings.cardBackId;
+    final back = isCardBackUnlocked(t.cardBackId)
+        ? t.cardBackId
+        : settings.cardBackId;
     await _update(settings.copyWith(themeId: id, cardBackId: back));
   }
 
@@ -106,12 +111,12 @@ class SettingsController extends GetxController {
 
   Future<void> setPlayerName(String value) {
     final trimmed = value.trim();
-    return _update(settings.copyWith(
-        playerName: trimmed.isEmpty ? 'Giocatore' : trimmed));
+    return _update(
+      settings.copyWith(playerName: trimmed.isEmpty ? 'Giocatore' : trimmed),
+    );
   }
 
-  Future<void> setAvatar(String id) =>
-      _update(settings.copyWith(avatarId: id));
+  Future<void> setAvatar(String id) => _update(settings.copyWith(avatarId: id));
 
   /// §9 — Italian and English. Rebuilds the whole tree through [locale].
   Future<void> setLocale(Locale value) async {
@@ -145,8 +150,9 @@ class SettingsController extends GetxController {
       changed = true;
     }
     if (!changed) return;
-    await _update(settings.copyWith(
-        unlockedThemes: themes, unlockedCardBacks: backs));
+    await _update(
+      settings.copyWith(unlockedThemes: themes, unlockedCardBacks: backs),
+    );
   }
 
   /// §65 — first-run coach marks are shown exactly once each.
@@ -154,7 +160,8 @@ class SettingsController extends GetxController {
 
   Future<void> markCoachMarkSeen(String id) async {
     if (hasSeenCoachMark(id)) return;
-    await _update(settings.copyWith(
-        seenCoachMarks: [...settings.seenCoachMarks, id]));
+    await _update(
+      settings.copyWith(seenCoachMarks: [...settings.seenCoachMarks, id]),
+    );
   }
 }

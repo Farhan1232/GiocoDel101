@@ -65,35 +65,35 @@ class _GiocoDel101AppState extends State<GiocoDel101App>
       // §9 — the whole tree rebuilds when the player switches language.
       child: Obx(
         () => GetMaterialApp(
-        title: Strings.s.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.build(),
-        locale: settings.locale,
-        fallbackLocale: Strings.fallback,
-        supportedLocales: Strings.supported,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        localeResolutionCallback: (locale, supported) =>
-            Strings.resolve(locale),
-        initialRoute: AppRoutes.splash,
-        getPages: AppPages.pages,
-        defaultTransition: Transition.fadeIn,
-        builder: (context, child) {
-          // §47/§48 — respect the platform text scale, but keep the table
-          // readable by refusing extremes that would clip the hand.
-          final media = MediaQuery.of(context);
-          final scale = media.textScaler.scale(14) / 14;
-          return MediaQuery(
-            data: media.copyWith(
-              textScaler: TextScaler.linear(scale.clamp(0.85, 1.30)),
-            ),
-            child: child ?? const SizedBox.shrink(),
-          );
-        },
+          title: Strings.s.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.build(),
+          locale: settings.locale,
+          fallbackLocale: Strings.fallback,
+          supportedLocales: Strings.supported,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          localeResolutionCallback: (locale, supported) =>
+              Strings.resolve(locale),
+          initialRoute: AppRoutes.splash,
+          getPages: AppPages.pages,
+          defaultTransition: Transition.fadeIn,
+          builder: (context, child) {
+            // §47/§48 — respect the platform text scale, but keep the table
+            // readable by refusing extremes that would clip the hand.
+            final media = MediaQuery.of(context);
+            final scale = media.textScaler.scale(14) / 14;
+            return MediaQuery(
+              data: media.copyWith(
+                textScaler: TextScaler.linear(scale.clamp(0.85, 1.30)),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
         ),
       ),
     );

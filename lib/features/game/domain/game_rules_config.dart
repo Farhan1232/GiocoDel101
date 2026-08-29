@@ -111,21 +111,19 @@ class GameRulesConfig {
   }
 
   Map<String, dynamic> toJson() => {
-        'startingHandSize': startingHandSize,
-        'allowVoluntaryDraw': allowVoluntaryDraw,
-        'playDrawnCardImmediately': playDrawnCardImmediately,
-        'stackDrawTwos': stackDrawTwos,
-        'wildNineCanAlwaysPlay': wildNineCanAlwaysPlay,
-        'exact101ResetsToZero': exact101ResetsToZero,
-        'eliminateAbove101': eliminateAbove101,
-        'targetScore': targetScore,
-        'mustDrawBeforePassing': mustDrawBeforePassing,
-        'drawTwoPenalty': drawTwoPenalty,
-        'pendingPenaltyAppliesAfterWin': pendingPenaltyAppliesAfterWin,
-        'scoreValues': {
-          for (final e in scoreValues.entries) e.key.key: e.value,
-        },
-      };
+    'startingHandSize': startingHandSize,
+    'allowVoluntaryDraw': allowVoluntaryDraw,
+    'playDrawnCardImmediately': playDrawnCardImmediately,
+    'stackDrawTwos': stackDrawTwos,
+    'wildNineCanAlwaysPlay': wildNineCanAlwaysPlay,
+    'exact101ResetsToZero': exact101ResetsToZero,
+    'eliminateAbove101': eliminateAbove101,
+    'targetScore': targetScore,
+    'mustDrawBeforePassing': mustDrawBeforePassing,
+    'drawTwoPenalty': drawTwoPenalty,
+    'pendingPenaltyAppliesAfterWin': pendingPenaltyAppliesAfterWin,
+    'scoreValues': {for (final e in scoreValues.entries) e.key.key: e.value},
+  };
 
   factory GameRulesConfig.fromJson(Map<String, dynamic> json) {
     const fallback = GameRulesConfig();
@@ -139,26 +137,32 @@ class GameRulesConfig {
     }
     return GameRulesConfig(
       startingHandSize:
-          (json['startingHandSize'] as num?)?.toInt() ?? fallback.startingHandSize,
+          (json['startingHandSize'] as num?)?.toInt() ??
+          fallback.startingHandSize,
       allowVoluntaryDraw:
           json['allowVoluntaryDraw'] as bool? ?? fallback.allowVoluntaryDraw,
-      playDrawnCardImmediately: json['playDrawnCardImmediately'] as bool? ??
+      playDrawnCardImmediately:
+          json['playDrawnCardImmediately'] as bool? ??
           fallback.playDrawnCardImmediately,
       stackDrawTwos: json['stackDrawTwos'] as bool? ?? fallback.stackDrawTwos,
-      wildNineCanAlwaysPlay: json['wildNineCanAlwaysPlay'] as bool? ??
+      wildNineCanAlwaysPlay:
+          json['wildNineCanAlwaysPlay'] as bool? ??
           fallback.wildNineCanAlwaysPlay,
       exact101ResetsToZero:
-          json['exact101ResetsToZero'] as bool? ?? fallback.exact101ResetsToZero,
+          json['exact101ResetsToZero'] as bool? ??
+          fallback.exact101ResetsToZero,
       eliminateAbove101:
           json['eliminateAbove101'] as bool? ?? fallback.eliminateAbove101,
-      targetScore: (json['targetScore'] as num?)?.toInt() ?? fallback.targetScore,
-      mustDrawBeforePassing: json['mustDrawBeforePassing'] as bool? ??
+      targetScore:
+          (json['targetScore'] as num?)?.toInt() ?? fallback.targetScore,
+      mustDrawBeforePassing:
+          json['mustDrawBeforePassing'] as bool? ??
           fallback.mustDrawBeforePassing,
       drawTwoPenalty:
           (json['drawTwoPenalty'] as num?)?.toInt() ?? fallback.drawTwoPenalty,
       pendingPenaltyAppliesAfterWin:
           json['pendingPenaltyAppliesAfterWin'] as bool? ??
-              fallback.pendingPenaltyAppliesAfterWin,
+          fallback.pendingPenaltyAppliesAfterWin,
       scoreValues: scores,
     );
   }

@@ -34,7 +34,10 @@ class AuthLandingScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             const LogoLockup(size: 84),
             const SizedBox(height: AppSpacing.xxl),
-            Text(s.authTitle, style: AppText.screenTitle.copyWith(fontSize: 21)),
+            Text(
+              s.authTitle,
+              style: AppText.screenTitle.copyWith(fontSize: 21),
+            ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               s.authSubtitle,
@@ -86,13 +89,13 @@ class AuthLandingScreen extends StatelessWidget {
   }
 
   Widget _social(String label, AppLocalizations s) => PremiumButton(
-        label: label,
-        variant: ButtonVariant.ghost,
-        size: ButtonSize.medium,
-        onPressed: () => AppDialog.notice(
-          title: label,
-          body: s.authSocialUnavailable,
-          dismissLabel: s.gotIt,
-        ),
-      );
+    label: label,
+    variant: ButtonVariant.ghost,
+    size: ButtonSize.medium,
+    onPressed: () => AppDialog.notice(
+      title: label,
+      body: s.authSocialUnavailable,
+      dismissLabel: s.gotIt,
+    ),
+  );
 }

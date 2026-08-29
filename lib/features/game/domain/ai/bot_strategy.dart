@@ -25,26 +25,37 @@ class BotWeights {
   final double voidExploit;
 
   BotWeights scaledBy(BotWeights other) => BotWeights(
-        shedHigh: shedHigh * other.shedHigh,
-        suitControl: suitControl * other.suitControl,
-        action: action * other.action,
-        holdCavallo: holdCavallo * other.holdCavallo,
-        randomness: randomness + other.randomness,
-        voidExploit: voidExploit * other.voidExploit,
-      );
+    shedHigh: shedHigh * other.shedHigh,
+    suitControl: suitControl * other.suitControl,
+    action: action * other.action,
+    holdCavallo: holdCavallo * other.holdCavallo,
+    randomness: randomness + other.randomness,
+    voidExploit: voidExploit * other.voidExploit,
+  );
 
   /// §22 — Marco plays hard, Sofia hoards, Luca gambles, Giulia balances.
   static BotWeights forPersonality(BotPersonality? p) {
     switch (p) {
       case BotPersonality.aggressive:
         return const BotWeights(
-            action: 1.6, holdCavallo: 0.6, shedHigh: 1.15, randomness: 0.05);
+          action: 1.6,
+          holdCavallo: 0.6,
+          shedHigh: 1.15,
+          randomness: 0.05,
+        );
       case BotPersonality.tactical:
         return const BotWeights(
-            action: 0.9, holdCavallo: 1.5, suitControl: 1.25, shedHigh: 1.2);
+          action: 0.9,
+          holdCavallo: 1.5,
+          suitControl: 1.25,
+          shedHigh: 1.2,
+        );
       case BotPersonality.risky:
         return const BotWeights(
-            action: 1.25, holdCavallo: 0.8, randomness: 0.35);
+          action: 1.25,
+          holdCavallo: 0.8,
+          randomness: 0.35,
+        );
       case BotPersonality.calm:
       case null:
         return const BotWeights(suitControl: 1.3, shedHigh: 1.05);
@@ -71,8 +82,12 @@ abstract class BotStrategy {
   /// end the turn. Never returns an illegal action.
   BotDecision? fallback(BotView view) {
     if (view.playable.isEmpty) {
-      if (view.canDraw && !view.hasDrawnThisTurn) return const BotDecision.draw();
-      if (view.canDraw && view.pendingPenalty > 0) return const BotDecision.draw();
+      if (view.canDraw && !view.hasDrawnThisTurn) {
+        return const BotDecision.draw();
+      }
+      if (view.canDraw && view.pendingPenalty > 0) {
+        return const BotDecision.draw();
+      }
       if (view.canEndTurn) return const BotDecision.endTurn();
       return const BotDecision.draw();
     }

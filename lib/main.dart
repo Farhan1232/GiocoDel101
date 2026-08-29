@@ -13,10 +13,10 @@ Future<void> main() async {
   // The bundled faces are SIL Open Font License; register the text so it is
   // discoverable from the app itself, not just from the repository.
   LicenseRegistry.addLicense(() async* {
-    yield LicenseEntryWithLineBreaks(
-      const ['Cinzel', 'Manrope'],
-      await rootBundle.loadString('assets/fonts/OFL.txt'),
-    );
+    yield LicenseEntryWithLineBreaks(const [
+      'Cinzel',
+      'Manrope',
+    ], await rootBundle.loadString('assets/fonts/OFL.txt'));
   });
 
   // §27/§47 — portrait-first on phones, where the fan and the felt are tuned

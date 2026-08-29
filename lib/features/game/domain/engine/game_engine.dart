@@ -39,8 +39,8 @@ class MoveResult {
 /// widget, a timer or a platform channel (§20).
 class GameEngine {
   GameEngine._(this._state, this._random)
-      : _resolver = CardRuleResolver(_state.rules),
-        _scorer = ScoreCalculator(_state.rules);
+    : _resolver = CardRuleResolver(_state.rules),
+      _scorer = ScoreCalculator(_state.rules);
 
   /// Restores an engine around an existing (e.g. deserialised) match.
   factory GameEngine.fromState(MatchState state, {Random? random}) =>
@@ -157,12 +157,14 @@ class GameEngine {
     if (!card.isCavallo) round.activeSuit = card.suit;
 
     _state.stats.cardsPlayed++;
-    _state.stats.suitsPlayed.update(card.suit.key, (v) => v + 1, ifAbsent: () => 1);
-    _state.record(GameAction(
-      type: GameActionType.play,
-      playerId: player.id,
-      card: card,
-    ));
+    _state.stats.suitsPlayed.update(
+      card.suit.key,
+      (v) => v + 1,
+      ifAbsent: () => 1,
+    );
+    _state.record(
+      GameAction(type: GameActionType.play, playerId: player.id, card: card),
+    );
     _emit(CardPlayedEvent(player.id, card));
 
     final emptied = player.hand.isEmpty;
@@ -199,10 +201,9 @@ class GameEngine {
       final skipped = _players[_seatAfter(round.currentIndex, 1)];
       // With two players left, skipping the opponent hands the turn straight
       // back to the player who dropped the Ace (§52).
-      _state.record(GameAction(
-        type: GameActionType.skip,
-        playerId: skipped.id,
-      ));
+      _state.record(
+        GameAction(type: GameActionType.skip, playerId: skipped.id),
+      );
       _emit(TurnSkippedEvent(skipped.id));
       _advanceTurn(2);
     } else {
@@ -224,11 +225,13 @@ class GameEngine {
     round.activeSuit = suit;
     round.phase = TurnPhase.awaitingAction;
     _state.stats.recordCavalloSuit(player.id, suit);
-    _state.record(GameAction(
-      type: GameActionType.suitChosen,
-      playerId: player.id,
-      suit: suit,
-    ));
+    _state.record(
+      GameAction(
+        type: GameActionType.suitChosen,
+        playerId: player.id,
+        suit: suit,
+      ),
+    );
     _emit(SuitChosenEvent(player.id, suit));
     _advanceTurn(1);
   }
@@ -247,11 +250,13 @@ class GameEngine {
       final drawn = _drawInto(player, owed);
       round.pendingPenalty = 0;
       round.chainLength = 0;
-      _state.record(GameAction(
-        type: GameActionType.penaltyDraw,
-        playerId: player.id,
-        count: drawn.length,
-      ));
+      _state.record(
+        GameAction(
+          type: GameActionType.penaltyDraw,
+          playerId: player.id,
+          count: drawn.length,
+        ),
+      );
       _emit(CardsDrawnEvent(player.id, drawn, isPenalty: true));
       _emit(ChainResolvedEvent(player.id, owed, chain));
       _advanceTurn(1);
@@ -272,11 +277,13 @@ class GameEngine {
     }
     final drawn = _drawInto(player, 1);
     round.hasDrawnThisTurn = true;
-    _state.record(GameAction(
-      type: GameActionType.draw,
-      playerId: player.id,
-      count: drawn.length,
-    ));
+    _state.record(
+      GameAction(
+        type: GameActionType.draw,
+        playerId: player.id,
+        count: drawn.length,
+      ),
+    );
     _emit(CardsDrawnEvent(player.id, drawn));
 
     if (drawn.isEmpty) {
@@ -352,8 +359,11 @@ class GameEngine {
       drawn.add(card);
     }
     if (drawn.isNotEmpty) {
-      round.drawsByPlayer
-          .update(player.id, (v) => v + drawn.length, ifAbsent: () => drawn.length);
+      round.drawsByPlayer.update(
+        player.id,
+        (v) => v + drawn.length,
+        ifAbsent: () => drawn.length,
+      );
     }
     return drawn;
   }
@@ -374,11 +384,13 @@ class GameEngine {
       recycled[j] = tmp;
     }
     round.drawPile.addAll(recycled);
-    _state.record(GameAction(
-      type: GameActionType.recycle,
-      playerId: '',
-      count: recycled.length,
-    ));
+    _state.record(
+      GameAction(
+        type: GameActionType.recycle,
+        playerId: '',
+        count: recycled.length,
+      ),
+    );
     _emit(DeckRecycledEvent(recycled.length));
     return true;
   }
@@ -399,16 +411,16 @@ class GameEngine {
 
     round.phase = TurnPhase.roundOver;
     round.roundWinnerId = winner.id;
-    _state.stats.roundsWon
-        .update(winner.id, (v) => v + 1, ifAbsent: () => 1);
+    _state.stats.roundsWon.update(winner.id, (v) => v + 1, ifAbsent: () => 1);
 
     final rows = <PlayerRoundResult>[];
     final newlyEliminated = <String>[];
 
     for (final player in _players) {
       if (player.eliminated) continue;
-      final penalty =
-          player.id == winner.id ? 0 : _scorer.handPenalty(player.hand);
+      final penalty = player.id == winner.id
+          ? 0
+          : _scorer.handPenalty(player.hand);
       final outcome = _scorer.apply(
         previousScore: player.score,
         penalty: penalty,
@@ -422,16 +434,18 @@ class GameEngine {
         player.eliminated = true;
         newlyEliminated.add(player.id);
       }
-      rows.add(PlayerRoundResult(
-        playerId: player.id,
-        name: player.name,
-        cardsLeft: player.hand.length,
-        penalty: penalty,
-        previousScore: outcome.previousScore,
-        newScore: outcome.newScore,
-        hitExact101: outcome.hitExact101,
-        eliminated: outcome.eliminated,
-      ));
+      rows.add(
+        PlayerRoundResult(
+          playerId: player.id,
+          name: player.name,
+          cardsLeft: player.hand.length,
+          penalty: penalty,
+          previousScore: outcome.previousScore,
+          newScore: outcome.newScore,
+          hitExact101: outcome.hitExact101,
+          eliminated: outcome.eliminated,
+        ),
+      );
     }
 
     _updateComeback();
@@ -455,11 +469,13 @@ class GameEngine {
       matchOver: _state.matchOver,
       matchWinnerId: _state.matchWinnerId,
     );
-    _state.record(GameAction(
-      type: GameActionType.roundEnd,
-      playerId: winner.id,
-      card: winningCard,
-    ));
+    _state.record(
+      GameAction(
+        type: GameActionType.roundEnd,
+        playerId: winner.id,
+        card: winningCard,
+      ),
+    );
     _emit(RoundEndedEvent(result));
     if (_state.matchOver) {
       _emit(MatchEndedEvent(_state.matchWinnerId!));
@@ -523,7 +539,9 @@ class GameEngine {
       p.hand.clear();
     }
     var startIndex = 0;
-    final winner = previousWinnerId == null ? null : _state.playerById(previousWinnerId);
+    final winner = previousWinnerId == null
+        ? null
+        : _state.playerById(previousWinnerId);
     if (winner != null && !winner.eliminated) {
       startIndex = _players.indexOf(winner);
     } else {

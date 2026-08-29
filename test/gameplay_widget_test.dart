@@ -45,39 +45,45 @@ GameController _seat({
         hand: List.of(hands[i]),
       ),
   ];
-  final engine = GameEngine.fromState(MatchState(
-    players: players,
-    rules: const GameRulesConfig(),
-    round: RoundState(
-      drawPile: List.of(drawPile),
-      discardPile: [top],
-      activeSuit: activeSuit ?? top.suit,
-      currentIndex: 0,
-      pendingPenalty: pendingPenalty,
-      chainLength: chainLength,
+  final engine = GameEngine.fromState(
+    MatchState(
+      players: players,
+      rules: const GameRulesConfig(),
+      round: RoundState(
+        drawPile: List.of(drawPile),
+        discardPile: [top],
+        activeSuit: activeSuit ?? top.suit,
+        currentIndex: 0,
+        pendingPenalty: pendingPenalty,
+        chainLength: chainLength,
+      ),
+      mode: GameMode.vsComputer,
     ),
-    mode: GameMode.vsComputer,
-  ));
-  return Get.put(GameController(
-    engine: engine,
-    storage: Get.find<GameStorageService>(),
-    settings: Get.find<SettingsController>(),
-    stats: Get.find<StatsController>(),
-    humanIds: const ['p0'],
-  ));
+  );
+  return Get.put(
+    GameController(
+      engine: engine,
+      storage: Get.find<GameStorageService>(),
+      settings: Get.find<SettingsController>(),
+      stats: Get.find<StatsController>(),
+      humanIds: const ['p0'],
+    ),
+  );
 }
 
 Future<void> _pumpTable(WidgetTester tester) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(GetMaterialApp(
-    theme: AppTheme.build(),
-    home: const MediaQuery(
-      data: MediaQueryData(size: Size(390, 844)),
-      child: GameScreen(),
+  await tester.pumpWidget(
+    GetMaterialApp(
+      theme: AppTheme.build(),
+      home: const MediaQuery(
+        data: MediaQueryData(size: Size(390, 844)),
+        child: GameScreen(),
+      ),
     ),
-  ));
+  );
   await _settle(tester);
 }
 
@@ -101,7 +107,7 @@ void main() {
       'coach_match',
       'coach_draw',
       'coach_specials',
-      'coach_ring'
+      'coach_ring',
     ]) {
       await settings.markCoachMarkSeen(id);
     }
@@ -140,8 +146,10 @@ void main() {
     await _settle(tester);
 
     expect(c.round.topCard, const GameCard(CardSuit.coppe, CardRank.re));
-    expect(c.state.playerById('p0')!.hand,
-        isNot(contains(const GameCard(CardSuit.coppe, CardRank.re))));
+    expect(
+      c.state.playerById('p0')!.hand,
+      isNot(contains(const GameCard(CardSuit.coppe, CardRank.re))),
+    );
     expect(tester.takeException(), isNull);
   });
 
@@ -162,15 +170,18 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('hand_bastoni_seven')));
     await _settle(tester, slices: 10);
 
-    expect(c.state.playerById('p0')!.hand,
-        contains(const GameCard(CardSuit.bastoni, CardRank.seven)));
+    expect(
+      c.state.playerById('p0')!.hand,
+      contains(const GameCard(CardSuit.bastoni, CardRank.seven)),
+    );
     expect(c.round.topCard, const GameCard(CardSuit.coppe, CardRank.five));
     expect(c.currentPlayer.id, 'p0', reason: 'the turn must not move on');
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the Suit Ritual opens for a Cavallo and sets the suit',
-      (tester) async {
+  testWidgets('the Suit Ritual opens for a Cavallo and sets the suit', (
+    tester,
+  ) async {
     final c = _seat(
       hands: [
         [
@@ -201,8 +212,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('drawing from an empty stock recycles the discard (§18)',
-      (tester) async {
+  testWidgets('drawing from an empty stock recycles the discard (§18)', (
+    tester,
+  ) async {
     final c = _seat(
       hands: [
         [const GameCard(CardSuit.spade, CardRank.seven)],
@@ -222,8 +234,11 @@ void main() {
     await tester.tap(find.textContaining('Pesca').first);
     await _settle(tester, slices: 60);
 
-    expect(c.round.discardPile.last, const GameCard(CardSuit.coppe, CardRank.five),
-        reason: 'the visible top card must survive the recycle');
+    expect(
+      c.round.discardPile.last,
+      const GameCard(CardSuit.coppe, CardRank.five),
+      reason: 'the visible top card must survive the recycle',
+    );
     expect(c.state.playerById('p0')!.hand.length, 2);
     expect(tester.takeException(), isNull);
   });

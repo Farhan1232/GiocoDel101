@@ -27,5 +27,6 @@ class OnlineStatus {
   static const BackendAvailability availability =
       BackendAvailability.notConfigured;
 
-  static bool get isConfigured => availability != BackendAvailability.notConfigured;
+  static bool get isConfigured =>
+      availability != BackendAvailability.notConfigured;
 }

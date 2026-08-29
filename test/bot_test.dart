@@ -35,11 +35,17 @@ void main() {
               ),
           ];
           final engine = GameEngine.newMatch(
-              players: players, mode: GameMode.vsComputer, random: rng);
+            players: players,
+            mode: GameMode.vsComputer,
+            random: rng,
+          );
           final bots = {
             for (final p in players)
-              p.id: BotFactory.create(difficulty,
-                  personality: p.personality, random: Random(seed + 100))
+              p.id: BotFactory.create(
+                difficulty,
+                personality: p.personality,
+                random: Random(seed + 100),
+              ),
           };
 
           var steps = 0;
@@ -57,25 +63,39 @@ void main() {
             final decision = bot.decide(view);
             switch (decision.action) {
               case BotAction.play:
-                final result = engine.playCard(decision.card!,
-                    chosenSuit: decision.suit);
-                expect(result.accepted, isTrue,
-                    reason:
-                        '${difficulty.name} played ${decision.card} illegally '
-                        '(seed $seed, step $steps)');
+                final result = engine.playCard(
+                  decision.card!,
+                  chosenSuit: decision.suit,
+                );
+                expect(
+                  result.accepted,
+                  isTrue,
+                  reason:
+                      '${difficulty.name} played ${decision.card} illegally '
+                      '(seed $seed, step $steps)',
+                );
               case BotAction.draw:
-                expect(engine.drawCard().accepted, isTrue,
-                    reason: '${difficulty.name} drew illegally (seed $seed)');
+                expect(
+                  engine.drawCard().accepted,
+                  isTrue,
+                  reason: '${difficulty.name} drew illegally (seed $seed)',
+                );
                 if (engine.round.drawnCard == null && engine.canEndTurn) {
                   engine.endTurn();
                 }
               case BotAction.endTurn:
-                expect(engine.endTurn().accepted, isTrue,
-                    reason: '${difficulty.name} passed illegally (seed $seed)');
+                expect(
+                  engine.endTurn().accepted,
+                  isTrue,
+                  reason: '${difficulty.name} passed illegally (seed $seed)',
+                );
             }
           }
-          expect(engine.state.matchOver, isTrue,
-              reason: '${difficulty.name} stalled on seed $seed');
+          expect(
+            engine.state.matchOver,
+            isTrue,
+            reason: '${difficulty.name} stalled on seed $seed',
+          );
         }
       });
     }
@@ -137,12 +157,19 @@ void main() {
 
         final botA = BotFactory.create(difficulty, random: Random(42));
         final botB = BotFactory.create(difficulty, random: Random(42));
-        final a = botA.decide(BotViewFactory.forCurrentPlayer(tableWith(weakOpponent)));
-        final b = botB.decide(BotViewFactory.forCurrentPlayer(tableWith(strongOpponent)));
+        final a = botA.decide(
+          BotViewFactory.forCurrentPlayer(tableWith(weakOpponent)),
+        );
+        final b = botB.decide(
+          BotViewFactory.forCurrentPlayer(tableWith(strongOpponent)),
+        );
 
         expect(a.action, b.action, reason: '${difficulty.name} changed plan');
-        expect(a.card, b.card,
-            reason: '${difficulty.name} reacted to a hidden hand');
+        expect(
+          a.card,
+          b.card,
+          reason: '${difficulty.name} reacted to a hidden hand',
+        );
       }
     });
   });
@@ -153,15 +180,21 @@ void main() {
         final e = buildEngine(
           hands: [
             [c(CardSuit.coppe, CardRank.re)],
-            [c(CardSuit.spade, CardRank.three), c(CardSuit.spade, CardRank.four)],
+            [
+              c(CardSuit.spade, CardRank.three),
+              c(CardSuit.spade, CardRank.four),
+            ],
           ],
           top: c(CardSuit.coppe, CardRank.five),
         );
         final bot = BotFactory.create(difficulty, random: Random(5));
         final d = bot.decide(BotViewFactory.forCurrentPlayer(e));
         expect(d.action, BotAction.play);
-        expect(d.card, c(CardSuit.coppe, CardRank.re),
-            reason: '${difficulty.name} missed the winning card');
+        expect(
+          d.card,
+          c(CardSuit.coppe, CardRank.re),
+          reason: '${difficulty.name} missed the winning card',
+        );
       }
     });
 
@@ -194,7 +227,10 @@ void main() {
             c(CardSuit.coppe, CardRank.three),
             c(CardSuit.bastoni, CardRank.seven),
           ],
-          [c(CardSuit.denari, CardRank.three), c(CardSuit.denari, CardRank.four)],
+          [
+            c(CardSuit.denari, CardRank.three),
+            c(CardSuit.denari, CardRank.four),
+          ],
         ],
         top: c(CardSuit.coppe, CardRank.five),
       );
@@ -218,9 +254,11 @@ void main() {
           top: c(CardSuit.coppe, CardRank.five),
         );
         final bot = BotFactory.create(difficulty, random: Random(5));
-        expect(bot.chooseSuit(BotViewFactory.forCurrentPlayer(e)),
-            CardSuit.bastoni,
-            reason: '${difficulty.name} named a suit it cannot follow');
+        expect(
+          bot.chooseSuit(BotViewFactory.forCurrentPlayer(e)),
+          CardSuit.bastoni,
+          reason: '${difficulty.name} named a suit it cannot follow',
+        );
       }
     });
 
@@ -251,20 +289,25 @@ void main() {
         final rng = Random(seed);
         final players = [
           GamePlayer(
-              id: 'hard',
-              name: 'Hard',
-              type: PlayerType.bot,
-              avatarId: 'sofia',
-              difficulty: BotDifficulty.hard),
+            id: 'hard',
+            name: 'Hard',
+            type: PlayerType.bot,
+            avatarId: 'sofia',
+            difficulty: BotDifficulty.hard,
+          ),
           GamePlayer(
-              id: 'easy',
-              name: 'Easy',
-              type: PlayerType.bot,
-              avatarId: 'luca',
-              difficulty: BotDifficulty.easy),
+            id: 'easy',
+            name: 'Easy',
+            type: PlayerType.bot,
+            avatarId: 'luca',
+            difficulty: BotDifficulty.easy,
+          ),
         ];
         final engine = GameEngine.newMatch(
-            players: players, mode: GameMode.vsComputer, random: rng);
+          players: players,
+          mode: GameMode.vsComputer,
+          random: rng,
+        );
         final bots = {
           'hard': BotFactory.create(BotDifficulty.hard, random: Random(seed)),
           'easy': BotFactory.create(BotDifficulty.easy, random: Random(seed)),
@@ -297,8 +340,11 @@ void main() {
         if (engine.state.matchWinnerId == 'hard') hardWins++;
       }
       // Not a landslide — the deck decides plenty — but a clear edge.
-      expect(hardWins, greaterThan(matches * 0.55),
-          reason: 'Hard won only $hardWins of $matches');
+      expect(
+        hardWins,
+        greaterThan(matches * 0.55),
+        reason: 'Hard won only $hardWins of $matches',
+      );
     });
   });
 }

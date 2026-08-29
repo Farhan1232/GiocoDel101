@@ -81,45 +81,44 @@ class StatisticsModel {
     List<String>? unlockedAchievements,
     int? dailyChallengesCompleted,
     int? lastDailyChallenge,
-  }) =>
-      StatisticsModel(
-        matchesPlayed: matchesPlayed ?? this.matchesPlayed,
-        matchesWon: matchesWon ?? this.matchesWon,
-        roundsWon: roundsWon ?? this.roundsWon,
-        roundsPlayed: roundsPlayed ?? this.roundsPlayed,
-        cardsPlayed: cardsPlayed ?? this.cardsPlayed,
-        acesPlayed: acesPlayed ?? this.acesPlayed,
-        twosPlayed: twosPlayed ?? this.twosPlayed,
-        longestChain: longestChain ?? this.longestChain,
-        resets101: resets101 ?? this.resets101,
-        largestComeback: largestComeback ?? this.largestComeback,
-        currentStreak: currentStreak ?? this.currentStreak,
-        bestStreak: bestStreak ?? this.bestStreak,
-        suitCounts: suitCounts ?? this.suitCounts,
-        unlockedAchievements: unlockedAchievements ?? this.unlockedAchievements,
-        dailyChallengesCompleted:
-            dailyChallengesCompleted ?? this.dailyChallengesCompleted,
-        lastDailyChallenge: lastDailyChallenge ?? this.lastDailyChallenge,
-      );
+  }) => StatisticsModel(
+    matchesPlayed: matchesPlayed ?? this.matchesPlayed,
+    matchesWon: matchesWon ?? this.matchesWon,
+    roundsWon: roundsWon ?? this.roundsWon,
+    roundsPlayed: roundsPlayed ?? this.roundsPlayed,
+    cardsPlayed: cardsPlayed ?? this.cardsPlayed,
+    acesPlayed: acesPlayed ?? this.acesPlayed,
+    twosPlayed: twosPlayed ?? this.twosPlayed,
+    longestChain: longestChain ?? this.longestChain,
+    resets101: resets101 ?? this.resets101,
+    largestComeback: largestComeback ?? this.largestComeback,
+    currentStreak: currentStreak ?? this.currentStreak,
+    bestStreak: bestStreak ?? this.bestStreak,
+    suitCounts: suitCounts ?? this.suitCounts,
+    unlockedAchievements: unlockedAchievements ?? this.unlockedAchievements,
+    dailyChallengesCompleted:
+        dailyChallengesCompleted ?? this.dailyChallengesCompleted,
+    lastDailyChallenge: lastDailyChallenge ?? this.lastDailyChallenge,
+  );
 
   Map<String, dynamic> toJson() => {
-        'matchesPlayed': matchesPlayed,
-        'matchesWon': matchesWon,
-        'roundsWon': roundsWon,
-        'roundsPlayed': roundsPlayed,
-        'cardsPlayed': cardsPlayed,
-        'acesPlayed': acesPlayed,
-        'twosPlayed': twosPlayed,
-        'longestChain': longestChain,
-        'resets101': resets101,
-        'largestComeback': largestComeback,
-        'currentStreak': currentStreak,
-        'bestStreak': bestStreak,
-        'suitCounts': suitCounts,
-        'unlockedAchievements': unlockedAchievements,
-        'dailyChallengesCompleted': dailyChallengesCompleted,
-        'lastDailyChallenge': lastDailyChallenge,
-      };
+    'matchesPlayed': matchesPlayed,
+    'matchesWon': matchesWon,
+    'roundsWon': roundsWon,
+    'roundsPlayed': roundsPlayed,
+    'cardsPlayed': cardsPlayed,
+    'acesPlayed': acesPlayed,
+    'twosPlayed': twosPlayed,
+    'longestChain': longestChain,
+    'resets101': resets101,
+    'largestComeback': largestComeback,
+    'currentStreak': currentStreak,
+    'bestStreak': bestStreak,
+    'suitCounts': suitCounts,
+    'unlockedAchievements': unlockedAchievements,
+    'dailyChallengesCompleted': dailyChallengesCompleted,
+    'lastDailyChallenge': lastDailyChallenge,
+  };
 
   factory StatisticsModel.fromJson(Map<String, dynamic> json) {
     int i(String key) => (json[key] as num?)?.toInt() ?? 0;
@@ -136,11 +135,14 @@ class StatisticsModel {
       largestComeback: i('largestComeback'),
       currentStreak: i('currentStreak'),
       bestStreak: i('bestStreak'),
-      suitCounts: ((json['suitCounts'] as Map?) ?? const {})
-          .map((k, v) => MapEntry(k as String, (v as num).toInt())),
+      suitCounts: ((json['suitCounts'] as Map?) ?? const {}).map(
+        (k, v) => MapEntry(k as String, (v as num).toInt()),
+      ),
       unlockedAchievements:
-          (json['unlockedAchievements'] as List?)?.whereType<String>().toList() ??
-              const [],
+          (json['unlockedAchievements'] as List?)
+              ?.whereType<String>()
+              .toList() ??
+          const [],
       dailyChallengesCompleted: i('dailyChallengesCompleted'),
       lastDailyChallenge: i('lastDailyChallenge'),
     );

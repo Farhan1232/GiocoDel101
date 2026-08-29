@@ -8,9 +8,10 @@ enum PlayerType {
 
   String get key => name;
 
-  static PlayerType fromKey(String key) =>
-      PlayerType.values.firstWhere((t) => t.key == key,
-          orElse: () => PlayerType.bot);
+  static PlayerType fromKey(String key) => PlayerType.values.firstWhere(
+    (t) => t.key == key,
+    orElse: () => PlayerType.bot,
+  );
 }
 
 enum BotDifficulty {
@@ -20,9 +21,10 @@ enum BotDifficulty {
 
   String get key => name;
 
-  static BotDifficulty fromKey(String key) =>
-      BotDifficulty.values.firstWhere((d) => d.key == key,
-          orElse: () => BotDifficulty.normal);
+  static BotDifficulty fromKey(String key) => BotDifficulty.values.firstWhere(
+    (d) => d.key == key,
+    orElse: () => BotDifficulty.normal,
+  );
 }
 
 /// §22 — flavour only. Personalities re-weight move selection and pick
@@ -35,7 +37,8 @@ enum BotPersonality {
 
   String get key => name;
 
-  static BotPersonality fromKey(String key) =>
-      BotPersonality.values.firstWhere((p) => p.key == key,
-          orElse: () => BotPersonality.calm);
+  static BotPersonality fromKey(String key) => BotPersonality.values.firstWhere(
+    (p) => p.key == key,
+    orElse: () => BotPersonality.calm,
+  );
 }

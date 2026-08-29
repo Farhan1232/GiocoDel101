@@ -94,7 +94,8 @@ class _DayTile extends StatelessWidget {
         : (active ? accent : AppColors.textMuted);
 
     return Semantics(
-      label: '${s.dailyRewardDay(day.day)}. ${day.amount}. '
+      label:
+          '${s.dailyRewardDay(day.day)}. ${day.amount}. '
           '${day.isClaimed ? s.dailyRewardClaimed : ''}',
       excludeSemantics: true,
       child: AppPanel(

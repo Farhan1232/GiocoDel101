@@ -77,28 +77,28 @@ class AchievementsCatalog {
 /// Resolves a badge id to localized copy.
 extension AchievementCopy on AppLocalizations {
   String achievementTitle(String id) => switch (id) {
-        AchievementsCatalog.primaVittoria => achPrimaVittoriaTitle,
-        AchievementsCatalog.centouno => achCentounoTitle,
-        AchievementsCatalog.vendetta => achVendettaTitle,
-        AchievementsCatalog.maestroNove => achMaestroNoveTitle,
-        AchievementsCatalog.imbattibile => achImbattibileTitle,
-        AchievementsCatalog.veterano => achVeteranoTitle,
-        AchievementsCatalog.catena => achCatenaTitle,
-        AchievementsCatalog.manoPerfetta => achManoPerfettaTitle,
-        AchievementsCatalog.sfidante => achSfidanteTitle,
-        _ => achievements,
-      };
+    AchievementsCatalog.primaVittoria => achPrimaVittoriaTitle,
+    AchievementsCatalog.centouno => achCentounoTitle,
+    AchievementsCatalog.vendetta => achVendettaTitle,
+    AchievementsCatalog.maestroNove => achMaestroNoveTitle,
+    AchievementsCatalog.imbattibile => achImbattibileTitle,
+    AchievementsCatalog.veterano => achVeteranoTitle,
+    AchievementsCatalog.catena => achCatenaTitle,
+    AchievementsCatalog.manoPerfetta => achManoPerfettaTitle,
+    AchievementsCatalog.sfidante => achSfidanteTitle,
+    _ => achievements,
+  };
 
   String achievementDescription(String id) => switch (id) {
-        AchievementsCatalog.primaVittoria => achPrimaVittoriaBody,
-        AchievementsCatalog.centouno => achCentounoBody,
-        AchievementsCatalog.vendetta => achVendettaBody,
-        AchievementsCatalog.maestroNove => achMaestroNoveBody,
-        AchievementsCatalog.imbattibile => achImbattibileBody,
-        AchievementsCatalog.veterano => achVeteranoBody,
-        AchievementsCatalog.catena => achCatenaBody,
-        AchievementsCatalog.manoPerfetta => achManoPerfettaBody,
-        AchievementsCatalog.sfidante => achSfidanteBody,
-        _ => '',
-      };
+    AchievementsCatalog.primaVittoria => achPrimaVittoriaBody,
+    AchievementsCatalog.centouno => achCentounoBody,
+    AchievementsCatalog.vendetta => achVendettaBody,
+    AchievementsCatalog.maestroNove => achMaestroNoveBody,
+    AchievementsCatalog.imbattibile => achImbattibileBody,
+    AchievementsCatalog.veterano => achVeteranoBody,
+    AchievementsCatalog.catena => achCatenaBody,
+    AchievementsCatalog.manoPerfetta => achManoPerfettaBody,
+    AchievementsCatalog.sfidante => achSfidanteBody,
+    _ => '',
+  };
 }

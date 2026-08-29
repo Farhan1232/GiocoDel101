@@ -40,9 +40,7 @@ class AppSwitch extends StatelessWidget {
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadii.pill),
-            color: value
-                ? on.withValues(alpha: 0.85)
-                : AppColors.surfaceSunken,
+            color: value ? on.withValues(alpha: 0.85) : AppColors.surfaceSunken,
             border: Border.all(
               color: value
                   ? Color.lerp(on, Colors.white, 0.35)!

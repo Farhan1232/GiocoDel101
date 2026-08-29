@@ -99,10 +99,7 @@ class OpponentSeat extends StatelessWidget {
               if (skipped)
                 Positioned(
                   top: -22,
-                  child: _floating(
-                    Strings.s.turnSkipped,
-                    AppColors.goldLight,
-                  ),
+                  child: _floating(Strings.s.turnSkipped, AppColors.goldLight),
                 ),
               if (reaction != null)
                 Positioned(
@@ -220,16 +217,21 @@ class PlayerBar extends StatelessWidget {
               Positioned(
                 top: -26,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
                     color: AppColors.inkDeep.withValues(alpha: 0.9),
                     border: Border.all(
-                        color: AppColors.warmIvory.withValues(alpha: 0.5)),
+                      color: AppColors.warmIvory.withValues(alpha: 0.5),
+                    ),
                   ),
-                  child: Text(reaction!,
-                      style: AppText.caption.copyWith(fontSize: 9.5)),
+                  child: Text(
+                    reaction!,
+                    style: AppText.caption.copyWith(fontSize: 9.5),
+                  ),
                 ),
               ),
           ],
@@ -254,8 +256,10 @@ class PlayerBar extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Text('${player.score}',
-                      style: AppText.scoreSmall.copyWith(fontSize: 15)),
+                  Text(
+                    '${player.score}',
+                    style: AppText.scoreSmall.copyWith(fontSize: 15),
+                  ),
                   Text(' / $targetScore', style: AppText.caption),
                   const SizedBox(width: AppSpacing.sm),
                   CardCountChip(

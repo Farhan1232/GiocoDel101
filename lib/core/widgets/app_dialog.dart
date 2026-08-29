@@ -46,7 +46,11 @@ class AppDialog extends StatelessWidget {
               ),
               if (body != null) ...[
                 const SizedBox(height: AppSpacing.md),
-                Text(body!, style: AppText.bodySmall, textAlign: TextAlign.center),
+                Text(
+                  body!,
+                  style: AppText.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
               ],
               if (content != null) ...[
                 const SizedBox(height: AppSpacing.lg),
@@ -126,9 +130,9 @@ class PanelDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: height,
-        child: const Center(
-          child: Divider(height: 1, thickness: 1, color: AppColors.hairline),
-        ),
-      );
+    height: height,
+    child: const Center(
+      child: Divider(height: 1, thickness: 1, color: AppColors.hairline),
+    ),
+  );
 }

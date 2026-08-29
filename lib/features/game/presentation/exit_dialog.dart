@@ -19,7 +19,10 @@ Future<bool?> showExitDialog(BuildContext context, {Color? accent}) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(s.exitTitle, style: AppText.screenTitle.copyWith(fontSize: 20)),
+            Text(
+              s.exitTitle,
+              style: AppText.screenTitle.copyWith(fontSize: 20),
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(
               s.exitBody,

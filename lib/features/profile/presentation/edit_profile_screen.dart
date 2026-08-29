@@ -23,8 +23,9 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late final SettingsController _settings = Get.find<SettingsController>();
-  late final TextEditingController _nickname =
-      TextEditingController(text: _settings.settings.playerName);
+  late final TextEditingController _nickname = TextEditingController(
+    text: _settings.settings.playerName,
+  );
   late String _avatarId = _settings.settings.avatarId;
 
   @override

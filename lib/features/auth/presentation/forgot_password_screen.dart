@@ -50,7 +50,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               autofillHints: const [AutofillHints.email],
               validator: (v) {
                 if ((v ?? '').trim().isEmpty) return s.valRequired;
-                return AuthValidators.isEmailValid(v!) ? null : s.valEmailInvalid;
+                return AuthValidators.isEmailValid(v!)
+                    ? null
+                    : s.valEmailInvalid;
               },
               onSubmitted: (_) => _submit(),
             ),

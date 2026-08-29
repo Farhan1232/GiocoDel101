@@ -13,9 +13,10 @@ enum TurnTimer {
 
   String get key => name;
 
-  static TurnTimer fromKey(String key) =>
-      TurnTimer.values.firstWhere((t) => t.key == key,
-          orElse: () => TurnTimer.thirty);
+  static TurnTimer fromKey(String key) => TurnTimer.values.firstWhere(
+    (t) => t.key == key,
+    orElse: () => TurnTimer.thirty,
+  );
 }
 
 /// Everything the Create Room screen collects.
@@ -47,22 +48,21 @@ class RoomConfig {
     bool? isPrivate,
     TurnTimer? turnTimer,
     GameRulesConfig? rules,
-  }) =>
-      RoomConfig(
-        name: name ?? this.name,
-        playerCount: playerCount ?? this.playerCount,
-        isPrivate: isPrivate ?? this.isPrivate,
-        turnTimer: turnTimer ?? this.turnTimer,
-        rules: rules ?? this.rules,
-      );
+  }) => RoomConfig(
+    name: name ?? this.name,
+    playerCount: playerCount ?? this.playerCount,
+    isPrivate: isPrivate ?? this.isPrivate,
+    turnTimer: turnTimer ?? this.turnTimer,
+    rules: rules ?? this.rules,
+  );
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'playerCount': playerCount,
-        'isPrivate': isPrivate,
-        'turnTimer': turnTimer.key,
-        'rules': rules.toJson(),
-      };
+    'name': name,
+    'playerCount': playerCount,
+    'isPrivate': isPrivate,
+    'turnTimer': turnTimer.key,
+    'rules': rules.toJson(),
+  };
 }
 
 /// One seat in a lobby. [nickname] null means the seat is still open.

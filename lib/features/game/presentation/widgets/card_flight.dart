@@ -76,12 +76,12 @@ class CardFlightLayer extends StatelessWidget {
     final normal = distance == 0
         ? Offset.zero
         : Offset(-delta.dy, delta.dx) / distance;
-    final control = flight.from +
-        delta * 0.5 +
-        normal * math.min(distance * 0.22, 70.0);
+    final control =
+        flight.from + delta * 0.5 + normal * math.min(distance * 0.22, 70.0);
 
     final inv = 1 - t;
-    final position = flight.from * (inv * inv) +
+    final position =
+        flight.from * (inv * inv) +
         control * (2 * inv * t) +
         flight.to * (t * t);
 
@@ -90,8 +90,10 @@ class CardFlightLayer extends StatelessWidget {
         ? 1.0
         : 1.0 + math.sin((raw - 0.82) / 0.18 * math.pi) * 0.055;
     final scale = (0.94 + t * 0.10) * settle;
-    final angle = flight.startAngle +
-        (flight.endAngle - flight.startAngle) * Curves.easeOutCubic.transform(t);
+    final angle =
+        flight.startAngle +
+        (flight.endAngle - flight.startAngle) *
+            Curves.easeOutCubic.transform(t);
 
     final faceUp = flight.flips
         ? (t > 0.5 ? flight.endFaceUp : flight.startFaceUp)

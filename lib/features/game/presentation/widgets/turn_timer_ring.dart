@@ -23,12 +23,13 @@ class TurnTimerRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Warm through to alarming as the time runs out.
-    final tint = accent ??
+    final tint =
+        accent ??
         (progress > 0.5
             ? AppColors.mediterraneanTeal
             : progress > 0.25
-                ? AppColors.fateWarning
-                : AppColors.terracottaCoral);
+            ? AppColors.fateWarning
+            : AppColors.terracottaCoral);
 
     return Semantics(
       label: '$secondsRemaining',

@@ -74,7 +74,9 @@ class _SignupScreenState extends State<SignupScreen> {
               autofillHints: const [AutofillHints.email],
               validator: (v) {
                 if ((v ?? '').trim().isEmpty) return s.valRequired;
-                return AuthValidators.isEmailValid(v!) ? null : s.valEmailInvalid;
+                return AuthValidators.isEmailValid(v!)
+                    ? null
+                    : s.valEmailInvalid;
               },
             ),
             const SizedBox(height: AppSpacing.lg),

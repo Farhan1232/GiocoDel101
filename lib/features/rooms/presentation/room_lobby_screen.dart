@@ -69,8 +69,11 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
       return;
     }
     await Clipboard.setData(ClipboardData(text: _state.code));
-    Get.snackbar(s.lobbyShare, s.lobbyCopied,
-        snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar(
+      s.lobbyShare,
+      s.lobbyCopied,
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   @override
@@ -104,9 +107,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
             const SizedBox(height: AppSpacing.sm),
             for (final seat in _state.seats) ...[
               PlayerSlotTile(
-                emptyLabel: _state.code.isEmpty
-                    ? s.commonComingSoon
-                    : s.lobbyEmptySlot,
+                emptyLabel: s.lobbyEmptySlot,
                 nickname: seat.nickname,
                 avatarId: seat.avatarId,
                 isHost: seat.isHost,

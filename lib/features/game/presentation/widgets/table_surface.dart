@@ -42,9 +42,9 @@ class _TableSurfaceState extends State<TableSurface>
   void initState() {
     super.initState();
     _ambient = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 12),
-  );
+      vsync: this,
+      duration: const Duration(seconds: 12),
+    );
     if (Motion.allowAmbient) _ambient.repeat();
   }
 
@@ -174,10 +174,7 @@ class _FeltBasePainter extends CustomPainter {
         ..shader = ui.Gradient.radial(
           centre,
           rx,
-          [
-            Colors.transparent,
-            AppColors.inkDeep.withValues(alpha: 0.28),
-          ],
+          [Colors.transparent, AppColors.inkDeep.withValues(alpha: 0.28)],
           const [0.72, 1.0],
         ),
     );
@@ -220,14 +217,16 @@ class _AmbientPainter extends CustomPainter {
           final a = rng.nextDouble() * math.pi * 2;
           final d = 0.25 + rng.nextDouble() * 0.72;
           final phase = (t + rng.nextDouble()) % 1.0;
-          final at = centre + Offset(math.cos(a) * rx * d, math.sin(a) * ry * d);
+          final at =
+              centre + Offset(math.cos(a) * rx * d, math.sin(a) * ry * d);
           final r = (2.0 + rng.nextDouble() * 4.0);
           Glow.circle(
             canvas,
             at,
             r * 3.0,
             ambient.withValues(
-                alpha: math.sin(phase * math.pi) * 0.34 * strength),
+              alpha: math.sin(phase * math.pi) * 0.34 * strength,
+            ),
             core: 0.16,
           );
         }
@@ -343,8 +342,7 @@ class _DirectionRingPainter extends CustomPainter {
     final centre = Offset(size.width / 2, size.height * 0.48);
     final rx = size.width * 0.665;
     final ry = size.height * 0.505;
-    final rect = Rect.fromCenter(
-        center: centre, width: rx * 2, height: ry * 2);
+    final rect = Rect.fromCenter(center: centre, width: rx * 2, height: ry * 2);
 
     canvas.drawOval(
       rect,
@@ -378,10 +376,7 @@ class _DirectionRingPainter extends CustomPainter {
         ..strokeWidth = 3.0
         ..shader = ui.Gradient.sweep(
           centre,
-          [
-            accent.withValues(alpha: 0.0),
-            accent.withValues(alpha: 0.75),
-          ],
+          [accent.withValues(alpha: 0.0), accent.withValues(alpha: 0.75)],
           const [0.0, 1.0],
           TileMode.clamp,
           head - span,

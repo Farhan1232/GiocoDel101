@@ -112,7 +112,9 @@ class _AppTextFieldState extends State<AppTextField> {
 
   Widget? _suffix() {
     if (widget.obscure) {
-      final label = _hidden ? widget.showPasswordLabel : widget.hidePasswordLabel;
+      final label = _hidden
+          ? widget.showPasswordLabel
+          : widget.hidePasswordLabel;
       return Semantics(
         button: true,
         label: label,
@@ -121,7 +123,7 @@ class _AppTextFieldState extends State<AppTextField> {
           constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           onPressed: () => setState(() => _hidden = !_hidden),
           icon: AppIconView(
-            _hidden ? AppIcon.contrast : AppIcon.check,
+            _hidden ? AppIcon.eye : AppIcon.eyeOff,
             size: 20,
             color: AppColors.textSecondary,
           ),

@@ -49,23 +49,47 @@ class CourtPalette {
     switch (suit) {
       case CardSuit.denari:
         return const CourtPalette(
-          cape: red, lining: blue, robe: blue, sleeve: gold,
-          skirt: green, hose: gold, crown: gold, plinth: gold,
+          cape: red,
+          lining: blue,
+          robe: blue,
+          sleeve: gold,
+          skirt: green,
+          hose: gold,
+          crown: gold,
+          plinth: gold,
         );
       case CardSuit.coppe:
         return const CourtPalette(
-          cape: green, lining: gold, robe: red, sleeve: gold,
-          skirt: blue, hose: gold, crown: red, plinth: red,
+          cape: green,
+          lining: gold,
+          robe: red,
+          sleeve: gold,
+          skirt: blue,
+          hose: gold,
+          crown: red,
+          plinth: red,
         );
       case CardSuit.spade:
         return const CourtPalette(
-          cape: green, lining: blue, robe: blue, sleeve: gold,
-          skirt: red, hose: gold, crown: blue, plinth: blue,
+          cape: green,
+          lining: blue,
+          robe: blue,
+          sleeve: gold,
+          skirt: red,
+          hose: gold,
+          crown: blue,
+          plinth: blue,
         );
       case CardSuit.bastoni:
         return const CourtPalette(
-          cape: blue, lining: gold, robe: green, sleeve: red,
-          skirt: red, hose: gold, crown: green, plinth: green,
+          cape: blue,
+          lining: gold,
+          robe: green,
+          sleeve: red,
+          skirt: red,
+          hose: gold,
+          crown: green,
+          plinth: green,
         );
     }
   }
@@ -106,15 +130,24 @@ class FigureArt {
     ..isAntiAlias = true;
 
   /// Fill then outline, the way a woodcut is inked.
-  static void _plate(Canvas canvas, Path path, Color colour,
-      {double weight = 0.016}) {
+  static void _plate(
+    Canvas canvas,
+    Path path,
+    Color colour, {
+    double weight = 0.016,
+  }) {
     canvas.drawPath(path, _fill(colour));
     canvas.drawPath(path, _stroke(_ink, weight));
   }
 
   /// Engraved shading inside [shape]: parallel strokes, clipped.
-  static void _hatch(Canvas canvas, Path shape, double opacity,
-      {double spacing = 0.040, double weight = 0.008}) {
+  static void _hatch(
+    Canvas canvas,
+    Path shape,
+    double opacity, {
+    double spacing = 0.040,
+    double weight = 0.008,
+  }) {
     if (opacity <= 0.02) return;
     canvas.save();
     canvas.clipPath(shape);
@@ -122,8 +155,7 @@ class FigureArt {
     final paint = _stroke(_ink.withValues(alpha: opacity), weight);
     final slant = b.height * 0.42;
     for (var x = b.left - slant; x <= b.right + spacing; x += spacing) {
-      canvas.drawLine(
-          Offset(x, b.bottom), Offset(x + slant, b.top), paint);
+      canvas.drawLine(Offset(x, b.bottom), Offset(x + slant, b.top), paint);
     }
     canvas.restore();
   }
@@ -134,8 +166,13 @@ class FigureArt {
   ///
   /// [detail] fades the engraving — faces, hatching, jewels — out of the
   /// small cards in a tight fan, where it would only turn to mud.
-  static void standing(Canvas canvas, Rect rect, CardSuit suit,
-      {required bool king, double detail = 1.0}) {
+  static void standing(
+    Canvas canvas,
+    Rect rect,
+    CardSuit suit, {
+    required bool king,
+    double detail = 1.0,
+  }) {
     canvas.save();
     canvas.translate(rect.left, rect.top);
     canvas.scale(rect.width);
@@ -144,8 +181,12 @@ class FigureArt {
   }
 
   /// Draws the mounted Cavallo into [rect] under a uniform scale.
-  static void rider(Canvas canvas, Rect rect, CardSuit suit,
-      {double detail = 1.0}) {
+  static void rider(
+    Canvas canvas,
+    Rect rect,
+    CardSuit suit, {
+    double detail = 1.0,
+  }) {
     canvas.save();
     canvas.translate(rect.left, rect.top);
     canvas.scale(rect.width);
@@ -156,8 +197,7 @@ class FigureArt {
   // ------------------------------------------------------------ the ground
 
   static void _plinth(Canvas canvas, Color colour, double detail) {
-    final bar = Path()
-      ..addRect(const Rect.fromLTRB(0.10, 1.654, 0.90, 1.741));
+    final bar = Path()..addRect(const Rect.fromLTRB(0.10, 1.654, 0.90, 1.741));
     _plate(canvas, bar, colour, weight: 0.014);
     if (detail > 0.5) {
       final paint = _stroke(_ink.withValues(alpha: 0.35), 0.008);
@@ -169,8 +209,12 @@ class FigureArt {
 
   // --------------------------------------------------------- standing court
 
-  static void _standing(Canvas canvas, CardSuit suit,
-      {required bool king, required double detail}) {
+  static void _standing(
+    Canvas canvas,
+    CardSuit suit, {
+    required bool king,
+    required double detail,
+  }) {
     final c = CourtPalette.of(suit);
 
     _plinth(canvas, c.plinth, detail);
@@ -220,11 +264,13 @@ class FigureArt {
     // Shoes, toes turned out.
     for (final foot in const [(0.408, -1.0), (0.592, 1.0)]) {
       final shoe = Path()
-        ..addOval(Rect.fromCenter(
-          center: Offset(foot.$1 + 0.020 * foot.$2, 1.622),
-          width: 0.170,
-          height: 0.062,
-        ));
+        ..addOval(
+          Rect.fromCenter(
+            center: Offset(foot.$1 + 0.020 * foot.$2, 1.622),
+            width: 0.170,
+            height: 0.062,
+          ),
+        );
       _plate(canvas, shoe, _silver, weight: 0.014);
     }
 
@@ -258,10 +304,12 @@ class FigureArt {
 
     // Belt.
     final belt = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        const Rect.fromLTRB(0.306, 0.772, 0.694, 0.844),
-        const Radius.circular(0.018),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(0.306, 0.772, 0.694, 0.844),
+          const Radius.circular(0.018),
+        ),
+      );
     _plate(canvas, belt, CourtPalette.gold, weight: 0.013);
     if (detail > 0.5) {
       canvas.drawCircle(const Offset(0.500, 0.808), 0.024, _fill(_ink));
@@ -291,13 +339,22 @@ class FigureArt {
 
     if (king) {
       // Medallion of office.
-      canvas.drawCircle(const Offset(0.500, 0.652), 0.068,
-          _fill(CourtPalette.gold));
       canvas.drawCircle(
-          const Offset(0.500, 0.652), 0.068, _stroke(_ink, 0.014));
+        const Offset(0.500, 0.652),
+        0.068,
+        _fill(CourtPalette.gold),
+      );
+      canvas.drawCircle(
+        const Offset(0.500, 0.652),
+        0.068,
+        _stroke(_ink, 0.014),
+      );
       if (detail > 0.5) {
-        canvas.drawCircle(const Offset(0.500, 0.652), 0.044,
-            _stroke(_ink.withValues(alpha: 0.55), 0.010));
+        canvas.drawCircle(
+          const Offset(0.500, 0.652),
+          0.044,
+          _stroke(_ink.withValues(alpha: 0.55), 0.010),
+        );
         canvas.drawCircle(const Offset(0.500, 0.652), 0.018, _fill(_ink));
       }
     }
@@ -317,21 +374,25 @@ class FigureArt {
 
   /// One arm: a bent sleeve slashed at the shoulder, closed by a linen cuff.
   /// The raised arm carries the suit sign, the other is held open.
-  static void _arm(Canvas canvas, CourtPalette c,
-      {required bool raised, required double detail}) {
+  static void _arm(
+    Canvas canvas,
+    CourtPalette c, {
+    required bool raised,
+    required double detail,
+  }) {
     final sleeve = raised
         ? (Path()
-          ..moveTo(0.352, 0.492)
-          ..cubicTo(0.264, 0.512, 0.196, 0.596, 0.160, 0.692)
-          ..lineTo(0.252, 0.730)
-          ..cubicTo(0.284, 0.644, 0.336, 0.586, 0.402, 0.566)
-          ..close())
+            ..moveTo(0.352, 0.492)
+            ..cubicTo(0.264, 0.512, 0.196, 0.596, 0.160, 0.692)
+            ..lineTo(0.252, 0.730)
+            ..cubicTo(0.284, 0.644, 0.336, 0.586, 0.402, 0.566)
+            ..close())
         : (Path()
-          ..moveTo(0.648, 0.492)
-          ..cubicTo(0.736, 0.512, 0.804, 0.596, 0.840, 0.692)
-          ..lineTo(0.748, 0.730)
-          ..cubicTo(0.716, 0.644, 0.664, 0.586, 0.598, 0.566)
-          ..close());
+            ..moveTo(0.648, 0.492)
+            ..cubicTo(0.736, 0.512, 0.804, 0.596, 0.840, 0.692)
+            ..lineTo(0.748, 0.730)
+            ..cubicTo(0.716, 0.644, 0.664, 0.586, 0.598, 0.566)
+            ..close());
     _plate(canvas, sleeve, c.sleeve);
     _hatch(canvas, sleeve, 0.28 * detail, spacing: 0.024, weight: 0.007);
 
@@ -343,11 +404,17 @@ class FigureArt {
       for (var i = 0; i < 2; i++) {
         final t = 0.030 * i;
         if (raised) {
-          canvas.drawLine(Offset(0.300 - t, 0.512), Offset(0.352 - t, 0.590),
-              slash);
+          canvas.drawLine(
+            Offset(0.300 - t, 0.512),
+            Offset(0.352 - t, 0.590),
+            slash,
+          );
         } else {
-          canvas.drawLine(Offset(0.700 + t, 0.512), Offset(0.648 + t, 0.590),
-              slash);
+          canvas.drawLine(
+            Offset(0.700 + t, 0.512),
+            Offset(0.648 + t, 0.590),
+            slash,
+          );
         }
       }
       canvas.restore();
@@ -357,17 +424,17 @@ class FigureArt {
     // Linen cuff at the wrist.
     final cuff = raised
         ? (Path()
-          ..moveTo(0.160, 0.692)
-          ..lineTo(0.252, 0.730)
-          ..lineTo(0.236, 0.772)
-          ..lineTo(0.144, 0.734)
-          ..close())
+            ..moveTo(0.160, 0.692)
+            ..lineTo(0.252, 0.730)
+            ..lineTo(0.236, 0.772)
+            ..lineTo(0.144, 0.734)
+            ..close())
         : (Path()
-          ..moveTo(0.840, 0.692)
-          ..lineTo(0.748, 0.730)
-          ..lineTo(0.764, 0.772)
-          ..lineTo(0.856, 0.734)
-          ..close());
+            ..moveTo(0.840, 0.692)
+            ..lineTo(0.748, 0.730)
+            ..lineTo(0.764, 0.772)
+            ..lineTo(0.856, 0.734)
+            ..close());
     _plate(canvas, cuff, _linen, weight: 0.013);
   }
 
@@ -379,31 +446,54 @@ class FigureArt {
       for (var i = 0; i < 3; i++) {
         final y = at.dy - 0.022 + i * 0.022;
         canvas.drawLine(
-            Offset(at.dx - 0.034, y), Offset(at.dx + 0.034, y), paint);
+          Offset(at.dx - 0.034, y),
+          Offset(at.dx + 0.034, y),
+          paint,
+        );
       }
     }
   }
 
   /// Head, hair and — on the King — a trimmed beard.
-  static void _head(Canvas canvas, Offset c,
-      {required bool bearded, required double detail}) {
+  static void _head(
+    Canvas canvas,
+    Offset c, {
+    required bool bearded,
+    required double detail,
+  }) {
     final hair = Path()
-      ..addOval(Rect.fromCenter(
-          center: c.translate(0, 0.008), width: 0.246, height: 0.268));
+      ..addOval(
+        Rect.fromCenter(
+          center: c.translate(0, 0.008),
+          width: 0.246,
+          height: 0.268,
+        ),
+      );
     _plate(canvas, hair, _hair, weight: 0.014);
 
     if (bearded) {
       final beard = Path()
         ..moveTo(c.dx - 0.086, c.dy + 0.028)
-        ..cubicTo(c.dx - 0.080, c.dy + 0.150, c.dx + 0.080, c.dy + 0.150,
-            c.dx + 0.086, c.dy + 0.028)
+        ..cubicTo(
+          c.dx - 0.080,
+          c.dy + 0.150,
+          c.dx + 0.080,
+          c.dy + 0.150,
+          c.dx + 0.086,
+          c.dy + 0.028,
+        )
         ..close();
       _plate(canvas, beard, _hair, weight: 0.013);
     }
 
     final face = Path()
-      ..addOval(Rect.fromCenter(
-          center: c.translate(0.006, 0.0), width: 0.172, height: 0.206));
+      ..addOval(
+        Rect.fromCenter(
+          center: c.translate(0.006, 0.0),
+          width: 0.172,
+          height: 0.206,
+        ),
+      );
     _plate(canvas, face, _flesh, weight: 0.014);
 
     if (detail < 0.5) return;
@@ -412,16 +502,31 @@ class FigureArt {
     final line = _stroke(_ink, 0.011);
     canvas.drawCircle(c.translate(-0.030, -0.016), 0.013, _fill(_ink));
     canvas.drawCircle(c.translate(0.046, -0.016), 0.013, _fill(_ink));
-    canvas.drawLine(c.translate(-0.054, -0.052), c.translate(-0.006, -0.056),
-        line);
-    canvas.drawLine(c.translate(0.022, -0.056), c.translate(0.070, -0.052),
-        line);
-    canvas.drawLine(c.translate(0.010, -0.006), c.translate(0.004, 0.036),
-        line);
+    canvas.drawLine(
+      c.translate(-0.054, -0.052),
+      c.translate(-0.006, -0.056),
+      line,
+    );
+    canvas.drawLine(
+      c.translate(0.022, -0.056),
+      c.translate(0.070, -0.052),
+      line,
+    );
+    canvas.drawLine(
+      c.translate(0.010, -0.006),
+      c.translate(0.004, 0.036),
+      line,
+    );
     final tache = Path()
       ..moveTo(c.dx - 0.056, c.dy + 0.056)
-      ..cubicTo(c.dx - 0.012, c.dy + 0.034, c.dx + 0.034, c.dy + 0.034,
-          c.dx + 0.072, c.dy + 0.056);
+      ..cubicTo(
+        c.dx - 0.012,
+        c.dy + 0.034,
+        c.dx + 0.034,
+        c.dy + 0.034,
+        c.dx + 0.072,
+        c.dy + 0.056,
+      );
     canvas.drawPath(tache, _stroke(_ink, 0.016));
   }
 
@@ -443,10 +548,12 @@ class FigureArt {
     _plate(canvas, crown, colour, weight: 0.015);
 
     final band = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        const Rect.fromLTRB(0.330, 0.184, 0.670, 0.256),
-        const Radius.circular(0.016),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(0.330, 0.184, 0.670, 0.256),
+          const Radius.circular(0.016),
+        ),
+      );
     _plate(canvas, band, CourtPalette.gold, weight: 0.015);
 
     if (detail < 0.5) return;
@@ -459,8 +566,7 @@ class FigureArt {
       canvas.drawCircle(pt, 0.028, _stroke(_ink, 0.011));
     }
     for (var i = 0; i < 3; i++) {
-      canvas.drawCircle(
-          Offset(0.412 + i * 0.088, 0.220), 0.020, _fill(_ink));
+      canvas.drawCircle(Offset(0.412 + i * 0.088, 0.220), 0.020, _fill(_ink));
     }
   }
 
@@ -470,13 +576,17 @@ class FigureArt {
     canvas.translate(0.748, 0.152);
     canvas.rotate(-0.72);
     final feather = Path()
-      ..addOval(Rect.fromCenter(
-          center: Offset.zero, width: 0.300, height: 0.092));
+      ..addOval(
+        Rect.fromCenter(center: Offset.zero, width: 0.300, height: 0.092),
+      );
     _plate(canvas, feather, _linen, weight: 0.013);
     if (detail > 0.5) {
       // Quill and barbs, so the plume never reads as a blade.
-      canvas.drawLine(const Offset(-0.136, 0.006), const Offset(0.140, 0.0),
-          _stroke(_ink.withValues(alpha: 0.45), 0.009));
+      canvas.drawLine(
+        const Offset(-0.136, 0.006),
+        const Offset(0.140, 0.0),
+        _stroke(_ink.withValues(alpha: 0.45), 0.009),
+      );
       final barb = _stroke(_ink.withValues(alpha: 0.28), 0.007);
       for (var i = 0; i < 5; i++) {
         final x = -0.104 + i * 0.050;
@@ -495,17 +605,25 @@ class FigureArt {
     _hatch(canvas, cap, 0.22 * detail, spacing: 0.032, weight: 0.008);
 
     final band = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        const Rect.fromLTRB(0.322, 0.226, 0.682, 0.290),
-        const Radius.circular(0.016),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(0.322, 0.226, 0.682, 0.290),
+          const Radius.circular(0.016),
+        ),
+      );
     _plate(canvas, band, CourtPalette.gold, weight: 0.014);
 
     if (detail > 0.5) {
-      canvas.drawCircle(const Offset(0.622, 0.258), 0.022,
-          _fill(CourtPalette.red));
       canvas.drawCircle(
-          const Offset(0.622, 0.258), 0.022, _stroke(_ink, 0.010));
+        const Offset(0.622, 0.258),
+        0.022,
+        _fill(CourtPalette.red),
+      );
+      canvas.drawCircle(
+        const Offset(0.622, 0.258),
+        0.022,
+        _stroke(_ink, 0.010),
+      );
     }
   }
 
@@ -542,8 +660,13 @@ class FigureArt {
 
     // Barrel.
     final barrel = Path()
-      ..addOval(Rect.fromCenter(
-          center: const Offset(0.478, 1.116), width: 0.560, height: 0.420));
+      ..addOval(
+        Rect.fromCenter(
+          center: const Offset(0.478, 1.116),
+          width: 0.560,
+          height: 0.420,
+        ),
+      );
     _plate(canvas, barrel, horse, weight: 0.016);
 
     // Near pair of legs.
@@ -557,10 +680,12 @@ class FigureArt {
         ..close();
       _plate(canvas, leg, horse, weight: 0.015);
       final hoof = Path()
-        ..addRRect(RRect.fromRectAndRadius(
-          Rect.fromLTRB(x - 0.010, 1.586, x + 0.070, 1.642),
-          const Radius.circular(0.012),
-        ));
+        ..addRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTRB(x - 0.010, 1.586, x + 0.070, 1.642),
+            const Radius.circular(0.012),
+          ),
+        );
       _plate(canvas, hoof, _ink, weight: 0.010);
     }
 
@@ -597,8 +722,11 @@ class FigureArt {
       canvas.drawCircle(const Offset(0.878, 0.726), 0.017, _fill(_ink));
       canvas.drawCircle(const Offset(0.952, 0.802), 0.013, _fill(_ink));
       // Bridle.
-      canvas.drawLine(const Offset(0.836, 0.748), const Offset(0.908, 0.800),
-          _stroke(_ink.withValues(alpha: 0.6), 0.011));
+      canvas.drawLine(
+        const Offset(0.836, 0.748),
+        const Offset(0.908, 0.800),
+        _stroke(_ink.withValues(alpha: 0.6), 0.011),
+      );
     }
 
     // Caparison over the barrel.
@@ -630,10 +758,12 @@ class FigureArt {
       ..close();
     _plate(canvas, thigh, c.hose, weight: 0.014);
     final boot = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        const Rect.fromLTRB(0.442, 1.160, 0.548, 1.268),
-        const Radius.circular(0.020),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(0.442, 1.160, 0.548, 1.268),
+          const Radius.circular(0.020),
+        ),
+      );
     _plate(canvas, boot, _silver, weight: 0.013);
 
     final torso = Path()
@@ -646,10 +776,12 @@ class FigureArt {
     _hatch(canvas, torso, 0.20 * detail, spacing: 0.028);
 
     final sash = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        const Rect.fromLTRB(0.386, 0.884, 0.588, 0.944),
-        const Radius.circular(0.016),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(0.386, 0.884, 0.588, 0.944),
+          const Radius.circular(0.016),
+        ),
+      );
     _plate(canvas, sash, CourtPalette.gold, weight: 0.012);
 
     // Rein arm, reaching forward to the horse's neck.
@@ -699,10 +831,12 @@ class FigureArt {
       ..close();
     _plate(canvas, helm, _silver, weight: 0.014);
     final rim = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        const Rect.fromLTRB(0.326, 0.362, 0.620, 0.412),
-        const Radius.circular(0.014),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(0.326, 0.362, 0.620, 0.412),
+          const Radius.circular(0.014),
+        ),
+      );
     _plate(canvas, rim, CourtPalette.gold, weight: 0.013);
   }
 
@@ -710,8 +844,13 @@ class FigureArt {
   // Each sign is authored with the grip at the origin so it can be dropped
   // into whichever hand carries it, at whichever scale that figure needs.
 
-  static void _heldSign(Canvas canvas, CardSuit suit, Offset hand,
-      double scale, double detail) {
+  static void _heldSign(
+    Canvas canvas,
+    CardSuit suit,
+    Offset hand,
+    double scale,
+    double detail,
+  ) {
     canvas.save();
     canvas.translate(hand.dx, hand.dy);
     canvas.scale(scale);
@@ -740,8 +879,11 @@ class FigureArt {
       ..close();
     _plate(canvas, blade, p.primary, weight: 0.014);
     if (detail > 0.45) {
-      canvas.drawLine(const Offset(0.0, -0.578), const Offset(0.0, -0.220),
-          _stroke(_ink.withValues(alpha: 0.42), 0.010));
+      canvas.drawLine(
+        const Offset(0.0, -0.578),
+        const Offset(0.0, -0.220),
+        _stroke(_ink.withValues(alpha: 0.42), 0.010),
+      );
     }
 
     final guard = Path()
@@ -752,14 +894,19 @@ class FigureArt {
     _plate(canvas, guard, CourtPalette.gold, weight: 0.014);
 
     final grip = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        const Rect.fromLTRB(-0.032, -0.152, 0.032, 0.070),
-        const Radius.circular(0.014),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          const Rect.fromLTRB(-0.032, -0.152, 0.032, 0.070),
+          const Radius.circular(0.014),
+        ),
+      );
     _plate(canvas, grip, CourtPalette.gold, weight: 0.013);
 
-    canvas.drawCircle(const Offset(0.0, 0.098), 0.042,
-        _fill(CourtPalette.gold));
+    canvas.drawCircle(
+      const Offset(0.0, 0.098),
+      0.042,
+      _fill(CourtPalette.gold),
+    );
     canvas.drawCircle(const Offset(0.0, 0.098), 0.042, _stroke(_ink, 0.013));
   }
 
@@ -780,8 +927,11 @@ class FigureArt {
     _plate(canvas, club, p.primary, weight: 0.015);
 
     if (detail < 0.45) return;
-    canvas.drawLine(const Offset(-0.068, -0.374), const Offset(0.068, -0.374),
-        _stroke(_ink.withValues(alpha: 0.55), 0.012));
+    canvas.drawLine(
+      const Offset(-0.068, -0.374),
+      const Offset(0.068, -0.374),
+      _stroke(_ink.withValues(alpha: 0.55), 0.012),
+    );
     canvas.drawArc(
       Rect.fromCircle(center: const Offset(0.0, -0.522), radius: 0.054),
       math.pi * 0.18,
@@ -789,8 +939,11 @@ class FigureArt {
       false,
       _stroke(_ink.withValues(alpha: 0.4), 0.010),
     );
-    canvas.drawCircle(const Offset(0.0, -0.170), 0.020,
-        _stroke(_ink.withValues(alpha: 0.45), 0.009));
+    canvas.drawCircle(
+      const Offset(0.0, -0.170),
+      0.020,
+      _stroke(_ink.withValues(alpha: 0.45), 0.009),
+    );
   }
 
   /// A lidded chalice, raised on its foot.
@@ -815,8 +968,11 @@ class FigureArt {
       ..cubicTo(0.106, -0.116, 0.170, -0.176, 0.170, -0.318)
       ..close();
     _plate(canvas, bowl, p.primary, weight: 0.015);
-    canvas.drawLine(const Offset(-0.184, -0.318), const Offset(0.184, -0.318),
-        _stroke(_ink, 0.018));
+    canvas.drawLine(
+      const Offset(-0.184, -0.318),
+      const Offset(0.184, -0.318),
+      _stroke(_ink, 0.018),
+    );
 
     final dome = Path()
       ..moveTo(-0.106, -0.318)
@@ -827,8 +983,11 @@ class FigureArt {
     canvas.drawCircle(const Offset(0.0, -0.470), 0.036, _stroke(_ink, 0.013));
 
     if (detail < 0.45) return;
-    canvas.drawLine(const Offset(-0.140, -0.232), const Offset(0.140, -0.232),
-        _stroke(_ink.withValues(alpha: 0.45), 0.010));
+    canvas.drawLine(
+      const Offset(-0.140, -0.232),
+      const Offset(0.140, -0.232),
+      _stroke(_ink.withValues(alpha: 0.45), 0.010),
+    );
   }
 
   /// A struck coin, held up on the palm.
@@ -856,7 +1015,12 @@ class FigureArt {
   // ------------------------------------------------------------- ornament
 
   /// A small four-petal fleuron used in card corners and frames.
-  static void fleuron(Canvas canvas, Offset centre, double radius, Color color) {
+  static void fleuron(
+    Canvas canvas,
+    Offset centre,
+    double radius,
+    Color color,
+  ) {
     final paint = _fill(color);
     canvas.save();
     canvas.translate(centre.dx, centre.dy);

@@ -57,7 +57,7 @@ Future<void> _boot() async {
     'coach_match',
     'coach_draw',
     'coach_specials',
-    'coach_ring'
+    'coach_ring',
   ]) {
     await settings.markCoachMarkSeen(id);
   }
@@ -103,25 +103,36 @@ GameController _match({
         ..eliminated = true;
     }
   }
-  return Get.put(GameController(
-    engine: setup.engine,
-    storage: Get.find<GameStorageService>(),
-    settings: Get.find<SettingsController>(),
-    stats: Get.find<StatsController>(),
-    humanIds: setup.humanIds,
-  ));
+  return Get.put(
+    GameController(
+      engine: setup.engine,
+      storage: Get.find<GameStorageService>(),
+      settings: Get.find<SettingsController>(),
+      stats: Get.find<StatsController>(),
+      humanIds: setup.humanIds,
+    ),
+  );
 }
 
-Future<void> _render(WidgetTester tester, Widget child, Size size,
-    {int frames = 20}) async {
+Future<void> _render(
+  WidgetTester tester,
+  Widget child,
+  Size size, {
+  int frames = 20,
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(GetMaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: AppTheme.build(),
-    home: MediaQuery(data: MediaQueryData(size: size), child: child),
-  ));
+  await tester.pumpWidget(
+    GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.build(),
+      home: MediaQuery(
+        data: MediaQueryData(size: size),
+        child: child,
+      ),
+    ),
+  );
   for (var i = 0; i < frames; i++) {
     await tester.pump(const Duration(milliseconds: 60));
   }
@@ -184,13 +195,14 @@ void main() {
     for (final players in [2, 3, 4]) {
       for (final size in sizes) {
         testWidgets(
-            '$players players at ${size.width.toInt()}x${size.height.toInt()}',
-            (tester) async {
-          await _boot();
-          _match(players: players);
-          await _render(tester, const GameScreen(), size);
-          expect(tester.takeException(), isNull);
-        });
+          '$players players at ${size.width.toInt()}x${size.height.toInt()}',
+          (tester) async {
+            await _boot();
+            _match(players: players);
+            await _render(tester, const GameScreen(), size);
+            expect(tester.takeException(), isNull);
+          },
+        );
       }
     }
 
@@ -230,8 +242,11 @@ void main() {
         await settings.setTheme(theme.id);
         _match();
         await _render(tester, const GameScreen(), sizes.first, frames: 10);
-        expect(tester.takeException(), isNull,
-            reason: 'theme ${theme.id} failed');
+        expect(
+          tester.takeException(),
+          isNull,
+          reason: 'theme ${theme.id} failed',
+        );
         Get.delete<GameController>(force: true);
       }
     });
@@ -239,40 +254,43 @@ void main() {
 
   group('Results screens (§36, §37)', () {
     RoundResult sample(GameController c) => RoundResult(
-          roundNumber: 3,
-          winnerId: c.state.players.first.id,
-          winnerName: c.state.players.first.name,
-          matchOver: false,
-          rows: [
-            PlayerRoundResult(
-                playerId: c.state.players.first.id,
-                name: c.state.players.first.name,
-                cardsLeft: 0,
-                penalty: 0,
-                previousScore: 12,
-                newScore: 12,
-                hitExact101: false,
-                eliminated: false),
-            PlayerRoundResult(
-                playerId: c.state.players[1].id,
-                name: c.state.players[1].name,
-                cardsLeft: 3,
-                penalty: 7,
-                previousScore: 94,
-                newScore: 0,
-                hitExact101: true,
-                eliminated: false),
-            PlayerRoundResult(
-                playerId: c.state.players[2].id,
-                name: c.state.players[2].name,
-                cardsLeft: 5,
-                penalty: 22,
-                previousScore: 82,
-                newScore: 104,
-                hitExact101: false,
-                eliminated: true),
-          ],
-        );
+      roundNumber: 3,
+      winnerId: c.state.players.first.id,
+      winnerName: c.state.players.first.name,
+      matchOver: false,
+      rows: [
+        PlayerRoundResult(
+          playerId: c.state.players.first.id,
+          name: c.state.players.first.name,
+          cardsLeft: 0,
+          penalty: 0,
+          previousScore: 12,
+          newScore: 12,
+          hitExact101: false,
+          eliminated: false,
+        ),
+        PlayerRoundResult(
+          playerId: c.state.players[1].id,
+          name: c.state.players[1].name,
+          cardsLeft: 3,
+          penalty: 7,
+          previousScore: 94,
+          newScore: 0,
+          hitExact101: true,
+          eliminated: false,
+        ),
+        PlayerRoundResult(
+          playerId: c.state.players[2].id,
+          name: c.state.players[2].name,
+          cardsLeft: 5,
+          penalty: 22,
+          previousScore: 82,
+          newScore: 104,
+          hitExact101: false,
+          eliminated: true,
+        ),
+      ],
+    );
 
     for (final size in sizes) {
       testWidgets('round result ${size.width.toInt()}', (tester) async {
@@ -331,8 +349,11 @@ void main() {
           sizes.first,
           frames: 40,
         );
-        expect(tester.takeException(), isNull,
-            reason: 'score ${config.score} failed');
+        expect(
+          tester.takeException(),
+          isNull,
+          reason: 'score ${config.score} failed',
+        );
       }
     });
 
@@ -343,7 +364,10 @@ void main() {
           tester,
           Center(
             child: ChainStorm(
-                level: level, total: level * 2, size: const Size(180, 180)),
+              level: level,
+              total: level * 2,
+              size: const Size(180, 180),
+            ),
           ),
           sizes.first,
           frames: 15,
@@ -376,8 +400,12 @@ void main() {
 
     testWidgets('victory flourish', (tester) async {
       await _boot();
-      await _render(tester, const Center(child: VictoryFlourish(size: 200)),
-          sizes.first, frames: 30);
+      await _render(
+        tester,
+        const Center(child: VictoryFlourish(size: 200)),
+        sizes.first,
+        frames: 30,
+      );
       expect(tester.takeException(), isNull);
     });
 
@@ -400,8 +428,9 @@ void main() {
       expect(ready, isTrue);
     });
 
-    testWidgets('reaction sheet offers exactly eight lines (§23)',
-        (tester) async {
+    testWidgets('reaction sheet offers exactly eight lines (§23)', (
+      tester,
+    ) async {
       await _boot();
       String? picked;
       await _render(

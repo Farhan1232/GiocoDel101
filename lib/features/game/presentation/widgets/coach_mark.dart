@@ -65,13 +65,17 @@ class CoachMark extends StatelessWidget {
                   color: colour.withValues(alpha: 0.14),
                 ),
                 child: Center(
-                    child: AppIconView(icon, size: 18, color: colour)),
+                  child: AppIconView(icon, size: 18, color: colour),
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Text(message,
-                    style: AppText.bodySmall
-                        .copyWith(color: AppColors.textPrimary)),
+                child: Text(
+                  message,
+                  style: AppText.bodySmall.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               PremiumButton(

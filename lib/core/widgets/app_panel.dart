@@ -37,8 +37,11 @@ class AppPanel extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color.lerp(AppColors.surfaceRaised, accent ?? AppColors.surfaceRaised,
-                0.06 * tintStrength)!,
+            Color.lerp(
+              AppColors.surfaceRaised,
+              accent ?? AppColors.surfaceRaised,
+              0.06 * tintStrength,
+            )!,
             AppColors.surface,
             AppColors.surfaceSunken,
           ],
@@ -66,11 +69,13 @@ class AppPanel extends StatelessWidget {
             height: 1,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-                  Colors.transparent,
-                  Colors.white.withValues(alpha: 0.16),
-                  Colors.transparent,
-                ]),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.white.withValues(alpha: 0.16),
+                    Colors.transparent,
+                  ],
+                ),
               ),
             ),
           ),
@@ -112,10 +117,12 @@ class SectionHeading extends StatelessWidget {
             child: Container(
               height: 1,
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-                  AppColors.antiqueGold.withValues(alpha: 0.45),
-                  AppColors.antiqueGold.withValues(alpha: 0.0),
-                ]),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.antiqueGold.withValues(alpha: 0.45),
+                    AppColors.antiqueGold.withValues(alpha: 0.0),
+                  ],
+                ),
               ),
             ),
           ),

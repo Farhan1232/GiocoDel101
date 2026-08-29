@@ -11,8 +11,10 @@ enum GameMode {
 
   String get key => name;
 
-  static GameMode fromKey(String key) => GameMode.values
-      .firstWhere((m) => m.key == key, orElse: () => GameMode.vsComputer);
+  static GameMode fromKey(String key) => GameMode.values.firstWhere(
+    (m) => m.key == key,
+    orElse: () => GameMode.vsComputer,
+  );
 }
 
 /// The serialisation root for an entire match. Everything needed to restore a
@@ -30,8 +32,8 @@ class MatchState {
     this.isDailyChallenge = false,
     MatchStats? stats,
     List<GameAction>? history,
-  })  : stats = stats ?? MatchStats(),
-        history = history ?? <GameAction>[];
+  }) : stats = stats ?? MatchStats(),
+       history = history ?? <GameAction>[];
 
   /// Seat order, fixed for the whole match. Index 0 is the local human in
   /// `vsComputer` mode.
@@ -75,19 +77,19 @@ class MatchState {
   }
 
   Map<String, dynamic> toJson() => {
-        'version': 1,
-        'players': players.map((p) => p.toJson()).toList(),
-        'rules': rules.toJson(),
-        'round': round.toJson(),
-        'mode': mode.key,
-        'roundNumber': roundNumber,
-        'matchOver': matchOver,
-        'matchWinnerId': matchWinnerId,
-        'seed': seed,
-        'isDailyChallenge': isDailyChallenge,
-        'stats': stats.toJson(),
-        'history': history.map((a) => a.toJson()).toList(),
-      };
+    'version': 1,
+    'players': players.map((p) => p.toJson()).toList(),
+    'rules': rules.toJson(),
+    'round': round.toJson(),
+    'mode': mode.key,
+    'roundNumber': roundNumber,
+    'matchOver': matchOver,
+    'matchWinnerId': matchWinnerId,
+    'seed': seed,
+    'isDailyChallenge': isDailyChallenge,
+    'stats': stats.toJson(),
+    'history': history.map((a) => a.toJson()).toList(),
+  };
 
   /// Throws [FormatException] on structurally invalid data so the caller can
   /// discard a corrupt save rather than booting into a broken table (§52).
@@ -105,7 +107,8 @@ class MatchState {
     return MatchState(
       players: players,
       rules: GameRulesConfig.fromJson(
-          (json['rules'] as Map?)?.cast<String, dynamic>() ?? const {}),
+        (json['rules'] as Map?)?.cast<String, dynamic>() ?? const {},
+      ),
       round: round,
       mode: GameMode.fromKey(json['mode'] as String? ?? 'vsComputer'),
       roundNumber: (json['roundNumber'] as num?)?.toInt() ?? 1,
@@ -114,7 +117,8 @@ class MatchState {
       seed: (json['seed'] as num?)?.toInt() ?? 0,
       isDailyChallenge: json['isDailyChallenge'] as bool? ?? false,
       stats: MatchStats.fromJson(
-          (json['stats'] as Map?)?.cast<String, dynamic>() ?? const {}),
+        (json['stats'] as Map?)?.cast<String, dynamic>() ?? const {},
+      ),
       history: ((json['history'] as List?) ?? const [])
           .map((e) => GameAction.fromJson(e as Map<String, dynamic>))
           .toList(),

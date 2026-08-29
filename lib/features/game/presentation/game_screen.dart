@@ -42,8 +42,7 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen>
-    with TickerProviderStateMixin {
+class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   final GameController c = Get.find<GameController>();
   final SettingsController settings = Get.find<SettingsController>();
 
@@ -136,8 +135,10 @@ class _GameScreenState extends State<GameScreen>
   Offset _seatCentre(String playerId) {
     if (playerId == c.viewingPlayer.id) {
       return _centreOf(_handKey) ??
-          Offset(MediaQuery.sizeOf(context).width / 2,
-              MediaQuery.sizeOf(context).height * 0.85);
+          Offset(
+            MediaQuery.sizeOf(context).width / 2,
+            MediaQuery.sizeOf(context).height * 0.85,
+          );
     }
     final key = _seatKeys[playerId];
     return (key == null ? null : _centreOf(key)) ??
@@ -155,8 +156,7 @@ class _GameScreenState extends State<GameScreen>
     return (width * 0.205).clamp(54.0, 96.0);
   }
 
-  double get _opponentCardWidth =>
-      (_tableCardWidth * 0.42).clamp(20.0, 40.0);
+  double get _opponentCardWidth => (_tableCardWidth * 0.42).clamp(20.0, 40.0);
 
   // ----------------------------------------------------------- cue playback
 
@@ -212,7 +212,10 @@ class _GameScreenState extends State<GameScreen>
   }
 
   Future<void> _animateDraw(
-      String playerId, List<GameCard> cards, bool isPenalty) async {
+    String playerId,
+    List<GameCard> cards,
+    bool isPenalty,
+  ) async {
     if (cards.isEmpty) return;
     final from = _centreOf(_drawKey);
     final to = _seatCentre(playerId);
@@ -231,17 +234,19 @@ class _GameScreenState extends State<GameScreen>
       if (i > 0) {
         await Future<void>.delayed(Motion.scale(AppDurations.penaltyStagger));
       }
-      futures.add(_fly(
-        card: animated[i],
-        from: from,
-        to: to,
-        width: isViewer ? _handCardWidth * 0.92 : _opponentCardWidth * 1.6,
-        startFaceUp: false,
-        endFaceUp: isViewer,
-        startAngle: 0,
-        endAngle: isViewer ? 0 : 0.1,
-        duration: AppDurations.cardDraw,
-      ));
+      futures.add(
+        _fly(
+          card: animated[i],
+          from: from,
+          to: to,
+          width: isViewer ? _handCardWidth * 0.92 : _opponentCardWidth * 1.6,
+          startFaceUp: false,
+          endFaceUp: isViewer,
+          startAngle: 0,
+          endAngle: isViewer ? 0 : 0.1,
+          duration: AppDurations.cardDraw,
+        ),
+      );
     }
     await Future.wait(futures);
     if (mounted) {
@@ -265,17 +270,19 @@ class _GameScreenState extends State<GameScreen>
       if (i > 0) {
         await Future<void>.delayed(Motion.scale(AppDurations.penaltyStagger));
       }
-      futures.add(_fly(
-        card: c.round.topCard,
-        from: from,
-        to: to,
-        width: _tableCardWidth,
-        startFaceUp: false,
-        endFaceUp: false,
-        startAngle: (i.isEven ? 1 : -1) * (0.18 + i * 0.06),
-        endAngle: 0,
-        duration: AppDurations.cardDraw,
-      ));
+      futures.add(
+        _fly(
+          card: c.round.topCard,
+          from: from,
+          to: to,
+          width: _tableCardWidth,
+          startFaceUp: false,
+          endFaceUp: false,
+          startAngle: (i.isEven ? 1 : -1) * (0.18 + i * 0.06),
+          endAngle: 0,
+          duration: AppDurations.cardDraw,
+        ),
+      );
     }
     await Future.wait(futures);
   }
@@ -396,10 +403,12 @@ class _GameScreenState extends State<GameScreen>
                   child: HandoverOverlay(
                     playerName:
                         c.state.playerById(c.handoverPlayerId.value!)?.name ??
-                            '',
+                        '',
                     avatarId:
-                        c.state.playerById(c.handoverPlayerId.value!)?.avatarId ??
-                            'lucia',
+                        c.state
+                            .playerById(c.handoverPlayerId.value!)
+                            ?.avatarId ??
+                        'lucia',
                     backId: settings.settings.cardBackId,
                     accent: theme.accent,
                     onReady: c.confirmHandover,
@@ -431,7 +440,11 @@ class _GameScreenState extends State<GameScreen>
   Widget _topBar(Color accent) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        0,
+      ),
       child: Row(
         children: [
           IconPill(icon: AppIcon.back, size: 38, onTap: _confirmExit),
@@ -451,8 +464,10 @@ class _GameScreenState extends State<GameScreen>
                 style: AppText.label.copyWith(letterSpacing: 2),
               ),
               if (c.state.isDailyChallenge)
-                Text(Strings.s.dailyChallenge,
-                    style: AppText.caption.copyWith(fontSize: 9, color: accent)),
+                Text(
+                  Strings.s.dailyChallenge,
+                  style: AppText.caption.copyWith(fontSize: 9, color: accent),
+                ),
             ],
           ),
           const Spacer(),
@@ -537,7 +552,9 @@ class _GameScreenState extends State<GameScreen>
   Widget _centrePiles(Color accent) {
     final cw = _tableCardWidth;
     final discard = c.round.discardPile;
-    final visible = discard.where((card) => !_hidden.contains(card.id)).toList();
+    final visible = discard
+        .where((card) => !_hidden.contains(card.id))
+        .toList();
     final top = visible.isEmpty ? null : visible.last;
     final beneath = visible.length <= 1
         ? <GameCard>[]
@@ -597,7 +614,11 @@ class _GameScreenState extends State<GameScreen>
   Widget _playerStrip(GamePlayer viewer, Color accent) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.gutter, AppSpacing.xs, AppSpacing.gutter, 0),
+        AppSpacing.gutter,
+        AppSpacing.xs,
+        AppSpacing.gutter,
+        0,
+      ),
       child: PlayerBar(
         player: viewer,
         isActive: c.currentPlayer.id == viewer.id,
@@ -617,38 +638,44 @@ class _GameScreenState extends State<GameScreen>
 
     final children = <Widget>[];
     if (mustTake) {
-      children.add(Expanded(
-        child: PremiumButton(
-          label: '${s.takePenalty} +${c.round.pendingPenalty}',
-          size: ButtonSize.medium,
-          accent: AppColors.terracottaCoral,
-          icon: AppIcon.draw,
-          onPressed: c.drawCard,
+      children.add(
+        Expanded(
+          child: PremiumButton(
+            label: '${s.takePenalty} +${c.round.pendingPenalty}',
+            size: ButtonSize.medium,
+            accent: AppColors.terracottaCoral,
+            icon: AppIcon.draw,
+            onPressed: c.drawCard,
+          ),
         ),
-      ));
+      );
     } else if (canDraw) {
-      children.add(Expanded(
-        child: PremiumButton(
-          label: s.drawCard,
-          size: ButtonSize.medium,
-          variant: ButtonVariant.secondary,
-          icon: AppIcon.draw,
-          onPressed: c.drawCard,
+      children.add(
+        Expanded(
+          child: PremiumButton(
+            label: s.drawCard,
+            size: ButtonSize.medium,
+            variant: ButtonVariant.secondary,
+            icon: AppIcon.draw,
+            onPressed: c.drawCard,
+          ),
         ),
-      ));
+      );
     }
     if (canPass) {
       if (children.isNotEmpty) {
         children.add(const SizedBox(width: AppSpacing.md));
       }
-      children.add(Expanded(
-        child: PremiumButton(
-          label: s.passTurn,
-          size: ButtonSize.medium,
-          variant: ButtonVariant.ghost,
-          onPressed: c.endTurn,
+      children.add(
+        Expanded(
+          child: PremiumButton(
+            label: s.passTurn,
+            size: ButtonSize.medium,
+            variant: ButtonVariant.ghost,
+            onPressed: c.endTurn,
+          ),
         ),
-      ));
+      );
     }
 
     return AnimatedSize(
@@ -657,16 +684,21 @@ class _GameScreenState extends State<GameScreen>
       child: children.isEmpty
           ? const SizedBox(height: AppSpacing.sm, width: double.infinity)
           : Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.gutter,
-                  AppSpacing.sm, AppSpacing.gutter, 0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                AppSpacing.sm,
+                AppSpacing.gutter,
+                0,
+              ),
               child: Row(children: children),
             ),
     );
   }
 
   Widget _hand(GamePlayer viewer) {
-    final cards =
-        viewer.hand.where((card) => !_hidden.contains(card.id)).toList();
+    final cards = viewer.hand
+        .where((card) => !_hidden.contains(card.id))
+        .toList();
     final playable = c.isHumanTurn && c.currentPlayer.id == viewer.id
         ? c.playableForViewer.toSet()
         : <GameCard>{};
@@ -711,12 +743,15 @@ class _GameScreenState extends State<GameScreen>
           ),
           child: Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl, vertical: AppSpacing.sm),
+              horizontal: AppSpacing.xl,
+              vertical: AppSpacing.sm,
+            ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppRadii.pill),
               color: AppColors.inkDeep.withValues(alpha: 0.78),
               border: Border.all(
-                  color: AppColors.antiqueGold.withValues(alpha: 0.55)),
+                color: AppColors.antiqueGold.withValues(alpha: 0.55),
+              ),
             ),
             child: Text(text, style: AppText.tableShout.copyWith(fontSize: 16)),
           ),
@@ -750,12 +785,7 @@ class _GameScreenState extends State<GameScreen>
       case 2:
         return [math.pi / 2, math.pi * 1.20, math.pi * 1.80];
       default:
-        return [
-          math.pi / 2,
-          math.pi,
-          -math.pi / 2,
-          0,
-        ];
+        return [math.pi / 2, math.pi, -math.pi / 2, 0];
     }
   }
 
@@ -776,13 +806,10 @@ class _ConnectionDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final offline = status == NetworkStatus.offline;
-    final tint =
-        offline ? AppColors.terracottaCoral : AppColors.fateWarning;
+    final tint = offline ? AppColors.terracottaCoral : AppColors.fateWarning;
     return Semantics(
       liveRegion: true,
-      label: offline
-          ? Strings.s.networkOffline
-          : Strings.s.networkReconnecting,
+      label: offline ? Strings.s.networkOffline : Strings.s.networkReconnecting,
       child: Container(
         width: 38,
         height: 38,

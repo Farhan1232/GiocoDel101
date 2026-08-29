@@ -34,10 +34,12 @@ class DailyRewardCalendar {
   /// Day seven is the one worth coming back for.
   static const List<int> ladder = [10, 15, 20, 30, 40, 60, 120];
 
-  bool get canClaimToday =>
-      days.any((d) => d.isToday && !d.isClaimed);
+  bool get canClaimToday => days.any((d) => d.isToday && !d.isClaimed);
 
-  factory DailyRewardCalendar.forStreak(int streak, {bool claimedToday = false}) {
+  factory DailyRewardCalendar.forStreak(
+    int streak, {
+    bool claimedToday = false,
+  }) {
     final safe = streak.clamp(0, ladder.length);
     return DailyRewardCalendar(
       streak: safe,

@@ -26,8 +26,7 @@ class ScreenScaffold extends StatelessWidget {
     this.trailing,
     this.banner,
     this.scrollable = true,
-    this.padding =
-        const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
+    this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
     this.maxContentWidth = 560,
   });
 
@@ -64,8 +63,7 @@ class ScreenScaffold extends StatelessWidget {
           child: SafeArea(
             child: Column(
               children: [
-                if (title != null || showBack || trailing != null)
-                  _bar(theme),
+                if (title != null || showBack || trailing != null) _bar(theme),
                 ?banner,
                 Expanded(
                   child: Align(
@@ -78,8 +76,9 @@ class ScreenScaffold extends StatelessWidget {
                                 physics: const ClampingScrollPhysics(),
                                 padding: padding,
                                 child: ConstrainedBox(
-                                  constraints:
-                                      BoxConstraints(minHeight: box.maxHeight),
+                                  constraints: BoxConstraints(
+                                    minHeight: box.maxHeight,
+                                  ),
                                   child: child,
                                 ),
                               ),
@@ -115,14 +114,20 @@ class ScreenScaffold extends StatelessWidget {
           else
             const SizedBox(width: 44),
           Expanded(
-            child: Text(
-              title ?? '',
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppText.screenTitle.copyWith(
-                fontSize: 18,
-                color: theme.isLight ? AppColors.inkDeep : AppColors.textPrimary,
+            // Italian titles run longer than English ones; shrink to fit
+            // rather than ellipsing a screen's own name.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                title ?? '',
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: AppText.screenTitle.copyWith(
+                  fontSize: 18,
+                  color: theme.isLight
+                      ? AppColors.inkDeep
+                      : AppColors.textPrimary,
+                ),
               ),
             ),
           ),

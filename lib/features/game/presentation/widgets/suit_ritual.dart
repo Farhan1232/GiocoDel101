@@ -36,8 +36,7 @@ class SuitRitual extends StatefulWidget {
   State<SuitRitual> createState() => _SuitRitualState();
 }
 
-class _SuitRitualState extends State<SuitRitual>
-    with TickerProviderStateMixin {
+class _SuitRitualState extends State<SuitRitual> with TickerProviderStateMixin {
   late final AnimationController _open;
   late final AnimationController _close;
 
@@ -73,10 +72,7 @@ class _SuitRitualState extends State<SuitRitual>
 
   @override
   Widget build(BuildContext context) {
-    final radius = math.min(
-      MediaQuery.sizeOf(context).width * 0.26,
-      116.0,
-    );
+    final radius = math.min(MediaQuery.sizeOf(context).width * 0.26, 116.0);
     // The tokens sit a full radius out and carry a label beneath them; the
     // Stack has to contain all of that or the outer ones stop taking taps.
     final extent = radius * 3.2;
@@ -96,10 +92,8 @@ class _SuitRitualState extends State<SuitRitual>
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
                       colors: [
-                        AppColors.inkDeep
-                            .withValues(alpha: 0.62 * _open.value),
-                        AppColors.inkDeep
-                            .withValues(alpha: 0.86 * _open.value),
+                        AppColors.inkDeep.withValues(alpha: 0.62 * _open.value),
+                        AppColors.inkDeep.withValues(alpha: 0.86 * _open.value),
                       ],
                     ),
                   ),
@@ -161,7 +155,12 @@ class _SuitRitualState extends State<SuitRitual>
   }
 
   Widget _token(
-      CardSuit suit, int index, double radius, double open, double close) {
+    CardSuit suit,
+    int index,
+    double radius,
+    double open,
+    double close,
+  ) {
     final chosen = _picked == suit;
     final angle = -math.pi / 2 + (index / CardSuit.values.length) * math.pi * 2;
     final distance = radius * open * (chosen ? 1 - close * 0.72 : 1.0);
@@ -174,8 +173,8 @@ class _SuitRitualState extends State<SuitRitual>
     final opacity = _picked == null
         ? open.clamp(0.0, 1.0)
         : chosen
-            ? 1.0
-            : (1 - close * 1.4).clamp(0.0, 1.0);
+        ? 1.0
+        : (1 - close * 1.4).clamp(0.0, 1.0);
 
     final size = radius * 0.62;
 
@@ -214,11 +213,11 @@ class _SuitRitualState extends State<SuitRitual>
   }
 
   static String _label(CardSuit suit) => switch (suit) {
-        CardSuit.denari => Strings.s.suitDenari,
-        CardSuit.coppe => Strings.s.suitCoppe,
-        CardSuit.spade => Strings.s.suitSpade,
-        CardSuit.bastoni => Strings.s.suitBastoni,
-      };
+    CardSuit.denari => Strings.s.suitDenari,
+    CardSuit.coppe => Strings.s.suitCoppe,
+    CardSuit.spade => Strings.s.suitSpade,
+    CardSuit.bastoni => Strings.s.suitBastoni,
+  };
 }
 
 /// A struck token: a bevelled disc carrying one suit emblem.
@@ -239,11 +238,7 @@ class _SuitToken extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: RadialGradient(
           center: const Alignment(-0.35, -0.4),
-          colors: [
-            Color.lerp(p.light, Colors.white, 0.25)!,
-            p.primary,
-            p.deep,
-          ],
+          colors: [Color.lerp(p.light, Colors.white, 0.25)!, p.primary, p.deep],
           stops: const [0.0, 0.55, 1.0],
         ),
         border: Border.all(
@@ -264,9 +259,7 @@ class _SuitToken extends StatelessWidget {
             ),
         ],
       ),
-      child: CustomPaint(
-        painter: _TokenEmblemPainter(suit: suit),
-      ),
+      child: CustomPaint(painter: _TokenEmblemPainter(suit: suit)),
     );
   }
 }

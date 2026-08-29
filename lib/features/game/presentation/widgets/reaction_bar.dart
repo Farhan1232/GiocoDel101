@@ -68,16 +68,20 @@ class ReactionSheet extends StatelessWidget {
                         onTap: () => onPick(phrase),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
-                              vertical: AppSpacing.sm),
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.sm,
+                          ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(AppRadii.pill),
                             color: AppColors.surfaceSunken,
                             border: Border.all(
-                                color: colour.withValues(alpha: 0.28)),
+                              color: colour.withValues(alpha: 0.28),
+                            ),
                           ),
-                          child: Text(phrase,
-                              style: AppText.body.copyWith(fontSize: 13.5)),
+                          child: Text(
+                            phrase,
+                            style: AppText.body.copyWith(fontSize: 13.5),
+                          ),
                         ),
                       ),
                   ],

@@ -56,10 +56,7 @@ class _IconPillState extends State<IconPill> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColors.surfaceRaised,
-                AppColors.surfaceSunken,
-              ],
+              colors: [AppColors.surfaceRaised, AppColors.surfaceSunken],
             ),
             border: Border.all(color: accent.withValues(alpha: 0.30)),
             boxShadow: [
@@ -73,11 +70,7 @@ class _IconPillState extends State<IconPill> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              AppIconView(
-                widget.icon,
-                size: widget.size * 0.48,
-                color: accent,
-              ),
+              AppIconView(widget.icon, size: widget.size * 0.48, color: accent),
               if (widget.badge != null)
                 Positioned(right: 2, top: 2, child: widget.badge!),
             ],
@@ -105,14 +98,14 @@ class NotificationDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: AppSpacing.sm,
-        height: AppSpacing.sm,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6),
-          ],
-        ),
-      );
+    width: AppSpacing.sm,
+    height: AppSpacing.sm,
+    decoration: BoxDecoration(
+      color: color,
+      shape: BoxShape.circle,
+      boxShadow: [
+        BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6),
+      ],
+    ),
+  );
 }

@@ -141,9 +141,12 @@ class _TrophyPainter extends CustomPainter {
       final handle = Path()
         ..moveTo(w * (0.5 + dir * 0.20), h * 0.27)
         ..cubicTo(
-          w * (0.5 + dir * 0.36), h * 0.26,
-          w * (0.5 + dir * 0.36), h * 0.45,
-          w * (0.5 + dir * 0.20), h * 0.46,
+          w * (0.5 + dir * 0.36),
+          h * 0.26,
+          w * (0.5 + dir * 0.36),
+          h * 0.45,
+          w * (0.5 + dir * 0.20),
+          h * 0.46,
         );
       canvas.drawPath(
         handle,
@@ -172,7 +175,9 @@ class _TrophyPainter extends CustomPainter {
       gold,
     );
     canvas.drawRect(
-        Rect.fromLTWH(w * 0.465, h * 0.62, w * 0.07, h * 0.10), gold);
+      Rect.fromLTWH(w * 0.465, h * 0.62, w * 0.07, h * 0.10),
+      gold,
+    );
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(w * 0.35, h * 0.72, w * 0.30, h * 0.055),
@@ -208,8 +213,10 @@ class _TrophyPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    label.paint(canvas,
-        Offset(w * 0.5 - label.width / 2, h * 0.36 - label.height / 2));
+    label.paint(
+      canvas,
+      Offset(w * 0.5 - label.width / 2, h * 0.36 - label.height / 2),
+    );
   }
 
   void _particles(Canvas canvas, Size size) {
@@ -226,8 +233,11 @@ class _TrophyPainter extends CustomPainter {
         canvas,
         Offset(x * size.width, y * size.height),
         r * 2.4,
-        Color.lerp(AppColors.goldLight, accent, rng.nextDouble())!
-            .withValues(alpha: fade * 0.6),
+        Color.lerp(
+          AppColors.goldLight,
+          accent,
+          rng.nextDouble(),
+        )!.withValues(alpha: fade * 0.6),
         core: 0.24,
       );
     }

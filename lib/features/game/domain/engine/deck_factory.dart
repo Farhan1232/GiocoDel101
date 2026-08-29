@@ -12,9 +12,9 @@ class DeckFactory {
 
   /// A fresh, ordered deck: every suit crossed with every rank, exactly once.
   static List<GameCard> ordered() => <GameCard>[
-        for (final suit in CardSuit.values)
-          for (final rank in CardRank.values) GameCard(suit, rank),
-      ];
+    for (final suit in CardSuit.values)
+      for (final rank in CardRank.values) GameCard(suit, rank),
+  ];
 
   /// A shuffled deck. Pass a seeded [Random] to make the shuffle reproducible
   /// (used by the daily challenge, §68).

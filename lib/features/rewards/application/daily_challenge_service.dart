@@ -30,73 +30,73 @@ class DailyChallengeService {
 
     return switch (variant) {
       0 => DailyChallenge(
-          dateKey: key,
-          seed: key,
-          title: 'Sull’orlo',
-          description:
-              'Parti da 80 punti contro un avversario difficile. Un round '
-              'sbagliato e sei fuori.',
-          playerCount: 2,
-          difficulty: BotDifficulty.hard,
-          startingScore: 80,
-          opponentStartingScore: 0,
-          rules: const GameRulesConfig(),
-          reward: 'Dorso Notturno',
-        ),
+        dateKey: key,
+        seed: key,
+        title: 'Sull’orlo',
+        description:
+            'Parti da 80 punti contro un avversario difficile. Un round '
+            'sbagliato e sei fuori.',
+        playerCount: 2,
+        difficulty: BotDifficulty.hard,
+        startingScore: 80,
+        opponentStartingScore: 0,
+        rules: const GameRulesConfig(),
+        reward: 'Dorso Notturno',
+      ),
       1 => DailyChallenge(
-          dateKey: key,
-          seed: key,
-          title: 'Mano stretta',
-          description:
-              'Solo 3 carte a testa. Poche scelte, nessun margine di errore.',
-          playerCount: players,
-          difficulty: difficulty,
-          startingScore: 0,
-          opponentStartingScore: 0,
-          rules: const GameRulesConfig(startingHandSize: 3),
-          reward: 'Dorso Notturno',
-        ),
+        dateKey: key,
+        seed: key,
+        title: 'Mano stretta',
+        description:
+            'Solo 3 carte a testa. Poche scelte, nessun margine di errore.',
+        playerCount: players,
+        difficulty: difficulty,
+        startingScore: 0,
+        opponentStartingScore: 0,
+        rules: const GameRulesConfig(startingHandSize: 3),
+        reward: 'Dorso Notturno',
+      ),
       2 => DailyChallenge(
-          dateKey: key,
-          seed: key,
-          title: 'Tempesta di due',
-          description:
-              'Mano da 8 carte e catene di 2 scatenate. Sopravvivi alla '
-              'tempesta.',
-          playerCount: players,
-          difficulty: difficulty,
-          startingScore: 0,
-          opponentStartingScore: 0,
-          rules: const GameRulesConfig(startingHandSize: 8),
-          reward: 'Dorso Notturno',
-        ),
+        dateKey: key,
+        seed: key,
+        title: 'Tempesta di due',
+        description:
+            'Mano da 8 carte e catene di 2 scatenate. Sopravvivi alla '
+            'tempesta.',
+        playerCount: players,
+        difficulty: difficulty,
+        startingScore: 0,
+        opponentStartingScore: 0,
+        rules: const GameRulesConfig(startingHandSize: 8),
+        reward: 'Dorso Notturno',
+      ),
       3 => DailyChallenge(
-          dateKey: key,
-          seed: key,
-          title: 'Ritorno a zero',
-          description:
-              'Parti da 94 punti: trova i 7 punti esatti e torna a zero.',
-          playerCount: 2,
-          difficulty: BotDifficulty.normal,
-          startingScore: 94,
-          opponentStartingScore: 20,
-          rules: const GameRulesConfig(),
-          reward: 'Dorso Notturno',
-        ),
+        dateKey: key,
+        seed: key,
+        title: 'Ritorno a zero',
+        description:
+            'Parti da 94 punti: trova i 7 punti esatti e torna a zero.',
+        playerCount: 2,
+        difficulty: BotDifficulty.normal,
+        startingScore: 94,
+        opponentStartingScore: 20,
+        rules: const GameRulesConfig(),
+        reward: 'Dorso Notturno',
+      ),
       _ => DailyChallenge(
-          dateKey: key,
-          seed: key,
-          title: 'Tavolo pieno',
-          description:
-              'Quattro giocatori, avversari difficili, nessuna pesca '
-              'volontaria.',
-          playerCount: 4,
-          difficulty: BotDifficulty.hard,
-          startingScore: 0,
-          opponentStartingScore: 0,
-          rules: const GameRulesConfig(allowVoluntaryDraw: false),
-          reward: 'Dorso Notturno',
-        ),
+        dateKey: key,
+        seed: key,
+        title: 'Tavolo pieno',
+        description:
+            'Quattro giocatori, avversari difficili, nessuna pesca '
+            'volontaria.',
+        playerCount: 4,
+        difficulty: BotDifficulty.hard,
+        startingScore: 0,
+        opponentStartingScore: 0,
+        rules: const GameRulesConfig(allowVoluntaryDraw: false),
+        reward: 'Dorso Notturno',
+      ),
     };
   }
 

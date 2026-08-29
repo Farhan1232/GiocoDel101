@@ -31,21 +31,21 @@ class GameAction {
   final CardSuit? suit;
 
   Map<String, dynamic> toJson() => {
-        't': type.name,
-        'p': playerId,
-        if (card != null) 'c': card!.toStorage(),
-        if (count != null) 'n': count,
-        if (suit != null) 's': suit!.key,
-      };
+    't': type.name,
+    'p': playerId,
+    if (card != null) 'c': card!.toStorage(),
+    if (count != null) 'n': count,
+    if (suit != null) 's': suit!.key,
+  };
 
   factory GameAction.fromJson(Map<String, dynamic> json) => GameAction(
-        type: GameActionType.values.firstWhere(
-          (t) => t.name == json['t'],
-          orElse: () => GameActionType.play,
-        ),
-        playerId: json['p'] as String? ?? '',
-        card: json['c'] == null ? null : GameCard.fromStorage(json['c'] as String),
-        count: (json['n'] as num?)?.toInt(),
-        suit: json['s'] == null ? null : CardSuit.fromKey(json['s'] as String),
-      );
+    type: GameActionType.values.firstWhere(
+      (t) => t.name == json['t'],
+      orElse: () => GameActionType.play,
+    ),
+    playerId: json['p'] as String? ?? '',
+    card: json['c'] == null ? null : GameCard.fromStorage(json['c'] as String),
+    count: (json['n'] as num?)?.toInt(),
+    suit: json['s'] == null ? null : CardSuit.fromKey(json['s'] as String),
+  );
 }

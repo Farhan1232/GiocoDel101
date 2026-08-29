@@ -75,7 +75,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   alignment: Alignment.centerRight,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
-                      0, AppSpacing.sm, AppSpacing.gutter, 0),
+                      0,
+                      AppSpacing.sm,
+                      AppSpacing.gutter,
+                      0,
+                    ),
                     child: TextButton(
                       onPressed: _finish,
                       style: TextButton.styleFrom(
@@ -136,21 +140,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _dots(Color accent) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for (var i = 0; i < _pageCount; i++)
-            AnimatedContainer(
-              duration: AppDurations.quick,
-              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-              width: i == _index ? 22 : 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: i == _index ? accent : AppColors.hairline,
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-              ),
-            ),
-        ],
-      );
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      for (var i = 0; i < _pageCount; i++)
+        AnimatedContainer(
+          duration: AppDurations.quick,
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+          width: i == _index ? 22 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: i == _index ? accent : AppColors.hairline,
+            borderRadius: BorderRadius.circular(AppRadii.pill),
+          ),
+        ),
+    ],
+  );
 }
 
 class _Page extends StatelessWidget {
@@ -178,7 +182,10 @@ class _Page extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: box.maxHeight * 0.06),
-              SizedBox(height: box.maxHeight * 0.42, child: Center(child: art)),
+              SizedBox(
+                height: box.maxHeight * 0.42,
+                child: Center(child: art),
+              ),
               const SizedBox(height: AppSpacing.xxl),
               Text(
                 title,

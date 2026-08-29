@@ -27,14 +27,23 @@ class Glow {
         ..shader = ui.Gradient.radial(
           centre,
           radius,
-          [color, color.withValues(alpha: color.a * 0.55), color.withValues(alpha: 0)],
+          [
+            color,
+            color.withValues(alpha: color.a * 0.55),
+            color.withValues(alpha: 0),
+          ],
           [0.0, core.clamp(0.05, 0.9), 1.0],
         ),
     );
   }
 
   /// An elliptical halo, used for the shadow the felt casts on the table.
-  static void oval(Canvas canvas, Rect rect, Color color, {double core = 0.55}) {
+  static void oval(
+    Canvas canvas,
+    Rect rect,
+    Color color, {
+    double core = 0.55,
+  }) {
     if (rect.isEmpty || color.a == 0 || rect.width <= 0) return;
     canvas.save();
     canvas.translate(rect.center.dx, rect.center.dy);

@@ -92,7 +92,9 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
             ),
             const SizedBox(height: AppSpacing.xxl),
             Text(
-              OnlineStatus.isConfigured ? s.matchmakingBody : s.authBackendPending,
+              OnlineStatus.isConfigured
+                  ? s.matchmakingBody
+                  : s.authBackendPending,
               style: AppText.body.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
@@ -109,8 +111,9 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
               children: [
                 for (var i = 0; i < _seats; i++)
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
+                    ),
                     child: i == 0
                         ? AvatarMedallion(
                             avatarId: _settings.settings.avatarId,
@@ -135,14 +138,14 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
   }
 
   Widget _emptySeat() => Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.surfaceSunken,
-          border: Border.all(color: AppColors.hairline),
-        ),
-      );
+    width: 44,
+    height: 44,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: AppColors.surfaceSunken,
+      border: Border.all(color: AppColors.hairline),
+    ),
+  );
 }
 
 /// Three expanding rings. Decorative only — it is not tied to any search.
