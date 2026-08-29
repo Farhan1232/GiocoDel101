@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../app/router/app_router.dart';
 
 import '../application/settings_controller.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -16,6 +19,9 @@ import '../../../core/widgets/app_switch.dart';
 import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/segmented_control.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../../core/widgets/app_dialog.dart';
+import '../../../core/widgets/premium_button.dart';
+import '../../online/domain/online_status.dart';
 
 /// §39 — the settings half.
 class SettingsTab extends StatefulWidget {
@@ -315,7 +321,82 @@ class _SettingsTabState extends State<SettingsTab> {
             ],
           ),
         ),
+        const SizedBox(height: AppSpacing.lg),
+        _languagePanel(s, c, accent),
+        const SizedBox(height: AppSpacing.lg),
+        _accountPanel(s, accent),
       ],
+    );
+  }
+
+  /// §9 — Italian and English, switched live.
+  Widget _languagePanel(
+      AppLocalizations s, SettingsController c, Color accent) {
+    return AppPanel(
+      child: Column(
+        children: [
+          SectionHeading(s.settingsLanguage.toUpperCase()),
+          const SizedBox(height: AppSpacing.sm),
+          SegmentedControl<String>(
+            value: c.locale.languageCode,
+            accent: accent,
+            onChanged: (code) => c.setLocale(Locale(code)),
+            options: [
+              SegmentOption(value: 'it', label: s.settingsLanguageItalian),
+              SegmentOption(value: 'en', label: s.settingsLanguageEnglish),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// §U — where the account rows will live. The legal links always show; the
+  /// sign-out row only appears once there is a session to end, which is never
+  /// in Session 1.
+  Widget _accountPanel(AppLocalizations s, Color accent) {
+    void pending(String title) => AppDialog.notice(
+          title: title,
+          body: s.settingsLinkPending,
+          dismissLabel: s.gotIt,
+        );
+
+    return AppPanel(
+      child: Column(
+        children: [
+          SectionHeading(s.settingsAccount),
+          SettingRow(
+            title: s.profile,
+            icon: AppIcon.players,
+            trailing: const AppIconView(AppIcon.chevronDown,
+                size: 14, color: AppColors.textMuted),
+            onTap: () => Get.toNamed<void>(AppRoutes.profile),
+          ),
+          SettingRow(
+            title: s.settingsPrivacy,
+            icon: AppIcon.rules,
+            trailing: const AppIconView(AppIcon.chevronDown,
+                size: 14, color: AppColors.textMuted),
+            onTap: () => pending(s.settingsPrivacy),
+          ),
+          SettingRow(
+            title: s.settingsTerms,
+            icon: AppIcon.rules,
+            trailing: const AppIconView(AppIcon.chevronDown,
+                size: 14, color: AppColors.textMuted),
+            onTap: () => pending(s.settingsTerms),
+          ),
+          if (OnlineStatus.isConfigured) ...[
+            const SizedBox(height: AppSpacing.md),
+            PremiumButton(
+              label: s.settingsLogout,
+              variant: ButtonVariant.danger,
+              size: ButtonSize.small,
+              onPressed: null,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

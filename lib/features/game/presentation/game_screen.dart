@@ -19,6 +19,9 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/icon_pill.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../../core/widgets/network_banner.dart';
+import '../domain/table_session_status.dart';
+import 'widgets/turn_timer_ring.dart';
 import 'widgets/card_flight.dart';
 import 'widgets/chain_storm.dart';
 import 'widgets/coach_mark.dart';
@@ -421,6 +424,10 @@ class _GameScreenState extends State<GameScreen>
     );
   }
 
+  /// §M — Session 1 only ever plays local matches, so the shell is handed the
+  /// offline status. Session 3 will pass a live one straight through.
+  TableSessionStatus get _session => TableSessionStatus.offlineLocal;
+
   Widget _topBar(Color accent) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -428,6 +435,14 @@ class _GameScreenState extends State<GameScreen>
       child: Row(
         children: [
           IconPill(icon: AppIcon.back, size: 38, onTap: _confirmExit),
+          // §M — the rules reference, reachable without leaving the match.
+          const SizedBox(width: AppSpacing.xs),
+          IconPill(
+            icon: AppIcon.rules,
+            size: 38,
+            tooltip: Strings.s.tableRules,
+            onTap: () => Get.toNamed<void>(AppRoutes.howToPlay),
+          ),
           const Spacer(),
           Column(
             children: [
@@ -441,6 +456,19 @@ class _GameScreenState extends State<GameScreen>
             ],
           ),
           const Spacer(),
+          // §M — turn timer and connection state. Both come from the session
+          // status; an offline match produces neither, so nothing is drawn.
+          if (_session.hasTimer) ...[
+            TurnTimerRing(
+              progress: _session.timerProgress,
+              secondsRemaining: _session.turnSecondsRemaining!,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+          ],
+          if (_session.showsConnection) ...[
+            _ConnectionDot(status: _session.connection),
+            const SizedBox(width: AppSpacing.xs),
+          ],
           IconPill(
             icon: AppIcon.reactions,
             size: 38,
@@ -736,5 +764,35 @@ class _GameScreenState extends State<GameScreen>
     if (current == c.viewingPlayer.id) return 0;
     final i = opponents.indexWhere((p) => p.id == current);
     return i < 0 ? 0 : i + 1;
+  }
+}
+
+/// §M — a single dot saying whether the table is still talking to the server.
+class _ConnectionDot extends StatelessWidget {
+  const _ConnectionDot({required this.status});
+
+  final NetworkStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final offline = status == NetworkStatus.offline;
+    final tint =
+        offline ? AppColors.terracottaCoral : AppColors.fateWarning;
+    return Semantics(
+      liveRegion: true,
+      label: offline
+          ? Strings.s.networkOffline
+          : Strings.s.networkReconnecting,
+      child: Container(
+        width: 38,
+        height: 38,
+        alignment: Alignment.center,
+        child: Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
+        ),
+      ),
+    );
   }
 }
