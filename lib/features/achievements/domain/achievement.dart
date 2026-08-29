@@ -1,23 +1,24 @@
-/// §41 — small, local, and shown inside Statistics rather than on a screen
-/// of their own.
+import '../../../core/widgets/app_icons.dart';
+
+/// §41 — a badge the player earns locally.
+///
+/// Deliberately carries **no copy**. Titles and descriptions live in the ARB
+/// files and are resolved through [AchievementCopy], so the catalogue cannot
+/// leak untranslated Italian into the English interface.
 class Achievement {
   const Achievement({
     required this.id,
-    required this.title,
-    required this.description,
     required this.icon,
     this.unlocksThemeId,
     this.unlocksCardBackId,
   });
 
   final String id;
-  final String title;
-  final String description;
 
-  /// Key into the game's own icon set, never a Material icon name.
-  final String icon;
+  /// From the game's own icon set, never a Material icon.
+  final AppIcon icon;
 
-  /// §33 — what earning this unlocks, if anything.
+  /// §33 — what earning this unlocks, if anything. Always cosmetic.
   final String? unlocksThemeId;
   final String? unlocksCardBackId;
 }

@@ -219,7 +219,7 @@ class StatisticsTab extends StatelessWidget {
                       child: Center(
                         child: AppIconView(
                           stats.hasAchievement(a.id)
-                              ? _iconFor(a.icon)
+                              ? a.icon
                               : AppIcon.lock,
                           size: 16,
                           color: stats.hasAchievement(a.id)
@@ -233,11 +233,12 @@ class StatisticsTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(a.title,
+                          Text(Strings.s.achievementTitle(a.id),
                               style: AppText.body.copyWith(
                                   fontSize: 13.5,
                                   fontWeight: FontWeight.w700)),
-                          Text(a.description, style: AppText.caption),
+                          Text(Strings.s.achievementDescription(a.id),
+                              style: AppText.caption),
                         ],
                       ),
                     ),
@@ -250,14 +251,6 @@ class StatisticsTab extends StatelessWidget {
     );
   }
 
-  static AppIcon _iconFor(String key) => switch (key) {
-        'chain' => AppIcon.chain,
-        'ring' => AppIcon.ring,
-        'suits' => AppIcon.suits,
-        'hand' => AppIcon.hand,
-        'calendar' => AppIcon.calendar,
-        _ => AppIcon.trophy,
-      };
 
   Future<void> _confirmReset(BuildContext context) async {
     final s = Strings.s;

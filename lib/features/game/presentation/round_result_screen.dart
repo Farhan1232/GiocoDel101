@@ -347,7 +347,7 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
                   const AppIconView(AppIcon.trophy,
                       size: 14, color: AppColors.goldLight),
                   const SizedBox(width: AppSpacing.xs),
-                  Text(AchievementsCatalog.byId(id).title,
+                  Text(Strings.s.achievementTitle(id),
                       style: AppText.caption
                           .copyWith(color: AppColors.goldLight)),
                 ],

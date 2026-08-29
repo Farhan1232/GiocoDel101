@@ -9,6 +9,70 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get achCatenaBody => 'Take a chain of 2s up to +6';
+
+  @override
+  String get achCatenaTitle => 'Chain!';
+
+  @override
+  String get achCentounoBody => 'Land on exactly 101 and go back to zero';
+
+  @override
+  String get achCentounoTitle => 'One Hundred and One!';
+
+  @override
+  String get achImbattibileBody => 'Win five matches in a row';
+
+  @override
+  String get achImbattibileTitle => 'Unbeatable';
+
+  @override
+  String get achLocked => 'Locked';
+
+  @override
+  String get achMaestroNoveBody =>
+      'Win after choosing all four suits with the Knight';
+
+  @override
+  String get achMaestroNoveTitle => 'Master of the Nine';
+
+  @override
+  String get achManoPerfettaBody => 'Win a round without drawing a single card';
+
+  @override
+  String get achManoPerfettaTitle => 'Perfect Hand';
+
+  @override
+  String get achPrimaVittoriaBody => 'Win your first match';
+
+  @override
+  String get achPrimaVittoriaTitle => 'First Win';
+
+  @override
+  String get achSfidanteBody => 'Complete a Daily Challenge';
+
+  @override
+  String get achSfidanteTitle => 'Challenger';
+
+  @override
+  String get achUnlocked => 'Unlocked';
+
+  @override
+  String get achVendettaBody => 'Win the very next match after a defeat';
+
+  @override
+  String get achVendettaTitle => 'Vendetta';
+
+  @override
+  String get achVeteranoBody => 'Complete 25 matches';
+
+  @override
+  String get achVeteranoTitle => 'Veteran';
+
+  @override
+  String get achievementUnlockedToast => 'Achievement unlocked';
+
+  @override
   String get achievements => 'Achievements';
 
   @override
@@ -31,6 +95,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appTagline => 'The Neapolitan classic, reimagined';
+
+  @override
+  String get authBackendPending =>
+      'Sign-in becomes active once the online service is connected.';
+
+  @override
+  String get authContinueWithApple => 'Continue with Apple';
+
+  @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authGuestHint => 'You can create an account at any time.';
+
+  @override
+  String get authPlayAsGuest => 'PLAY AS GUEST';
+
+  @override
+  String get authRegister => 'Sign up';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authSocialUnavailable => 'Social sign-in is not enabled yet.';
+
+  @override
+  String get authSubtitle => 'Sign in to play online and keep your progress.';
+
+  @override
+  String get authTitle => 'Welcome';
 
   @override
   String get backToZero => 'BACK TO ZERO';
@@ -68,10 +163,84 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ace skips the turn, 2 makes you draw, Knight changes suit.';
 
   @override
+  String get commonBack => 'Back';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonComingSoon => 'Coming soon';
+
+  @override
+  String get commonEmptyBody => 'When there is data, it will show up here.';
+
+  @override
+  String get commonEmptyTitle => 'Nothing here yet';
+
+  @override
+  String get commonErrorBody => 'We could not complete that. Please try again.';
+
+  @override
+  String get commonErrorTitle => 'Something went wrong';
+
+  @override
+  String get commonLoading => 'Loading…';
+
+  @override
+  String get commonNext => 'Next';
+
+  @override
+  String get commonOptional => 'optional';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get commonSkip => 'Skip';
+
+  @override
+  String get commonStart => 'Start';
+
+  @override
   String get confirm => 'Confirm';
 
   @override
   String get continueGame => 'Continue';
+
+  @override
+  String get createRoomCta => 'CREATE ROOM';
+
+  @override
+  String get createRoomHouseRules => 'House rules';
+
+  @override
+  String get createRoomName => 'Room name';
+
+  @override
+  String get createRoomNameHint => 'e.g. Marco\'s table';
+
+  @override
+  String get createRoomPrivate => 'Private room';
+
+  @override
+  String get createRoomPrivateHint => 'Joinable by code only';
+
+  @override
+  String get createRoomTimer => 'Turn timer';
+
+  @override
+  String get createRoomTimerOff => 'Off';
+
+  @override
+  String createRoomTimerSeconds(int seconds) {
+    return '$seconds seconds';
+  }
+
+  @override
+  String get createRoomTitle => 'Create a room';
 
   @override
   String get dailyChallenge => 'Daily Challenge';
@@ -84,6 +253,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyReward => 'Reward';
+
+  @override
+  String get dailyRewardBody =>
+      'Come back every day — the reward grows up to the seventh.';
+
+  @override
+  String get dailyRewardClaim => 'CLAIM';
+
+  @override
+  String get dailyRewardClaimed => 'Claimed';
+
+  @override
+  String dailyRewardDay(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get dailyRewardTitle => 'Daily reward';
+
+  @override
+  String get dailyRewardTomorrow => 'Come back tomorrow';
 
   @override
   String get dailyStartHint => 'A different setup every day.';
@@ -116,6 +306,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawPile => 'Deck';
 
   @override
+  String get editProfileAvatar => 'Choose an avatar';
+
+  @override
+  String get editProfileTitle => 'Edit profile';
+
+  @override
   String get eliminated => 'ELIMINATED';
 
   @override
@@ -131,7 +327,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exitToMenu => 'Exit to Menu';
 
   @override
+  String get fieldConfirmPassword => 'Confirm password';
+
+  @override
+  String get fieldEmail => 'Email';
+
+  @override
+  String get fieldNickname => 'Nickname';
+
+  @override
+  String get fieldPassword => 'Password';
+
+  @override
   String get finalPoints => 'Final points';
+
+  @override
+  String get forgotBackToLogin => 'Back to sign in';
+
+  @override
+  String get forgotBody =>
+      'Enter your email and we will send you a link to reset your password.';
+
+  @override
+  String get forgotCta => 'SEND LINK';
+
+  @override
+  String get forgotTitle => 'Reset your password';
 
   @override
   String get gotIt => 'Got it';
@@ -140,10 +361,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get haptics => 'Vibration';
 
   @override
+  String get hidePassword => 'Hide password';
+
+  @override
   String get highContrast => 'High contrast';
 
   @override
   String get home => 'Home';
+
+  @override
+  String get homeCreateRoom => 'CREATE ROOM';
+
+  @override
+  String get homeJoinRoom => 'JOIN A ROOM';
+
+  @override
+  String get homeLeaderboard => 'Leaderboard';
+
+  @override
+  String get homeMissions => 'Missions';
+
+  @override
+  String get homeMissionsHint => 'Today\'s objectives';
+
+  @override
+  String get homePlayOffline => 'PLAY OFFLINE';
+
+  @override
+  String get homePlayOnline => 'PLAY ONLINE';
+
+  @override
+  String get homeQuickMatch => 'QUICK MATCH';
 
   @override
   String get howToPlay => 'How to Play';
@@ -155,19 +403,118 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imReady => 'I\'M READY';
 
   @override
+  String get joinRoomBody => 'Enter the six-character code the host gave you.';
+
+  @override
+  String get joinRoomCta => 'JOIN';
+
+  @override
+  String get joinRoomInvalid => 'The code must be six characters';
+
+  @override
+  String get joinRoomPaste => 'Paste';
+
+  @override
+  String get joinRoomTitle => 'Join a room';
+
+  @override
   String get largeCards => 'Large cards';
 
   @override
   String get lastCard => 'LAST CARD';
 
   @override
+  String get leaderboardAllTime => 'All time';
+
+  @override
+  String get leaderboardEmpty => 'The leaderboard arrives with online play.';
+
+  @override
+  String get leaderboardPoints => 'Points';
+
+  @override
+  String get leaderboardRank => 'Rank';
+
+  @override
+  String get leaderboardTitle => 'Leaderboard';
+
+  @override
+  String get leaderboardWeekly => 'Weekly';
+
+  @override
+  String get lobbyCopied => 'Code copied';
+
+  @override
+  String get lobbyEmptySlot => 'Waiting for a player';
+
+  @override
+  String get lobbyHost => 'Host';
+
+  @override
+  String get lobbyLeave => 'Leave room';
+
+  @override
+  String get lobbyNotReady => 'Not ready';
+
+  @override
+  String lobbyPlayerSlot(int index) {
+    return 'Seat $index';
+  }
+
+  @override
+  String get lobbyReady => 'Ready';
+
+  @override
+  String get lobbyRoomCode => 'Room code';
+
+  @override
+  String get lobbyShare => 'Share code';
+
+  @override
+  String get lobbyStart => 'START MATCH';
+
+  @override
+  String get lobbyTitle => 'Lobby';
+
+  @override
   String get locked => 'Locked';
+
+  @override
+  String get loginCta => 'SIGN IN';
+
+  @override
+  String get loginForgot => 'Forgot your password?';
+
+  @override
+  String get loginNoAccount => 'No account yet?';
+
+  @override
+  String get loginTitle => 'Sign in';
 
   @override
   String get longestChain => 'Longest chain';
 
   @override
   String get matchWinner => 'WINNER';
+
+  @override
+  String get matchmakingBody => 'Looking for other players…';
+
+  @override
+  String get matchmakingCancel => 'Cancel search';
+
+  @override
+  String matchmakingElapsed(int seconds) {
+    return 'Waiting ${seconds}s';
+  }
+
+  @override
+  String matchmakingFound(int found, int total) {
+    return '$found of $total players';
+  }
+
+  @override
+  String get matchmakingTitle => 'Searching';
 
   @override
   String get mode => 'Mode';
@@ -182,6 +529,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get music => 'Music';
 
   @override
+  String get networkOffline => 'No connection';
+
+  @override
+  String get networkOnline => 'Back online';
+
+  @override
+  String get networkReconnecting => 'Reconnecting…';
+
+  @override
   String get newGame => 'New Game';
 
   @override
@@ -194,7 +550,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noStatsYet => 'Play a match to start collecting data.';
 
   @override
+  String get onboard1Body =>
+      'A traditional 40-card deck — Coins, Cups, Swords and Clubs — drawn by hand for the screen.';
+
+  @override
+  String get onboard1Title => 'Neapolitan cards';
+
+  @override
+  String get onboard2Body =>
+      'The Ace skips a turn, the 2 makes you draw, the Knight changes suit. Landing on exactly 101 resets your score.';
+
+  @override
+  String get onboard2Title => 'The 101 rules';
+
+  @override
+  String get onboard3Body =>
+      'Create a room, share the code and take on two to four players online.';
+
+  @override
+  String get onboard3Title => 'Play with friends';
+
+  @override
+  String get onlineCreateRoomHint => 'Invite friends with a code';
+
+  @override
+  String get onlineJoinRoomHint => 'Got a code? Jump straight in';
+
+  @override
+  String get onlineQuickMatchHint => 'We find you an open table';
+
+  @override
+  String get onlineTitle => 'Play online';
+
+  @override
   String get passPhoneHint => 'Cards stay face down until you tap';
+
+  @override
+  String passPhoneTo(String name) {
+    return 'PASS THE PHONE TO $name';
+  }
 
   @override
   String get passTurn => 'Pass';
@@ -218,6 +612,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profile => 'Profile';
 
   @override
+  String get profileBestStreak => 'Best streak';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get profileLevel => 'Level';
+
+  @override
+  String profileLevelValue(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get profileLosses => 'Losses';
+
+  @override
+  String get profileMatches => 'Matches';
+
+  @override
+  String get profileWinRate => 'Win rate';
+
+  @override
+  String get profileWins => 'Wins';
+
+  @override
+  String get profileXp => 'Experience';
+
+  @override
+  String profileXpProgress(int current, int target) {
+    return '$current / $target XP';
+  }
+
+  @override
   String get rankAce => 'Ace';
 
   @override
@@ -228,6 +656,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rankRe => 'King';
+
+  @override
+  String get reaction1 => 'Nice move!';
+
+  @override
+  String get reaction2 => 'Go on!';
+
+  @override
+  String get reaction3 => 'Lucky you!';
+
+  @override
+  String get reaction4 => 'Nooo!';
+
+  @override
+  String get reaction5 => 'Your turn!';
+
+  @override
+  String get reaction6 => 'Draw!';
+
+  @override
+  String get reaction7 => 'Well played!';
+
+  @override
+  String get reaction8 => 'Rematch!';
 
   @override
   String get reactions => 'Reactions';
@@ -309,6 +761,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get settingsAccount => 'ACCOUNT';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
+
+  @override
+  String get settingsLanguageItalian => 'Italian';
+
+  @override
+  String get settingsLinkPending => 'The link becomes available at release.';
+
+  @override
+  String get settingsLogout => 'Sign out';
+
+  @override
+  String get settingsPrivacy => 'Privacy policy';
+
+  @override
+  String get settingsTerms => 'Terms of service';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get signupCta => 'SIGN UP';
+
+  @override
+  String get signupHaveAccount => 'Already have an account?';
+
+  @override
+  String get signupTitle => 'Create an account';
+
+  @override
   String get soundEffects => 'Sound effects';
 
   @override
@@ -375,7 +863,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get suitSpade => 'Swords';
 
   @override
+  String get tableRules => 'Rules';
+
+  @override
   String get tableTheme => 'Table';
+
+  @override
+  String get tableTurnTimer => 'Time';
 
   @override
   String get takePenalty => 'Take';
@@ -454,496 +948,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'The match ends when a single player is left standing. That player wins the Gioco del 101.';
 
   @override
-  String get yourTurn => 'YOUR TURN';
-
-  @override
-  String get reaction1 => 'Nice move!';
-
-  @override
-  String get reaction2 => 'Go on!';
-
-  @override
-  String get reaction3 => 'Lucky you!';
-
-  @override
-  String get reaction4 => 'Nooo!';
-
-  @override
-  String get reaction5 => 'Your turn!';
-
-  @override
-  String get reaction6 => 'Draw!';
-
-  @override
-  String get reaction7 => 'Well played!';
-
-  @override
-  String get reaction8 => 'Rematch!';
-
-  @override
-  String get commonNext => 'Next';
-
-  @override
-  String get commonSkip => 'Skip';
-
-  @override
-  String get commonStart => 'Start';
-
-  @override
-  String get commonSave => 'Save';
-
-  @override
-  String get commonBack => 'Back';
-
-  @override
-  String get commonClose => 'Close';
-
-  @override
-  String get commonRetry => 'Retry';
-
-  @override
-  String get commonLoading => 'Loading…';
-
-  @override
-  String get commonErrorTitle => 'Something went wrong';
-
-  @override
-  String get commonErrorBody => 'We could not complete that. Please try again.';
-
-  @override
-  String get commonEmptyTitle => 'Nothing here yet';
-
-  @override
-  String get commonEmptyBody => 'When there is data, it will show up here.';
-
-  @override
-  String get commonComingSoon => 'Coming soon';
-
-  @override
-  String get commonOptional => 'optional';
-
-  @override
-  String get networkOffline => 'No connection';
-
-  @override
-  String get networkReconnecting => 'Reconnecting…';
-
-  @override
-  String get networkOnline => 'Back online';
-
-  @override
-  String get onboard1Title => 'Neapolitan cards';
-
-  @override
-  String get onboard1Body =>
-      'A traditional 40-card deck — Coins, Cups, Swords and Clubs — drawn by hand for the screen.';
-
-  @override
-  String get onboard2Title => 'The 101 rules';
-
-  @override
-  String get onboard2Body =>
-      'The Ace skips a turn, the 2 makes you draw, the Knight changes suit. Landing on exactly 101 resets your score.';
-
-  @override
-  String get onboard3Title => 'Play with friends';
-
-  @override
-  String get onboard3Body =>
-      'Create a room, share the code and take on two to four players online.';
-
-  @override
-  String get authTitle => 'Welcome';
-
-  @override
-  String get authSubtitle => 'Sign in to play online and keep your progress.';
-
-  @override
-  String get authPlayAsGuest => 'PLAY AS GUEST';
-
-  @override
-  String get authSignIn => 'Sign in';
-
-  @override
-  String get authRegister => 'Sign up';
-
-  @override
-  String get authGuestHint => 'You can create an account at any time.';
-
-  @override
-  String get authContinueWithGoogle => 'Continue with Google';
-
-  @override
-  String get authContinueWithApple => 'Continue with Apple';
-
-  @override
-  String get authSocialUnavailable => 'Social sign-in is not enabled yet.';
-
-  @override
-  String get authBackendPending =>
-      'Sign-in becomes active once the online service is connected.';
-
-  @override
-  String get loginTitle => 'Sign in';
-
-  @override
-  String get loginCta => 'SIGN IN';
-
-  @override
-  String get fieldEmail => 'Email';
-
-  @override
-  String get fieldPassword => 'Password';
-
-  @override
-  String get fieldConfirmPassword => 'Confirm password';
-
-  @override
-  String get fieldNickname => 'Nickname';
-
-  @override
-  String get showPassword => 'Show password';
-
-  @override
-  String get hidePassword => 'Hide password';
-
-  @override
-  String get loginForgot => 'Forgot your password?';
-
-  @override
-  String get loginNoAccount => 'No account yet?';
-
-  @override
-  String get signupTitle => 'Create an account';
-
-  @override
-  String get signupCta => 'SIGN UP';
-
-  @override
-  String get signupHaveAccount => 'Already have an account?';
-
-  @override
-  String get forgotTitle => 'Reset your password';
-
-  @override
-  String get forgotBody =>
-      'Enter your email and we will send you a link to reset your password.';
-
-  @override
-  String get forgotCta => 'SEND LINK';
-
-  @override
-  String get forgotBackToLogin => 'Back to sign in';
-
-  @override
-  String get valRequired => 'This field is required';
-
-  @override
   String get valEmailInvalid => 'Enter a valid email address';
-
-  @override
-  String get valPasswordShort => 'The password must be at least 8 characters';
-
-  @override
-  String get valPasswordMismatch => 'The passwords do not match';
-
-  @override
-  String get valNicknameShort => 'The nickname must be at least 3 characters';
 
   @override
   String get valNicknameLong => 'The nickname can be at most 16 characters';
 
   @override
-  String get homePlayOnline => 'PLAY ONLINE';
+  String get valNicknameShort => 'The nickname must be at least 3 characters';
 
   @override
-  String get homeQuickMatch => 'QUICK MATCH';
+  String get valPasswordMismatch => 'The passwords do not match';
 
   @override
-  String get homeCreateRoom => 'CREATE ROOM';
+  String get valPasswordShort => 'The password must be at least 8 characters';
 
   @override
-  String get homeJoinRoom => 'JOIN A ROOM';
+  String get valRequired => 'This field is required';
 
   @override
-  String get homePlayOffline => 'PLAY OFFLINE';
-
-  @override
-  String get homeMissions => 'Missions';
-
-  @override
-  String get homeMissionsHint => 'Today\'s objectives';
-
-  @override
-  String get homeLeaderboard => 'Leaderboard';
-
-  @override
-  String get onlineTitle => 'Play online';
-
-  @override
-  String get onlineQuickMatchHint => 'We find you an open table';
-
-  @override
-  String get onlineCreateRoomHint => 'Invite friends with a code';
-
-  @override
-  String get onlineJoinRoomHint => 'Got a code? Jump straight in';
-
-  @override
-  String get createRoomTitle => 'Create a room';
-
-  @override
-  String get createRoomName => 'Room name';
-
-  @override
-  String get createRoomNameHint => 'e.g. Marco\'s table';
-
-  @override
-  String get createRoomPrivate => 'Private room';
-
-  @override
-  String get createRoomPrivateHint => 'Joinable by code only';
-
-  @override
-  String get createRoomTimer => 'Turn timer';
-
-  @override
-  String get createRoomTimerOff => 'Off';
-
-  @override
-  String get createRoomHouseRules => 'House rules';
-
-  @override
-  String get createRoomCta => 'CREATE ROOM';
-
-  @override
-  String get joinRoomTitle => 'Join a room';
-
-  @override
-  String get joinRoomBody => 'Enter the six-character code the host gave you.';
-
-  @override
-  String get joinRoomPaste => 'Paste';
-
-  @override
-  String get joinRoomCta => 'JOIN';
-
-  @override
-  String get joinRoomInvalid => 'The code must be six characters';
-
-  @override
-  String get lobbyTitle => 'Lobby';
-
-  @override
-  String get lobbyRoomCode => 'Room code';
-
-  @override
-  String get lobbyHost => 'Host';
-
-  @override
-  String get lobbyReady => 'Ready';
-
-  @override
-  String get lobbyNotReady => 'Not ready';
-
-  @override
-  String get lobbyEmptySlot => 'Waiting for a player';
-
-  @override
-  String get lobbyLeave => 'Leave room';
-
-  @override
-  String get lobbyShare => 'Share code';
-
-  @override
-  String get lobbyCopied => 'Code copied';
-
-  @override
-  String get lobbyStart => 'START MATCH';
-
-  @override
-  String get matchmakingTitle => 'Searching';
-
-  @override
-  String get matchmakingBody => 'Looking for other players…';
-
-  @override
-  String get matchmakingCancel => 'Cancel search';
-
-  @override
-  String get profileLevel => 'Level';
-
-  @override
-  String get profileXp => 'Experience';
-
-  @override
-  String get profileMatches => 'Matches';
-
-  @override
-  String get profileWins => 'Wins';
-
-  @override
-  String get profileLosses => 'Losses';
-
-  @override
-  String get profileWinRate => 'Win rate';
-
-  @override
-  String get profileBestStreak => 'Best streak';
-
-  @override
-  String get profileEdit => 'Edit profile';
-
-  @override
-  String get editProfileTitle => 'Edit profile';
-
-  @override
-  String get editProfileAvatar => 'Choose an avatar';
-
-  @override
-  String get leaderboardTitle => 'Leaderboard';
-
-  @override
-  String get leaderboardWeekly => 'Weekly';
-
-  @override
-  String get leaderboardAllTime => 'All time';
-
-  @override
-  String get leaderboardRank => 'Rank';
-
-  @override
-  String get leaderboardPoints => 'Points';
-
-  @override
-  String get leaderboardEmpty => 'The leaderboard arrives with online play.';
-
-  @override
-  String get achPrimaVittoriaTitle => 'First Win';
-
-  @override
-  String get achPrimaVittoriaBody => 'Win your first match';
-
-  @override
-  String get achCentounoTitle => 'One Hundred and One!';
-
-  @override
-  String get achCentounoBody => 'Land on exactly 101 and go back to zero';
-
-  @override
-  String get achVendettaTitle => 'Vendetta';
-
-  @override
-  String get achVendettaBody => 'Win a rematch straight after a defeat';
-
-  @override
-  String get achMaestroNoveTitle => 'Master of the Nine';
-
-  @override
-  String get achMaestroNoveBody =>
-      'Win after choosing all four suits with the Knight';
-
-  @override
-  String get achImbattibileTitle => 'Unbeatable';
-
-  @override
-  String get achImbattibileBody => 'Win five matches in a row';
-
-  @override
-  String get achVeteranoTitle => 'Veteran';
-
-  @override
-  String get achVeteranoBody => 'Complete 25 matches';
-
-  @override
-  String get achLocked => 'Locked';
-
-  @override
-  String get achUnlocked => 'Unlocked';
-
-  @override
-  String get dailyRewardTitle => 'Daily reward';
-
-  @override
-  String get dailyRewardBody =>
-      'Come back every day — the reward grows up to the seventh.';
-
-  @override
-  String get dailyRewardClaim => 'CLAIM';
-
-  @override
-  String get dailyRewardClaimed => 'Claimed';
-
-  @override
-  String get dailyRewardTomorrow => 'Come back tomorrow';
-
-  @override
-  String get settingsLanguage => 'Language';
-
-  @override
-  String get settingsLanguageItalian => 'Italian';
-
-  @override
-  String get settingsLanguageEnglish => 'English';
-
-  @override
-  String get settingsPrivacy => 'Privacy policy';
-
-  @override
-  String get settingsTerms => 'Terms of service';
-
-  @override
-  String get settingsAccount => 'ACCOUNT';
-
-  @override
-  String get settingsLogout => 'Sign out';
-
-  @override
-  String get settingsLinkPending => 'The link becomes available at release.';
-
-  @override
-  String get tableRules => 'Rules';
-
-  @override
-  String get tableTurnTimer => 'Time';
-
-  @override
-  String passPhoneTo(String name) {
-    return 'PASS THE PHONE TO $name';
-  }
-
-  @override
-  String lobbyPlayerSlot(int index) {
-    return 'Seat $index';
-  }
-
-  @override
-  String dailyRewardDay(int day) {
-    return 'Day $day';
-  }
-
-  @override
-  String matchmakingElapsed(int seconds) {
-    return 'Waiting ${seconds}s';
-  }
-
-  @override
-  String matchmakingFound(int found, int total) {
-    return '$found of $total players';
-  }
-
-  @override
-  String createRoomTimerSeconds(int seconds) {
-    return '$seconds seconds';
-  }
-
-  @override
-  String profileLevelValue(int level) {
-    return 'Level $level';
-  }
-
-  @override
-  String profileXpProgress(int current, int target) {
-    return '$current / $target XP';
-  }
+  String get yourTurn => 'YOUR TURN';
 }

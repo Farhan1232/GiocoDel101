@@ -28,6 +28,7 @@ class PremiumButton extends StatefulWidget {
     this.icon,
     this.accent,
     this.expand = true,
+    this.loading = false,
   });
 
   final String label;
@@ -41,6 +42,10 @@ class PremiumButton extends StatefulWidget {
 
   final bool expand;
 
+  /// Shows a spinner in place of the label and refuses taps. Used by forms
+  /// while a submission is in flight.
+  final bool loading;
+
   @override
   State<PremiumButton> createState() => _PremiumButtonState();
 }
@@ -48,7 +53,7 @@ class PremiumButton extends StatefulWidget {
 class _PremiumButtonState extends State<PremiumButton> {
   bool _down = false;
 
-  bool get _enabled => widget.onPressed != null;
+  bool get _enabled => widget.onPressed != null && !widget.loading;
 
   double get _height => switch (widget.size) {
         ButtonSize.large => 60,
@@ -69,7 +74,18 @@ class _PremiumButtonState extends State<PremiumButton> {
     final radius = BorderRadius.circular(
         widget.size == ButtonSize.small ? AppRadii.sm : AppRadii.md);
 
-    final content = Row(
+    final content = widget.loading
+        ? SizedBox(
+            height: _fontSize * 1.35,
+            width: _fontSize * 1.35,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.2,
+              valueColor: AlwaysStoppedAnimation(
+                _labelColour(widget.variant, base),
+              ),
+            ),
+          )
+        : Row(
       mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -101,6 +117,8 @@ class _PremiumButtonState extends State<PremiumButton> {
       button: true,
       enabled: _enabled,
       label: widget.label,
+      // A spinner with no label would otherwise be an unnamed control.
+      hint: widget.loading ? 'busy' : null,
       child: GestureDetector(
         onTapDown: _enabled ? (_) => setState(() => _down = true) : null,
         onTapUp: _enabled ? (_) => setState(() => _down = false) : null,

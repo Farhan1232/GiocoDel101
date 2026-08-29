@@ -19,6 +19,8 @@ import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/icon_pill.dart';
 import '../../../core/widgets/logo_101.dart';
 import '../../../core/widgets/premium_button.dart';
+import '../../../core/widgets/xp_bar.dart';
+import '../../achievements/domain/achievements_catalog.dart';
 import '../../../core/widgets/app_icons.dart';
 
 /// §25 Screen 2 — the identity screen.
@@ -108,19 +110,21 @@ class _HomeScreenState extends State<HomeScreen>
                             _stagger(
                               0.12,
                               PremiumButton(
-                                label: s.play,
-                                icon: AppIcon.play,
+                                label: s.homePlayOnline,
+                                icon: AppIcon.players,
                                 accent: theme.accent,
                                 onPressed: () async {
-                                  await Get.toNamed<void>(AppRoutes.setup);
+                                  await Get.toNamed<void>(AppRoutes.online);
                                   _refresh();
                                 },
                               ),
                             ),
                             const SizedBox(height: AppSpacing.md),
+                            _stagger(0.16, _secondaryActions(s)),
+                            const SizedBox(height: AppSpacing.md),
                             if (_home.hasSavedMatch.value)
                               _stagger(
-                                0.18,
+                                0.20,
                                 Padding(
                                   padding: const EdgeInsets.only(
                                     bottom: AppSpacing.md,
@@ -136,10 +140,24 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                 ),
                               ),
-                            _stagger(0.24, _dailyCard(theme.accent)),
+                            _stagger(
+                              0.24,
+                              _actionCard(
+                                icon: AppIcon.trophy,
+                                title: s.dailyRewardTitle,
+                                subtitle: s.dailyRewardTomorrow,
+                                accent: AppColors.goldLight,
+                                onTap: () => Get.toNamed<void>(
+                                    AppRoutes.dailyReward),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            _stagger(0.28, _dailyCard(theme.accent)),
+                            const SizedBox(height: AppSpacing.md),
+                            _stagger(0.32, _missionsCard(theme.accent)),
                             const SizedBox(height: AppSpacing.md),
                             _stagger(
-                              0.30,
+                              0.36,
                               _actionCard(
                                 icon: AppIcon.rules,
                                 title: s.howToPlay,
@@ -149,6 +167,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     Get.toNamed<void>(AppRoutes.howToPlay),
                               ),
                             ),
+                            const SizedBox(height: AppSpacing.lg),
+                            _stagger(0.40, _shortcuts(s, theme.accent)),
                             SizedBox(
                               height: compact ? AppSpacing.lg : AppSpacing.xl,
                             ),
@@ -220,8 +240,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _profileMedallion() {
     return Semantics(
+      button: true,
       label: Strings.s.profile,
-      child: Row(
+      child: GestureDetector(
+        onTap: () => Get.toNamed<void>(AppRoutes.profile),
+        behavior: HitTestBehavior.opaque,
+        child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           AvatarMedallion(avatarId: _settings.settings.avatarId, size: 38),
@@ -236,7 +260,128 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
         ],
+        ),
       ),
+    );
+  }
+
+  /// The four ways into a game that are not the headline button.
+  Widget _secondaryActions(AppLocalizations s) {
+    final entries = <({String label, AppIcon icon, String route})>[
+      (label: s.homeQuickMatch, icon: AppIcon.play, route: AppRoutes.matchmaking),
+      (label: s.homeCreateRoom, icon: AppIcon.players, route: AppRoutes.createRoom),
+      (label: s.homeJoinRoom, icon: AppIcon.cards, route: AppRoutes.joinRoom),
+      (label: s.homePlayOffline, icon: AppIcon.draw, route: AppRoutes.setup),
+    ];
+    return LayoutBuilder(
+      builder: (context, box) {
+        // Two across, so a long Italian label never has to shrink to fit.
+        final width = (box.maxWidth - AppSpacing.md) / 2;
+        return Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            for (final entry in entries)
+              SizedBox(
+                width: width,
+                child: PremiumButton(
+                  label: entry.label,
+                  icon: entry.icon,
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.small,
+                  onPressed: () async {
+                    await Get.toNamed<void>(entry.route);
+                    _refresh();
+                  },
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Progress preview — how far the player is through the badge set.
+  Widget _missionsCard(Color accent) {
+    return Obx(() {
+      final s = Strings.s;
+      final earned = AchievementsCatalog.all
+          .where((a) => _stats.hasAchievement(a.id))
+          .length;
+      final total = AchievementsCatalog.all.length;
+      return AppPanel(
+        accent: accent,
+        onTap: () => Get.toNamed<void>(AppRoutes.achievements),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    s.homeMissions,
+                    style: AppText.body.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                Text('$earned/$total', style: AppText.label),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            XpBar(
+              progress: total == 0 ? 0 : earned / total,
+              accent: accent,
+              caption: s.homeMissionsHint,
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  /// Profile, leaderboard and achievements in one row (§G).
+  Widget _shortcuts(AppLocalizations s, Color accent) {
+    final entries = <({String label, AppIcon icon, String route})>[
+      (label: s.profile, icon: AppIcon.players, route: AppRoutes.profile),
+      (label: s.homeLeaderboard, icon: AppIcon.trophy, route: AppRoutes.leaderboard),
+      (label: s.achievements, icon: AppIcon.ring, route: AppRoutes.achievements),
+      (label: s.settings, icon: AppIcon.settings, route: AppRoutes.settings),
+    ];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        for (final entry in entries)
+          Expanded(
+            child: Semantics(
+              button: true,
+              label: entry.label,
+              excludeSemantics: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () async {
+                  await Get.toNamed<void>(entry.route);
+                  _refresh();
+                },
+                child: Column(
+                  children: [
+                    IconPill(icon: entry.icon, accent: accent),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      entry.label,
+                      style: AppText.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

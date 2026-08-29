@@ -40,10 +40,10 @@ class CourtPalette {
 
   // The four woodcut inks. Deliberately a touch deeper and warmer than
   // printers' primaries so the figures sit on ivory stock without shouting.
-  static const Color red = Color(0xFFBE3A2E);
-  static const Color blue = Color(0xFF2C5FA6);
-  static const Color green = Color(0xFF3B7A44);
-  static const Color gold = Color(0xFFDFAB33);
+  static const Color red = CourtInks.red;
+  static const Color blue = CourtInks.blue;
+  static const Color green = CourtInks.green;
+  static const Color gold = CourtInks.gold;
 
   static CourtPalette of(CardSuit suit) {
     switch (suit) {
@@ -87,8 +87,8 @@ class FigureArt {
   static const double aspect = 1.75;
 
   // Fixed inks shared by every court.
-  static const Color _ink = Color(0xFF241C16);
-  static const Color _flesh = Color(0xFFEAC49B);
+  static const Color _ink = CourtInks.outline;
+  static const Color _flesh = CourtInks.skin;
   static const Color _hair = Color(0xFFCEC6B5);
   static const Color _linen = Color(0xFFF2EDE0);
   static const Color _silver = Color(0xFFDBD9D1);

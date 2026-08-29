@@ -109,3 +109,32 @@ class SuitPalette {
     }
   }
 }
+
+/// §4 — the woodcut inks the court figures are printed in.
+///
+/// Kept here rather than inside the painter so the whole design system is
+/// readable from one file; `CourtPalette` in `figure_art.dart` assigns them
+/// to suits.
+class CourtInks {
+  const CourtInks._();
+
+  static const Color red = Color(0xFFBE3A2E);
+  static const Color blue = Color(0xFF2C5FA6);
+  static const Color green = Color(0xFF3B7A44);
+  static const Color gold = Color(0xFFDFAB33);
+
+  /// Outlines and every engraved line.
+  static const Color outline = Color(0xFF241C16);
+
+  /// Faces and hands.
+  static const Color skin = Color(0xFFEAC49B);
+}
+
+/// §4 — the card back gradient, antique gold on deep navy.
+class CardBackInks {
+  const CardBackInks._();
+
+  static const Color gradientTop = Color(0xFF17233F);
+  static const Color gradientBottom = Color(0xFF0B1327);
+  static const Color gold = AppColors.antiqueGold;
+}

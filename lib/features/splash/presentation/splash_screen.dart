@@ -44,7 +44,13 @@ class _SplashScreenState extends State<SplashScreen>
     _c.forward();
     _c.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
-        Get.offNamed<void>(AppRoutes.home);
+        // First run goes through onboarding; everyone else straight to Home.
+        final settings = Get.find<SettingsController>();
+        Get.offNamed<void>(
+          settings.onboardingComplete
+              ? AppRoutes.home
+              : AppRoutes.onboarding,
+        );
       }
     });
     // A single soft riffle as the logo lands. Held so it can be cancelled if

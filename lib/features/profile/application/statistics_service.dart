@@ -69,8 +69,16 @@ class StatisticsService {
 
     // §41 "Maestro dei Semi" — win having named all four suits with a Cavallo.
     final named = match.stats.cavalloSuits[humanId] ?? const [];
-    if (won && named.length >= 4) grant(AchievementsCatalog.maestroSemi);
+    if (won && named.length >= 4) grant(AchievementsCatalog.maestroNove);
     if (matches >= 25) grant(AchievementsCatalog.veterano);
+    // §41 — the first win ever.
+    if (won && stats.matchesWon == 0) grant(AchievementsCatalog.primaVittoria);
+    // "Vendetta": this win came straight after a defeat, which is exactly
+    // what a zeroed streak on a player who has already played means.
+    if (won && stats.currentStreak == 0 && stats.matchesPlayed > 0) {
+      grant(AchievementsCatalog.vendetta);
+    }
+    if (streak >= 5) grant(AchievementsCatalog.imbattibile);
     if (match.stats.longestChain >= 3) grant(AchievementsCatalog.catena);
     if (match.isDailyChallenge && won) grant(AchievementsCatalog.sfidaGiorno);
 

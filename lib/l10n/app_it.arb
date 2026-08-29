@@ -1,5 +1,88 @@
 {
   "@@locale": "it",
+  "@createRoomTimerSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@dailyRewardDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "@lobbyPlayerSlot": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@matchmakingElapsed": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@matchmakingFound": {
+    "placeholders": {
+      "found": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@passPhoneTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileLevelValue": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "@profileXpProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achCatenaBody": "Porta una catena di 2 fino a +6",
+  "achCatenaTitle": "Catena!",
+  "achCentounoBody": "Arriva a 101 esatti e torna a zero",
+  "achCentounoTitle": "Centouno!",
+  "achImbattibileBody": "Vinci cinque partite di fila",
+  "achImbattibileTitle": "Imbattibile",
+  "achLocked": "Da sbloccare",
+  "achMaestroNoveBody": "Vinci dopo aver scelto tutti e quattro i semi col Cavallo",
+  "achMaestroNoveTitle": "Maestro del Nove",
+  "achManoPerfettaBody": "Vinci un round senza pescare nemmeno una carta",
+  "achManoPerfettaTitle": "Mano Perfetta",
+  "achPrimaVittoriaBody": "Vinci la tua prima partita",
+  "achPrimaVittoriaTitle": "Prima Vittoria",
+  "achSfidanteBody": "Completa una Sfida del Giorno",
+  "achSfidanteTitle": "Sfidante",
+  "achUnlocked": "Sbloccato",
+  "achVendettaBody": "Vinci subito dopo una sconfitta",
+  "achVendettaTitle": "Vendetta",
+  "achVeteranoBody": "Completa 25 partite",
+  "achVeteranoTitle": "Veterano",
+  "achievementUnlockedToast": "Obiettivo sbloccato",
   "achievements": "Obiettivi",
   "activeSuit": "Seme attivo",
   "advancedRules": "Regole avanzate",
@@ -8,6 +91,16 @@
   "animationSpeed": "Velocità animazioni",
   "appName": "Gioco del 101",
   "appTagline": "Il classico napoletano, rivisitato",
+  "authBackendPending": "L’accesso sarà attivo quando il servizio online sarà collegato.",
+  "authContinueWithApple": "Continua con Apple",
+  "authContinueWithGoogle": "Continua con Google",
+  "authGuestHint": "Puoi creare un account in qualsiasi momento.",
+  "authPlayAsGuest": "GIOCA COME OSPITE",
+  "authRegister": "Registrati",
+  "authSignIn": "Accedi",
+  "authSocialUnavailable": "L’accesso social non è ancora attivo.",
+  "authSubtitle": "Accedi per giocare online e conservare i tuoi progressi.",
+  "authTitle": "Benvenuto",
   "backToZero": "RITORNO A ZERO",
   "bestComeback": "Miglior rimonta",
   "cancel": "Annulla",
@@ -19,12 +112,42 @@
   "coachFateRing": "L’anello mostra quanto manca a 101. A 101 esatti torni a zero.",
   "coachMatch": "Gioca una carta dello stesso seme o valore.",
   "coachSpecials": "Asso salta il turno, 2 fa pescare, Cavallo cambia seme.",
+  "commonBack": "Indietro",
+  "commonClose": "Chiudi",
+  "commonComingSoon": "Disponibile a breve",
+  "commonEmptyBody": "Quando ci saranno dati, li vedrai qui.",
+  "commonEmptyTitle": "Non c’è ancora nulla",
+  "commonErrorBody": "Non siamo riusciti a completare l’operazione. Riprova.",
+  "commonErrorTitle": "Qualcosa è andato storto",
+  "commonLoading": "Caricamento…",
+  "commonNext": "Avanti",
+  "commonOptional": "facoltativo",
+  "commonRetry": "Riprova",
+  "commonSave": "Salva",
+  "commonSkip": "Salta",
+  "commonStart": "Inizia",
   "confirm": "Conferma",
   "continueGame": "Continua",
+  "createRoomCta": "CREA LA STANZA",
+  "createRoomHouseRules": "Regole della casa",
+  "createRoomName": "Nome della stanza",
+  "createRoomNameHint": "Es. Tavolo di Marco",
+  "createRoomPrivate": "Stanza privata",
+  "createRoomPrivateHint": "Si entra solo con il codice",
+  "createRoomTimer": "Timer del turno",
+  "createRoomTimerOff": "Nessuno",
+  "createRoomTimerSeconds": "{seconds} secondi",
+  "createRoomTitle": "Crea una stanza",
   "dailyChallenge": "Sfida del Giorno",
   "dailyChallengeDone": "Sfida completata",
   "dailyCompleted": "Completata oggi",
   "dailyReward": "Ricompensa",
+  "dailyRewardBody": "Torna ogni giorno: la ricompensa cresce fino al settimo.",
+  "dailyRewardClaim": "RITIRA",
+  "dailyRewardClaimed": "Ritirata",
+  "dailyRewardDay": "Giorno {day}",
+  "dailyRewardTitle": "Ricompensa giornaliera",
+  "dailyRewardTomorrow": "Torna domani",
   "dailyStartHint": "Una configurazione diversa ogni giorno.",
   "dailyTitle": "Sfida del Giorno",
   "defaultDifficulty": "Difficoltà predefinita",
@@ -35,33 +158,97 @@
   "discardPile": "Scarti",
   "drawCard": "Pesca",
   "drawPile": "Mazzo",
+  "editProfileAvatar": "Scegli un avatar",
+  "editProfileTitle": "Modifica profilo",
   "eliminated": "ELIMINATO",
   "exit": "Esci",
   "exitBody": "La partita verrà salvata automaticamente.",
   "exitTitle": "Vuoi uscire?",
   "exitToMenu": "Esci al Menu",
+  "fieldConfirmPassword": "Conferma password",
+  "fieldEmail": "Email",
+  "fieldNickname": "Nickname",
+  "fieldPassword": "Password",
   "finalPoints": "Punti finali",
+  "forgotBackToLogin": "Torna all’accesso",
+  "forgotBody": "Inserisci la tua email: ti invieremo un link per reimpostare la password.",
+  "forgotCta": "INVIA IL LINK",
+  "forgotTitle": "Recupera la password",
   "gotIt": "Ho capito",
   "haptics": "Vibrazione",
+  "hidePassword": "Nascondi la password",
   "highContrast": "Alto contrasto",
   "home": "Home",
+  "homeCreateRoom": "CREA STANZA",
+  "homeJoinRoom": "ENTRA IN UNA STANZA",
+  "homeLeaderboard": "Classifica",
+  "homeMissions": "Missioni",
+  "homeMissionsHint": "Obiettivi di oggi",
+  "homePlayOffline": "GIOCA OFFLINE",
+  "homePlayOnline": "GIOCA ONLINE",
+  "homeQuickMatch": "PARTITA RAPIDA",
   "howToPlay": "Come si Gioca",
   "howToPlayHint": "Regole in un minuto",
   "imReady": "SONO PRONTO",
+  "joinRoomBody": "Inserisci il codice a sei caratteri che ti ha dato l’host.",
+  "joinRoomCta": "ENTRA",
+  "joinRoomInvalid": "Il codice deve avere sei caratteri",
+  "joinRoomPaste": "Incolla",
+  "joinRoomTitle": "Entra in una stanza",
   "largeCards": "Carte grandi",
   "lastCard": "ULTIMA CARTA",
+  "leaderboardAllTime": "Di sempre",
+  "leaderboardEmpty": "La classifica sarà disponibile con il gioco online.",
+  "leaderboardPoints": "Punti",
+  "leaderboardRank": "Pos.",
+  "leaderboardTitle": "Classifica",
+  "leaderboardWeekly": "Settimanale",
+  "lobbyCopied": "Codice copiato",
+  "lobbyEmptySlot": "In attesa di un giocatore",
+  "lobbyHost": "Host",
+  "lobbyLeave": "Esci dalla stanza",
+  "lobbyNotReady": "In attesa",
+  "lobbyPlayerSlot": "Posto {index}",
+  "lobbyReady": "Pronto",
+  "lobbyRoomCode": "Codice stanza",
+  "lobbyShare": "Condividi il codice",
+  "lobbyStart": "INIZIA LA PARTITA",
+  "lobbyTitle": "Sala d’attesa",
   "locked": "Da sbloccare",
+  "loginCta": "ACCEDI",
+  "loginForgot": "Password dimenticata?",
+  "loginNoAccount": "Non hai un account?",
+  "loginTitle": "Accedi",
   "longestChain": "Catena più lunga",
   "matchWinner": "VINCITORE",
+  "matchmakingBody": "Stiamo cercando altri giocatori…",
+  "matchmakingCancel": "Annulla la ricerca",
+  "matchmakingElapsed": "Tempo di attesa {seconds}s",
+  "matchmakingFound": "{found} di {total} giocatori",
+  "matchmakingTitle": "Ricerca in corso",
   "mode": "Modalità",
   "modePassAndPlay": "Passa & Gioca",
   "modeVsComputer": "Vs Computer",
   "music": "Musica",
+  "networkOffline": "Nessuna connessione",
+  "networkOnline": "Di nuovo online",
+  "networkReconnecting": "Riconnessione…",
   "newGame": "Nuova Partita",
   "newMatch": "Nuova Partita",
   "nextRound": "Prossimo Round",
   "noStatsYet": "Gioca una partita per iniziare a raccogliere dati.",
+  "onboard1Body": "Un mazzo tradizionale da 40 carte — Denari, Coppe, Spade e Bastoni — disegnato a mano per lo schermo.",
+  "onboard1Title": "Carte napoletane",
+  "onboard2Body": "L’Asso salta il turno, il 2 fa pescare, il Cavallo cambia seme. Arrivare a 101 esatti azzera il punteggio.",
+  "onboard2Title": "Le regole del 101",
+  "onboard3Body": "Crea una stanza, condividi il codice e sfida da due a quattro giocatori online.",
+  "onboard3Title": "Gioca con gli amici",
+  "onlineCreateRoomHint": "Invita gli amici con un codice",
+  "onlineJoinRoomHint": "Hai un codice? Entra subito",
+  "onlineQuickMatchHint": "Ti troviamo un tavolo libero",
+  "onlineTitle": "Gioca online",
   "passPhoneHint": "Le carte restano coperte fino al tuo tocco",
+  "passPhoneTo": "PASSA IL TELEFONO A {name}",
   "passTurn": "Passa",
   "penalty": "Penalità",
   "play": "GIOCA",
@@ -69,10 +256,28 @@
   "playerName": "Il tuo nome",
   "playersCount": "Giocatori",
   "profile": "Profilo",
+  "profileBestStreak": "Serie migliore",
+  "profileEdit": "Modifica profilo",
+  "profileLevel": "Livello",
+  "profileLevelValue": "Livello {level}",
+  "profileLosses": "Sconfitte",
+  "profileMatches": "Partite",
+  "profileWinRate": "Vittorie %",
+  "profileWins": "Vittorie",
+  "profileXp": "Esperienza",
+  "profileXpProgress": "{current} / {target} XP",
   "rankAce": "Asso",
   "rankCavallo": "Cavallo",
   "rankFante": "Fante",
   "rankRe": "Re",
+  "reaction1": "Bella mossa!",
+  "reaction2": "Vai!",
+  "reaction3": "Che fortuna!",
+  "reaction4": "Nooo!",
+  "reaction5": "Tocca a te!",
+  "reaction6": "Pesca!",
+  "reaction7": "Bravo!",
+  "reaction8": "Rivincita!",
   "reactions": "Reazioni",
   "reduceMotion": "Riduci movimento",
   "rematch": "Rivincita",
@@ -99,6 +304,18 @@
   "sectionSettings": "IMPOSTAZIONI",
   "sectionStatistics": "STATISTICHE",
   "settings": "Impostazioni",
+  "settingsAccount": "ACCOUNT",
+  "settingsLanguage": "Lingua",
+  "settingsLanguageEnglish": "Inglese",
+  "settingsLanguageItalian": "Italiano",
+  "settingsLinkPending": "Il link sarà disponibile alla pubblicazione.",
+  "settingsLogout": "Esci dall’account",
+  "settingsPrivacy": "Informativa sulla privacy",
+  "settingsTerms": "Termini di servizio",
+  "showPassword": "Mostra la password",
+  "signupCta": "REGISTRATI",
+  "signupHaveAccount": "Hai già un account?",
+  "signupTitle": "Crea un account",
   "soundEffects": "Effetti sonori",
   "startChallenge": "ACCETTA LA SFIDA",
   "startMatch": "INIZIA PARTITA",
@@ -121,7 +338,9 @@
   "suitCoppe": "Coppe",
   "suitDenari": "Denari",
   "suitSpade": "Spade",
+  "tableRules": "Regole",
   "tableTheme": "Tavolo",
+  "tableTurnTimer": "Tempo",
   "takePenalty": "Prendi",
   "turnSkipped": "TURNO SALTATO",
   "tutorial101": "101 esatti",
@@ -144,223 +363,11 @@
   "tutorialTwoBody": "Il 2 obbliga il prossimo a pescare due carte. Se ha un altro 2 può rilanciare: +4, +6, +8. Chi si ferma pesca tutto e perde il turno.",
   "tutorialWin": "Vincere la partita",
   "tutorialWinBody": "La partita finisce quando resta un solo giocatore in gioco. È lui il vincitore del Gioco del 101.",
-  "yourTurn": "TOCCA A TE",
-  "reaction1": "Bella mossa!",
-  "reaction2": "Vai!",
-  "reaction3": "Che fortuna!",
-  "reaction4": "Nooo!",
-  "reaction5": "Tocca a te!",
-  "reaction6": "Pesca!",
-  "reaction7": "Bravo!",
-  "reaction8": "Rivincita!",
-  "commonNext": "Avanti",
-  "commonSkip": "Salta",
-  "commonStart": "Inizia",
-  "commonSave": "Salva",
-  "commonBack": "Indietro",
-  "commonClose": "Chiudi",
-  "commonRetry": "Riprova",
-  "commonLoading": "Caricamento…",
-  "commonErrorTitle": "Qualcosa è andato storto",
-  "commonErrorBody": "Non siamo riusciti a completare l’operazione. Riprova.",
-  "commonEmptyTitle": "Non c’è ancora nulla",
-  "commonEmptyBody": "Quando ci saranno dati, li vedrai qui.",
-  "commonComingSoon": "Disponibile a breve",
-  "commonOptional": "facoltativo",
-  "networkOffline": "Nessuna connessione",
-  "networkReconnecting": "Riconnessione…",
-  "networkOnline": "Di nuovo online",
-  "onboard1Title": "Carte napoletane",
-  "onboard1Body": "Un mazzo tradizionale da 40 carte — Denari, Coppe, Spade e Bastoni — disegnato a mano per lo schermo.",
-  "onboard2Title": "Le regole del 101",
-  "onboard2Body": "L’Asso salta il turno, il 2 fa pescare, il Cavallo cambia seme. Arrivare a 101 esatti azzera il punteggio.",
-  "onboard3Title": "Gioca con gli amici",
-  "onboard3Body": "Crea una stanza, condividi il codice e sfida da due a quattro giocatori online.",
-  "authTitle": "Benvenuto",
-  "authSubtitle": "Accedi per giocare online e conservare i tuoi progressi.",
-  "authPlayAsGuest": "GIOCA COME OSPITE",
-  "authSignIn": "Accedi",
-  "authRegister": "Registrati",
-  "authGuestHint": "Puoi creare un account in qualsiasi momento.",
-  "authContinueWithGoogle": "Continua con Google",
-  "authContinueWithApple": "Continua con Apple",
-  "authSocialUnavailable": "L’accesso social non è ancora attivo.",
-  "authBackendPending": "L’accesso sarà attivo quando il servizio online sarà collegato.",
-  "loginTitle": "Accedi",
-  "loginCta": "ACCEDI",
-  "fieldEmail": "Email",
-  "fieldPassword": "Password",
-  "fieldConfirmPassword": "Conferma password",
-  "fieldNickname": "Nickname",
-  "showPassword": "Mostra la password",
-  "hidePassword": "Nascondi la password",
-  "loginForgot": "Password dimenticata?",
-  "loginNoAccount": "Non hai un account?",
-  "signupTitle": "Crea un account",
-  "signupCta": "REGISTRATI",
-  "signupHaveAccount": "Hai già un account?",
-  "forgotTitle": "Recupera la password",
-  "forgotBody": "Inserisci la tua email: ti invieremo un link per reimpostare la password.",
-  "forgotCta": "INVIA IL LINK",
-  "forgotBackToLogin": "Torna all’accesso",
-  "valRequired": "Campo obbligatorio",
   "valEmailInvalid": "Inserisci un’email valida",
-  "valPasswordShort": "La password deve avere almeno 8 caratteri",
-  "valPasswordMismatch": "Le password non coincidono",
-  "valNicknameShort": "Il nickname deve avere almeno 3 caratteri",
   "valNicknameLong": "Il nickname può avere al massimo 16 caratteri",
-  "homePlayOnline": "GIOCA ONLINE",
-  "homeQuickMatch": "PARTITA RAPIDA",
-  "homeCreateRoom": "CREA STANZA",
-  "homeJoinRoom": "ENTRA IN UNA STANZA",
-  "homePlayOffline": "GIOCA OFFLINE",
-  "homeMissions": "Missioni",
-  "homeMissionsHint": "Obiettivi di oggi",
-  "homeLeaderboard": "Classifica",
-  "onlineTitle": "Gioca online",
-  "onlineQuickMatchHint": "Ti troviamo un tavolo libero",
-  "onlineCreateRoomHint": "Invita gli amici con un codice",
-  "onlineJoinRoomHint": "Hai un codice? Entra subito",
-  "createRoomTitle": "Crea una stanza",
-  "createRoomName": "Nome della stanza",
-  "createRoomNameHint": "Es. Tavolo di Marco",
-  "createRoomPrivate": "Stanza privata",
-  "createRoomPrivateHint": "Si entra solo con il codice",
-  "createRoomTimer": "Timer del turno",
-  "createRoomTimerOff": "Nessuno",
-  "createRoomHouseRules": "Regole della casa",
-  "createRoomCta": "CREA LA STANZA",
-  "joinRoomTitle": "Entra in una stanza",
-  "joinRoomBody": "Inserisci il codice a sei caratteri che ti ha dato l’host.",
-  "joinRoomPaste": "Incolla",
-  "joinRoomCta": "ENTRA",
-  "joinRoomInvalid": "Il codice deve avere sei caratteri",
-  "lobbyTitle": "Sala d’attesa",
-  "lobbyRoomCode": "Codice stanza",
-  "lobbyHost": "Host",
-  "lobbyReady": "Pronto",
-  "lobbyNotReady": "In attesa",
-  "lobbyEmptySlot": "In attesa di un giocatore",
-  "lobbyLeave": "Esci dalla stanza",
-  "lobbyShare": "Condividi il codice",
-  "lobbyCopied": "Codice copiato",
-  "lobbyStart": "INIZIA LA PARTITA",
-  "matchmakingTitle": "Ricerca in corso",
-  "matchmakingBody": "Stiamo cercando altri giocatori…",
-  "matchmakingCancel": "Annulla la ricerca",
-  "profileLevel": "Livello",
-  "profileXp": "Esperienza",
-  "profileMatches": "Partite",
-  "profileWins": "Vittorie",
-  "profileLosses": "Sconfitte",
-  "profileWinRate": "Vittorie %",
-  "profileBestStreak": "Serie migliore",
-  "profileEdit": "Modifica profilo",
-  "editProfileTitle": "Modifica profilo",
-  "editProfileAvatar": "Scegli un avatar",
-  "leaderboardTitle": "Classifica",
-  "leaderboardWeekly": "Settimanale",
-  "leaderboardAllTime": "Di sempre",
-  "leaderboardRank": "Pos.",
-  "leaderboardPoints": "Punti",
-  "leaderboardEmpty": "La classifica sarà disponibile con il gioco online.",
-  "achPrimaVittoriaTitle": "Prima Vittoria",
-  "achPrimaVittoriaBody": "Vinci la tua prima partita",
-  "achCentounoTitle": "Centouno!",
-  "achCentounoBody": "Arriva a 101 esatti e torna a zero",
-  "achVendettaTitle": "Vendetta",
-  "achVendettaBody": "Vinci una rivincita subito dopo una sconfitta",
-  "achMaestroNoveTitle": "Maestro del Nove",
-  "achMaestroNoveBody": "Vinci dopo aver scelto tutti e quattro i semi col Cavallo",
-  "achImbattibileTitle": "Imbattibile",
-  "achImbattibileBody": "Vinci cinque partite di fila",
-  "achVeteranoTitle": "Veterano",
-  "achVeteranoBody": "Completa 25 partite",
-  "achLocked": "Da sbloccare",
-  "achUnlocked": "Sbloccato",
-  "dailyRewardTitle": "Ricompensa giornaliera",
-  "dailyRewardBody": "Torna ogni giorno: la ricompensa cresce fino al settimo.",
-  "dailyRewardClaim": "RITIRA",
-  "dailyRewardClaimed": "Ritirata",
-  "dailyRewardTomorrow": "Torna domani",
-  "settingsLanguage": "Lingua",
-  "settingsLanguageItalian": "Italiano",
-  "settingsLanguageEnglish": "Inglese",
-  "settingsPrivacy": "Informativa sulla privacy",
-  "settingsTerms": "Termini di servizio",
-  "settingsAccount": "ACCOUNT",
-  "settingsLogout": "Esci dall’account",
-  "settingsLinkPending": "Il link sarà disponibile alla pubblicazione.",
-  "tableRules": "Regole",
-  "tableTurnTimer": "Tempo",
-  "passPhoneTo": "PASSA IL TELEFONO A {name}",
-  "@passPhoneTo": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "lobbyPlayerSlot": "Posto {index}",
-  "@lobbyPlayerSlot": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyRewardDay": "Giorno {day}",
-  "@dailyRewardDay": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "matchmakingElapsed": "Tempo di attesa {seconds}s",
-  "@matchmakingElapsed": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "matchmakingFound": "{found} di {total} giocatori",
-  "@matchmakingFound": {
-    "placeholders": {
-      "found": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "createRoomTimerSeconds": "{seconds} secondi",
-  "@createRoomTimerSeconds": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "profileLevelValue": "Livello {level}",
-  "@profileLevelValue": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      }
-    }
-  },
-  "profileXpProgress": "{current} / {target} XP",
-  "@profileXpProgress": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "target": {
-        "type": "int"
-      }
-    }
-  }
+  "valNicknameShort": "Il nickname deve avere almeno 3 caratteri",
+  "valPasswordMismatch": "Le password non coincidono",
+  "valPasswordShort": "La password deve avere almeno 8 caratteri",
+  "valRequired": "Campo obbligatorio",
+  "yourTurn": "TOCCA A TE"
 }

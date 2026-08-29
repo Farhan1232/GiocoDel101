@@ -98,6 +98,132 @@ abstract class AppLocalizations {
     Locale('it'),
   ];
 
+  /// No description provided for @achCatenaBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Porta una catena di 2 fino a +6'**
+  String get achCatenaBody;
+
+  /// No description provided for @achCatenaTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Catena!'**
+  String get achCatenaTitle;
+
+  /// No description provided for @achCentounoBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Arriva a 101 esatti e torna a zero'**
+  String get achCentounoBody;
+
+  /// No description provided for @achCentounoTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Centouno!'**
+  String get achCentounoTitle;
+
+  /// No description provided for @achImbattibileBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Vinci cinque partite di fila'**
+  String get achImbattibileBody;
+
+  /// No description provided for @achImbattibileTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Imbattibile'**
+  String get achImbattibileTitle;
+
+  /// No description provided for @achLocked.
+  ///
+  /// In it, this message translates to:
+  /// **'Da sbloccare'**
+  String get achLocked;
+
+  /// No description provided for @achMaestroNoveBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Vinci dopo aver scelto tutti e quattro i semi col Cavallo'**
+  String get achMaestroNoveBody;
+
+  /// No description provided for @achMaestroNoveTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Maestro del Nove'**
+  String get achMaestroNoveTitle;
+
+  /// No description provided for @achManoPerfettaBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Vinci un round senza pescare nemmeno una carta'**
+  String get achManoPerfettaBody;
+
+  /// No description provided for @achManoPerfettaTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Mano Perfetta'**
+  String get achManoPerfettaTitle;
+
+  /// No description provided for @achPrimaVittoriaBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Vinci la tua prima partita'**
+  String get achPrimaVittoriaBody;
+
+  /// No description provided for @achPrimaVittoriaTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Prima Vittoria'**
+  String get achPrimaVittoriaTitle;
+
+  /// No description provided for @achSfidanteBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Completa una Sfida del Giorno'**
+  String get achSfidanteBody;
+
+  /// No description provided for @achSfidanteTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Sfidante'**
+  String get achSfidanteTitle;
+
+  /// No description provided for @achUnlocked.
+  ///
+  /// In it, this message translates to:
+  /// **'Sbloccato'**
+  String get achUnlocked;
+
+  /// No description provided for @achVendettaBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Vinci subito dopo una sconfitta'**
+  String get achVendettaBody;
+
+  /// No description provided for @achVendettaTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Vendetta'**
+  String get achVendettaTitle;
+
+  /// No description provided for @achVeteranoBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Completa 25 partite'**
+  String get achVeteranoBody;
+
+  /// No description provided for @achVeteranoTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Veterano'**
+  String get achVeteranoTitle;
+
+  /// No description provided for @achievementUnlockedToast.
+  ///
+  /// In it, this message translates to:
+  /// **'Obiettivo sbloccato'**
+  String get achievementUnlockedToast;
+
   /// No description provided for @achievements.
   ///
   /// In it, this message translates to:
@@ -145,6 +271,66 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Il classico napoletano, rivisitato'**
   String get appTagline;
+
+  /// No description provided for @authBackendPending.
+  ///
+  /// In it, this message translates to:
+  /// **'L’accesso sarà attivo quando il servizio online sarà collegato.'**
+  String get authBackendPending;
+
+  /// No description provided for @authContinueWithApple.
+  ///
+  /// In it, this message translates to:
+  /// **'Continua con Apple'**
+  String get authContinueWithApple;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In it, this message translates to:
+  /// **'Continua con Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authGuestHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Puoi creare un account in qualsiasi momento.'**
+  String get authGuestHint;
+
+  /// No description provided for @authPlayAsGuest.
+  ///
+  /// In it, this message translates to:
+  /// **'GIOCA COME OSPITE'**
+  String get authPlayAsGuest;
+
+  /// No description provided for @authRegister.
+  ///
+  /// In it, this message translates to:
+  /// **'Registrati'**
+  String get authRegister;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In it, this message translates to:
+  /// **'Accedi'**
+  String get authSignIn;
+
+  /// No description provided for @authSocialUnavailable.
+  ///
+  /// In it, this message translates to:
+  /// **'L’accesso social non è ancora attivo.'**
+  String get authSocialUnavailable;
+
+  /// No description provided for @authSubtitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Accedi per giocare online e conservare i tuoi progressi.'**
+  String get authSubtitle;
+
+  /// No description provided for @authTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Benvenuto'**
+  String get authTitle;
 
   /// No description provided for @backToZero.
   ///
@@ -212,6 +398,90 @@ abstract class AppLocalizations {
   /// **'Asso salta il turno, 2 fa pescare, Cavallo cambia seme.'**
   String get coachSpecials;
 
+  /// No description provided for @commonBack.
+  ///
+  /// In it, this message translates to:
+  /// **'Indietro'**
+  String get commonBack;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In it, this message translates to:
+  /// **'Chiudi'**
+  String get commonClose;
+
+  /// No description provided for @commonComingSoon.
+  ///
+  /// In it, this message translates to:
+  /// **'Disponibile a breve'**
+  String get commonComingSoon;
+
+  /// No description provided for @commonEmptyBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Quando ci saranno dati, li vedrai qui.'**
+  String get commonEmptyBody;
+
+  /// No description provided for @commonEmptyTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Non c’è ancora nulla'**
+  String get commonEmptyTitle;
+
+  /// No description provided for @commonErrorBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Non siamo riusciti a completare l’operazione. Riprova.'**
+  String get commonErrorBody;
+
+  /// No description provided for @commonErrorTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Qualcosa è andato storto'**
+  String get commonErrorTitle;
+
+  /// No description provided for @commonLoading.
+  ///
+  /// In it, this message translates to:
+  /// **'Caricamento…'**
+  String get commonLoading;
+
+  /// No description provided for @commonNext.
+  ///
+  /// In it, this message translates to:
+  /// **'Avanti'**
+  String get commonNext;
+
+  /// No description provided for @commonOptional.
+  ///
+  /// In it, this message translates to:
+  /// **'facoltativo'**
+  String get commonOptional;
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In it, this message translates to:
+  /// **'Riprova'**
+  String get commonRetry;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In it, this message translates to:
+  /// **'Salva'**
+  String get commonSave;
+
+  /// No description provided for @commonSkip.
+  ///
+  /// In it, this message translates to:
+  /// **'Salta'**
+  String get commonSkip;
+
+  /// No description provided for @commonStart.
+  ///
+  /// In it, this message translates to:
+  /// **'Inizia'**
+  String get commonStart;
+
   /// No description provided for @confirm.
   ///
   /// In it, this message translates to:
@@ -223,6 +493,66 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Continua'**
   String get continueGame;
+
+  /// No description provided for @createRoomCta.
+  ///
+  /// In it, this message translates to:
+  /// **'CREA LA STANZA'**
+  String get createRoomCta;
+
+  /// No description provided for @createRoomHouseRules.
+  ///
+  /// In it, this message translates to:
+  /// **'Regole della casa'**
+  String get createRoomHouseRules;
+
+  /// No description provided for @createRoomName.
+  ///
+  /// In it, this message translates to:
+  /// **'Nome della stanza'**
+  String get createRoomName;
+
+  /// No description provided for @createRoomNameHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Es. Tavolo di Marco'**
+  String get createRoomNameHint;
+
+  /// No description provided for @createRoomPrivate.
+  ///
+  /// In it, this message translates to:
+  /// **'Stanza privata'**
+  String get createRoomPrivate;
+
+  /// No description provided for @createRoomPrivateHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Si entra solo con il codice'**
+  String get createRoomPrivateHint;
+
+  /// No description provided for @createRoomTimer.
+  ///
+  /// In it, this message translates to:
+  /// **'Timer del turno'**
+  String get createRoomTimer;
+
+  /// No description provided for @createRoomTimerOff.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuno'**
+  String get createRoomTimerOff;
+
+  /// No description provided for @createRoomTimerSeconds.
+  ///
+  /// In it, this message translates to:
+  /// **'{seconds} secondi'**
+  String createRoomTimerSeconds(int seconds);
+
+  /// No description provided for @createRoomTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Crea una stanza'**
+  String get createRoomTitle;
 
   /// No description provided for @dailyChallenge.
   ///
@@ -247,6 +577,42 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Ricompensa'**
   String get dailyReward;
+
+  /// No description provided for @dailyRewardBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Torna ogni giorno: la ricompensa cresce fino al settimo.'**
+  String get dailyRewardBody;
+
+  /// No description provided for @dailyRewardClaim.
+  ///
+  /// In it, this message translates to:
+  /// **'RITIRA'**
+  String get dailyRewardClaim;
+
+  /// No description provided for @dailyRewardClaimed.
+  ///
+  /// In it, this message translates to:
+  /// **'Ritirata'**
+  String get dailyRewardClaimed;
+
+  /// No description provided for @dailyRewardDay.
+  ///
+  /// In it, this message translates to:
+  /// **'Giorno {day}'**
+  String dailyRewardDay(int day);
+
+  /// No description provided for @dailyRewardTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Ricompensa giornaliera'**
+  String get dailyRewardTitle;
+
+  /// No description provided for @dailyRewardTomorrow.
+  ///
+  /// In it, this message translates to:
+  /// **'Torna domani'**
+  String get dailyRewardTomorrow;
 
   /// No description provided for @dailyStartHint.
   ///
@@ -308,6 +674,18 @@ abstract class AppLocalizations {
   /// **'Mazzo'**
   String get drawPile;
 
+  /// No description provided for @editProfileAvatar.
+  ///
+  /// In it, this message translates to:
+  /// **'Scegli un avatar'**
+  String get editProfileAvatar;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Modifica profilo'**
+  String get editProfileTitle;
+
   /// No description provided for @eliminated.
   ///
   /// In it, this message translates to:
@@ -338,11 +716,59 @@ abstract class AppLocalizations {
   /// **'Esci al Menu'**
   String get exitToMenu;
 
+  /// No description provided for @fieldConfirmPassword.
+  ///
+  /// In it, this message translates to:
+  /// **'Conferma password'**
+  String get fieldConfirmPassword;
+
+  /// No description provided for @fieldEmail.
+  ///
+  /// In it, this message translates to:
+  /// **'Email'**
+  String get fieldEmail;
+
+  /// No description provided for @fieldNickname.
+  ///
+  /// In it, this message translates to:
+  /// **'Nickname'**
+  String get fieldNickname;
+
+  /// No description provided for @fieldPassword.
+  ///
+  /// In it, this message translates to:
+  /// **'Password'**
+  String get fieldPassword;
+
   /// No description provided for @finalPoints.
   ///
   /// In it, this message translates to:
   /// **'Punti finali'**
   String get finalPoints;
+
+  /// No description provided for @forgotBackToLogin.
+  ///
+  /// In it, this message translates to:
+  /// **'Torna all’accesso'**
+  String get forgotBackToLogin;
+
+  /// No description provided for @forgotBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Inserisci la tua email: ti invieremo un link per reimpostare la password.'**
+  String get forgotBody;
+
+  /// No description provided for @forgotCta.
+  ///
+  /// In it, this message translates to:
+  /// **'INVIA IL LINK'**
+  String get forgotCta;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Recupera la password'**
+  String get forgotTitle;
 
   /// No description provided for @gotIt.
   ///
@@ -356,6 +782,12 @@ abstract class AppLocalizations {
   /// **'Vibrazione'**
   String get haptics;
 
+  /// No description provided for @hidePassword.
+  ///
+  /// In it, this message translates to:
+  /// **'Nascondi la password'**
+  String get hidePassword;
+
   /// No description provided for @highContrast.
   ///
   /// In it, this message translates to:
@@ -367,6 +799,54 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Home'**
   String get home;
+
+  /// No description provided for @homeCreateRoom.
+  ///
+  /// In it, this message translates to:
+  /// **'CREA STANZA'**
+  String get homeCreateRoom;
+
+  /// No description provided for @homeJoinRoom.
+  ///
+  /// In it, this message translates to:
+  /// **'ENTRA IN UNA STANZA'**
+  String get homeJoinRoom;
+
+  /// No description provided for @homeLeaderboard.
+  ///
+  /// In it, this message translates to:
+  /// **'Classifica'**
+  String get homeLeaderboard;
+
+  /// No description provided for @homeMissions.
+  ///
+  /// In it, this message translates to:
+  /// **'Missioni'**
+  String get homeMissions;
+
+  /// No description provided for @homeMissionsHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Obiettivi di oggi'**
+  String get homeMissionsHint;
+
+  /// No description provided for @homePlayOffline.
+  ///
+  /// In it, this message translates to:
+  /// **'GIOCA OFFLINE'**
+  String get homePlayOffline;
+
+  /// No description provided for @homePlayOnline.
+  ///
+  /// In it, this message translates to:
+  /// **'GIOCA ONLINE'**
+  String get homePlayOnline;
+
+  /// No description provided for @homeQuickMatch.
+  ///
+  /// In it, this message translates to:
+  /// **'PARTITA RAPIDA'**
+  String get homeQuickMatch;
 
   /// No description provided for @howToPlay.
   ///
@@ -386,6 +866,36 @@ abstract class AppLocalizations {
   /// **'SONO PRONTO'**
   String get imReady;
 
+  /// No description provided for @joinRoomBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Inserisci il codice a sei caratteri che ti ha dato l’host.'**
+  String get joinRoomBody;
+
+  /// No description provided for @joinRoomCta.
+  ///
+  /// In it, this message translates to:
+  /// **'ENTRA'**
+  String get joinRoomCta;
+
+  /// No description provided for @joinRoomInvalid.
+  ///
+  /// In it, this message translates to:
+  /// **'Il codice deve avere sei caratteri'**
+  String get joinRoomInvalid;
+
+  /// No description provided for @joinRoomPaste.
+  ///
+  /// In it, this message translates to:
+  /// **'Incolla'**
+  String get joinRoomPaste;
+
+  /// No description provided for @joinRoomTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Entra in una stanza'**
+  String get joinRoomTitle;
+
   /// No description provided for @largeCards.
   ///
   /// In it, this message translates to:
@@ -398,11 +908,137 @@ abstract class AppLocalizations {
   /// **'ULTIMA CARTA'**
   String get lastCard;
 
+  /// No description provided for @leaderboardAllTime.
+  ///
+  /// In it, this message translates to:
+  /// **'Di sempre'**
+  String get leaderboardAllTime;
+
+  /// No description provided for @leaderboardEmpty.
+  ///
+  /// In it, this message translates to:
+  /// **'La classifica sarà disponibile con il gioco online.'**
+  String get leaderboardEmpty;
+
+  /// No description provided for @leaderboardPoints.
+  ///
+  /// In it, this message translates to:
+  /// **'Punti'**
+  String get leaderboardPoints;
+
+  /// No description provided for @leaderboardRank.
+  ///
+  /// In it, this message translates to:
+  /// **'Pos.'**
+  String get leaderboardRank;
+
+  /// No description provided for @leaderboardTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Classifica'**
+  String get leaderboardTitle;
+
+  /// No description provided for @leaderboardWeekly.
+  ///
+  /// In it, this message translates to:
+  /// **'Settimanale'**
+  String get leaderboardWeekly;
+
+  /// No description provided for @lobbyCopied.
+  ///
+  /// In it, this message translates to:
+  /// **'Codice copiato'**
+  String get lobbyCopied;
+
+  /// No description provided for @lobbyEmptySlot.
+  ///
+  /// In it, this message translates to:
+  /// **'In attesa di un giocatore'**
+  String get lobbyEmptySlot;
+
+  /// No description provided for @lobbyHost.
+  ///
+  /// In it, this message translates to:
+  /// **'Host'**
+  String get lobbyHost;
+
+  /// No description provided for @lobbyLeave.
+  ///
+  /// In it, this message translates to:
+  /// **'Esci dalla stanza'**
+  String get lobbyLeave;
+
+  /// No description provided for @lobbyNotReady.
+  ///
+  /// In it, this message translates to:
+  /// **'In attesa'**
+  String get lobbyNotReady;
+
+  /// No description provided for @lobbyPlayerSlot.
+  ///
+  /// In it, this message translates to:
+  /// **'Posto {index}'**
+  String lobbyPlayerSlot(int index);
+
+  /// No description provided for @lobbyReady.
+  ///
+  /// In it, this message translates to:
+  /// **'Pronto'**
+  String get lobbyReady;
+
+  /// No description provided for @lobbyRoomCode.
+  ///
+  /// In it, this message translates to:
+  /// **'Codice stanza'**
+  String get lobbyRoomCode;
+
+  /// No description provided for @lobbyShare.
+  ///
+  /// In it, this message translates to:
+  /// **'Condividi il codice'**
+  String get lobbyShare;
+
+  /// No description provided for @lobbyStart.
+  ///
+  /// In it, this message translates to:
+  /// **'INIZIA LA PARTITA'**
+  String get lobbyStart;
+
+  /// No description provided for @lobbyTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Sala d’attesa'**
+  String get lobbyTitle;
+
   /// No description provided for @locked.
   ///
   /// In it, this message translates to:
   /// **'Da sbloccare'**
   String get locked;
+
+  /// No description provided for @loginCta.
+  ///
+  /// In it, this message translates to:
+  /// **'ACCEDI'**
+  String get loginCta;
+
+  /// No description provided for @loginForgot.
+  ///
+  /// In it, this message translates to:
+  /// **'Password dimenticata?'**
+  String get loginForgot;
+
+  /// No description provided for @loginNoAccount.
+  ///
+  /// In it, this message translates to:
+  /// **'Non hai un account?'**
+  String get loginNoAccount;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Accedi'**
+  String get loginTitle;
 
   /// No description provided for @longestChain.
   ///
@@ -415,6 +1051,36 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'VINCITORE'**
   String get matchWinner;
+
+  /// No description provided for @matchmakingBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Stiamo cercando altri giocatori…'**
+  String get matchmakingBody;
+
+  /// No description provided for @matchmakingCancel.
+  ///
+  /// In it, this message translates to:
+  /// **'Annulla la ricerca'**
+  String get matchmakingCancel;
+
+  /// No description provided for @matchmakingElapsed.
+  ///
+  /// In it, this message translates to:
+  /// **'Tempo di attesa {seconds}s'**
+  String matchmakingElapsed(int seconds);
+
+  /// No description provided for @matchmakingFound.
+  ///
+  /// In it, this message translates to:
+  /// **'{found} di {total} giocatori'**
+  String matchmakingFound(int found, int total);
+
+  /// No description provided for @matchmakingTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Ricerca in corso'**
+  String get matchmakingTitle;
 
   /// No description provided for @mode.
   ///
@@ -440,6 +1106,24 @@ abstract class AppLocalizations {
   /// **'Musica'**
   String get music;
 
+  /// No description provided for @networkOffline.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuna connessione'**
+  String get networkOffline;
+
+  /// No description provided for @networkOnline.
+  ///
+  /// In it, this message translates to:
+  /// **'Di nuovo online'**
+  String get networkOnline;
+
+  /// No description provided for @networkReconnecting.
+  ///
+  /// In it, this message translates to:
+  /// **'Riconnessione…'**
+  String get networkReconnecting;
+
   /// No description provided for @newGame.
   ///
   /// In it, this message translates to:
@@ -464,11 +1148,77 @@ abstract class AppLocalizations {
   /// **'Gioca una partita per iniziare a raccogliere dati.'**
   String get noStatsYet;
 
+  /// No description provided for @onboard1Body.
+  ///
+  /// In it, this message translates to:
+  /// **'Un mazzo tradizionale da 40 carte — Denari, Coppe, Spade e Bastoni — disegnato a mano per lo schermo.'**
+  String get onboard1Body;
+
+  /// No description provided for @onboard1Title.
+  ///
+  /// In it, this message translates to:
+  /// **'Carte napoletane'**
+  String get onboard1Title;
+
+  /// No description provided for @onboard2Body.
+  ///
+  /// In it, this message translates to:
+  /// **'L’Asso salta il turno, il 2 fa pescare, il Cavallo cambia seme. Arrivare a 101 esatti azzera il punteggio.'**
+  String get onboard2Body;
+
+  /// No description provided for @onboard2Title.
+  ///
+  /// In it, this message translates to:
+  /// **'Le regole del 101'**
+  String get onboard2Title;
+
+  /// No description provided for @onboard3Body.
+  ///
+  /// In it, this message translates to:
+  /// **'Crea una stanza, condividi il codice e sfida da due a quattro giocatori online.'**
+  String get onboard3Body;
+
+  /// No description provided for @onboard3Title.
+  ///
+  /// In it, this message translates to:
+  /// **'Gioca con gli amici'**
+  String get onboard3Title;
+
+  /// No description provided for @onlineCreateRoomHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Invita gli amici con un codice'**
+  String get onlineCreateRoomHint;
+
+  /// No description provided for @onlineJoinRoomHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Hai un codice? Entra subito'**
+  String get onlineJoinRoomHint;
+
+  /// No description provided for @onlineQuickMatchHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Ti troviamo un tavolo libero'**
+  String get onlineQuickMatchHint;
+
+  /// No description provided for @onlineTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Gioca online'**
+  String get onlineTitle;
+
   /// No description provided for @passPhoneHint.
   ///
   /// In it, this message translates to:
   /// **'Le carte restano coperte fino al tuo tocco'**
   String get passPhoneHint;
+
+  /// No description provided for @passPhoneTo.
+  ///
+  /// In it, this message translates to:
+  /// **'PASSA IL TELEFONO A {name}'**
+  String passPhoneTo(String name);
 
   /// No description provided for @passTurn.
   ///
@@ -512,6 +1262,66 @@ abstract class AppLocalizations {
   /// **'Profilo'**
   String get profile;
 
+  /// No description provided for @profileBestStreak.
+  ///
+  /// In it, this message translates to:
+  /// **'Serie migliore'**
+  String get profileBestStreak;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In it, this message translates to:
+  /// **'Modifica profilo'**
+  String get profileEdit;
+
+  /// No description provided for @profileLevel.
+  ///
+  /// In it, this message translates to:
+  /// **'Livello'**
+  String get profileLevel;
+
+  /// No description provided for @profileLevelValue.
+  ///
+  /// In it, this message translates to:
+  /// **'Livello {level}'**
+  String profileLevelValue(int level);
+
+  /// No description provided for @profileLosses.
+  ///
+  /// In it, this message translates to:
+  /// **'Sconfitte'**
+  String get profileLosses;
+
+  /// No description provided for @profileMatches.
+  ///
+  /// In it, this message translates to:
+  /// **'Partite'**
+  String get profileMatches;
+
+  /// No description provided for @profileWinRate.
+  ///
+  /// In it, this message translates to:
+  /// **'Vittorie %'**
+  String get profileWinRate;
+
+  /// No description provided for @profileWins.
+  ///
+  /// In it, this message translates to:
+  /// **'Vittorie'**
+  String get profileWins;
+
+  /// No description provided for @profileXp.
+  ///
+  /// In it, this message translates to:
+  /// **'Esperienza'**
+  String get profileXp;
+
+  /// No description provided for @profileXpProgress.
+  ///
+  /// In it, this message translates to:
+  /// **'{current} / {target} XP'**
+  String profileXpProgress(int current, int target);
+
   /// No description provided for @rankAce.
   ///
   /// In it, this message translates to:
@@ -535,6 +1345,54 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Re'**
   String get rankRe;
+
+  /// No description provided for @reaction1.
+  ///
+  /// In it, this message translates to:
+  /// **'Bella mossa!'**
+  String get reaction1;
+
+  /// No description provided for @reaction2.
+  ///
+  /// In it, this message translates to:
+  /// **'Vai!'**
+  String get reaction2;
+
+  /// No description provided for @reaction3.
+  ///
+  /// In it, this message translates to:
+  /// **'Che fortuna!'**
+  String get reaction3;
+
+  /// No description provided for @reaction4.
+  ///
+  /// In it, this message translates to:
+  /// **'Nooo!'**
+  String get reaction4;
+
+  /// No description provided for @reaction5.
+  ///
+  /// In it, this message translates to:
+  /// **'Tocca a te!'**
+  String get reaction5;
+
+  /// No description provided for @reaction6.
+  ///
+  /// In it, this message translates to:
+  /// **'Pesca!'**
+  String get reaction6;
+
+  /// No description provided for @reaction7.
+  ///
+  /// In it, this message translates to:
+  /// **'Bravo!'**
+  String get reaction7;
+
+  /// No description provided for @reaction8.
+  ///
+  /// In it, this message translates to:
+  /// **'Rivincita!'**
+  String get reaction8;
 
   /// No description provided for @reactions.
   ///
@@ -692,6 +1550,78 @@ abstract class AppLocalizations {
   /// **'Impostazioni'**
   String get settings;
 
+  /// No description provided for @settingsAccount.
+  ///
+  /// In it, this message translates to:
+  /// **'ACCOUNT'**
+  String get settingsAccount;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In it, this message translates to:
+  /// **'Lingua'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsLanguageEnglish.
+  ///
+  /// In it, this message translates to:
+  /// **'Inglese'**
+  String get settingsLanguageEnglish;
+
+  /// No description provided for @settingsLanguageItalian.
+  ///
+  /// In it, this message translates to:
+  /// **'Italiano'**
+  String get settingsLanguageItalian;
+
+  /// No description provided for @settingsLinkPending.
+  ///
+  /// In it, this message translates to:
+  /// **'Il link sarà disponibile alla pubblicazione.'**
+  String get settingsLinkPending;
+
+  /// No description provided for @settingsLogout.
+  ///
+  /// In it, this message translates to:
+  /// **'Esci dall’account'**
+  String get settingsLogout;
+
+  /// No description provided for @settingsPrivacy.
+  ///
+  /// In it, this message translates to:
+  /// **'Informativa sulla privacy'**
+  String get settingsPrivacy;
+
+  /// No description provided for @settingsTerms.
+  ///
+  /// In it, this message translates to:
+  /// **'Termini di servizio'**
+  String get settingsTerms;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In it, this message translates to:
+  /// **'Mostra la password'**
+  String get showPassword;
+
+  /// No description provided for @signupCta.
+  ///
+  /// In it, this message translates to:
+  /// **'REGISTRATI'**
+  String get signupCta;
+
+  /// No description provided for @signupHaveAccount.
+  ///
+  /// In it, this message translates to:
+  /// **'Hai già un account?'**
+  String get signupHaveAccount;
+
+  /// No description provided for @signupTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Crea un account'**
+  String get signupTitle;
+
   /// No description provided for @soundEffects.
   ///
   /// In it, this message translates to:
@@ -824,11 +1754,23 @@ abstract class AppLocalizations {
   /// **'Spade'**
   String get suitSpade;
 
+  /// No description provided for @tableRules.
+  ///
+  /// In it, this message translates to:
+  /// **'Regole'**
+  String get tableRules;
+
   /// No description provided for @tableTheme.
   ///
   /// In it, this message translates to:
   /// **'Tavolo'**
   String get tableTheme;
+
+  /// No description provided for @tableTurnTimer.
+  ///
+  /// In it, this message translates to:
+  /// **'Tempo'**
+  String get tableTurnTimer;
 
   /// No description provided for @takePenalty.
   ///
@@ -962,389 +1904,11 @@ abstract class AppLocalizations {
   /// **'La partita finisce quando resta un solo giocatore in gioco. È lui il vincitore del Gioco del 101.'**
   String get tutorialWinBody;
 
-  /// No description provided for @yourTurn.
-  ///
-  /// In it, this message translates to:
-  /// **'TOCCA A TE'**
-  String get yourTurn;
-
-  /// No description provided for @reaction1.
-  ///
-  /// In it, this message translates to:
-  /// **'Bella mossa!'**
-  String get reaction1;
-
-  /// No description provided for @reaction2.
-  ///
-  /// In it, this message translates to:
-  /// **'Vai!'**
-  String get reaction2;
-
-  /// No description provided for @reaction3.
-  ///
-  /// In it, this message translates to:
-  /// **'Che fortuna!'**
-  String get reaction3;
-
-  /// No description provided for @reaction4.
-  ///
-  /// In it, this message translates to:
-  /// **'Nooo!'**
-  String get reaction4;
-
-  /// No description provided for @reaction5.
-  ///
-  /// In it, this message translates to:
-  /// **'Tocca a te!'**
-  String get reaction5;
-
-  /// No description provided for @reaction6.
-  ///
-  /// In it, this message translates to:
-  /// **'Pesca!'**
-  String get reaction6;
-
-  /// No description provided for @reaction7.
-  ///
-  /// In it, this message translates to:
-  /// **'Bravo!'**
-  String get reaction7;
-
-  /// No description provided for @reaction8.
-  ///
-  /// In it, this message translates to:
-  /// **'Rivincita!'**
-  String get reaction8;
-
-  /// No description provided for @commonNext.
-  ///
-  /// In it, this message translates to:
-  /// **'Avanti'**
-  String get commonNext;
-
-  /// No description provided for @commonSkip.
-  ///
-  /// In it, this message translates to:
-  /// **'Salta'**
-  String get commonSkip;
-
-  /// No description provided for @commonStart.
-  ///
-  /// In it, this message translates to:
-  /// **'Inizia'**
-  String get commonStart;
-
-  /// No description provided for @commonSave.
-  ///
-  /// In it, this message translates to:
-  /// **'Salva'**
-  String get commonSave;
-
-  /// No description provided for @commonBack.
-  ///
-  /// In it, this message translates to:
-  /// **'Indietro'**
-  String get commonBack;
-
-  /// No description provided for @commonClose.
-  ///
-  /// In it, this message translates to:
-  /// **'Chiudi'**
-  String get commonClose;
-
-  /// No description provided for @commonRetry.
-  ///
-  /// In it, this message translates to:
-  /// **'Riprova'**
-  String get commonRetry;
-
-  /// No description provided for @commonLoading.
-  ///
-  /// In it, this message translates to:
-  /// **'Caricamento…'**
-  String get commonLoading;
-
-  /// No description provided for @commonErrorTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Qualcosa è andato storto'**
-  String get commonErrorTitle;
-
-  /// No description provided for @commonErrorBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Non siamo riusciti a completare l’operazione. Riprova.'**
-  String get commonErrorBody;
-
-  /// No description provided for @commonEmptyTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Non c’è ancora nulla'**
-  String get commonEmptyTitle;
-
-  /// No description provided for @commonEmptyBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Quando ci saranno dati, li vedrai qui.'**
-  String get commonEmptyBody;
-
-  /// No description provided for @commonComingSoon.
-  ///
-  /// In it, this message translates to:
-  /// **'Disponibile a breve'**
-  String get commonComingSoon;
-
-  /// No description provided for @commonOptional.
-  ///
-  /// In it, this message translates to:
-  /// **'facoltativo'**
-  String get commonOptional;
-
-  /// No description provided for @networkOffline.
-  ///
-  /// In it, this message translates to:
-  /// **'Nessuna connessione'**
-  String get networkOffline;
-
-  /// No description provided for @networkReconnecting.
-  ///
-  /// In it, this message translates to:
-  /// **'Riconnessione…'**
-  String get networkReconnecting;
-
-  /// No description provided for @networkOnline.
-  ///
-  /// In it, this message translates to:
-  /// **'Di nuovo online'**
-  String get networkOnline;
-
-  /// No description provided for @onboard1Title.
-  ///
-  /// In it, this message translates to:
-  /// **'Carte napoletane'**
-  String get onboard1Title;
-
-  /// No description provided for @onboard1Body.
-  ///
-  /// In it, this message translates to:
-  /// **'Un mazzo tradizionale da 40 carte — Denari, Coppe, Spade e Bastoni — disegnato a mano per lo schermo.'**
-  String get onboard1Body;
-
-  /// No description provided for @onboard2Title.
-  ///
-  /// In it, this message translates to:
-  /// **'Le regole del 101'**
-  String get onboard2Title;
-
-  /// No description provided for @onboard2Body.
-  ///
-  /// In it, this message translates to:
-  /// **'L’Asso salta il turno, il 2 fa pescare, il Cavallo cambia seme. Arrivare a 101 esatti azzera il punteggio.'**
-  String get onboard2Body;
-
-  /// No description provided for @onboard3Title.
-  ///
-  /// In it, this message translates to:
-  /// **'Gioca con gli amici'**
-  String get onboard3Title;
-
-  /// No description provided for @onboard3Body.
-  ///
-  /// In it, this message translates to:
-  /// **'Crea una stanza, condividi il codice e sfida da due a quattro giocatori online.'**
-  String get onboard3Body;
-
-  /// No description provided for @authTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Benvenuto'**
-  String get authTitle;
-
-  /// No description provided for @authSubtitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Accedi per giocare online e conservare i tuoi progressi.'**
-  String get authSubtitle;
-
-  /// No description provided for @authPlayAsGuest.
-  ///
-  /// In it, this message translates to:
-  /// **'GIOCA COME OSPITE'**
-  String get authPlayAsGuest;
-
-  /// No description provided for @authSignIn.
-  ///
-  /// In it, this message translates to:
-  /// **'Accedi'**
-  String get authSignIn;
-
-  /// No description provided for @authRegister.
-  ///
-  /// In it, this message translates to:
-  /// **'Registrati'**
-  String get authRegister;
-
-  /// No description provided for @authGuestHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Puoi creare un account in qualsiasi momento.'**
-  String get authGuestHint;
-
-  /// No description provided for @authContinueWithGoogle.
-  ///
-  /// In it, this message translates to:
-  /// **'Continua con Google'**
-  String get authContinueWithGoogle;
-
-  /// No description provided for @authContinueWithApple.
-  ///
-  /// In it, this message translates to:
-  /// **'Continua con Apple'**
-  String get authContinueWithApple;
-
-  /// No description provided for @authSocialUnavailable.
-  ///
-  /// In it, this message translates to:
-  /// **'L’accesso social non è ancora attivo.'**
-  String get authSocialUnavailable;
-
-  /// No description provided for @authBackendPending.
-  ///
-  /// In it, this message translates to:
-  /// **'L’accesso sarà attivo quando il servizio online sarà collegato.'**
-  String get authBackendPending;
-
-  /// No description provided for @loginTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Accedi'**
-  String get loginTitle;
-
-  /// No description provided for @loginCta.
-  ///
-  /// In it, this message translates to:
-  /// **'ACCEDI'**
-  String get loginCta;
-
-  /// No description provided for @fieldEmail.
-  ///
-  /// In it, this message translates to:
-  /// **'Email'**
-  String get fieldEmail;
-
-  /// No description provided for @fieldPassword.
-  ///
-  /// In it, this message translates to:
-  /// **'Password'**
-  String get fieldPassword;
-
-  /// No description provided for @fieldConfirmPassword.
-  ///
-  /// In it, this message translates to:
-  /// **'Conferma password'**
-  String get fieldConfirmPassword;
-
-  /// No description provided for @fieldNickname.
-  ///
-  /// In it, this message translates to:
-  /// **'Nickname'**
-  String get fieldNickname;
-
-  /// No description provided for @showPassword.
-  ///
-  /// In it, this message translates to:
-  /// **'Mostra la password'**
-  String get showPassword;
-
-  /// No description provided for @hidePassword.
-  ///
-  /// In it, this message translates to:
-  /// **'Nascondi la password'**
-  String get hidePassword;
-
-  /// No description provided for @loginForgot.
-  ///
-  /// In it, this message translates to:
-  /// **'Password dimenticata?'**
-  String get loginForgot;
-
-  /// No description provided for @loginNoAccount.
-  ///
-  /// In it, this message translates to:
-  /// **'Non hai un account?'**
-  String get loginNoAccount;
-
-  /// No description provided for @signupTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Crea un account'**
-  String get signupTitle;
-
-  /// No description provided for @signupCta.
-  ///
-  /// In it, this message translates to:
-  /// **'REGISTRATI'**
-  String get signupCta;
-
-  /// No description provided for @signupHaveAccount.
-  ///
-  /// In it, this message translates to:
-  /// **'Hai già un account?'**
-  String get signupHaveAccount;
-
-  /// No description provided for @forgotTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Recupera la password'**
-  String get forgotTitle;
-
-  /// No description provided for @forgotBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Inserisci la tua email: ti invieremo un link per reimpostare la password.'**
-  String get forgotBody;
-
-  /// No description provided for @forgotCta.
-  ///
-  /// In it, this message translates to:
-  /// **'INVIA IL LINK'**
-  String get forgotCta;
-
-  /// No description provided for @forgotBackToLogin.
-  ///
-  /// In it, this message translates to:
-  /// **'Torna all’accesso'**
-  String get forgotBackToLogin;
-
-  /// No description provided for @valRequired.
-  ///
-  /// In it, this message translates to:
-  /// **'Campo obbligatorio'**
-  String get valRequired;
-
   /// No description provided for @valEmailInvalid.
   ///
   /// In it, this message translates to:
   /// **'Inserisci un’email valida'**
   String get valEmailInvalid;
-
-  /// No description provided for @valPasswordShort.
-  ///
-  /// In it, this message translates to:
-  /// **'La password deve avere almeno 8 caratteri'**
-  String get valPasswordShort;
-
-  /// No description provided for @valPasswordMismatch.
-  ///
-  /// In it, this message translates to:
-  /// **'Le password non coincidono'**
-  String get valPasswordMismatch;
-
-  /// No description provided for @valNicknameShort.
-  ///
-  /// In it, this message translates to:
-  /// **'Il nickname deve avere almeno 3 caratteri'**
-  String get valNicknameShort;
 
   /// No description provided for @valNicknameLong.
   ///
@@ -1352,557 +1916,35 @@ abstract class AppLocalizations {
   /// **'Il nickname può avere al massimo 16 caratteri'**
   String get valNicknameLong;
 
-  /// No description provided for @homePlayOnline.
+  /// No description provided for @valNicknameShort.
   ///
   /// In it, this message translates to:
-  /// **'GIOCA ONLINE'**
-  String get homePlayOnline;
+  /// **'Il nickname deve avere almeno 3 caratteri'**
+  String get valNicknameShort;
 
-  /// No description provided for @homeQuickMatch.
+  /// No description provided for @valPasswordMismatch.
   ///
   /// In it, this message translates to:
-  /// **'PARTITA RAPIDA'**
-  String get homeQuickMatch;
+  /// **'Le password non coincidono'**
+  String get valPasswordMismatch;
 
-  /// No description provided for @homeCreateRoom.
+  /// No description provided for @valPasswordShort.
   ///
   /// In it, this message translates to:
-  /// **'CREA STANZA'**
-  String get homeCreateRoom;
+  /// **'La password deve avere almeno 8 caratteri'**
+  String get valPasswordShort;
 
-  /// No description provided for @homeJoinRoom.
+  /// No description provided for @valRequired.
   ///
   /// In it, this message translates to:
-  /// **'ENTRA IN UNA STANZA'**
-  String get homeJoinRoom;
+  /// **'Campo obbligatorio'**
+  String get valRequired;
 
-  /// No description provided for @homePlayOffline.
+  /// No description provided for @yourTurn.
   ///
   /// In it, this message translates to:
-  /// **'GIOCA OFFLINE'**
-  String get homePlayOffline;
-
-  /// No description provided for @homeMissions.
-  ///
-  /// In it, this message translates to:
-  /// **'Missioni'**
-  String get homeMissions;
-
-  /// No description provided for @homeMissionsHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Obiettivi di oggi'**
-  String get homeMissionsHint;
-
-  /// No description provided for @homeLeaderboard.
-  ///
-  /// In it, this message translates to:
-  /// **'Classifica'**
-  String get homeLeaderboard;
-
-  /// No description provided for @onlineTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Gioca online'**
-  String get onlineTitle;
-
-  /// No description provided for @onlineQuickMatchHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Ti troviamo un tavolo libero'**
-  String get onlineQuickMatchHint;
-
-  /// No description provided for @onlineCreateRoomHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Invita gli amici con un codice'**
-  String get onlineCreateRoomHint;
-
-  /// No description provided for @onlineJoinRoomHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Hai un codice? Entra subito'**
-  String get onlineJoinRoomHint;
-
-  /// No description provided for @createRoomTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Crea una stanza'**
-  String get createRoomTitle;
-
-  /// No description provided for @createRoomName.
-  ///
-  /// In it, this message translates to:
-  /// **'Nome della stanza'**
-  String get createRoomName;
-
-  /// No description provided for @createRoomNameHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Es. Tavolo di Marco'**
-  String get createRoomNameHint;
-
-  /// No description provided for @createRoomPrivate.
-  ///
-  /// In it, this message translates to:
-  /// **'Stanza privata'**
-  String get createRoomPrivate;
-
-  /// No description provided for @createRoomPrivateHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Si entra solo con il codice'**
-  String get createRoomPrivateHint;
-
-  /// No description provided for @createRoomTimer.
-  ///
-  /// In it, this message translates to:
-  /// **'Timer del turno'**
-  String get createRoomTimer;
-
-  /// No description provided for @createRoomTimerOff.
-  ///
-  /// In it, this message translates to:
-  /// **'Nessuno'**
-  String get createRoomTimerOff;
-
-  /// No description provided for @createRoomHouseRules.
-  ///
-  /// In it, this message translates to:
-  /// **'Regole della casa'**
-  String get createRoomHouseRules;
-
-  /// No description provided for @createRoomCta.
-  ///
-  /// In it, this message translates to:
-  /// **'CREA LA STANZA'**
-  String get createRoomCta;
-
-  /// No description provided for @joinRoomTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Entra in una stanza'**
-  String get joinRoomTitle;
-
-  /// No description provided for @joinRoomBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Inserisci il codice a sei caratteri che ti ha dato l’host.'**
-  String get joinRoomBody;
-
-  /// No description provided for @joinRoomPaste.
-  ///
-  /// In it, this message translates to:
-  /// **'Incolla'**
-  String get joinRoomPaste;
-
-  /// No description provided for @joinRoomCta.
-  ///
-  /// In it, this message translates to:
-  /// **'ENTRA'**
-  String get joinRoomCta;
-
-  /// No description provided for @joinRoomInvalid.
-  ///
-  /// In it, this message translates to:
-  /// **'Il codice deve avere sei caratteri'**
-  String get joinRoomInvalid;
-
-  /// No description provided for @lobbyTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Sala d’attesa'**
-  String get lobbyTitle;
-
-  /// No description provided for @lobbyRoomCode.
-  ///
-  /// In it, this message translates to:
-  /// **'Codice stanza'**
-  String get lobbyRoomCode;
-
-  /// No description provided for @lobbyHost.
-  ///
-  /// In it, this message translates to:
-  /// **'Host'**
-  String get lobbyHost;
-
-  /// No description provided for @lobbyReady.
-  ///
-  /// In it, this message translates to:
-  /// **'Pronto'**
-  String get lobbyReady;
-
-  /// No description provided for @lobbyNotReady.
-  ///
-  /// In it, this message translates to:
-  /// **'In attesa'**
-  String get lobbyNotReady;
-
-  /// No description provided for @lobbyEmptySlot.
-  ///
-  /// In it, this message translates to:
-  /// **'In attesa di un giocatore'**
-  String get lobbyEmptySlot;
-
-  /// No description provided for @lobbyLeave.
-  ///
-  /// In it, this message translates to:
-  /// **'Esci dalla stanza'**
-  String get lobbyLeave;
-
-  /// No description provided for @lobbyShare.
-  ///
-  /// In it, this message translates to:
-  /// **'Condividi il codice'**
-  String get lobbyShare;
-
-  /// No description provided for @lobbyCopied.
-  ///
-  /// In it, this message translates to:
-  /// **'Codice copiato'**
-  String get lobbyCopied;
-
-  /// No description provided for @lobbyStart.
-  ///
-  /// In it, this message translates to:
-  /// **'INIZIA LA PARTITA'**
-  String get lobbyStart;
-
-  /// No description provided for @matchmakingTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Ricerca in corso'**
-  String get matchmakingTitle;
-
-  /// No description provided for @matchmakingBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Stiamo cercando altri giocatori…'**
-  String get matchmakingBody;
-
-  /// No description provided for @matchmakingCancel.
-  ///
-  /// In it, this message translates to:
-  /// **'Annulla la ricerca'**
-  String get matchmakingCancel;
-
-  /// No description provided for @profileLevel.
-  ///
-  /// In it, this message translates to:
-  /// **'Livello'**
-  String get profileLevel;
-
-  /// No description provided for @profileXp.
-  ///
-  /// In it, this message translates to:
-  /// **'Esperienza'**
-  String get profileXp;
-
-  /// No description provided for @profileMatches.
-  ///
-  /// In it, this message translates to:
-  /// **'Partite'**
-  String get profileMatches;
-
-  /// No description provided for @profileWins.
-  ///
-  /// In it, this message translates to:
-  /// **'Vittorie'**
-  String get profileWins;
-
-  /// No description provided for @profileLosses.
-  ///
-  /// In it, this message translates to:
-  /// **'Sconfitte'**
-  String get profileLosses;
-
-  /// No description provided for @profileWinRate.
-  ///
-  /// In it, this message translates to:
-  /// **'Vittorie %'**
-  String get profileWinRate;
-
-  /// No description provided for @profileBestStreak.
-  ///
-  /// In it, this message translates to:
-  /// **'Serie migliore'**
-  String get profileBestStreak;
-
-  /// No description provided for @profileEdit.
-  ///
-  /// In it, this message translates to:
-  /// **'Modifica profilo'**
-  String get profileEdit;
-
-  /// No description provided for @editProfileTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Modifica profilo'**
-  String get editProfileTitle;
-
-  /// No description provided for @editProfileAvatar.
-  ///
-  /// In it, this message translates to:
-  /// **'Scegli un avatar'**
-  String get editProfileAvatar;
-
-  /// No description provided for @leaderboardTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Classifica'**
-  String get leaderboardTitle;
-
-  /// No description provided for @leaderboardWeekly.
-  ///
-  /// In it, this message translates to:
-  /// **'Settimanale'**
-  String get leaderboardWeekly;
-
-  /// No description provided for @leaderboardAllTime.
-  ///
-  /// In it, this message translates to:
-  /// **'Di sempre'**
-  String get leaderboardAllTime;
-
-  /// No description provided for @leaderboardRank.
-  ///
-  /// In it, this message translates to:
-  /// **'Pos.'**
-  String get leaderboardRank;
-
-  /// No description provided for @leaderboardPoints.
-  ///
-  /// In it, this message translates to:
-  /// **'Punti'**
-  String get leaderboardPoints;
-
-  /// No description provided for @leaderboardEmpty.
-  ///
-  /// In it, this message translates to:
-  /// **'La classifica sarà disponibile con il gioco online.'**
-  String get leaderboardEmpty;
-
-  /// No description provided for @achPrimaVittoriaTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Prima Vittoria'**
-  String get achPrimaVittoriaTitle;
-
-  /// No description provided for @achPrimaVittoriaBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Vinci la tua prima partita'**
-  String get achPrimaVittoriaBody;
-
-  /// No description provided for @achCentounoTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Centouno!'**
-  String get achCentounoTitle;
-
-  /// No description provided for @achCentounoBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Arriva a 101 esatti e torna a zero'**
-  String get achCentounoBody;
-
-  /// No description provided for @achVendettaTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Vendetta'**
-  String get achVendettaTitle;
-
-  /// No description provided for @achVendettaBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Vinci una rivincita subito dopo una sconfitta'**
-  String get achVendettaBody;
-
-  /// No description provided for @achMaestroNoveTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Maestro del Nove'**
-  String get achMaestroNoveTitle;
-
-  /// No description provided for @achMaestroNoveBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Vinci dopo aver scelto tutti e quattro i semi col Cavallo'**
-  String get achMaestroNoveBody;
-
-  /// No description provided for @achImbattibileTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Imbattibile'**
-  String get achImbattibileTitle;
-
-  /// No description provided for @achImbattibileBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Vinci cinque partite di fila'**
-  String get achImbattibileBody;
-
-  /// No description provided for @achVeteranoTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Veterano'**
-  String get achVeteranoTitle;
-
-  /// No description provided for @achVeteranoBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Completa 25 partite'**
-  String get achVeteranoBody;
-
-  /// No description provided for @achLocked.
-  ///
-  /// In it, this message translates to:
-  /// **'Da sbloccare'**
-  String get achLocked;
-
-  /// No description provided for @achUnlocked.
-  ///
-  /// In it, this message translates to:
-  /// **'Sbloccato'**
-  String get achUnlocked;
-
-  /// No description provided for @dailyRewardTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Ricompensa giornaliera'**
-  String get dailyRewardTitle;
-
-  /// No description provided for @dailyRewardBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Torna ogni giorno: la ricompensa cresce fino al settimo.'**
-  String get dailyRewardBody;
-
-  /// No description provided for @dailyRewardClaim.
-  ///
-  /// In it, this message translates to:
-  /// **'RITIRA'**
-  String get dailyRewardClaim;
-
-  /// No description provided for @dailyRewardClaimed.
-  ///
-  /// In it, this message translates to:
-  /// **'Ritirata'**
-  String get dailyRewardClaimed;
-
-  /// No description provided for @dailyRewardTomorrow.
-  ///
-  /// In it, this message translates to:
-  /// **'Torna domani'**
-  String get dailyRewardTomorrow;
-
-  /// No description provided for @settingsLanguage.
-  ///
-  /// In it, this message translates to:
-  /// **'Lingua'**
-  String get settingsLanguage;
-
-  /// No description provided for @settingsLanguageItalian.
-  ///
-  /// In it, this message translates to:
-  /// **'Italiano'**
-  String get settingsLanguageItalian;
-
-  /// No description provided for @settingsLanguageEnglish.
-  ///
-  /// In it, this message translates to:
-  /// **'Inglese'**
-  String get settingsLanguageEnglish;
-
-  /// No description provided for @settingsPrivacy.
-  ///
-  /// In it, this message translates to:
-  /// **'Informativa sulla privacy'**
-  String get settingsPrivacy;
-
-  /// No description provided for @settingsTerms.
-  ///
-  /// In it, this message translates to:
-  /// **'Termini di servizio'**
-  String get settingsTerms;
-
-  /// No description provided for @settingsAccount.
-  ///
-  /// In it, this message translates to:
-  /// **'ACCOUNT'**
-  String get settingsAccount;
-
-  /// No description provided for @settingsLogout.
-  ///
-  /// In it, this message translates to:
-  /// **'Esci dall’account'**
-  String get settingsLogout;
-
-  /// No description provided for @settingsLinkPending.
-  ///
-  /// In it, this message translates to:
-  /// **'Il link sarà disponibile alla pubblicazione.'**
-  String get settingsLinkPending;
-
-  /// No description provided for @tableRules.
-  ///
-  /// In it, this message translates to:
-  /// **'Regole'**
-  String get tableRules;
-
-  /// No description provided for @tableTurnTimer.
-  ///
-  /// In it, this message translates to:
-  /// **'Tempo'**
-  String get tableTurnTimer;
-
-  /// No description provided for @passPhoneTo.
-  ///
-  /// In it, this message translates to:
-  /// **'PASSA IL TELEFONO A {name}'**
-  String passPhoneTo(String name);
-
-  /// No description provided for @lobbyPlayerSlot.
-  ///
-  /// In it, this message translates to:
-  /// **'Posto {index}'**
-  String lobbyPlayerSlot(int index);
-
-  /// No description provided for @dailyRewardDay.
-  ///
-  /// In it, this message translates to:
-  /// **'Giorno {day}'**
-  String dailyRewardDay(int day);
-
-  /// No description provided for @matchmakingElapsed.
-  ///
-  /// In it, this message translates to:
-  /// **'Tempo di attesa {seconds}s'**
-  String matchmakingElapsed(int seconds);
-
-  /// No description provided for @matchmakingFound.
-  ///
-  /// In it, this message translates to:
-  /// **'{found} di {total} giocatori'**
-  String matchmakingFound(int found, int total);
-
-  /// No description provided for @createRoomTimerSeconds.
-  ///
-  /// In it, this message translates to:
-  /// **'{seconds} secondi'**
-  String createRoomTimerSeconds(int seconds);
-
-  /// No description provided for @profileLevelValue.
-  ///
-  /// In it, this message translates to:
-  /// **'Livello {level}'**
-  String profileLevelValue(int level);
-
-  /// No description provided for @profileXpProgress.
-  ///
-  /// In it, this message translates to:
-  /// **'{current} / {target} XP'**
-  String profileXpProgress(int current, int target);
+  /// **'TOCCA A TE'**
+  String get yourTurn;
 }
 
 class _AppLocalizationsDelegate
