@@ -1,4 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+
+import '../../../app/localization/app_strings.dart';
 
 import '../../../core/utils/motion.dart';
 import '../../game/domain/player_type.dart';
@@ -20,6 +23,11 @@ class SettingsController extends GetxController {
 
   SettingsModel get settings => _settings.value;
 
+  /// The active language, narrowed to one the app actually ships.
+  Locale get locale => Strings.resolve(Locale(settings.localeCode));
+
+  bool get onboardingComplete => settings.onboardingComplete;
+
   TableTheme get theme => TableThemes.byId(settings.themeId);
   CardBackDesign get cardBack => CardBacks.byId(settings.cardBackId);
 
@@ -37,6 +45,9 @@ class SettingsController extends GetxController {
   /// Pushes preferences into the singletons that act on them.
   void _apply() {
     final s = settings;
+    // Controllers and services read copy without a BuildContext, so the
+    // resolved bundle has to be swapped here rather than in the widget tree.
+    Strings.use(Locale(s.localeCode));
     Motion.speedFactor = s.animationSpeed.factor;
     Motion.reduceMotion = s.reduceMotion;
     HapticService.instance.configure(enabled: s.hapticsEnabled);
@@ -101,6 +112,16 @@ class SettingsController extends GetxController {
 
   Future<void> setAvatar(String id) =>
       _update(settings.copyWith(avatarId: id));
+
+  /// §9 — Italian and English. Rebuilds the whole tree through [locale].
+  Future<void> setLocale(Locale value) async {
+    final resolved = Strings.resolve(value);
+    if (resolved.languageCode == settings.localeCode) return;
+    await _update(settings.copyWith(localeCode: resolved.languageCode));
+  }
+
+  Future<void> completeOnboarding() =>
+      _update(settings.copyWith(onboardingComplete: true));
 
   bool isThemeUnlocked(String id) =>
       TableThemes.byId(id).unlockAchievementId == null ||

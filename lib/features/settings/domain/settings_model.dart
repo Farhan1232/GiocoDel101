@@ -31,6 +31,8 @@ class SettingsModel {
     this.defaultDifficulty = BotDifficulty.normal,
     this.playerName = 'Giocatore',
     this.avatarId = 'lucia',
+    this.localeCode = 'it',
+    this.onboardingComplete = false,
     this.unlockedThemes = const ['napoli_notte'],
     this.unlockedCardBacks = const ['oro'],
     this.seenCoachMarks = const [],
@@ -48,6 +50,12 @@ class SettingsModel {
   final BotDifficulty defaultDifficulty;
   final String playerName;
   final String avatarId;
+
+  /// Language the player chose. 'it' or 'en'; Italian is the default.
+  final String localeCode;
+
+  /// First run is only shown once (§B of the UI brief).
+  final bool onboardingComplete;
 
   /// §33 — themes are earned locally, never bought.
   final List<String> unlockedThemes;
@@ -69,6 +77,8 @@ class SettingsModel {
     BotDifficulty? defaultDifficulty,
     String? playerName,
     String? avatarId,
+    String? localeCode,
+    bool? onboardingComplete,
     List<String>? unlockedThemes,
     List<String>? unlockedCardBacks,
     List<String>? seenCoachMarks,
@@ -86,6 +96,8 @@ class SettingsModel {
         defaultDifficulty: defaultDifficulty ?? this.defaultDifficulty,
         playerName: playerName ?? this.playerName,
         avatarId: avatarId ?? this.avatarId,
+        localeCode: localeCode ?? this.localeCode,
+        onboardingComplete: onboardingComplete ?? this.onboardingComplete,
         unlockedThemes: unlockedThemes ?? this.unlockedThemes,
         unlockedCardBacks: unlockedCardBacks ?? this.unlockedCardBacks,
         seenCoachMarks: seenCoachMarks ?? this.seenCoachMarks,
@@ -104,6 +116,8 @@ class SettingsModel {
         'defaultDifficulty': defaultDifficulty.key,
         'playerName': playerName,
         'avatarId': avatarId,
+        'localeCode': localeCode,
+        'onboardingComplete': onboardingComplete,
         'unlockedThemes': unlockedThemes,
         'unlockedCardBacks': unlockedCardBacks,
         'seenCoachMarks': seenCoachMarks,
@@ -132,6 +146,9 @@ class SettingsModel {
           BotDifficulty.fromKey(json['defaultDifficulty'] as String? ?? 'normal'),
       playerName: json['playerName'] as String? ?? fallback.playerName,
       avatarId: json['avatarId'] as String? ?? fallback.avatarId,
+      localeCode: json['localeCode'] as String? ?? fallback.localeCode,
+      onboardingComplete:
+          json['onboardingComplete'] as bool? ?? fallback.onboardingComplete,
       unlockedThemes:
           strings(json['unlockedThemes'], fallback.unlockedThemes),
       unlockedCardBacks:

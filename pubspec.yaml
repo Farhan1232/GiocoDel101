@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   get: ^4.7.2
   shared_preferences: ^2.5.3
   audioplayers: ^6.5.0
@@ -20,6 +23,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/audio/
     - assets/fonts/OFL.txt

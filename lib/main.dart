@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/app.dart';
+import 'app/bindings/initial_binding.dart';
 import 'core/services/audio_service.dart';
 import 'core/storage/local_storage.dart';
 
@@ -30,6 +31,9 @@ Future<void> main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   final storage = await LocalStorage.open();
+  // Registered before the first frame so the app shell can read the chosen
+  // language (and everything else) while it builds.
+  InitialBinding(storage).dependencies();
   // Audio warms up in the background: the splash must not wait on it (§24).
   unawaited(AudioService.instance.init());
 

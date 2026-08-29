@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 
 import '../features/game/application/game_controller.dart';
+import '../features/settings/application/settings_controller.dart';
 import 'localization/app_strings.dart';
 import '../core/services/audio_service.dart';
 import '../core/storage/local_storage.dart';
 import 'theme/app_theme.dart';
-import 'bindings/initial_binding.dart';
 import 'router/app_router.dart';
 
 /// The app shell.
@@ -58,13 +59,26 @@ class _GiocoDel101AppState extends State<GiocoDel101App>
 
   @override
   Widget build(BuildContext context) {
+    final settings = Get.find<SettingsController>();
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: AppTheme.overlayStyle,
-      child: GetMaterialApp(
+      // §9 — the whole tree rebuilds when the player switches language.
+      child: Obx(
+        () => GetMaterialApp(
         title: Strings.s.appName,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.build(),
-        initialBinding: InitialBinding(widget.storage),
+        locale: settings.locale,
+        fallbackLocale: Strings.fallback,
+        supportedLocales: Strings.supported,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        localeResolutionCallback: (locale, supported) =>
+            Strings.resolve(locale),
         initialRoute: AppRoutes.splash,
         getPages: AppPages.pages,
         defaultTransition: Transition.fadeIn,
@@ -80,6 +94,7 @@ class _GiocoDel101AppState extends State<GiocoDel101App>
             child: child ?? const SizedBox.shrink(),
           );
         },
+        ),
       ),
     );
   }
