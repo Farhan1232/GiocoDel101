@@ -1,18 +1,18 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gioco_del_101/game/ai/bot_decision.dart';
-import 'package:gioco_del_101/game/ai/bot_factory.dart';
-import 'package:gioco_del_101/game/ai/bot_view_factory.dart';
-import 'package:gioco_del_101/game/engine/game_engine.dart';
-import 'package:gioco_del_101/models/card_rank.dart';
-import 'package:gioco_del_101/models/card_suit.dart';
-import 'package:gioco_del_101/models/game_card.dart';
-import 'package:gioco_del_101/models/game_player.dart';
-import 'package:gioco_del_101/models/game_rules_config.dart';
-import 'package:gioco_del_101/models/match_state.dart';
-import 'package:gioco_del_101/models/player_type.dart';
-import 'package:gioco_del_101/models/round_state.dart';
+import 'package:gioco_del_101/features/game/domain/ai/bot_decision.dart';
+import 'package:gioco_del_101/features/game/domain/ai/bot_factory.dart';
+import 'package:gioco_del_101/features/game/domain/ai/bot_view_factory.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/card_rank.dart';
+import 'package:gioco_del_101/features/game/domain/card_suit.dart';
+import 'package:gioco_del_101/features/game/domain/game_card.dart';
+import 'package:gioco_del_101/features/game/domain/game_player.dart';
+import 'package:gioco_del_101/features/game/domain/game_rules_config.dart';
+import 'package:gioco_del_101/features/game/domain/match_state.dart';
+import 'package:gioco_del_101/features/game/domain/player_type.dart';
+import 'package:gioco_del_101/features/game/domain/round_state.dart';
 
 import 'support/engine_harness.dart';
 

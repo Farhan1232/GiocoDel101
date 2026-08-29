@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../controllers/game_controller.dart';
-import '../data/app_strings.dart';
-import '../services/audio_service.dart';
-import '../storage/local_storage.dart';
-import '../theme/app_theme.dart';
+import '../features/game/application/game_controller.dart';
+import 'localization/app_strings.dart';
+import '../core/services/audio_service.dart';
+import '../core/storage/local_storage.dart';
+import 'theme/app_theme.dart';
 import 'bindings/initial_binding.dart';
-import 'routes.dart';
+import 'router/app_router.dart';
 
 /// The app shell.
 ///

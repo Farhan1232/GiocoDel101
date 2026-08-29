@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gioco_del_101/game/engine/deck_factory.dart';
-import 'package:gioco_del_101/theme/app_colors.dart';
-import 'package:gioco_del_101/theme/card_backs.dart';
-import 'package:gioco_del_101/widgets/cards/playing_card.dart';
+import 'package:gioco_del_101/features/game/domain/engine/deck_factory.dart';
+import 'package:gioco_del_101/app/theme/app_colors.dart';
+import 'package:gioco_del_101/app/theme/card_backs.dart';
+import 'package:gioco_del_101/core/widgets/cards/playing_card.dart';
 
 /// §66 — proves every one of the forty faces and every card back renders.
 ///

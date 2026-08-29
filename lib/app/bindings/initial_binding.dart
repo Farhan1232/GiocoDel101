@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 
-import '../../controllers/settings_controller.dart';
-import '../../controllers/stats_controller.dart';
-import '../../storage/game_storage_service.dart';
-import '../../storage/local_storage.dart';
-import '../../storage/settings_storage.dart';
-import '../../storage/statistics_storage.dart';
+import '../../features/settings/application/settings_controller.dart';
+import '../../features/profile/application/stats_controller.dart';
+import '../../core/storage/game_storage_service.dart';
+import '../../core/storage/local_storage.dart';
+import '../../core/storage/settings_storage.dart';
+import '../../core/storage/statistics_storage.dart';
 
 /// Wires the long-lived singletons. Everything here is local: no clients,
 /// no tokens, no network (§69).

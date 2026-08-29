@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gioco_del_101/game/engine/score_calculator.dart';
-import 'package:gioco_del_101/models/card_rank.dart';
-import 'package:gioco_del_101/models/card_suit.dart';
-import 'package:gioco_del_101/models/game_card.dart';
-import 'package:gioco_del_101/models/game_rules_config.dart';
-import 'package:gioco_del_101/models/round_state.dart';
+import 'package:gioco_del_101/features/game/domain/engine/score_calculator.dart';
+import 'package:gioco_del_101/features/game/domain/card_rank.dart';
+import 'package:gioco_del_101/features/game/domain/card_suit.dart';
+import 'package:gioco_del_101/features/game/domain/game_card.dart';
+import 'package:gioco_del_101/features/game/domain/game_rules_config.dart';
+import 'package:gioco_del_101/features/game/domain/round_state.dart';
 
 import 'support/engine_harness.dart';
 

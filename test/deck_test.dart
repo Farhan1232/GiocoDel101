@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gioco_del_101/game/engine/deck_factory.dart';
-import 'package:gioco_del_101/models/card_rank.dart';
-import 'package:gioco_del_101/models/card_suit.dart';
-import 'package:gioco_del_101/models/game_card.dart';
+import 'package:gioco_del_101/features/game/domain/engine/deck_factory.dart';
+import 'package:gioco_del_101/features/game/domain/card_rank.dart';
+import 'package:gioco_del_101/features/game/domain/card_suit.dart';
+import 'package:gioco_del_101/features/game/domain/game_card.dart';
 
 void main() {
   group('Neapolitan deck', () {

@@ -4,24 +4,24 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:gioco_del_101/app/bindings/initial_binding.dart';
-import 'package:gioco_del_101/controllers/game_controller.dart';
-import 'package:gioco_del_101/controllers/settings_controller.dart';
-import 'package:gioco_del_101/controllers/stats_controller.dart';
+import 'package:gioco_del_101/features/game/application/game_controller.dart';
+import 'package:gioco_del_101/features/settings/application/settings_controller.dart';
+import 'package:gioco_del_101/features/profile/application/stats_controller.dart';
 import 'package:gioco_del_101/core/utils/motion.dart';
-import 'package:gioco_del_101/game/engine/game_engine.dart';
-import 'package:gioco_del_101/models/card_rank.dart';
-import 'package:gioco_del_101/models/card_suit.dart';
-import 'package:gioco_del_101/models/game_card.dart';
-import 'package:gioco_del_101/models/game_player.dart';
-import 'package:gioco_del_101/models/game_rules_config.dart';
-import 'package:gioco_del_101/models/match_state.dart';
-import 'package:gioco_del_101/models/player_type.dart';
-import 'package:gioco_del_101/models/round_state.dart';
-import 'package:gioco_del_101/screens/game/game_screen.dart';
-import 'package:gioco_del_101/storage/game_storage_service.dart';
-import 'package:gioco_del_101/storage/local_storage.dart';
-import 'package:gioco_del_101/theme/app_theme.dart';
-import 'package:gioco_del_101/widgets/table/suit_ritual.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/card_rank.dart';
+import 'package:gioco_del_101/features/game/domain/card_suit.dart';
+import 'package:gioco_del_101/features/game/domain/game_card.dart';
+import 'package:gioco_del_101/features/game/domain/game_player.dart';
+import 'package:gioco_del_101/features/game/domain/game_rules_config.dart';
+import 'package:gioco_del_101/features/game/domain/match_state.dart';
+import 'package:gioco_del_101/features/game/domain/player_type.dart';
+import 'package:gioco_del_101/features/game/domain/round_state.dart';
+import 'package:gioco_del_101/features/game/presentation/game_screen.dart';
+import 'package:gioco_del_101/core/storage/game_storage_service.dart';
+import 'package:gioco_del_101/core/storage/local_storage.dart';
+import 'package:gioco_del_101/app/theme/app_theme.dart';
+import 'package:gioco_del_101/features/game/presentation/widgets/suit_ritual.dart';
 
 /// §66/§73 — drives the real table through the real widgets: taps a card and
 /// checks the engine actually played it, takes a penalty, and completes the

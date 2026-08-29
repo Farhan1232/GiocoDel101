@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/app.dart';
-import 'services/audio_service.dart';
-import 'storage/local_storage.dart';
+import 'core/services/audio_service.dart';
+import 'core/storage/local_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
