@@ -8,15 +8,14 @@ import 'package:gioco_del_101/features/game/application/game_controller.dart';
 import 'package:gioco_del_101/features/settings/application/settings_controller.dart';
 import 'package:gioco_del_101/features/profile/application/stats_controller.dart';
 import 'package:gioco_del_101/core/utils/motion.dart';
-import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_session.dart';
 import 'package:gioco_del_101/features/game/domain/card_rank.dart';
 import 'package:gioco_del_101/features/game/domain/card_suit.dart';
 import 'package:gioco_del_101/features/game/domain/game_card.dart';
 import 'package:gioco_del_101/features/game/domain/game_player.dart';
-import 'package:gioco_del_101/features/game/domain/game_rules_config.dart';
-import 'package:gioco_del_101/features/game/domain/match_state.dart';
+import 'package:gioco_del_101/features/game/domain/game_rules.dart';
+import 'package:gioco_del_101/features/game/domain/game_state.dart';
 import 'package:gioco_del_101/features/game/domain/player_type.dart';
-import 'package:gioco_del_101/features/game/domain/round_state.dart';
 import 'package:gioco_del_101/features/game/presentation/game_screen.dart';
 import 'package:gioco_del_101/core/storage/game_storage_service.dart';
 import 'package:gioco_del_101/core/storage/local_storage.dart';
@@ -31,6 +30,8 @@ GameController _seat({
   required GameCard top,
   CardSuit? activeSuit,
   List<GameCard> drawPile = const [],
+  List<GameCard> discardBelowTop = const [],
+  bool fillDeck = true,
   int pendingPenalty = 0,
   int chainLength = 0,
 }) {
@@ -45,24 +46,33 @@ GameController _seat({
         hand: List.of(hands[i]),
       ),
   ];
-  final engine = GameEngine.fromState(
-    MatchState(
-      players: players,
-      rules: const GameRulesConfig(),
-      round: RoundState(
-        drawPile: List.of(drawPile),
-        discardPile: [top],
-        activeSuit: activeSuit ?? top.suit,
-        currentIndex: 0,
-        pendingPenalty: pendingPenalty,
-        chainLength: chainLength,
-      ),
+  final placed = <GameCard>{
+    for (final h in hands) ...h,
+    ...drawPile,
+    ...discardBelowTop,
+    top,
+  };
+  final remainder = fillDeck
+      ? Deck.standard.where((c) => !placed.contains(c)).toList()
+      : const <GameCard>[];
+  final session = GameSession(
+    GameState(
+      gameId: 'widget-test',
       mode: GameMode.vsComputer,
+      rules: const GameRules(),
+      players: players,
+      // Deals from the end: the caller's draw pile sits on top.
+      drawPile: [...remainder, ...drawPile],
+      discardPile: [...discardBelowTop, top],
+      activeSuit: activeSuit ?? top.suit,
+      currentSeat: 0,
+      pendingDrawCount: pendingPenalty,
+      chainLength: chainLength,
     ),
   );
   return Get.put(
     GameController(
-      engine: engine,
+      session: session,
       storage: Get.find<GameStorageService>(),
       settings: Get.find<SettingsController>(),
       stats: Get.find<StatsController>(),
@@ -124,12 +134,12 @@ void main() {
       hands: [
         [
           const GameCard(CardSuit.coppe, CardRank.re),
-          const GameCard(CardSuit.spade, CardRank.seven),
+          const GameCard(CardSuit.spade, CardRank.sette),
         ],
-        [const GameCard(CardSuit.denari, CardRank.three)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
       ],
-      top: const GameCard(CardSuit.coppe, CardRank.five),
-      drawPile: const [GameCard(CardSuit.bastoni, CardRank.four)],
+      top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      drawPile: const [GameCard(CardSuit.bastoni, CardRank.quattro)],
     );
     await _pumpTable(tester);
 
@@ -145,7 +155,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('hand_coppe_re')));
     await _settle(tester);
 
-    expect(c.round.topCard, const GameCard(CardSuit.coppe, CardRank.re));
+    expect(c.state.topCard, const GameCard(CardSuit.coppe, CardRank.re));
     expect(
       c.state.playerById('p0')!.hand,
       isNot(contains(const GameCard(CardSuit.coppe, CardRank.re))),
@@ -157,24 +167,24 @@ void main() {
     final c = _seat(
       hands: [
         [
-          const GameCard(CardSuit.bastoni, CardRank.seven),
+          const GameCard(CardSuit.bastoni, CardRank.sette),
           const GameCard(CardSuit.coppe, CardRank.re),
         ],
-        [const GameCard(CardSuit.denari, CardRank.three)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
       ],
-      top: const GameCard(CardSuit.coppe, CardRank.five),
-      drawPile: const [GameCard(CardSuit.bastoni, CardRank.four)],
+      top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      drawPile: const [GameCard(CardSuit.bastoni, CardRank.quattro)],
     );
     await _pumpTable(tester);
 
-    await tester.tap(find.byKey(const ValueKey('hand_bastoni_seven')));
+    await tester.tap(find.byKey(const ValueKey('hand_bastoni_sette')));
     await _settle(tester, slices: 10);
 
     expect(
       c.state.playerById('p0')!.hand,
-      contains(const GameCard(CardSuit.bastoni, CardRank.seven)),
+      contains(const GameCard(CardSuit.bastoni, CardRank.sette)),
     );
-    expect(c.round.topCard, const GameCard(CardSuit.coppe, CardRank.five));
+    expect(c.state.topCard, const GameCard(CardSuit.coppe, CardRank.cinque));
     expect(c.currentPlayer.id, 'p0', reason: 'the turn must not move on');
     expect(tester.takeException(), isNull);
   });
@@ -188,10 +198,10 @@ void main() {
           const GameCard(CardSuit.spade, CardRank.cavallo),
           const GameCard(CardSuit.spade, CardRank.re),
         ],
-        [const GameCard(CardSuit.denari, CardRank.three)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
       ],
-      top: const GameCard(CardSuit.coppe, CardRank.five),
-      drawPile: const [GameCard(CardSuit.bastoni, CardRank.four)],
+      top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      drawPile: const [GameCard(CardSuit.bastoni, CardRank.quattro)],
     );
     await _pumpTable(tester);
 
@@ -201,13 +211,13 @@ void main() {
     await _settle(tester);
 
     expect(find.byType(SuitRitual), findsOneWidget);
-    expect(c.round.phase, TurnPhase.awaitingSuitChoice);
+    expect(c.state.status, GameStatus.awaitingSuitChoice);
 
     // Pick Bastoni from the ritual by its label.
     await tester.tap(find.text('Bastoni'));
     await _settle(tester);
 
-    expect(c.round.activeSuit, CardSuit.bastoni);
+    expect(c.state.activeSuit, CardSuit.bastoni);
     expect(find.byType(SuitRitual), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -215,28 +225,29 @@ void main() {
   testWidgets('drawing from an empty stock recycles the discard (§18)', (
     tester,
   ) async {
+    // An empty stock with a few cards buried so there is something to recycle.
     final c = _seat(
       hands: [
-        [const GameCard(CardSuit.spade, CardRank.seven)],
-        [const GameCard(CardSuit.denari, CardRank.three)],
+        [const GameCard(CardSuit.spade, CardRank.sette)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
       ],
-      top: const GameCard(CardSuit.coppe, CardRank.five),
+      top: const GameCard(CardSuit.coppe, CardRank.cinque),
       drawPile: const [],
+      discardBelowTop: const [
+        GameCard(CardSuit.bastoni, CardRank.tre),
+        GameCard(CardSuit.bastoni, CardRank.quattro),
+        GameCard(CardSuit.bastoni, CardRank.sei),
+      ],
+      fillDeck: false,
     );
-    // Bury a few cards so there is something to recycle.
-    c.round.discardPile.insertAll(0, const [
-      GameCard(CardSuit.bastoni, CardRank.three),
-      GameCard(CardSuit.bastoni, CardRank.four),
-      GameCard(CardSuit.bastoni, CardRank.six),
-    ]);
     await _pumpTable(tester);
 
     await tester.tap(find.textContaining('Pesca').first);
     await _settle(tester, slices: 60);
 
     expect(
-      c.round.discardPile.last,
-      const GameCard(CardSuit.coppe, CardRank.five),
+      c.state.discardPile.last,
+      const GameCard(CardSuit.coppe, CardRank.cinque),
       reason: 'the visible top card must survive the recycle',
     );
     expect(c.state.playerById('p0')!.hand.length, 2);
@@ -248,12 +259,12 @@ void main() {
       hands: [
         [
           const GameCard(CardSuit.coppe, CardRank.re),
-          const GameCard(CardSuit.spade, CardRank.seven),
+          const GameCard(CardSuit.spade, CardRank.sette),
         ],
-        [const GameCard(CardSuit.denari, CardRank.three)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
       ],
-      top: const GameCard(CardSuit.coppe, CardRank.five),
-      drawPile: const [GameCard(CardSuit.bastoni, CardRank.four)],
+      top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      drawPile: const [GameCard(CardSuit.bastoni, CardRank.quattro)],
     );
     await _pumpTable(tester);
     await c.persistNow();
@@ -263,7 +274,7 @@ void main() {
     final restored = storage.load();
     expect(restored, isNotNull);
     expect(restored!.players.first.hand, c.state.players.first.hand);
-    expect(restored.round.activeSuit, c.round.activeSuit);
+    expect(restored.activeSuit, c.state.activeSuit);
     expect(tester.takeException(), isNull);
   });
 
@@ -271,22 +282,22 @@ void main() {
     final c = _seat(
       hands: [
         [const GameCard(CardSuit.coppe, CardRank.re)],
-        [const GameCard(CardSuit.denari, CardRank.three)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
       ],
-      top: const GameCard(CardSuit.coppe, CardRank.two),
+      top: const GameCard(CardSuit.coppe, CardRank.due),
       pendingPenalty: 4,
       chainLength: 2,
       drawPile: const [
-        GameCard(CardSuit.bastoni, CardRank.four),
-        GameCard(CardSuit.bastoni, CardRank.six),
-        GameCard(CardSuit.spade, CardRank.four),
-        GameCard(CardSuit.spade, CardRank.six),
-        GameCard(CardSuit.denari, CardRank.seven),
+        GameCard(CardSuit.bastoni, CardRank.quattro),
+        GameCard(CardSuit.bastoni, CardRank.sei),
+        GameCard(CardSuit.spade, CardRank.quattro),
+        GameCard(CardSuit.spade, CardRank.sei),
+        GameCard(CardSuit.denari, CardRank.sette),
       ],
     );
     await _pumpTable(tester);
 
-    expect(c.engine.mustTakePenalty, isTrue);
+    expect(c.session.mustTakePenalty, isTrue);
     expect(find.textContaining('+4'), findsWidgets);
 
     await tester.tap(find.textContaining('Prendi').first);
@@ -294,7 +305,7 @@ void main() {
 
     // One card held plus the full four-card penalty.
     expect(c.state.playerById('p0')!.hand.length, 5);
-    expect(c.round.pendingPenalty, 0);
+    expect(c.state.pendingDrawCount, 0);
     expect(tester.takeException(), isNull);
   });
 }

@@ -1,4 +1,4 @@
-import '../../game/domain/game_rules_config.dart';
+import '../../game/domain/game_rules.dart';
 import '../../game/domain/player_type.dart';
 
 /// §40/§68 — a challenge derived purely from the calendar date.
@@ -34,6 +34,6 @@ class DailyChallenge {
   final int startingScore;
   final int opponentStartingScore;
 
-  final GameRulesConfig rules;
+  final GameRules rules;
   final String reward;
 }

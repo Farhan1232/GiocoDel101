@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
-import '../domain/game_rules_config.dart';
-import '../domain/match_state.dart';
+import '../domain/game_rules.dart';
+import '../domain/game_state.dart';
 import '../domain/player_type.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../../core/storage/storage_keys.dart';
@@ -18,7 +18,7 @@ class SetupController extends GetxController {
   final Rx<BotDifficulty> difficulty;
   final RxBool advancedOpen = false.obs;
 
-  // Advanced rules — every one of these maps to a field of GameRulesConfig.
+  // Advanced rules — every one of these maps to a field of GameRules.
   final RxInt startingHand = 5.obs;
   final RxBool stackTwos = true.obs;
   final RxBool wildNine = true.obs;
@@ -68,8 +68,8 @@ class SetupController extends GetxController {
   });
 
   /// Builds the rule set from the advanced panel. Defaults come from
-  /// [GameRulesConfig] itself, never from literals scattered here (§71).
-  GameRulesConfig buildRules() => const GameRulesConfig().copyWith(
+  /// [GameRules] itself, never from literals scattered here (§71).
+  GameRules buildRules() => const GameRules().copyWith(
     startingHandSize: startingHand.value,
     stackDrawTwos: stackTwos.value,
     wildNineCanAlwaysPlay: wildNine.value,
@@ -79,7 +79,7 @@ class SetupController extends GetxController {
   );
 
   bool get isDefaultRules {
-    const d = GameRulesConfig();
+    const d = GameRules();
     return startingHand.value == d.startingHandSize &&
         stackTwos.value == d.stackDrawTwos &&
         wildNine.value == d.wildNineCanAlwaysPlay &&
@@ -89,7 +89,7 @@ class SetupController extends GetxController {
   }
 
   void resetRules() {
-    const d = GameRulesConfig();
+    const d = GameRules();
     startingHand.value = d.startingHandSize;
     stackTwos.value = d.stackDrawTwos;
     wildNine.value = d.wildNineCanAlwaysPlay;

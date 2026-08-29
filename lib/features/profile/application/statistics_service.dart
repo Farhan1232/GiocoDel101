@@ -1,5 +1,5 @@
 import '../../achievements/domain/achievements_catalog.dart';
-import '../../game/domain/match_state.dart';
+import '../../game/domain/game_state.dart';
 import '../../game/domain/round_result.dart';
 import '../domain/statistics_model.dart';
 
@@ -22,7 +22,7 @@ class StatisticsService {
   /// drew a card ("Mano Perfetta").
   StatsUpdate applyRound({
     required StatisticsModel stats,
-    required MatchState match,
+    required GameState match,
     required RoundResult result,
     required String humanId,
   }) {
@@ -36,7 +36,7 @@ class StatisticsService {
     final human101 = humanRow.isNotEmpty && humanRow.first.hitExact101;
 
     if (human101) grant(AchievementsCatalog.rinascita);
-    if (humanWonRound && (match.round.drawsByPlayer[humanId] ?? 0) == 0) {
+    if (humanWonRound && (match.drawsByPlayer[humanId] ?? 0) == 0) {
       grant(AchievementsCatalog.manoPerfetta);
     }
     if (match.stats.longestChain >= 3) grant(AchievementsCatalog.catena);
@@ -55,7 +55,7 @@ class StatisticsService {
   /// Applies a completed match.
   StatsUpdate applyMatch({
     required StatisticsModel stats,
-    required MatchState match,
+    required GameState match,
     required String humanId,
   }) {
     final unlocked = List<String>.of(stats.unlockedAchievements);
@@ -63,7 +63,7 @@ class StatisticsService {
       if (!unlocked.contains(id)) unlocked.add(id);
     }
 
-    final won = match.matchWinnerId == humanId;
+    final won = match.winnerId == humanId;
     final matches = stats.matchesPlayed + 1;
     final streak = won ? stats.currentStreak + 1 : 0;
 

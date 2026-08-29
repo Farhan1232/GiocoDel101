@@ -6,9 +6,9 @@ import '../../../core/constants/app_durations.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/motion.dart';
 import '../../../app/localization/app_strings.dart';
-import '../domain/game_action.dart';
+import '../domain/history_entry.dart';
 import '../domain/game_card.dart';
-import '../domain/match_state.dart';
+import '../domain/game_state.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/widgets/cards/playing_card.dart';
@@ -27,22 +27,22 @@ class LastHandReplay extends StatefulWidget {
     this.accent,
   });
 
-  final MatchState match;
+  final GameState match;
   final VoidCallback onClose;
   final Color? accent;
 
   /// How many closing actions to show.
   static const int window = 6;
 
-  static bool isAvailable(MatchState match) =>
-      match.history.any((a) => a.type == GameActionType.play);
+  static bool isAvailable(GameState match) =>
+      match.history.any((a) => a.type == HistoryEntryType.play);
 
   @override
   State<LastHandReplay> createState() => _LastHandReplayState();
 }
 
 class _LastHandReplayState extends State<LastHandReplay> {
-  late final List<GameAction> _steps;
+  late final List<HistoryEntry> _steps;
   int _index = -1;
   Timer? _timer;
 
@@ -52,10 +52,10 @@ class _LastHandReplayState extends State<LastHandReplay> {
     final relevant = widget.match.history
         .where(
           (a) =>
-              a.type == GameActionType.play ||
-              a.type == GameActionType.draw ||
-              a.type == GameActionType.penaltyDraw ||
-              a.type == GameActionType.skip,
+              a.type == HistoryEntryType.play ||
+              a.type == HistoryEntryType.draw ||
+              a.type == HistoryEntryType.penaltyDraw ||
+              a.type == HistoryEntryType.skip,
         )
         .toList();
     _steps = relevant.length <= LastHandReplay.window
@@ -86,7 +86,7 @@ class _LastHandReplayState extends State<LastHandReplay> {
   Widget build(BuildContext context) {
     final accent = widget.accent ?? AppColors.antiqueGold;
     final shown = _index < 0
-        ? <GameAction>[]
+        ? <HistoryEntry>[]
         : _steps.take(_index + 1).toList();
     final current = shown.isEmpty ? null : shown.last;
 
@@ -166,7 +166,7 @@ class _LastHandReplayState extends State<LastHandReplay> {
     );
   }
 
-  Widget _step(GameAction action, int i, int total) {
+  Widget _step(HistoryEntry action, int i, int total) {
     final isLatest = i == total - 1;
     final offset = (i - (total - 1)) * 16.0;
     final card = action.card;
@@ -196,11 +196,11 @@ class _LastHandReplayState extends State<LastHandReplay> {
     );
   }
 
-  Widget _tokenCard(GameAction action) {
+  Widget _tokenCard(HistoryEntry action) {
     final label = switch (action.type) {
-      GameActionType.draw => '+1',
-      GameActionType.penaltyDraw => '+${action.count ?? 0}',
-      GameActionType.skip => '×',
+      HistoryEntryType.draw => '+1',
+      HistoryEntryType.penaltyDraw => '+${action.count ?? 0}',
+      HistoryEntryType.skip => '×',
       _ => '',
     };
     return Container(
@@ -216,13 +216,13 @@ class _LastHandReplayState extends State<LastHandReplay> {
     );
   }
 
-  String _describe(GameAction action) {
+  String _describe(HistoryEntry action) {
     final s = Strings.s;
     return switch (action.type) {
-      GameActionType.play => _cardName(action.card),
-      GameActionType.draw => s.drawCard,
-      GameActionType.penaltyDraw => '${s.takePenalty} +${action.count ?? 0}',
-      GameActionType.skip => s.turnSkipped,
+      HistoryEntryType.play => _cardName(action.card),
+      HistoryEntryType.draw => s.drawCard,
+      HistoryEntryType.penaltyDraw => '${s.takePenalty} +${action.count ?? 0}',
+      HistoryEntryType.skip => s.turnSkipped,
       _ => '',
     };
   }
@@ -231,7 +231,7 @@ class _LastHandReplayState extends State<LastHandReplay> {
     if (card == null) return '';
     final s = Strings.s;
     final rank = switch (card.rank.name) {
-      'ace' => s.rankAce,
+      'asso' => s.rankAce,
       'fante' => s.rankFante,
       'cavallo' => s.rankCavallo,
       're' => s.rankRe,

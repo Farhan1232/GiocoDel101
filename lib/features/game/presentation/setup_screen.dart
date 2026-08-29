@@ -10,7 +10,7 @@ import '../../../core/utils/motion.dart';
 import '../../../app/localization/app_strings.dart';
 import '../domain/bot_roster.dart';
 import '../domain/match_factory.dart';
-import '../domain/match_state.dart';
+import '../domain/game_state.dart';
 import '../domain/player_type.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../../app/theme/app_colors.dart';

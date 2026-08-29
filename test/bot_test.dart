@@ -4,15 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gioco_del_101/features/game/domain/ai/bot_decision.dart';
 import 'package:gioco_del_101/features/game/domain/ai/bot_factory.dart';
 import 'package:gioco_del_101/features/game/domain/ai/bot_view_factory.dart';
-import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_session.dart';
 import 'package:gioco_del_101/features/game/domain/card_rank.dart';
 import 'package:gioco_del_101/features/game/domain/card_suit.dart';
 import 'package:gioco_del_101/features/game/domain/game_card.dart';
 import 'package:gioco_del_101/features/game/domain/game_player.dart';
-import 'package:gioco_del_101/features/game/domain/game_rules_config.dart';
-import 'package:gioco_del_101/features/game/domain/match_state.dart';
+import 'package:gioco_del_101/features/game/domain/game_rules.dart';
+import 'package:gioco_del_101/features/game/domain/game_state.dart';
 import 'package:gioco_del_101/features/game/domain/player_type.dart';
-import 'package:gioco_del_101/features/game/domain/round_state.dart';
 
 import 'support/engine_harness.dart';
 
@@ -34,10 +33,11 @@ void main() {
                     BotPersonality.values[i % BotPersonality.values.length],
               ),
           ];
-          final engine = GameEngine.newMatch(
+          final engine = GameSession.newMatch(
+            gameId: 't',
             players: players,
             mode: GameMode.vsComputer,
-            random: rng,
+            seed: rng.nextInt(1 << 30),
           );
           final bots = {
             for (final p in players)
@@ -49,14 +49,14 @@ void main() {
           };
 
           var steps = 0;
-          while (!engine.state.matchOver && steps++ < 40000) {
-            if (engine.round.phase == TurnPhase.roundOver) {
+          while (!engine.state.isFinished && steps++ < 40000) {
+            if (engine.state.status == GameStatus.roundOver) {
               engine.startNextRound();
               continue;
             }
             final bot = bots[engine.currentPlayer.id]!;
-            final view = BotViewFactory.forCurrentPlayer(engine);
-            if (engine.round.phase == TurnPhase.awaitingSuitChoice) {
+            final view = BotViewFactory.forCurrentPlayer(engine.state);
+            if (engine.state.status == GameStatus.awaitingSuitChoice) {
               expect(engine.chooseSuit(bot.chooseSuit(view)).accepted, isTrue);
               continue;
             }
@@ -80,7 +80,7 @@ void main() {
                   isTrue,
                   reason: '${difficulty.name} drew illegally (seed $seed)',
                 );
-                if (engine.round.drawnCard == null && engine.canEndTurn) {
+                if (engine.state.drawnCard == null && engine.canEndTurn) {
                   engine.endTurn();
                 }
               case BotAction.endTurn:
@@ -92,7 +92,7 @@ void main() {
             }
           }
           expect(
-            engine.state.matchOver,
+            engine.state.isFinished,
             isTrue,
             reason: '${difficulty.name} stalled on seed $seed',
           );
@@ -106,7 +106,7 @@ void main() {
     /// same move, however different the opponents' actual cards are.
     test('the same public state yields the same decision', () {
       for (final difficulty in BotDifficulty.values) {
-        GameEngine tableWith(List<GameCard> opponentHand) {
+        GameSession tableWith(List<GameCard> opponentHand) {
           final players = [
             GamePlayer(
               id: 'p0',
@@ -116,9 +116,9 @@ void main() {
               difficulty: difficulty,
               hand: [
                 const GameCard(CardSuit.coppe, CardRank.re),
-                const GameCard(CardSuit.coppe, CardRank.four),
+                const GameCard(CardSuit.coppe, CardRank.quattro),
                 const GameCard(CardSuit.spade, CardRank.cavallo),
-                const GameCard(CardSuit.bastoni, CardRank.two),
+                const GameCard(CardSuit.bastoni, CardRank.due),
               ],
             ),
             GamePlayer(
@@ -130,38 +130,36 @@ void main() {
               hand: opponentHand,
             ),
           ];
-          return GameEngine.fromState(
-            MatchState(
-              players: players,
-              rules: const GameRulesConfigProxy().value,
-              round: RoundState(
-                drawPile: const [],
-                discardPile: const [GameCard(CardSuit.coppe, CardRank.five)],
-                activeSuit: CardSuit.coppe,
-                currentIndex: 0,
-              ),
+          return GameSession(
+            GameState(
+              gameId: 't',
               mode: GameMode.vsComputer,
+              rules: const GameRulesProxy().value,
+              players: players,
+              drawPile: const [],
+              discardPile: const [GameCard(CardSuit.coppe, CardRank.cinque)],
+              activeSuit: CardSuit.coppe,
+              currentSeat: 0,
             ),
-            random: Random(1),
           );
         }
 
         final weakOpponent = [
-          const GameCard(CardSuit.denari, CardRank.three),
-          const GameCard(CardSuit.denari, CardRank.six),
+          const GameCard(CardSuit.denari, CardRank.tre),
+          const GameCard(CardSuit.denari, CardRank.sei),
         ];
         final strongOpponent = [
-          const GameCard(CardSuit.coppe, CardRank.ace),
-          const GameCard(CardSuit.coppe, CardRank.two),
+          const GameCard(CardSuit.coppe, CardRank.asso),
+          const GameCard(CardSuit.coppe, CardRank.due),
         ];
 
         final botA = BotFactory.create(difficulty, random: Random(42));
         final botB = BotFactory.create(difficulty, random: Random(42));
         final a = botA.decide(
-          BotViewFactory.forCurrentPlayer(tableWith(weakOpponent)),
+          BotViewFactory.forCurrentPlayer(tableWith(weakOpponent).state),
         );
         final b = botB.decide(
-          BotViewFactory.forCurrentPlayer(tableWith(strongOpponent)),
+          BotViewFactory.forCurrentPlayer(tableWith(strongOpponent).state),
         );
 
         expect(a.action, b.action, reason: '${difficulty.name} changed plan');
@@ -181,14 +179,14 @@ void main() {
           hands: [
             [c(CardSuit.coppe, CardRank.re)],
             [
-              c(CardSuit.spade, CardRank.three),
-              c(CardSuit.spade, CardRank.four),
+              c(CardSuit.spade, CardRank.tre),
+              c(CardSuit.spade, CardRank.quattro),
             ],
           ],
-          top: c(CardSuit.coppe, CardRank.five),
+          top: c(CardSuit.coppe, CardRank.cinque),
         );
         final bot = BotFactory.create(difficulty, random: Random(5));
-        final d = bot.decide(BotViewFactory.forCurrentPlayer(e));
+        final d = bot.decide(BotViewFactory.forCurrentPlayer(e.state));
         expect(d.action, BotAction.play);
         expect(
           d.card,
@@ -203,16 +201,16 @@ void main() {
         final e = buildEngine(
           hands: [
             [c(CardSuit.coppe, CardRank.re)],
-            [c(CardSuit.spade, CardRank.two), c(CardSuit.spade, CardRank.re)],
+            [c(CardSuit.spade, CardRank.due), c(CardSuit.spade, CardRank.re)],
           ],
-          top: c(CardSuit.coppe, CardRank.two),
+          top: c(CardSuit.coppe, CardRank.due),
           currentIndex: 1,
           pendingPenalty: 2,
           chainLength: 1,
-          drawPile: [c(CardSuit.denari, CardRank.four)],
+          drawPile: [c(CardSuit.denari, CardRank.quattro)],
         );
         final bot = BotFactory.create(difficulty, random: Random(5));
-        final d = bot.decide(BotViewFactory.forCurrentPlayer(e));
+        final d = bot.decide(BotViewFactory.forCurrentPlayer(e.state));
         expect(d.action, BotAction.play, reason: '${difficulty.name} folded');
         expect(d.card!.isTwo, isTrue);
       }
@@ -223,19 +221,19 @@ void main() {
         hands: [
           [
             c(CardSuit.spade, CardRank.cavallo),
-            c(CardSuit.coppe, CardRank.six),
-            c(CardSuit.coppe, CardRank.three),
-            c(CardSuit.bastoni, CardRank.seven),
+            c(CardSuit.coppe, CardRank.sei),
+            c(CardSuit.coppe, CardRank.tre),
+            c(CardSuit.bastoni, CardRank.sette),
           ],
           [
-            c(CardSuit.denari, CardRank.three),
-            c(CardSuit.denari, CardRank.four),
+            c(CardSuit.denari, CardRank.tre),
+            c(CardSuit.denari, CardRank.quattro),
           ],
         ],
-        top: c(CardSuit.coppe, CardRank.five),
+        top: c(CardSuit.coppe, CardRank.cinque),
       );
       final bot = BotFactory.create(BotDifficulty.normal, random: Random(5));
-      final d = bot.decide(BotViewFactory.forCurrentPlayer(e));
+      final d = bot.decide(BotViewFactory.forCurrentPlayer(e.state));
       expect(d.card!.isCavallo, isFalse);
     });
 
@@ -245,17 +243,17 @@ void main() {
           hands: [
             [
               c(CardSuit.spade, CardRank.cavallo),
-              c(CardSuit.bastoni, CardRank.six),
-              c(CardSuit.bastoni, CardRank.three),
-              c(CardSuit.bastoni, CardRank.seven),
+              c(CardSuit.bastoni, CardRank.sei),
+              c(CardSuit.bastoni, CardRank.tre),
+              c(CardSuit.bastoni, CardRank.sette),
             ],
-            [c(CardSuit.denari, CardRank.three)],
+            [c(CardSuit.denari, CardRank.tre)],
           ],
-          top: c(CardSuit.coppe, CardRank.five),
+          top: c(CardSuit.coppe, CardRank.cinque),
         );
         final bot = BotFactory.create(difficulty, random: Random(5));
         expect(
-          bot.chooseSuit(BotViewFactory.forCurrentPlayer(e)),
+          bot.chooseSuit(BotViewFactory.forCurrentPlayer(e.state)),
           CardSuit.bastoni,
           reason: '${difficulty.name} named a suit it cannot follow',
         );
@@ -265,26 +263,30 @@ void main() {
     test('Hard counts the cards that have already gone by', () {
       final e = buildEngine(
         hands: [
-          [c(CardSuit.coppe, CardRank.six)],
-          [c(CardSuit.denari, CardRank.three)],
+          [c(CardSuit.coppe, CardRank.sei)],
+          [c(CardSuit.denari, CardRank.tre)],
         ],
-        top: c(CardSuit.coppe, CardRank.five),
+        top: c(CardSuit.coppe, CardRank.cinque),
       );
-      e.round.playedCards.addAll([
-        c(CardSuit.denari, CardRank.ace),
-        c(CardSuit.denari, CardRank.two),
-        c(CardSuit.denari, CardRank.three),
-      ]);
+      e.restore(
+        e.state.copyWith(
+          playedCards: [
+            c(CardSuit.denari, CardRank.asso),
+            c(CardSuit.denari, CardRank.due),
+            c(CardSuit.denari, CardRank.tre),
+          ],
+        ),
+      );
       final bot = BotFactory.create(BotDifficulty.hard, random: Random(5));
-      final view = BotViewFactory.forCurrentPlayer(e);
+      final view = BotViewFactory.forCurrentPlayer(e.state);
       final hard = bot as dynamic;
       expect(hard.unseenInSuit(CardSuit.denari, view), 7);
-      expect(hard.unseenOfRank(CardRank.two, view), 3);
+      expect(hard.unseenOfRank(CardRank.due, view), 3);
     });
 
     test('Hard beats Easy over a run of matches', () {
       var hardWins = 0;
-      const matches = 40;
+      const matches = 100;
       for (var seed = 0; seed < matches; seed++) {
         final rng = Random(seed);
         final players = [
@@ -303,24 +305,25 @@ void main() {
             difficulty: BotDifficulty.easy,
           ),
         ];
-        final engine = GameEngine.newMatch(
+        final engine = GameSession.newMatch(
+          gameId: 't',
           players: players,
           mode: GameMode.vsComputer,
-          random: rng,
+          seed: rng.nextInt(1 << 30),
         );
         final bots = {
           'hard': BotFactory.create(BotDifficulty.hard, random: Random(seed)),
           'easy': BotFactory.create(BotDifficulty.easy, random: Random(seed)),
         };
         var steps = 0;
-        while (!engine.state.matchOver && steps++ < 40000) {
-          if (engine.round.phase == TurnPhase.roundOver) {
+        while (!engine.state.isFinished && steps++ < 40000) {
+          if (engine.state.status == GameStatus.roundOver) {
             engine.startNextRound();
             continue;
           }
           final bot = bots[engine.currentPlayer.id]!;
-          final view = BotViewFactory.forCurrentPlayer(engine);
-          if (engine.round.phase == TurnPhase.awaitingSuitChoice) {
+          final view = BotViewFactory.forCurrentPlayer(engine.state);
+          if (engine.state.status == GameStatus.awaitingSuitChoice) {
             engine.chooseSuit(bot.chooseSuit(view));
             continue;
           }
@@ -330,14 +333,14 @@ void main() {
               engine.playCard(d.card!, chosenSuit: d.suit);
             case BotAction.draw:
               engine.drawCard();
-              if (engine.round.drawnCard == null && engine.canEndTurn) {
+              if (engine.state.drawnCard == null && engine.canEndTurn) {
                 engine.endTurn();
               }
             case BotAction.endTurn:
               engine.endTurn();
           }
         }
-        if (engine.state.matchWinnerId == 'hard') hardWins++;
+        if (engine.state.winnerId == 'hard') hardWins++;
       }
       // Not a landslide — the deck decides plenty — but a clear edge.
       expect(
@@ -350,7 +353,7 @@ void main() {
 }
 
 /// Small shim so the test can pass a const default config inline.
-class GameRulesConfigProxy {
-  const GameRulesConfigProxy();
-  GameRulesConfig get value => const GameRulesConfig();
+class GameRulesProxy {
+  const GameRulesProxy();
+  GameRules get value => const GameRules();
 }

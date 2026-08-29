@@ -4,436 +4,588 @@ import '../card_suit.dart';
 import '../game_action.dart';
 import '../game_card.dart';
 import '../game_player.dart';
-import '../game_rules_config.dart';
-import '../match_state.dart';
+import '../game_rules.dart';
+import '../game_state.dart';
+import '../history_entry.dart';
 import '../round_result.dart';
-import '../round_state.dart';
 import 'card_rule_resolver.dart';
 import 'deck_factory.dart';
 import 'game_event.dart';
-import 'score_calculator.dart';
+import 'game_failure.dart';
+import 'score_policy.dart';
 
-/// Why an attempted move was rejected.
-enum MoveRejection {
-  none,
-  notYourTurn,
-  wrongPhase,
-  cardNotInHand,
-  illegalCard,
-  mustDrawFirst,
-  nothingToDraw,
-}
+/// Source of shuffles. The default derives every shuffle from the state's
+/// own seed and version, which makes `applyAction(state, action)` a pure
+/// function: the same input always yields the same output, on any device
+/// and on the server. Tests may inject their own.
+typedef RandomSource = Random Function(GameState state);
 
-class MoveResult {
-  const MoveResult.ok() : rejection = MoveRejection.none;
-  const MoveResult.rejected(this.rejection);
+Random _seededRandom(GameState state) =>
+    Random(state.seed ^ (state.version * 0x9E3779B1));
 
-  final MoveRejection rejection;
-  bool get accepted => rejection == MoveRejection.none;
-}
-
-/// The rules of Gioco del 101, expressed once, with no Flutter dependency.
+/// The rules of Gioco del 101, expressed once, as pure functions over
+/// [GameState].
 ///
-/// The engine owns [MatchState] and is the only thing allowed to mutate it.
-/// Callers observe progress through [listen]; nothing here reaches for a
-/// widget, a timer or a platform channel (§20).
+/// The engine owns nothing. It is handed a state and an action and returns
+/// either a new state plus the events that explain it, or a typed
+/// [GameFailure]. It has no clock, no I/O, no Flutter import and no
+/// knowledge of who is human: exactly the same code will run offline today
+/// and inside the authoritative server tomorrow.
 class GameEngine {
-  GameEngine._(this._state, this._random)
-    : _resolver = CardRuleResolver(_state.rules),
-      _scorer = ScoreCalculator(_state.rules);
+  // ignore: prefer_initializing_formals
+  const GameEngine({RandomSource random = _seededRandom}) : _random = random;
 
-  /// Restores an engine around an existing (e.g. deserialised) match.
-  factory GameEngine.fromState(MatchState state, {Random? random}) =>
-      GameEngine._(state, random ?? Random());
+  final RandomSource _random;
+
+  // ================================================================ creation
 
   /// Deals a brand new match.
-  factory GameEngine.newMatch({
+  ///
+  /// Throws [GameSetupException] for an unplayable table: fewer than
+  /// `rules.minPlayers` or more than `rules.maxPlayers` seats (hard-capped to
+  /// 2–4 by the deck), a duplicate player id, or a hand size the deck cannot
+  /// cover.
+  GameState createGame({
+    required String gameId,
     required List<GamePlayer> players,
     required GameMode mode,
-    GameRulesConfig rules = const GameRulesConfig(),
-    Random? random,
-    int seed = 0,
+    required int seed,
+    GameRules rules = const GameRules(),
+    int startingSeat = 0,
     bool isDailyChallenge = false,
-    int startingPlayerIndex = 0,
+    int? now,
   }) {
-    final rng = random ?? Random();
-    final round = _dealRound(
-      players: players,
-      rules: rules,
-      random: rng,
-      startingPlayerIndex: startingPlayerIndex,
-    );
-    final state = MatchState(
-      players: players,
-      rules: rules,
-      round: round,
+    final minPlayers = max(2, rules.minPlayers);
+    final maxPlayers = min(4, rules.maxPlayers);
+    if (players.length < minPlayers || players.length > maxPlayers) {
+      throw GameSetupException(
+        GameFailure.invalidPlayerCount,
+        'Need $minPlayers–$maxPlayers players, got ${players.length}',
+      );
+    }
+    final ids = <String>{};
+    for (final p in players) {
+      if (p.id.isEmpty || !ids.add(p.id)) {
+        throw GameSetupException(
+          GameFailure.duplicatePlayer,
+          'Player id "${p.id}" is empty or duplicated',
+        );
+      }
+    }
+    if (rules.startingHandSize < 1 ||
+        rules.startingHandSize * players.length + 1 > Deck.size) {
+      throw const GameSetupException(
+        GameFailure.invalidRules,
+        'startingHandSize does not fit the 40-card deck',
+      );
+    }
+    if (rules.drawTwoPenalty < 0 || rules.targetScore < 1) {
+      throw const GameSetupException(
+        GameFailure.invalidRules,
+        'drawTwoPenalty must be >= 0 and targetScore >= 1',
+      );
+    }
+    if (startingSeat < 0 || startingSeat >= players.length) {
+      throw GameSetupException(
+        GameFailure.invalidPlayerCount,
+        'startingSeat $startingSeat is not a seat',
+      );
+    }
+
+    final blank = GameState(
+      gameId: gameId,
       mode: mode,
+      rules: rules,
+      players: [for (final p in players) p.copyWith(hand: const [])],
+      drawPile: const [],
+      discardPile: [Deck.standard.first], // placeholder, replaced by _deal
+      activeSuit: CardSuit.denari,
+      currentSeat: startingSeat,
+      direction: rules.initialDirection,
       seed: seed,
       isDailyChallenge: isDailyChallenge,
     );
-    return GameEngine._(state, rng);
+    var state = _deal(blank, startingSeat: startingSeat);
+    state = _stampClock(state, previous: null, now: now);
+    _assertInvariants(state, expectedCards: Deck.size);
+    return state;
   }
 
-  final MatchState _state;
-  final Random _random;
-  final CardRuleResolver _resolver;
-  final ScoreCalculator _scorer;
+  // ================================================================= queries
 
-  final List<void Function(GameEvent)> _listeners = [];
+  CardRuleResolver resolverFor(GameState state) =>
+      CardRuleResolver(state.rules);
 
-  MatchState get state => _state;
-  RoundState get round => _state.round;
-  GameRulesConfig get rules => _state.rules;
-  CardRuleResolver get resolver => _resolver;
-  GamePlayer get currentPlayer => _state.currentPlayer;
-
-  void Function() listen(void Function(GameEvent) listener) {
-    _listeners.add(listener);
-    return () => _listeners.remove(listener);
+  /// Cards [playerId] could legally play right now. Empty when it is not
+  /// their turn, a suit is pending, or the round is over.
+  List<GameCard> getPlayableCards(GameState state, String playerId) {
+    if (state.status != GameStatus.awaitingAction) return const [];
+    if (state.currentPlayerId != playerId) return const [];
+    final player = state.playerById(playerId);
+    if (player == null || player.eliminated) return const [];
+    final resolver = resolverFor(state);
+    final hand = state.rules.restrictPlayToDrawnCard && state.hasDrawnThisTurn
+        ? (state.drawnCard == null ? const <GameCard>[] : [state.drawnCard!])
+        : player.hand;
+    return resolver.playableCards(hand, state);
   }
 
-  void _emit(GameEvent event) {
-    // Iterate a copy: a listener may unsubscribe while handling an event.
-    for (final l in List.of(_listeners)) {
-      l(event);
+  /// Whether the current player may play [card] (legality only — ownership
+  /// is checked by [validateAction]).
+  bool canPlay(GameState state, GameCard card) =>
+      state.status == GameStatus.awaitingAction &&
+      resolverFor(state).canPlay(card, state) &&
+      (!state.rules.restrictPlayToDrawnCard ||
+          !state.hasDrawnThisTurn ||
+          state.drawnCard == card);
+
+  bool canDraw(GameState state) =>
+      validateAction(state, DrawCardAction(playerId: state.currentPlayerId)) ==
+      null;
+
+  bool canPass(GameState state) =>
+      validateAction(state, PassAction(playerId: state.currentPlayerId)) ==
+      null;
+
+  /// True when the current player has no legal answer to a live chain and
+  /// simply has to take the cards (§6).
+  bool mustTakePenalty(GameState state) =>
+      state.status == GameStatus.awaitingAction &&
+      state.isPenaltyPending &&
+      getPlayableCards(state, state.currentPlayerId).isEmpty;
+
+  // ============================================================== validation
+
+  /// Returns null when [action] may be applied to [state], otherwise the
+  /// reason it may not. Never throws.
+  GameFailure? validateAction(GameState state, GameAction action) {
+    if (state.isFinished) return GameFailure.gameFinished;
+    if (state.discardPile.isEmpty ||
+        state.currentSeat < 0 ||
+        state.currentSeat >= state.players.length) {
+      return GameFailure.invalidState;
     }
-  }
-
-  // ---------------------------------------------------------------- queries
-
-  List<GameCard> playableCardsFor(GamePlayer player) =>
-      _resolver.playableCards(player.hand, round);
-
-  bool canPlay(GameCard card) => _resolver.canPlay(card, round);
-
-  /// True when the current player has no legal answer to a live Chain Storm
-  /// and simply has to take the cards (§10).
-  bool get mustTakePenalty =>
-      round.isPenaltyPending && playableCardsFor(currentPlayer).isEmpty;
-
-  /// §8 — whether a "pass" is currently allowed at all.
-  bool get canEndTurn =>
-      round.phase == TurnPhase.awaitingAction &&
-      !round.isPenaltyPending &&
-      (round.hasDrawnThisTurn || !rules.mustDrawBeforePassing);
-
-  /// §8 — a voluntary draw is only offered when the rules permit it.
-  bool get canDraw {
-    if (round.phase != TurnPhase.awaitingAction) return false;
-    if (round.hasDrawnThisTurn && !round.isPenaltyPending) return false;
-    if (round.isPenaltyPending) return true;
-    if (!rules.allowVoluntaryDraw &&
-        _resolver.hasPlayable(currentPlayer.hand, round)) {
-      return false;
-    }
-    return true;
-  }
-
-  // ------------------------------------------------------------------ moves
-
-  /// Plays [card] from the current player's hand.
-  ///
-  /// [chosenSuit] lets a caller that already knows its answer (a bot, or a
-  /// restored save) name the Cavallo's suit in the same step.
-  MoveResult playCard(GameCard card, {CardSuit? chosenSuit}) {
-    if (round.phase != TurnPhase.awaitingAction) {
-      return const MoveResult.rejected(MoveRejection.wrongPhase);
-    }
-    final player = currentPlayer;
-    if (!player.hand.contains(card)) {
-      return const MoveResult.rejected(MoveRejection.cardNotInHand);
-    }
-    if (!_resolver.canPlay(card, round)) {
-      _emit(InvalidMoveEvent(card));
-      return const MoveResult.rejected(MoveRejection.illegalCard);
+    if (action.baseVersion != null && action.baseVersion != state.version) {
+      return GameFailure.staleState;
     }
 
-    player.hand.remove(card);
-    round.discardPile.add(card);
-    round.playedCards.add(card);
-    round.clearVoid(player.id, card.suit);
-    round.drawnCard = null;
-    // A Cavallo keeps the previous active suit until its owner names one.
-    if (!card.isCavallo) round.activeSuit = card.suit;
-
-    _state.stats.cardsPlayed++;
-    _state.stats.suitsPlayed.update(
-      card.suit.key,
-      (v) => v + 1,
-      ifAbsent: () => 1,
-    );
-    _state.record(
-      GameAction(type: GameActionType.play, playerId: player.id, card: card),
-    );
-    _emit(CardPlayedEvent(player.id, card));
-
-    final emptied = player.hand.isEmpty;
-
-    // §9/§10/§12 — apply the card's action before deciding who plays next.
-    if (card.isAce) {
-      _state.stats.acesPlayed++;
-    } else if (card.isTwo) {
-      _state.stats.twosPlayed++;
-      round.pendingPenalty += rules.drawTwoPenalty;
-      round.chainLength++;
-      if (round.chainLength > _state.stats.longestChain) {
-        _state.stats.longestChain = round.chainLength;
+    final actor = state.playerById(action.playerId);
+    if (action is StartNextRoundAction) {
+      // Any seated player (or the host, id `system`) may deal the next round.
+      if (actor == null && action.playerId != systemActorId) {
+        return GameFailure.invalidPlayer;
       }
-      _emit(ChainGrewEvent(round.pendingPenalty, round.chainLength));
+      if (state.status != GameStatus.roundOver) return GameFailure.roundNotOver;
+      return null;
+    }
+
+    if (actor == null || actor.eliminated) return GameFailure.invalidPlayer;
+    if (state.status == GameStatus.roundOver) return GameFailure.roundOver;
+    if (actor.id != state.currentPlayerId) return GameFailure.notPlayersTurn;
+
+    final awaitingSuit = state.status == GameStatus.awaitingSuitChoice;
+    final rules = state.rules;
+    final resolver = resolverFor(state);
+
+    switch (action) {
+      case PlayCardAction(:final card):
+        if (awaitingSuit) return GameFailure.suitSelectionRequired;
+        if (!actor.hand.contains(card)) return GameFailure.cardNotOwned;
+        if (!resolver.canPlay(card, state)) return GameFailure.illegalCard;
+        if (rules.restrictPlayToDrawnCard &&
+            state.hasDrawnThisTurn &&
+            state.drawnCard != card) {
+          return GameFailure.illegalCard;
+        }
+        return null;
+
+      case DrawCardAction():
+        if (awaitingSuit) return GameFailure.suitSelectionRequired;
+        if (state.isPenaltyPending) return null;
+        if (state.hasDrawnThisTurn) return GameFailure.drawNotAllowed;
+        if (!rules.allowVoluntaryDraw &&
+            resolver.hasPlayable(actor.hand, state)) {
+          return GameFailure.drawNotAllowed;
+        }
+        return null;
+
+      case ChooseSuitAction():
+        if (!awaitingSuit) return GameFailure.suitSelectionNotPending;
+        return null;
+
+      case PassAction():
+        if (awaitingSuit) return GameFailure.suitSelectionRequired;
+        if (state.isPenaltyPending) return GameFailure.drawRequired;
+        if (rules.mustDrawBeforePassing && !state.hasDrawnThisTurn) {
+          return GameFailure.drawRequired;
+        }
+        return null;
+
+      case StartNextRoundAction():
+        return null; // handled above
+    }
+  }
+
+  /// Actor id a host or server may use for [StartNextRoundAction].
+  static const String systemActorId = 'system';
+
+  // ============================================================= application
+
+  /// Validates and applies [action]. On success the returned state has
+  /// `version == state.version + 1` and `lastAction == action`.
+  ///
+  /// [now] (epoch ms) is optional. When given, a turn change stamps
+  /// `turnStartedAt` and, if the rules set a time limit, `turnDeadlineAt`.
+  /// The engine never reads a clock itself.
+  ActionResult applyAction(GameState state, GameAction action, {int? now}) {
+    final failure = validateAction(state, action);
+    if (failure != null) return ActionRejected(failure);
+
+    final events = <GameEvent>[];
+    var next = switch (action) {
+      PlayCardAction() => _play(state, action, events),
+      DrawCardAction() => _draw(state, action, events),
+      ChooseSuitAction() => _chooseSuit(state, action, events),
+      PassAction() => _advanceTurn(state, 1, events),
+      StartNextRoundAction() => _startNextRound(state, events),
+    };
+    next = next.copyWith(version: state.version + 1, lastAction: action);
+    next = _stampClock(next, previous: state, now: now);
+    _assertInvariants(next, expectedCards: state.totalCards);
+    return ActionAccepted(next, List.unmodifiable(events));
+  }
+
+  // ------------------------------------------------------------------ play
+
+  GameState _play(GameState s, PlayCardAction a, List<GameEvent> events) {
+    final player = s.currentPlayer;
+    final card = a.card;
+    final rules = s.rules;
+
+    final hand = List.of(player.hand)..remove(card);
+    final voids = _withoutVoid(s.voidSuits, player.id, card.suit);
+
+    var next = s
+        .withPlayer(player.copyWith(hand: hand))
+        .copyWith(
+          discardPile: [...s.discardPile, card],
+          playedCards: [...s.playedCards, card],
+          voidSuits: voids,
+          clearDrawnCard: true,
+          // A Cavallo keeps the previous active suit until its owner names one.
+          activeSuit: card.isCavallo ? s.activeSuit : card.suit,
+          stats: s.stats
+              .copyWith(cardsPlayed: s.stats.cardsPlayed + 1)
+              .withSuitPlayed(card.suit),
+        )
+        .withHistory(
+          HistoryEntry(
+            type: HistoryEntryType.play,
+            playerId: player.id,
+            card: card,
+          ),
+        );
+    events.add(CardPlayedEvent(player.id, card));
+
+    final emptied = hand.isEmpty;
+    final wasPenaltyPending = s.isPenaltyPending;
+    var blockedChain = false;
+
+    if (card.isAsso) {
+      next = next.copyWith(
+        stats: next.stats.copyWith(acesPlayed: next.stats.acesPlayed + 1),
+      );
+    } else if (card.isDue) {
+      final pending = next.pendingDrawCount + rules.drawTwoPenalty;
+      final chain = next.chainLength + 1;
+      next = next.copyWith(
+        pendingDrawCount: pending,
+        chainLength: chain,
+        stats: next.stats.copyWith(
+          twosPlayed: next.stats.twosPlayed + 1,
+          longestChain: max(next.stats.longestChain, chain),
+        ),
+      );
+      events.add(ChainGrewEvent(pending, chain));
+    } else if (card.isCavallo && wasPenaltyPending) {
+      // §6a — the 9 blocks the chain. Provisional; see GameRules.nineBlockMode.
+      blockedChain = true;
+      final cancelled = rules.nineBlockMode == NineBlockMode.cancel;
+      events.add(
+        ChainBlockedEvent(
+          player.id,
+          next.pendingDrawCount,
+          next.chainLength,
+          cancelled: cancelled,
+        ),
+      );
+      next = next.withHistory(
+        HistoryEntry(
+          type: HistoryEntryType.chainBlocked,
+          playerId: player.id,
+          card: card,
+          count: next.pendingDrawCount,
+        ),
+      );
+      if (cancelled) {
+        next = next.copyWith(pendingDrawCount: 0, chainLength: 0);
+      }
     }
 
     if (emptied) {
-      _finishRound(player, winningCard: card);
-      return const MoveResult.ok();
+      return _finishRound(next, player.id, winningCard: card, events: events);
     }
 
     if (card.isCavallo) {
-      if (chosenSuit != null) {
-        _applySuitChoice(player, chosenSuit);
-      } else {
-        round.phase = TurnPhase.awaitingSuitChoice;
-        _emit(SuitChoiceRequestedEvent(player.id, card));
+      final needsSuit = resolverFor(
+        next,
+      ).requiresSuitChoice(card, endedRound: false, blockedChain: blockedChain);
+      if (!needsSuit) return _advanceTurn(next, 1, events);
+      if (a.chosenSuit != null) {
+        return _applySuitChoice(next, player.id, a.chosenSuit!, events);
       }
-      return const MoveResult.ok();
+      events.add(SuitChoiceRequestedEvent(player.id, card));
+      return next.copyWith(status: GameStatus.awaitingSuitChoice);
     }
 
-    if (card.isAce) {
-      final skipped = _players[_seatAfter(round.currentIndex, 1)];
-      // With two players left, skipping the opponent hands the turn straight
-      // back to the player who dropped the Ace (§52).
-      _state.record(
-        GameAction(type: GameActionType.skip, playerId: skipped.id),
+    if (card.isAsso) {
+      // §5 — the next player loses their turn. With two players the turn
+      // comes straight back to whoever played the Asso.
+      final skippedSeat = _seatAfter(next, next.currentSeat, 1);
+      final skipped = next.players[skippedSeat];
+      next = next.withHistory(
+        HistoryEntry(type: HistoryEntryType.skip, playerId: skipped.id),
       );
-      _emit(TurnSkippedEvent(skipped.id));
-      _advanceTurn(2);
-    } else {
-      _advanceTurn(1);
+      events.add(TurnSkippedEvent(skipped.id));
+      return _advanceTurn(next, 2, events);
     }
-    return const MoveResult.ok();
+
+    return _advanceTurn(next, 1, events);
   }
 
-  /// §12 — names the active suit after a Cavallo.
-  MoveResult chooseSuit(CardSuit suit) {
-    if (round.phase != TurnPhase.awaitingSuitChoice) {
-      return const MoveResult.rejected(MoveRejection.wrongPhase);
-    }
-    _applySuitChoice(currentPlayer, suit);
-    return const MoveResult.ok();
+  // ------------------------------------------------------------------ suit
+
+  GameState _chooseSuit(
+    GameState s,
+    ChooseSuitAction a,
+    List<GameEvent> events,
+  ) => _applySuitChoice(s, a.playerId, a.suit, events);
+
+  GameState _applySuitChoice(
+    GameState s,
+    String playerId,
+    CardSuit suit,
+    List<GameEvent> events,
+  ) {
+    final next = s
+        .copyWith(
+          activeSuit: suit,
+          status: GameStatus.awaitingAction,
+          stats: s.stats.withCavalloSuit(playerId, suit),
+        )
+        .withHistory(
+          HistoryEntry(
+            type: HistoryEntryType.suitChosen,
+            playerId: playerId,
+            suit: suit,
+          ),
+        );
+    events.add(SuitChosenEvent(playerId, suit));
+    return _advanceTurn(next, 1, events);
   }
 
-  void _applySuitChoice(GamePlayer player, CardSuit suit) {
-    round.activeSuit = suit;
-    round.phase = TurnPhase.awaitingAction;
-    _state.stats.recordCavalloSuit(player.id, suit);
-    _state.record(
-      GameAction(
-        type: GameActionType.suitChosen,
-        playerId: player.id,
-        suit: suit,
-      ),
-    );
-    _emit(SuitChosenEvent(player.id, suit));
-    _advanceTurn(1);
-  }
+  // ------------------------------------------------------------------ draw
 
-  /// §8/§10 — draws. With a Chain Storm live this takes the whole penalty and
-  /// ends the turn; otherwise it draws a single card.
-  MoveResult drawCard() {
-    if (round.phase != TurnPhase.awaitingAction) {
-      return const MoveResult.rejected(MoveRejection.wrongPhase);
-    }
-    final player = currentPlayer;
+  GameState _draw(GameState s, DrawCardAction a, List<GameEvent> events) {
+    final player = s.currentPlayer;
+    final rules = s.rules;
 
-    if (round.isPenaltyPending) {
-      final owed = round.pendingPenalty;
-      final chain = round.chainLength;
-      final drawn = _drawInto(player, owed);
-      round.pendingPenalty = 0;
-      round.chainLength = 0;
-      _state.record(
-        GameAction(
-          type: GameActionType.penaltyDraw,
-          playerId: player.id,
-          count: drawn.length,
-        ),
-      );
-      _emit(CardsDrawnEvent(player.id, drawn, isPenalty: true));
-      _emit(ChainResolvedEvent(player.id, owed, chain));
-      _advanceTurn(1);
-      return const MoveResult.ok();
+    if (s.isPenaltyPending) {
+      final owed = s.pendingDrawCount;
+      final chain = s.chainLength;
+      final (afterDraw, drawn) = _drawInto(s, player.id, owed, events);
+      final next = afterDraw
+          .copyWith(pendingDrawCount: 0, chainLength: 0)
+          .withHistory(
+            HistoryEntry(
+              type: HistoryEntryType.penaltyDraw,
+              playerId: player.id,
+              count: drawn.length,
+            ),
+          );
+      events.add(CardsDrawnEvent(player.id, drawn, isPenalty: true));
+      events.add(ChainResolvedEvent(player.id, owed, chain));
+      return _advanceTurn(next, 1, events);
     }
 
-    if (round.hasDrawnThisTurn) {
-      return const MoveResult.rejected(MoveRejection.wrongPhase);
-    }
-    if (!rules.allowVoluntaryDraw &&
-        _resolver.hasPlayable(player.hand, round)) {
-      return const MoveResult.rejected(MoveRejection.illegalCard);
-    }
-
+    var next = s;
     // Drawing is normally an admission of having nothing to match with.
-    if (!_resolver.hasPlayable(player.hand, round)) {
-      round.noteVoid(player.id, round.activeSuit);
+    if (!resolverFor(s).hasPlayable(player.hand, s)) {
+      next = next.copyWith(
+        voidSuits: _withVoid(next.voidSuits, player.id, s.activeSuit),
+      );
     }
-    final drawn = _drawInto(player, 1);
-    round.hasDrawnThisTurn = true;
-    _state.record(
-      GameAction(
-        type: GameActionType.draw,
-        playerId: player.id,
-        count: drawn.length,
-      ),
-    );
-    _emit(CardsDrawnEvent(player.id, drawn));
+    final (afterDraw, drawn) = _drawInto(next, player.id, 1, events);
+    next = afterDraw
+        .copyWith(hasDrawnThisTurn: true)
+        .withHistory(
+          HistoryEntry(
+            type: HistoryEntryType.draw,
+            playerId: player.id,
+            count: drawn.length,
+          ),
+        );
+    events.add(CardsDrawnEvent(player.id, drawn));
 
     if (drawn.isEmpty) {
-      // §52 — nothing left anywhere to draw. Never stall: just move on.
-      _advanceTurn(1);
-      return const MoveResult.ok();
+      // Nothing left anywhere to draw. Never stall: just move on.
+      return _advanceTurn(next, 1, events);
     }
 
     final card = drawn.first;
-    if (rules.playDrawnCardImmediately && _resolver.canPlay(card, round)) {
+    if (rules.playDrawnCardImmediately &&
+        resolverFor(next).canPlay(card, next)) {
       // §8 — hand control back so the player may use what they just drew.
-      round.drawnCard = card;
-    } else {
-      _advanceTurn(1);
+      return next.copyWith(drawnCard: card);
     }
-    return const MoveResult.ok();
+    return _advanceTurn(next, 1, events);
   }
 
-  /// §8 — ends the turn after a draw that could not (or would not) be used.
-  MoveResult endTurn() {
-    if (!canEndTurn) {
-      return const MoveResult.rejected(MoveRejection.mustDrawFirst);
+  /// Moves up to [count] cards from the stock into [playerId]'s hand,
+  /// recycling the discard pile when the stock runs dry (§9).
+  (GameState, List<GameCard>) _drawInto(
+    GameState s,
+    String playerId,
+    int count,
+    List<GameEvent> events,
+  ) {
+    var drawPile = List.of(s.drawPile);
+    var discard = s.discardPile;
+    final drawn = <GameCard>[];
+    var recycled = false;
+    for (var i = 0; i < count; i++) {
+      if (drawPile.isEmpty) {
+        if (discard.length <= 1 || recycled) break;
+        // §9 — keep the visible top card, shuffle everything beneath it.
+        final top = discard.last;
+        final below = discard.sublist(0, discard.length - 1);
+        drawPile = DeckFactory.shuffle(below, _random(s));
+        discard = [top];
+        recycled = true;
+        events.add(DeckRecycledEvent(drawPile.length));
+        s = s.withHistory(
+          HistoryEntry(
+            type: HistoryEntryType.recycle,
+            playerId: '',
+            count: drawPile.length,
+          ),
+        );
+      }
+      if (drawPile.isEmpty) break;
+      drawn.add(drawPile.removeLast());
     }
-    _advanceTurn(1);
-    return const MoveResult.ok();
+    if (drawn.isEmpty) return (s, drawn);
+
+    final player = s.playerById(playerId)!;
+    final next = s
+        .withPlayer(player.copyWith(hand: [...player.hand, ...drawn]))
+        .copyWith(
+          drawPile: drawPile,
+          discardPile: discard,
+          drawsByPlayer: {
+            ...s.drawsByPlayer,
+            playerId: (s.drawsByPlayer[playerId] ?? 0) + drawn.length,
+          },
+        );
+    return (next, drawn);
   }
 
-  // ------------------------------------------------------------- turn order
+  // ------------------------------------------------------------ turn order
 
-  List<GamePlayer> get _players => _state.players;
-
-  /// Index of the seat [steps] places after [from], skipping players who are
-  /// out of the match. Bounded so a corrupt state can never spin forever.
-  int _seatAfter(int from, int steps) {
+  /// Index of the seat [steps] places after [from] in the direction of play,
+  /// skipping players who are out of the match. Bounded so a corrupt state
+  /// can never spin forever.
+  int _seatAfter(GameState s, int from, int steps) {
+    final n = s.players.length;
     var index = from;
     var moved = 0;
     var guard = 0;
-    final limit = _players.length * (steps + 2);
+    final limit = n * (steps + 2);
     while (moved < steps && guard++ < limit) {
-      index = (index + 1) % _players.length;
-      if (!_players[index].eliminated) moved++;
+      index = (index + s.direction.step + n) % n;
+      if (!s.players[index].eliminated) moved++;
     }
     return index;
   }
 
-  void _advanceTurn(int steps) {
-    if (round.phase == TurnPhase.roundOver ||
-        round.phase == TurnPhase.matchOver) {
-      return;
-    }
-    round.currentIndex = _seatAfter(round.currentIndex, steps);
-    round.hasDrawnThisTurn = false;
-    round.drawnCard = null;
-    round.turnNumber++;
-    round.phase = TurnPhase.awaitingAction;
-    _emit(TurnChangedEvent(currentPlayer.id));
-  }
-
-  // ----------------------------------------------------------------- piles
-
-  /// Moves up to [count] cards from the stock into [player]'s hand,
-  /// recycling the discard pile when the stock runs dry (§18).
-  List<GameCard> _drawInto(GamePlayer player, int count) {
-    final drawn = <GameCard>[];
-    for (var i = 0; i < count; i++) {
-      if (round.drawPile.isEmpty && !_recycleDiscard()) {
-        // §52 — every card is in somebody's hand. Draw what we can and stop.
-        break;
-      }
-      if (round.drawPile.isEmpty) break;
-      final card = round.drawPile.removeLast();
-      player.hand.add(card);
-      drawn.add(card);
-    }
-    if (drawn.isNotEmpty) {
-      round.drawsByPlayer.update(
-        player.id,
-        (v) => v + drawn.length,
-        ifAbsent: () => drawn.length,
-      );
-    }
-    return drawn;
-  }
-
-  /// §18 — keeps the visible top card, shuffles everything beneath it back
-  /// into the stock. Returns false when there is nothing to recycle.
-  bool _recycleDiscard() {
-    if (round.discardPile.length <= 1) return false;
-    final top = round.discardPile.removeLast();
-    final recycled = List<GameCard>.of(round.discardPile);
-    round.discardPile
-      ..clear()
-      ..add(top);
-    for (var i = recycled.length - 1; i > 0; i--) {
-      final j = _random.nextInt(i + 1);
-      final tmp = recycled[i];
-      recycled[i] = recycled[j];
-      recycled[j] = tmp;
-    }
-    round.drawPile.addAll(recycled);
-    _state.record(
-      GameAction(
-        type: GameActionType.recycle,
-        playerId: '',
-        count: recycled.length,
-      ),
+  GameState _advanceTurn(GameState s, int steps, List<GameEvent> events) {
+    if (s.isRoundOver) return s;
+    final next = s.copyWith(
+      currentSeat: _seatAfter(s, s.currentSeat, steps),
+      hasDrawnThisTurn: false,
+      clearDrawnCard: true,
+      turnNumber: s.turnNumber + 1,
+      status: GameStatus.awaitingAction,
     );
-    _emit(DeckRecycledEvent(recycled.length));
-    return true;
+    events.add(TurnChangedEvent(next.currentPlayerId));
+    return next;
   }
 
-  // ------------------------------------------------------------ round / match
+  // ---------------------------------------------------------- round / match
 
-  void _finishRound(GamePlayer winner, {GameCard? winningCard}) {
-    // §52 — an unanswered chain normally dies with the round.
-    if (round.isPenaltyPending) {
-      if (rules.pendingPenaltyAppliesAfterWin) {
-        final victim = _players[_seatAfter(round.currentIndex, 1)];
-        final drawn = _drawInto(victim, round.pendingPenalty);
-        _emit(CardsDrawnEvent(victim.id, drawn, isPenalty: true));
+  GameState _finishRound(
+    GameState s,
+    String winnerId, {
+    required GameCard winningCard,
+    required List<GameEvent> events,
+  }) {
+    var next = s;
+
+    // §10a — an unanswered chain normally dies with the round.
+    if (next.isPenaltyPending) {
+      if (next.rules.pendingPenaltyAppliesAfterWin) {
+        final victim = next.players[_seatAfter(next, next.currentSeat, 1)];
+        final (after, drawn) = _drawInto(
+          next,
+          victim.id,
+          next.pendingDrawCount,
+          events,
+        );
+        next = after;
+        events.add(CardsDrawnEvent(victim.id, drawn, isPenalty: true));
       }
-      round.pendingPenalty = 0;
-      round.chainLength = 0;
+      next = next.copyWith(pendingDrawCount: 0, chainLength: 0);
     }
 
-    round.phase = TurnPhase.roundOver;
-    round.roundWinnerId = winner.id;
-    _state.stats.roundsWon.update(winner.id, (v) => v + 1, ifAbsent: () => 1);
-
+    final policy = ScorePolicy(next.rules);
     final rows = <PlayerRoundResult>[];
     final newlyEliminated = <String>[];
+    final players = <GamePlayer>[];
+    var stats = next.stats.withRoundWon(winnerId);
 
-    for (final player in _players) {
-      if (player.eliminated) continue;
-      final penalty = player.id == winner.id
+    for (final player in next.players) {
+      if (player.eliminated) {
+        players.add(player);
+        continue;
+      }
+      final penalty = player.id == winnerId
           ? 0
-          : _scorer.handPenalty(player.hand);
-      final outcome = _scorer.apply(
+          : policy.handPenalty(player.hand);
+      final outcome = policy.apply(
         previousScore: player.score,
         penalty: penalty,
       );
-      player.score = outcome.newScore;
+      players.add(
+        player.copyWith(
+          score: outcome.newScore,
+          eliminated: outcome.eliminated,
+        ),
+      );
       if (outcome.hitExact101) {
-        _state.stats.resets101++;
-        _emit(Exact101Event(player.id));
+        stats = stats.copyWith(resets101: stats.resets101 + 1);
+        events.add(Exact101Event(player.id));
       }
-      if (outcome.eliminated) {
-        player.eliminated = true;
-        newlyEliminated.add(player.id);
-      }
+      if (outcome.eliminated) newlyEliminated.add(player.id);
       rows.add(
         PlayerRoundResult(
           playerId: player.id,
@@ -448,76 +600,81 @@ class GameEngine {
       );
     }
 
-    _updateComeback();
-
+    stats = stats.copyWith(
+      bestComeback: max(stats.bestComeback, _largestDeficit(players)),
+    );
     for (final id in newlyEliminated) {
-      _emit(PlayerEliminatedEvent(id));
+      events.add(PlayerEliminatedEvent(id));
     }
 
-    final matchWinner = _resolveMatchWinner();
+    next = next.copyWith(
+      players: players,
+      stats: stats,
+      status: GameStatus.roundOver,
+      roundWinnerId: winnerId,
+    );
+
+    final matchWinner = _resolveMatchWinner(next);
     if (matchWinner != null) {
-      _state.matchOver = true;
-      _state.matchWinnerId = matchWinner.id;
-      round.phase = TurnPhase.matchOver;
+      next = next.copyWith(status: GameStatus.finished, winnerId: matchWinner);
     }
 
+    final winner = next.playerById(winnerId)!;
     final result = RoundResult(
-      roundNumber: _state.roundNumber,
-      winnerId: winner.id,
+      roundNumber: next.round,
+      winnerId: winnerId,
       winnerName: winner.name,
       rows: rows,
-      matchOver: _state.matchOver,
-      matchWinnerId: _state.matchWinnerId,
+      matchOver: next.isFinished,
+      matchWinnerId: next.winnerId,
     );
-    _state.record(
-      GameAction(
-        type: GameActionType.roundEnd,
-        playerId: winner.id,
-        card: winningCard,
-      ),
-    );
-    _emit(RoundEndedEvent(result));
-    if (_state.matchOver) {
-      _emit(MatchEndedEvent(_state.matchWinnerId!));
-    }
-    _lastRoundResult = result;
+    next = next
+        .copyWith(lastRoundResult: result)
+        .withHistory(
+          HistoryEntry(
+            type: HistoryEntryType.roundEnd,
+            playerId: winnerId,
+            card: winningCard,
+          ),
+        );
+    events.add(RoundEndedEvent(result));
+    if (next.isFinished) events.add(MatchEndedEvent(next.winnerId!));
+    return next;
   }
 
-  RoundResult? _lastRoundResult;
-  RoundResult? get lastRoundResult => _lastRoundResult;
-
-  /// §37 — the winner's largest deficit. In a penalty game "behind" means a
-  /// higher score than the best-placed rival.
-  void _updateComeback() {
-    for (final player in _players) {
+  /// The winner's largest deficit. In a penalty game "behind" means a higher
+  /// score than the best-placed rival.
+  int _largestDeficit(List<GamePlayer> players) {
+    var largest = 0;
+    for (final player in players) {
       if (player.eliminated) continue;
       var bestRival = 1 << 30;
-      for (final other in _players) {
+      for (final other in players) {
         if (other.id == player.id || other.eliminated) continue;
         if (other.score < bestRival) bestRival = other.score;
       }
       if (bestRival == 1 << 30) continue;
-      final deficit = player.score - bestRival;
-      if (deficit > _state.stats.bestComeback) {
-        _state.stats.bestComeback = deficit;
-      }
+      largest = max(largest, player.score - bestRival);
     }
+    return largest;
   }
 
-  GamePlayer? _resolveMatchWinner() {
+  String? _resolveMatchWinner(GameState s) {
+    final rules = s.rules;
     if (rules.eliminateAbove101) {
-      final alive = _players.where((p) => !p.eliminated).toList();
-      if (alive.length == 1) return alive.first;
+      final alive = s.players.where((p) => !p.eliminated).toList();
+      if (alive.length == 1) return alive.first.id;
       if (alive.isEmpty) {
-        // §52 — everybody overshot in the same round. Lowest total takes it.
-        return _lowestScore(_players);
+        // §12a NEEDS_FINAL_RULE_CONFIRMATION — everybody overshot in the same
+        // round. Provisional: lowest total takes it.
+        return _lowestScore(s.players).id;
       }
       return null;
     }
     // Elimination disabled: the match ends the moment anyone passes the
     // target, and the lowest score wins.
-    if (_players.any((p) => p.score > rules.targetScore)) {
-      return _lowestScore(_players);
+    if (s.players.any((p) => p.score > rules.targetScore)) {
+      return _lowestScore(s.players).id;
     }
     return null;
   }
@@ -530,72 +687,146 @@ class GameEngine {
     return best;
   }
 
-  /// Deals the next round to whoever is still standing. The previous round's
-  /// winner leads (§52 — an eliminated seat never gets dealt in again).
-  void startNextRound() {
-    if (_state.matchOver) return;
-    final previousWinnerId = round.roundWinnerId;
-    for (final p in _players) {
-      p.hand.clear();
+  GameState _startNextRound(GameState s, List<GameEvent> events) {
+    final winnerSeat = s.roundWinnerId == null
+        ? -1
+        : s.seatOf(s.roundWinnerId!);
+    int starter;
+    switch (s.rules.roundStarterPolicy) {
+      case RoundStarterPolicy.previousRoundWinner:
+        starter = winnerSeat;
+      case RoundStarterPolicy.seatAfterPreviousWinner:
+        starter = winnerSeat < 0 ? -1 : _seatAfter(s, winnerSeat, 1);
     }
-    var startIndex = 0;
-    final winner = previousWinnerId == null
-        ? null
-        : _state.playerById(previousWinnerId);
-    if (winner != null && !winner.eliminated) {
-      startIndex = _players.indexOf(winner);
-    } else {
-      startIndex = _players.indexWhere((p) => !p.eliminated);
-      if (startIndex < 0) startIndex = 0;
+    if (starter < 0 || s.players[starter].eliminated) {
+      starter = s.players.indexWhere((p) => !p.eliminated);
+      if (starter < 0) starter = 0;
     }
-    _state.roundNumber++;
-    _state.round = _dealRound(
-      players: _players,
-      rules: rules,
-      random: _random,
-      startingPlayerIndex: startIndex,
+    final cleared = s.copyWith(
+      players: [for (final p in s.players) p.copyWith(hand: const [])],
+      round: s.round + 1,
+      clearRoundWinner: true,
+      clearLastRoundResult: true,
     );
-    _lastRoundResult = null;
-    _emit(TurnChangedEvent(currentPlayer.id));
+    final next = _deal(cleared, startingSeat: starter);
+    events.add(RoundStartedEvent(next.round, next.currentPlayerId));
+    events.add(TurnChangedEvent(next.currentPlayerId));
+    return next;
   }
 
-  // ------------------------------------------------------------------ dealing
+  // --------------------------------------------------------------- dealing
 
-  static RoundState _dealRound({
-    required List<GamePlayer> players,
-    required GameRulesConfig rules,
-    required Random random,
-    required int startingPlayerIndex,
-  }) {
-    final deck = DeckFactory.shuffled(random);
-    final seated = players.where((p) => !p.eliminated).toList();
-    for (final p in players) {
-      p.hand.clear();
-    }
+  /// Shuffles a fresh deck and deals it into [base], which must have empty
+  /// hands. Randomness comes from [_random] applied to [base], so two calls
+  /// with the same state deal identically.
+  GameState _deal(GameState base, {required int startingSeat}) {
+    final rules = base.rules;
+    final deck = DeckFactory.shuffled(_random(base));
+    final hands = {for (final p in base.players) p.id: <GameCard>[]};
+    final seated = base.players.where((p) => !p.eliminated).toList();
     for (var i = 0; i < rules.startingHandSize; i++) {
       for (final p in seated) {
         if (deck.isEmpty) break;
-        p.hand.add(deck.removeLast());
+        hands[p.id]!.add(deck.removeLast());
       }
     }
 
-    // Turn over a plain card to open the round: starting on an action card
-    // would leave the first player owing a penalty nobody played at them.
-    var starterIndex = deck.lastIndexWhere((c) => !c.isAction);
-    if (starterIndex < 0) starterIndex = deck.length - 1;
+    // §3 — turn one card up to open the round.
+    var starterIndex = deck.length - 1;
+    if (rules.starterCardPolicy == StarterCardPolicy.avoidActionCards) {
+      final plain = deck.lastIndexWhere((c) => !c.isAction);
+      if (plain >= 0) starterIndex = plain;
+    }
     final starter = deck.removeAt(starterIndex);
 
-    var index = startingPlayerIndex;
-    if (index < 0 || index >= players.length || players[index].eliminated) {
-      index = players.indexWhere((p) => !p.eliminated);
-      if (index < 0) index = 0;
+    var seat = startingSeat;
+    if (seat < 0 ||
+        seat >= base.players.length ||
+        base.players[seat].eliminated) {
+      seat = base.players.indexWhere((p) => !p.eliminated);
+      if (seat < 0) seat = 0;
     }
 
-    return RoundState(
+    return base.copyWith(
+      players: [for (final p in base.players) p.copyWith(hand: hands[p.id])],
       drawPile: deck,
       discardPile: [starter],
       activeSuit: starter.suit,
-      currentIndex: index,
+      currentSeat: seat,
+      pendingDrawCount: 0,
+      chainLength: 0,
+      status: GameStatus.awaitingAction,
+      turnNumber: 0,
+      hasDrawnThisTurn: false,
+      clearDrawnCard: true,
+      playedCards: const [],
+      drawsByPlayer: const {},
+      voidSuits: const {},
     );
+  }
+
+  // ----------------------------------------------------------------- misc
+
+  GameState _stampClock(
+    GameState next, {
+    required GameState? previous,
+    required int? now,
+  }) {
+    final turnChanged =
+        previous == null ||
+        next.turnNumber != previous.turnNumber ||
+        next.round != previous.round ||
+        next.currentSeat != previous.currentSeat;
+    if (!turnChanged) return next;
+    if (now == null) return next.copyWith(clearTurnClock: true);
+    final limit = next.rules.turnTimeLimitSeconds;
+    return next.copyWith(
+      turnStartedAt: now,
+      turnDeadlineAt: limit == null ? null : now + limit * 1000,
+      clearTurnClock: false,
+    );
+  }
+
+  static Map<String, List<String>> _withVoid(
+    Map<String, List<String>> voids,
+    String playerId,
+    CardSuit suit,
+  ) {
+    final list = List<String>.of(voids[playerId] ?? const []);
+    if (!list.contains(suit.key)) list.add(suit.key);
+    return {...voids, playerId: list};
+  }
+
+  static Map<String, List<String>> _withoutVoid(
+    Map<String, List<String>> voids,
+    String playerId,
+    CardSuit suit,
+  ) {
+    final current = voids[playerId];
+    if (current == null || !current.contains(suit.key)) return voids;
+    return {...voids, playerId: current.where((k) => k != suit.key).toList()};
+  }
+
+  /// Conservation: the engine never creates or loses a card, never
+  /// duplicates one, and never leaves the discard pile empty. A freshly
+  /// created game holds all [Deck.size] cards; every action preserves the
+  /// count it was given.
+  void _assertInvariants(GameState s, {required int expectedCards}) {
+    assert(
+      s.totalCards == expectedCards,
+      'card count drifted: ${s.totalCards} != $expectedCards',
+    );
+    assert(s.discardPile.isNotEmpty, 'discard pile emptied');
+    assert(() {
+      final seen = <GameCard>{};
+      for (final c in [
+        ...s.drawPile,
+        ...s.discardPile,
+        for (final p in s.players) ...p.hand,
+      ]) {
+        if (!seen.add(c)) return false;
+      }
+      return true;
+    }(), 'duplicate card in play');
   }
 }

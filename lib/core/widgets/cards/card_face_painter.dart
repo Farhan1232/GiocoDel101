@@ -256,7 +256,7 @@ class CardFacePainter extends CustomPainter {
       _paintCourt(canvas, size);
       return;
     }
-    if (card.rank == CardRank.ace) {
+    if (card.rank == CardRank.asso) {
       _paintAce(canvas, size, palette);
       return;
     }
@@ -367,7 +367,7 @@ class CardFacePainter extends CustomPainter {
 
   static String _rankLabel(CardRank rank) {
     switch (rank) {
-      case CardRank.ace:
+      case CardRank.asso:
         return 'A';
       case CardRank.fante:
         return 'F';

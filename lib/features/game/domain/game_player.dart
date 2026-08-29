@@ -1,8 +1,11 @@
 import 'game_card.dart';
 import 'player_type.dart';
 
-/// A seat at the table. [score] and [eliminated] live for the whole match;
-/// [hand] is reset at the start of every round.
+/// A seat at the table. Immutable: the engine produces a new [GamePlayer]
+/// whenever a hand, a score or the eliminated flag changes.
+///
+/// [score] and [eliminated] live for the whole match; [hand] is reset at the
+/// start of every round.
 class GamePlayer {
   GamePlayer({
     required this.id,
@@ -13,8 +16,8 @@ class GamePlayer {
     this.personality,
     this.score = 0,
     this.eliminated = false,
-    List<GameCard>? hand,
-  }) : hand = hand ?? <GameCard>[];
+    List<GameCard> hand = const [],
+  }) : hand = List.unmodifiable(hand);
 
   final String id;
   final String name;
@@ -26,16 +29,35 @@ class GamePlayer {
   final BotPersonality? personality;
 
   /// Cumulative penalty points. Lower is better; 101 is the danger line.
-  int score;
+  final int score;
 
-  /// §16 — knocked out of the match after overshooting the target score.
-  bool eliminated;
+  /// Knocked out of the match after overshooting the target score.
+  final bool eliminated;
 
+  /// Private hand. Only the owner (and the engine) may see it.
   final List<GameCard> hand;
 
   bool get isHuman => type == PlayerType.humanLocal;
   bool get isBot => type == PlayerType.bot;
   int get cardCount => hand.length;
+
+  GamePlayer copyWith({
+    String? name,
+    String? avatarId,
+    int? score,
+    bool? eliminated,
+    List<GameCard>? hand,
+  }) => GamePlayer(
+    id: id,
+    name: name ?? this.name,
+    type: type,
+    avatarId: avatarId ?? this.avatarId,
+    difficulty: difficulty,
+    personality: personality,
+    score: score ?? this.score,
+    eliminated: eliminated ?? this.eliminated,
+    hand: hand ?? this.hand,
+  );
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -63,7 +85,36 @@ class GamePlayer {
     score: (json['score'] as num?)?.toInt() ?? 0,
     eliminated: json['eliminated'] as bool? ?? false,
     hand: ((json['hand'] as List?) ?? const [])
-        .map((e) => GameCard.fromStorage(e as String))
+        .map((e) => GameCard.fromJson(e))
         .toList(),
   );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GamePlayer &&
+          other.id == id &&
+          other.name == name &&
+          other.type == type &&
+          other.avatarId == avatarId &&
+          other.difficulty == difficulty &&
+          other.personality == personality &&
+          other.score == score &&
+          other.eliminated == eliminated &&
+          _sameCards(other.hand, hand));
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, type, score, eliminated, Object.hashAll(hand));
+
+  static bool _sameCards(List<GameCard> a, List<GameCard> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  @override
+  String toString() => 'GamePlayer($id, score: $score, hand: $hand)';
 }

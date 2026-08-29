@@ -16,15 +16,15 @@ import 'widgets/table_piles.dart';
 class TutorialFigures {
   const TutorialFigures._();
 
-  static const GameCard _fiveCoppe = GameCard(CardSuit.coppe, CardRank.five);
+  static const GameCard _fiveCoppe = GameCard(CardSuit.coppe, CardRank.cinque);
 
   static Widget goal(double cw) => Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       _fan(cw, const [
         GameCard(CardSuit.denari, CardRank.re),
-        GameCard(CardSuit.spade, CardRank.seven),
-        GameCard(CardSuit.bastoni, CardRank.three),
+        GameCard(CardSuit.spade, CardRank.sette),
+        GameCard(CardSuit.bastoni, CardRank.tre),
       ]),
       const SizedBox(width: AppSpacing.lg),
       const AppIconView(AppIcon.play, size: 20, color: AppColors.antiqueGold),
@@ -55,7 +55,7 @@ class TutorialFigures {
             Strings.s.suitCoppe,
           ),
           const SizedBox(width: AppSpacing.lg),
-          _valid(cw, const GameCard(CardSuit.bastoni, CardRank.five), '5'),
+          _valid(cw, const GameCard(CardSuit.bastoni, CardRank.cinque), '5'),
         ],
       ),
     ],
@@ -80,8 +80,8 @@ class TutorialFigures {
       ),
       const SizedBox(width: AppSpacing.lg),
       _fan(cw, const [
-        GameCard(CardSuit.spade, CardRank.four),
-        GameCard(CardSuit.denari, CardRank.six),
+        GameCard(CardSuit.spade, CardRank.quattro),
+        GameCard(CardSuit.denari, CardRank.sei),
       ]),
     ],
   );
@@ -91,7 +91,7 @@ class TutorialFigures {
     children: [
       PlayingCard(
         width: cw * 1.15,
-        card: const GameCard(CardSuit.denari, CardRank.ace),
+        card: const GameCard(CardSuit.denari, CardRank.asso),
         elevation: 1.8,
         glow: 0.9,
       ),
@@ -117,7 +117,7 @@ class TutorialFigures {
                 angle: (suit.index - 1) * 0.10,
                 child: PlayingCard(
                   width: cw * 0.86,
-                  card: GameCard(suit, CardRank.two),
+                  card: GameCard(suit, CardRank.due),
                   elevation: 0.9,
                 ),
               ),
@@ -167,7 +167,7 @@ class TutorialFigures {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           for (final card in const [
-            GameCard(CardSuit.denari, CardRank.ace),
+            GameCard(CardSuit.denari, CardRank.asso),
             GameCard(CardSuit.coppe, CardRank.fante),
             GameCard(CardSuit.bastoni, CardRank.re),
           ])

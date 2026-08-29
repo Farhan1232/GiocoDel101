@@ -61,6 +61,7 @@ import 'package:gioco_del_101/features/rooms/presentation/create_room_screen.dar
 import 'package:gioco_del_101/features/rooms/presentation/join_room_screen.dart';
 import 'package:gioco_del_101/features/rooms/presentation/matchmaking_screen.dart';
 import 'package:gioco_del_101/features/rooms/presentation/room_lobby_screen.dart';
+import 'package:gioco_del_101/features/game/domain/game_state.dart';
 
 const Size phone = Size(390, 844);
 
@@ -193,45 +194,50 @@ GameController _seatTable(
     playerCount: players,
     difficulty: BotDifficulty.normal,
   );
-  final s = setup.engine.state;
-  s.players.first
-    ..hand.clear()
-    ..hand.addAll(const [
-      GameCard(CardSuit.coppe, CardRank.re),
-      GameCard(CardSuit.denari, CardRank.five),
-      GameCard(CardSuit.spade, CardRank.two),
-      GameCard(CardSuit.bastoni, CardRank.cavallo),
-      GameCard(CardSuit.coppe, CardRank.seven),
-    ])
-    ..score = 82;
-  if (s.players.length > 1) s.players[1].score = 44;
-  if (s.players.length > 2) s.players[2].score = 97;
-  s.roundNumber = 3;
-  s.stats
-    ..cardsPlayed = 63
-    ..longestChain = 3
-    ..bestComeback = 27;
-  s.round
-    ..activeSuit = CardSuit.coppe
-    ..currentIndex = 0
-    ..pendingPenalty = penalty
-    ..chainLength = chain;
-  s.round.discardPile
-    ..clear()
-    ..add(const GameCard(CardSuit.coppe, CardRank.five));
-  if (finished) {
-    s.matchOver = true;
-    s.matchWinnerId = s.players.first.id;
-    s.players.first.score = 0;
-    for (var i = 1; i < s.players.length; i++) {
-      s.players[i]
-        ..score = 104
-        ..eliminated = true;
-    }
+  var s = setup.session.state;
+  final human = s.players.first;
+  final hand = const [
+    GameCard(CardSuit.coppe, CardRank.re),
+    GameCard(CardSuit.denari, CardRank.cinque),
+    GameCard(CardSuit.spade, CardRank.due),
+    GameCard(CardSuit.bastoni, CardRank.cavallo),
+    GameCard(CardSuit.coppe, CardRank.sette),
+  ];
+  const top = GameCard(CardSuit.coppe, CardRank.cinque);
+  // Re-deal every seat from a clean deck so no card is duplicated.
+  final stock = Deck.standard
+      .where((c) => !hand.contains(c) && c != top)
+      .toList();
+  final botHands = <String, List<GameCard>>{};
+  for (final p in s.players.skip(1)) {
+    botHands[p.id] = [for (var i = 0; i < 5; i++) stock.removeLast()];
   }
+  final seats = [
+    human.copyWith(hand: hand, score: finished ? 0 : 82),
+    for (var i = 1; i < s.players.length; i++)
+      s.players[i].copyWith(
+        hand: botHands[s.players[i].id],
+        score: finished ? 104 : (i == 1 ? 44 : 97),
+        eliminated: finished,
+      ),
+  ];
+  s = s.copyWith(
+    players: seats,
+    round: 3,
+    stats: s.stats.copyWith(cardsPlayed: 63, longestChain: 3, bestComeback: 27),
+    drawPile: stock,
+    discardPile: const [top],
+    activeSuit: CardSuit.coppe,
+    currentSeat: 0,
+    pendingDrawCount: penalty,
+    chainLength: chain,
+    status: finished ? GameStatus.finished : GameStatus.awaitingAction,
+    winnerId: finished ? human.id : null,
+  );
+  setup.session.restore(s);
   return Get.put(
     GameController(
-      engine: setup.engine,
+      session: setup.session,
       storage: Get.find<GameStorageService>(),
       settings: settings,
       stats: Get.find<StatsController>(),

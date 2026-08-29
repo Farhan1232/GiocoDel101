@@ -16,7 +16,7 @@ gaps between it and the brief.
 
 1. **§6a — the Cavallo against a pending +2.** Blocked on the client (see
    `GAME_SPEC.md` §14.1). Get the answer first; then one flag on
-   `GameRulesConfig` plus one case in `CardRuleResolver`.
+   `GameRules` plus one case in `CardRuleResolver`.
 2. Turn-timer semantics: what expiry actually does (auto-play / auto-draw /
    forfeit). Undefined today.
 3. Simultaneous-elimination tie-break (§12a).

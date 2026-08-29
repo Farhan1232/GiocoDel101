@@ -1,7 +1,7 @@
 import 'card_suit.dart';
 
 /// Counters accumulated across a whole match, surfaced on the match-result
-/// screen (§37) and folded into lifetime statistics (§39) when it ends.
+/// screen and folded into lifetime statistics when it ends. Immutable.
 class MatchStats {
   MatchStats({
     this.cardsPlayed = 0,
@@ -10,38 +10,72 @@ class MatchStats {
     this.longestChain = 0,
     this.resets101 = 0,
     this.bestComeback = 0,
-    Map<String, int>? roundsWon,
-    Map<String, List<String>>? cavalloSuits,
-    Map<String, int>? suitsPlayed,
-  }) : roundsWon = roundsWon ?? <String, int>{},
-       cavalloSuits = cavalloSuits ?? <String, List<String>>{},
-       suitsPlayed = suitsPlayed ?? <String, int>{};
+    Map<String, int> roundsWon = const {},
+    Map<String, List<String>> cavalloSuits = const {},
+    Map<String, int> suitsPlayed = const {},
+  }) : roundsWon = Map.unmodifiable(roundsWon),
+       cavalloSuits = Map.unmodifiable({
+         for (final e in cavalloSuits.entries)
+           e.key: List<String>.unmodifiable(e.value),
+       }),
+       suitsPlayed = Map.unmodifiable(suitsPlayed);
 
-  int cardsPlayed;
-  int acesPlayed;
-  int twosPlayed;
+  final int cardsPlayed;
+  final int acesPlayed;
+  final int twosPlayed;
 
-  /// §11/§37 — deepest Chain Storm reached, measured in stacked 2s.
-  int longestChain;
+  /// Deepest chain reached, measured in stacked 2s.
+  final int longestChain;
 
-  /// §15 — how many times a player landed on exactly 101.
-  int resets101;
+  /// How many times a player landed on exactly 101.
+  final int resets101;
 
-  /// §37 — largest points deficit the eventual winner came back from.
-  int bestComeback;
+  /// Largest points deficit the eventual winner came back from.
+  final int bestComeback;
 
   final Map<String, int> roundsWon;
 
-  /// §41 "Maestro dei Semi" — suits each player has named with a Cavallo.
+  /// "Maestro dei Semi" — suits each player has named with a Cavallo.
   final Map<String, List<String>> cavalloSuits;
 
-  /// §39 "favourite suit" — how often the human played each suit.
+  /// "favourite suit" — how often each suit was played.
   final Map<String, int> suitsPlayed;
 
-  void recordCavalloSuit(String playerId, CardSuit suit) {
-    final list = cavalloSuits.putIfAbsent(playerId, () => <String>[]);
-    if (!list.contains(suit.key)) list.add(suit.key);
+  MatchStats copyWith({
+    int? cardsPlayed,
+    int? acesPlayed,
+    int? twosPlayed,
+    int? longestChain,
+    int? resets101,
+    int? bestComeback,
+    Map<String, int>? roundsWon,
+    Map<String, List<String>>? cavalloSuits,
+    Map<String, int>? suitsPlayed,
+  }) => MatchStats(
+    cardsPlayed: cardsPlayed ?? this.cardsPlayed,
+    acesPlayed: acesPlayed ?? this.acesPlayed,
+    twosPlayed: twosPlayed ?? this.twosPlayed,
+    longestChain: longestChain ?? this.longestChain,
+    resets101: resets101 ?? this.resets101,
+    bestComeback: bestComeback ?? this.bestComeback,
+    roundsWon: roundsWon ?? this.roundsWon,
+    cavalloSuits: cavalloSuits ?? this.cavalloSuits,
+    suitsPlayed: suitsPlayed ?? this.suitsPlayed,
+  );
+
+  MatchStats withCavalloSuit(String playerId, CardSuit suit) {
+    final current = List<String>.of(cavalloSuits[playerId] ?? const []);
+    if (!current.contains(suit.key)) current.add(suit.key);
+    return copyWith(cavalloSuits: {...cavalloSuits, playerId: current});
   }
+
+  MatchStats withSuitPlayed(CardSuit suit) => copyWith(
+    suitsPlayed: {...suitsPlayed, suit.key: (suitsPlayed[suit.key] ?? 0) + 1},
+  );
+
+  MatchStats withRoundWon(String playerId) => copyWith(
+    roundsWon: {...roundsWon, playerId: (roundsWon[playerId] ?? 0) + 1},
+  );
 
   Map<String, dynamic> toJson() => {
     'cardsPlayed': cardsPlayed,

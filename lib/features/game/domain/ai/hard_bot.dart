@@ -98,7 +98,7 @@ class HardBot extends NormalBot {
       // spent on a full hand.
       if (next.cardCount == 1) score += weights.action * 22.0;
       // Keep one 2 back as an answer while chains are still likely.
-      final twosLeft = unseenOfRank(CardRank.two, view);
+      final twosLeft = unseenOfRank(CardRank.due, view);
       final myTwos = view.hand.where((c) => c.isTwo).length;
       if (myTwos == 1 && twosLeft > 0 && view.pendingPenalty == 0) {
         score -= weights.action * 6.0;

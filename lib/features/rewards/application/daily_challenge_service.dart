@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import '../domain/daily_challenge.dart';
-import '../../game/domain/game_rules_config.dart';
+import '../../game/domain/game_rules.dart';
 import '../../game/domain/player_type.dart';
 
 /// §68 — builds the day's challenge from the date alone.
@@ -40,7 +40,7 @@ class DailyChallengeService {
         difficulty: BotDifficulty.hard,
         startingScore: 80,
         opponentStartingScore: 0,
-        rules: const GameRulesConfig(),
+        rules: const GameRules(),
         reward: 'Dorso Notturno',
       ),
       1 => DailyChallenge(
@@ -53,7 +53,7 @@ class DailyChallengeService {
         difficulty: difficulty,
         startingScore: 0,
         opponentStartingScore: 0,
-        rules: const GameRulesConfig(startingHandSize: 3),
+        rules: const GameRules(startingHandSize: 3),
         reward: 'Dorso Notturno',
       ),
       2 => DailyChallenge(
@@ -67,7 +67,7 @@ class DailyChallengeService {
         difficulty: difficulty,
         startingScore: 0,
         opponentStartingScore: 0,
-        rules: const GameRulesConfig(startingHandSize: 8),
+        rules: const GameRules(startingHandSize: 8),
         reward: 'Dorso Notturno',
       ),
       3 => DailyChallenge(
@@ -80,7 +80,7 @@ class DailyChallengeService {
         difficulty: BotDifficulty.normal,
         startingScore: 94,
         opponentStartingScore: 20,
-        rules: const GameRulesConfig(),
+        rules: const GameRules(),
         reward: 'Dorso Notturno',
       ),
       _ => DailyChallenge(
@@ -94,7 +94,7 @@ class DailyChallengeService {
         difficulty: BotDifficulty.hard,
         startingScore: 0,
         opponentStartingScore: 0,
-        rules: const GameRulesConfig(allowVoluntaryDraw: false),
+        rules: const GameRules(allowVoluntaryDraw: false),
         reward: 'Dorso Notturno',
       ),
     };

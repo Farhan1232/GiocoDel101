@@ -152,7 +152,7 @@ open ios/Runner.xcworkspace          # then archive from Xcode
 
 ## 5. Where the game rules are configured
 
-**One file: `lib/features/game/domain/game_rules_config.dart`.**
+**One file: `lib/features/game/domain/game_rules.dart`.**
 
 Nothing in the engine, the controllers or the widgets hardcodes a rule. Change a
 value there and it takes effect everywhere.
@@ -171,12 +171,18 @@ value there and it takes effect everywhere.
 | `mustDrawBeforePassing` | `true` | No unrestricted pass |
 | `drawTwoPenalty` | `2` | Cards each 2 adds to the chain |
 | `pendingPenaltyAppliesAfterWin` | `false` | Whether an unanswered chain still bites when the winning card ends the round |
+| `nineBlockMode` | `cancel` | *Provisional* — how a Cavallo answers a pending +2: `disabled` / `cancel` / `passOn` |
+| `nineBlockChangesSuit` | `true` | *Provisional* — whether a blocking Cavallo still names the suit |
+| `restrictPlayToDrawnCard` | `false` | *Provisional* — after drawing, only the drawn card may be played |
+| `starterCardPolicy` | `avoidActionCards` | *Provisional* — what may open the discard pile |
+| `roundStarterPolicy` | `previousRoundWinner` | *Provisional* — who leads the next round |
+| `turnTimeLimitSeconds` | `null` | Stamps `turnDeadlineAt`; expiry behaviour undefined |
 
 The first three are the ones the brief flags as likely to change; they are
 plain fields with no other copy anywhere in the codebase.
 
 Players can also override most of these per match from the **Regole avanzate**
-panel on the setup screen, which builds a `GameRulesConfig` in
+panel on the setup screen, which builds a `GameRules` in
 `SetupController.buildRules()`.
 
 ---
@@ -219,7 +225,7 @@ Bundled assets are limited to:
 `SharedPreferences` with JSON, via `lib/core/storage/`. Keys live in
 `storage_keys.dart`; there are five.
 
-- **`gd101.match.v1`** — the resumable match. `MatchState.toJson()` captures the
+- **`gd101.match.v1`** — the resumable match. `GameState.toJson()` captures the
   deck order, both piles, every hand, scores, eliminations, the turn cursor, the
   active suit, the pending +2, the round number, the rule config and the recent
   action history. `GameController` writes it after every card played, card drawn
@@ -231,7 +237,7 @@ Bundled assets are limited to:
   choices and daily-challenge state.
 
 Every read is defensive. A corrupt or half-written value is discarded rather than
-crashing the launch: `MatchState.fromJson` throws `FormatException` on
+crashing the launch: `GameState.fromJson` throws `FormatException` on
 structurally invalid data, and `GameStorageService.load()` catches it, clears the
 key and returns null, so "Riprendi Partita" simply does not appear.
 
@@ -272,7 +278,7 @@ The engine is already independent of presentation and of time.
 - `PlayerType` already distinguishes `humanLocal` from `bot`. Adding
   `humanRemote` is a new enum value; the engine only ever asks whether a seat is
   driven locally.
-- `MatchState.toJson()` is already a complete, exact wire format — the same one
+- `GameState.toJson()` is already a complete, exact wire format — the same one
   used for local saves, and covered by a round-trip test.
 - `GameController` is the only class that decides *when* a move happens. A
   networked build would replace its bot-driving loop with "wait for the remote

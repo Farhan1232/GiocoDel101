@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../../game/domain/game_rules_config.dart';
+import '../../game/domain/game_rules.dart';
 import '../domain/room_models.dart';
 
 /// Holds the room the player is configuring.
@@ -26,7 +26,7 @@ class CreateRoomController extends GetxController {
   void setTurnTimer(TurnTimer value) =>
       config.value = config.value.copyWith(turnTimer: value);
 
-  void setRules(GameRulesConfig value) =>
+  void setRules(GameRules value) =>
       config.value = config.value.copyWith(rules: value);
 
   void toggleStackTwos(bool value) =>

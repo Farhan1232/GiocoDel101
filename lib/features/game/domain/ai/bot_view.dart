@@ -1,6 +1,6 @@
 import '../card_suit.dart';
 import '../game_card.dart';
-import '../game_rules_config.dart';
+import '../game_rules.dart';
 
 /// What a bot is allowed to know about another seat.
 ///
@@ -66,7 +66,7 @@ class BotView {
 
   final int drawPileCount;
   final int myScore;
-  final GameRulesConfig rules;
+  final GameRules rules;
   final bool hasDrawnThisTurn;
   final GameCard? drawnCard;
   final bool canDraw;

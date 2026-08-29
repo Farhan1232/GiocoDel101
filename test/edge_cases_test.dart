@@ -1,14 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_session.dart';
 import 'package:gioco_del_101/features/game/domain/card_rank.dart';
 import 'package:gioco_del_101/features/game/domain/card_suit.dart';
 import 'package:gioco_del_101/features/game/domain/game_card.dart';
 import 'package:gioco_del_101/features/game/domain/game_player.dart';
-import 'package:gioco_del_101/features/game/domain/match_state.dart';
+import 'package:gioco_del_101/features/game/domain/game_state.dart';
 import 'package:gioco_del_101/features/game/domain/player_type.dart';
-import 'package:gioco_del_101/features/game/domain/round_state.dart';
 
 import 'support/engine_harness.dart';
 
@@ -16,42 +15,44 @@ void main() {
   group('Deck exhaustion (§18)', () {
     test('recycles the discard pile and keeps the visible top card', () {
       final buried = [
-        c(CardSuit.bastoni, CardRank.three),
-        c(CardSuit.bastoni, CardRank.four),
-        c(CardSuit.bastoni, CardRank.six),
+        c(CardSuit.bastoni, CardRank.tre),
+        c(CardSuit.bastoni, CardRank.quattro),
+        c(CardSuit.bastoni, CardRank.sei),
       ];
       final e = buildEngine(
         hands: [
-          [c(CardSuit.spade, CardRank.seven)],
-          [c(CardSuit.denari, CardRank.three)],
+          [c(CardSuit.spade, CardRank.sette)],
+          [c(CardSuit.denari, CardRank.tre)],
         ],
-        top: c(CardSuit.coppe, CardRank.five),
+        top: c(CardSuit.coppe, CardRank.cinque),
         discardBelowTop: buried,
         drawPile: const [],
+        fillDeck: false,
       );
-      expect(e.round.drawPile, isEmpty);
+      expect(e.state.drawPile, isEmpty);
 
       e.drawCard();
 
       expect(
-        e.round.discardPile.last,
-        c(CardSuit.coppe, CardRank.five),
+        e.state.discardPile.last,
+        c(CardSuit.coppe, CardRank.cinque),
         reason: 'the top card stays on the table',
       );
-      expect(e.round.discardPile, hasLength(1));
+      expect(e.state.discardPile, hasLength(1));
       // Three buried cards were recycled; one of them was just drawn.
-      expect(e.round.drawPile, hasLength(2));
+      expect(e.state.drawPile, hasLength(2));
       expect(e.state.playerById('p0')!.hand, hasLength(2));
     });
 
     test('survives having nothing left to recycle', () {
       final e = buildEngine(
         hands: [
-          [c(CardSuit.spade, CardRank.seven)],
-          [c(CardSuit.denari, CardRank.three)],
+          [c(CardSuit.spade, CardRank.sette)],
+          [c(CardSuit.denari, CardRank.tre)],
         ],
-        top: c(CardSuit.coppe, CardRank.five),
+        top: c(CardSuit.coppe, CardRank.cinque),
         drawPile: const [],
+        fillDeck: false,
       );
       expect(e.drawCard().accepted, isTrue);
       expect(e.state.playerById('p0')!.hand, hasLength(1));
@@ -62,19 +63,20 @@ void main() {
       final e = buildEngine(
         hands: [
           [c(CardSuit.coppe, CardRank.re)],
-          [c(CardSuit.spade, CardRank.seven)],
+          [c(CardSuit.spade, CardRank.sette)],
         ],
-        top: c(CardSuit.coppe, CardRank.two),
-        discardBelowTop: [c(CardSuit.bastoni, CardRank.three)],
+        top: c(CardSuit.coppe, CardRank.due),
+        discardBelowTop: [c(CardSuit.bastoni, CardRank.tre)],
         drawPile: const [],
         currentIndex: 1,
         pendingPenalty: 6,
         chainLength: 3,
+        fillDeck: false,
       );
       e.drawCard();
       // Only one card was recyclable, so only one could be handed over.
       expect(e.state.playerById('p1')!.hand, hasLength(2));
-      expect(e.round.pendingPenalty, 0);
+      expect(e.state.pendingDrawCount, 0);
       expect(e.currentPlayer.id, 'p0');
     });
   });
@@ -93,19 +95,20 @@ void main() {
               difficulty: BotDifficulty.easy,
             ),
         ];
-        final e = GameEngine.newMatch(
+        final e = GameSession.newMatch(
+          gameId: 't',
           players: players,
           mode: GameMode.vsComputer,
-          random: rng,
+          seed: rng.nextInt(1 << 30),
         );
 
         var steps = 0;
-        while (!e.state.matchOver && steps++ < 200000) {
-          if (e.round.phase == TurnPhase.roundOver) {
+        while (!e.state.isFinished && steps++ < 200000) {
+          if (e.state.status == GameStatus.roundOver) {
             e.startNextRound();
             continue;
           }
-          if (e.round.phase == TurnPhase.awaitingSuitChoice) {
+          if (e.state.status == GameStatus.awaitingSuitChoice) {
             e.chooseSuit(CardSuit.values[rng.nextInt(4)]);
             continue;
           }
@@ -114,14 +117,14 @@ void main() {
             e.playCard(playable[rng.nextInt(playable.length)]);
           } else if (e.canDraw) {
             e.drawCard();
-            if (e.round.drawnCard == null && e.canEndTurn) e.endTurn();
+            if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();
           } else if (e.canEndTurn) {
             e.endTurn();
           } else {
             fail('Seed $seed deadlocked with no legal action');
           }
         }
-        expect(e.state.matchOver, isTrue, reason: 'seed $seed never finished');
+        expect(e.state.isFinished, isTrue, reason: 'seed $seed never finished');
         expect(steps, lessThan(200000), reason: 'seed $seed ran away');
       }
     });
@@ -137,21 +140,22 @@ void main() {
             avatarId: 'marco',
           ),
       ];
-      final e = GameEngine.newMatch(
+      final e = GameSession.newMatch(
+        gameId: 't',
         players: players,
         mode: GameMode.vsComputer,
-        random: rng,
+        seed: rng.nextInt(1 << 30),
       );
 
       int total() =>
-          e.round.drawPile.length +
-          e.round.discardPile.length +
+          e.state.drawPile.length +
+          e.state.discardPile.length +
           e.state.players.fold<int>(0, (s, p) => s + p.hand.length);
 
       expect(total(), 40);
       var steps = 0;
-      while (e.round.phase != TurnPhase.roundOver && steps++ < 5000) {
-        if (e.round.phase == TurnPhase.awaitingSuitChoice) {
+      while (e.state.status != GameStatus.roundOver && steps++ < 5000) {
+        if (e.state.status == GameStatus.awaitingSuitChoice) {
           e.chooseSuit(CardSuit.values[rng.nextInt(4)]);
         } else {
           final playable = e.playableCardsFor(e.currentPlayer);
@@ -159,11 +163,11 @@ void main() {
             e.playCard(playable.first);
           } else {
             e.drawCard();
-            if (e.round.drawnCard == null && e.canEndTurn) e.endTurn();
+            if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();
           }
         }
         expect(total(), 40, reason: 'a card went missing after step $steps');
-        expect(e.round.discardPile, isNotEmpty);
+        expect(e.state.discardPile, isNotEmpty);
       }
     });
   });
@@ -171,14 +175,12 @@ void main() {
   group('Corrupt saves (§52)', () {
     test('a match with one seat is rejected', () {
       expect(
-        () => MatchState.fromJson({
+        () => GameState.fromJson({
           'players': [
             {'id': 'p0', 'name': 'Solo', 'type': 'humanLocal', 'hand': []},
           ],
-          'round': {
-            'discardPile': ['coppe_five'],
-            'activeSuit': 'coppe',
-          },
+          'discardPile': ['coppe_cinque'],
+          'activeSuit': 'coppe',
         }),
         throwsFormatException,
       );
@@ -186,23 +188,28 @@ void main() {
 
     test('an empty discard pile is rejected', () {
       expect(
-        () => RoundState.fromJson({'discardPile': [], 'activeSuit': 'coppe'}),
+        () => GameState.fromJson({
+          'players': [
+            {'id': 'p0', 'name': 'A', 'type': 'humanLocal', 'hand': []},
+            {'id': 'p1', 'name': 'B', 'type': 'bot', 'hand': []},
+          ],
+          'discardPile': [],
+          'activeSuit': 'coppe',
+        }),
         throwsFormatException,
       );
     });
 
     test('a turn cursor outside the table is rejected', () {
       expect(
-        () => MatchState.fromJson({
+        () => GameState.fromJson({
           'players': [
             {'id': 'p0', 'name': 'A', 'type': 'humanLocal', 'hand': []},
             {'id': 'p1', 'name': 'B', 'type': 'bot', 'hand': []},
           ],
-          'round': {
-            'discardPile': ['coppe_five'],
-            'activeSuit': 'coppe',
-            'currentIndex': 9,
-          },
+          'discardPile': ['coppe_cinque'],
+          'activeSuit': 'coppe',
+          'currentSeat': 9,
         }),
         throwsFormatException,
       );
@@ -227,28 +234,29 @@ void main() {
             personality: BotPersonality.tactical,
           ),
       ];
-      final e = GameEngine.newMatch(
+      final e = GameSession.newMatch(
+        gameId: 't',
         players: players,
         mode: GameMode.passAndPlay,
-        random: rng,
+        seed: rng.nextInt(1 << 30),
       );
       // Advance a few turns so the state is genuinely mid-game.
       for (var i = 0; i < 12; i++) {
-        if (e.round.phase == TurnPhase.awaitingSuitChoice) {
+        if (e.state.status == GameStatus.awaitingSuitChoice) {
           e.chooseSuit(CardSuit.denari);
           continue;
         }
-        if (e.round.phase != TurnPhase.awaitingAction) break;
+        if (e.state.status != GameStatus.awaitingAction) break;
         final playable = e.playableCardsFor(e.currentPlayer);
         if (playable.isNotEmpty) {
           e.playCard(playable.first);
         } else {
           e.drawCard();
-          if (e.round.drawnCard == null && e.canEndTurn) e.endTurn();
+          if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();
         }
       }
 
-      final restored = MatchState.fromJson(e.state.toJson());
+      final restored = GameState.fromJson(e.state.toJson());
 
       expect(
         restored.players.map((p) => p.id),
@@ -259,14 +267,14 @@ void main() {
         expect(restored.players[i].score, e.state.players[i].score);
         expect(restored.players[i].difficulty, BotDifficulty.hard);
       }
-      expect(restored.round.drawPile, e.round.drawPile);
-      expect(restored.round.discardPile, e.round.discardPile);
-      expect(restored.round.activeSuit, e.round.activeSuit);
-      expect(restored.round.currentIndex, e.round.currentIndex);
-      expect(restored.round.pendingPenalty, e.round.pendingPenalty);
-      expect(restored.round.chainLength, e.round.chainLength);
+      expect(restored.drawPile, e.state.drawPile);
+      expect(restored.discardPile, e.state.discardPile);
+      expect(restored.activeSuit, e.state.activeSuit);
+      expect(restored.currentSeat, e.state.currentSeat);
+      expect(restored.pendingDrawCount, e.state.pendingDrawCount);
+      expect(restored.chainLength, e.state.chainLength);
       expect(restored.mode, GameMode.passAndPlay);
-      expect(restored.roundNumber, e.state.roundNumber);
+      expect(restored.round, e.state.round);
       expect(restored.history.length, e.state.history.length);
       expect(restored.rules.toJson(), e.state.rules.toJson());
     });
@@ -274,39 +282,35 @@ void main() {
     test('play continues correctly from a restored state', () {
       final e = buildEngine(
         hands: [
-          [c(CardSuit.coppe, CardRank.re), c(CardSuit.spade, CardRank.two)],
-          [c(CardSuit.spade, CardRank.three)],
+          [c(CardSuit.coppe, CardRank.re), c(CardSuit.spade, CardRank.due)],
+          [c(CardSuit.spade, CardRank.tre)],
         ],
-        top: c(CardSuit.coppe, CardRank.five),
-        drawPile: [c(CardSuit.bastoni, CardRank.six)],
+        top: c(CardSuit.coppe, CardRank.cinque),
+        drawPile: [c(CardSuit.bastoni, CardRank.sei)],
       );
-      final resumed = GameEngine.fromState(
-        MatchState.fromJson(e.state.toJson()),
-      );
+      final resumed = GameSession(GameState.fromJson(e.state.toJson()));
       expect(resumed.canPlay(c(CardSuit.coppe, CardRank.re)), isTrue);
       resumed.playCard(c(CardSuit.coppe, CardRank.re));
       expect(resumed.currentPlayer.id, 'p1');
-      expect(resumed.round.topCard, c(CardSuit.coppe, CardRank.re));
+      expect(resumed.state.topCard, c(CardSuit.coppe, CardRank.re));
     });
 
     test('a suit choice interrupted by a lifecycle event survives', () {
       final e = buildEngine(
         hands: [
           [c(CardSuit.spade, CardRank.cavallo), c(CardSuit.spade, CardRank.re)],
-          [c(CardSuit.denari, CardRank.three)],
+          [c(CardSuit.denari, CardRank.tre)],
         ],
-        top: c(CardSuit.coppe, CardRank.five),
+        top: c(CardSuit.coppe, CardRank.cinque),
       );
       e.playCard(c(CardSuit.spade, CardRank.cavallo));
-      expect(e.round.phase, TurnPhase.awaitingSuitChoice);
+      expect(e.state.status, GameStatus.awaitingSuitChoice);
 
-      final resumed = GameEngine.fromState(
-        MatchState.fromJson(e.state.toJson()),
-      );
-      expect(resumed.round.phase, TurnPhase.awaitingSuitChoice);
+      final resumed = GameSession(GameState.fromJson(e.state.toJson()));
+      expect(resumed.state.status, GameStatus.awaitingSuitChoice);
       expect(resumed.currentPlayer.id, 'p0');
       resumed.chooseSuit(CardSuit.coppe);
-      expect(resumed.round.activeSuit, CardSuit.coppe);
+      expect(resumed.state.activeSuit, CardSuit.coppe);
       expect(resumed.currentPlayer.id, 'p1');
     });
 
@@ -321,18 +325,19 @@ void main() {
             avatarId: 'luca',
           ),
       ];
-      final e = GameEngine.newMatch(
+      final e = GameSession.newMatch(
+        gameId: 't',
         players: players,
         mode: GameMode.vsComputer,
-        random: rng,
+        seed: rng.nextInt(1 << 30),
       );
       var steps = 0;
-      while (!e.state.matchOver && steps++ < 3000) {
-        if (e.round.phase == TurnPhase.roundOver) {
+      while (!e.state.isFinished && steps++ < 3000) {
+        if (e.state.status == GameStatus.roundOver) {
           e.startNextRound();
           continue;
         }
-        if (e.round.phase == TurnPhase.awaitingSuitChoice) {
+        if (e.state.status == GameStatus.awaitingSuitChoice) {
           e.chooseSuit(CardSuit.values[rng.nextInt(4)]);
           continue;
         }
@@ -341,11 +346,11 @@ void main() {
           e.playCard(playable.first);
         } else {
           e.drawCard();
-          if (e.round.drawnCard == null && e.canEndTurn) e.endTurn();
+          if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();
         }
         expect(
           e.state.history.length,
-          lessThanOrEqualTo(MatchState.historyLimit),
+          lessThanOrEqualTo(GameState.historyLimit),
         );
       }
     });

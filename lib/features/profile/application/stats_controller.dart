@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../achievements/domain/achievements_catalog.dart';
-import '../../game/domain/match_state.dart';
+import '../../game/domain/game_state.dart';
 import '../../game/domain/round_result.dart';
 import '../domain/statistics_model.dart';
 import '../../rewards/application/daily_challenge_service.dart';
@@ -45,7 +45,7 @@ class StatsController extends GetxController {
   }
 
   Future<void> recordRound({
-    required MatchState match,
+    required GameState match,
     required RoundResult result,
     required String humanId,
   }) => _commit(
@@ -58,13 +58,13 @@ class StatsController extends GetxController {
   );
 
   Future<void> recordMatch({
-    required MatchState match,
+    required GameState match,
     required String humanId,
   }) async {
     await _commit(
       _service.applyMatch(stats: stats, match: match, humanId: humanId),
     );
-    if (match.isDailyChallenge && match.matchWinnerId == humanId) {
+    if (match.isDailyChallenge && match.winnerId == humanId) {
       await markDailyCompleted();
     }
   }

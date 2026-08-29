@@ -9,7 +9,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../app/localization/app_strings.dart';
 import '../domain/match_factory.dart';
 import '../domain/game_player.dart';
-import '../domain/match_state.dart';
+import '../domain/game_state.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/haptic_service.dart';
 import '../../../app/theme/app_colors.dart';
@@ -42,9 +42,8 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
     c.persistNow();
   }
 
-  GamePlayer? get _winner => c.state.matchWinnerId == null
-      ? null
-      : c.state.playerById(c.state.matchWinnerId!);
+  GamePlayer? get _winner =>
+      c.state.winnerId == null ? null : c.state.playerById(c.state.winnerId!);
 
   void _rematch() {
     final state = c.state;
@@ -140,7 +139,7 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                               _stat(
                                 AppIcon.restart,
                                 s.roundsPlayed,
-                                '${c.state.roundNumber}',
+                                '${c.state.round}',
                               ),
                               _divider(),
                               _stat(

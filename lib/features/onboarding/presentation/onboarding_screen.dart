@@ -256,8 +256,8 @@ class _RulesArt extends StatelessWidget {
       builder: (context, box) {
         final width = (box.maxWidth * 0.26).clamp(64.0, 108.0);
         const cards = [
-          GameCard(CardSuit.spade, CardRank.ace),
-          GameCard(CardSuit.coppe, CardRank.two),
+          GameCard(CardSuit.spade, CardRank.asso),
+          GameCard(CardSuit.coppe, CardRank.due),
           GameCard(CardSuit.denari, CardRank.cavallo),
         ];
         return Row(

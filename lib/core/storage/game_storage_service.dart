@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../features/game/domain/match_state.dart';
+import '../../features/game/domain/game_state.dart';
 import 'local_storage.dart';
 import 'storage_keys.dart';
 
@@ -16,8 +16,8 @@ class GameStorageService {
 
   bool get hasSavedMatch => _storage.has(StorageKeys.savedMatch);
 
-  Future<void> save(MatchState state) async {
-    if (state.matchOver) {
+  Future<void> save(GameState state) async {
+    if (state.isFinished) {
       // §49 — a finished match must not offer "Riprendi Partita".
       await clear();
       return;
@@ -30,11 +30,11 @@ class GameStorageService {
   }
 
   /// Returns null when there is no save, or when the save is unusable.
-  MatchState? load() {
+  GameState? load() {
     final json = _storage.readJson(StorageKeys.savedMatch);
     if (json == null) return null;
     try {
-      return MatchState.fromJson(json);
+      return GameState.fromJson(json);
     } catch (error) {
       // §52 — a corrupt save is discarded, never surfaced to the player.
       debugPrint('Discarding invalid saved match: $error');

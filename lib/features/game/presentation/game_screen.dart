@@ -272,7 +272,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       }
       futures.add(
         _fly(
-          card: c.round.topCard,
+          card: c.state.topCard,
           from: from,
           to: to,
           width: _tableCardWidth,
@@ -460,7 +460,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           Column(
             children: [
               Text(
-                '${Strings.s.round} ${c.state.roundNumber}',
+                '${Strings.s.round} ${c.state.round}',
                 style: AppText.label.copyWith(letterSpacing: 2),
               ),
               if (c.state.isDailyChallenge)
@@ -508,7 +508,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             Positioned.fill(
               child: TableSurface(
                 theme: settings.theme,
-                activeSuit: c.round.activeSuit,
+                activeSuit: c.state.activeSuit,
                 intensity: c.busy.value ? 0.75 : 1.0,
               ),
             ),
@@ -551,7 +551,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   Widget _centrePiles(Color accent) {
     final cw = _tableCardWidth;
-    final discard = c.round.discardPile;
+    final discard = c.state.discardPile;
     final visible = discard
         .where((card) => !_hidden.contains(card.id))
         .toList();
@@ -571,10 +571,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             KeyedSubtree(
               key: _drawKey,
               child: DrawPileView(
-                count: c.round.drawPile.length,
+                count: c.state.drawPile.length,
                 cardWidth: cw,
                 backId: settings.settings.cardBackId,
-                highlighted: c.canInteract && c.engine.canDraw,
+                highlighted: c.canInteract && c.session.canDraw,
                 onTap: c.canInteract ? c.drawCard : null,
               ),
             ),
@@ -606,7 +606,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ],
         ),
         SizedBox(width: cw * 0.10),
-        ActiveSuitBadge(suit: c.round.activeSuit, size: cw * 0.52),
+        ActiveSuitBadge(suit: c.state.activeSuit, size: cw * 0.52),
       ],
     );
   }
@@ -632,16 +632,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   /// §8 — contextual actions only. There is never a bare "pass" button.
   Widget _actionRow(Color accent) {
     final s = Strings.s;
-    final canDraw = c.canInteract && c.engine.canDraw;
-    final mustTake = c.canInteract && c.engine.mustTakePenalty;
-    final canPass = c.canInteract && c.engine.canEndTurn;
+    final canDraw = c.canInteract && c.session.canDraw;
+    final mustTake = c.canInteract && c.session.mustTakePenalty;
+    final canPass = c.canInteract && c.session.canEndTurn;
 
     final children = <Widget>[];
     if (mustTake) {
       children.add(
         Expanded(
           child: PremiumButton(
-            label: '${s.takePenalty} +${c.round.pendingPenalty}',
+            label: '${s.takePenalty} +${c.state.pendingDrawCount}',
             size: ButtonSize.medium,
             accent: AppColors.terracottaCoral,
             icon: AppIcon.draw,

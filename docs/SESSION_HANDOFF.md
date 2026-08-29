@@ -1,207 +1,215 @@
-# Session Handoff — Session 1 → Session 2
+# Session Handoff — Session 2 → Session 3
 
-Date: 2026-08-29. Branch: `feature/session-1-ui-foundation`.
+Date: 2026-08-29. Branch: `feature/session-1-ui-foundation` (continued;
+Session 2 checkpoint commit on top of Session 1's).
 
----
-
-## 0. Read this first: the project was not on disk
-
-`~/GiocoDel101` had been **deleted** from this machine. It was restored by
-cloning the client's GitHub repo (`Farhan1232/GiocoDel101`, `main` @
-`411873d8`, pushed 2026-08-29). Everything below was built on that.
-
-**A large body of earlier work is gone and is not recoverable from here.**
-Project notes describe roughly five phases completed on 27–28 Aug — Italian/
-English localization, Firebase core and accounts, online multiplayer with
-Cloud Functions, premium/Stripe, a web emulator harness, ~344 tests. None of
-it exists in:
-
-- the GitHub repo (2 commits, both the offline game),
-- the local backup bundle (`gh-backup-…/GiocoDel101.bundle`, 26 Aug, single
-  commit, `main` only),
-- the Trash (empty),
-- anywhere else on the filesystem,
-- any other remote branch or tag (there are none).
-
-All of those were checked. **If a copy exists on another machine, say so
-before Session 2 starts** — merging it after this restructure will be
-painful.
-
-Practical consequence: localization had to be rebuilt (it was, this session).
-The Firebase half is moot — this brief targets **Supabase**, confirmed with
-the user.
+Session 1's handoff (project restore, lost Firebase work, restructure,
+localization, GetX trap, Gradle heap) still applies — it is preserved in git
+history at the Session 1 checkpoint and summarised in §6 below.
 
 ---
 
-## 1. What this session changed
+## 0. What Session 2 delivered
 
-### Restructured to feature-first
-94 of the 101 source files moved from `screens/` `controllers/` `models/`
-`widgets/` into `app/` `core/` `features/`. Imports were rewritten
-mechanically by script, not by hand. Zero behaviour change: the analyzer was
-clean and all 120 pre-existing tests still passed immediately after.
+**One deterministic, immutable, fully tested Dart rules engine** that runs
+the offline table now and *is* the specification of the online server.
+Reference: **`docs/GAME_ENGINE.md`** — read it first.
 
-The engine keeps its **zero-Flutter-imports** rule.
+- `GameState` (immutable, JSON round-trip, schema 2) replaced the mutable
+  `MatchState` + `RoundState`.
+- `GameRules` (was `GameRulesConfig`) now carries every open rule as a
+  provisional, documented field — nothing is assumed inside a class.
+- `GameAction` is a sealed command set: `PlayCard`, `DrawCard`, `ChooseSuit`,
+  `Pass`, `StartNextRound`; each carries the actor and an optional
+  `baseVersion` for idempotency.
+- `GameEngine` is `const` and pure: `validateAction` / `applyAction` /
+  `getPlayableCards` / `createGame`, returning typed `GameFailure`s.
+  Shuffles derive from `seed ^ version`, so `(state, action) → state'` is a
+  pure function — replays and server verification are byte-exact.
+- `GameSession` is the single stateful handle the controller, bots and
+  persistence use. It contains no rules.
+- `ScorePolicy` (was `ScoreCalculator`) — only the client-confirmed §10/§11
+  rules; nothing invented.
+- `CardRank` is now Italian (`asso…re`); legacy English keys still parse.
+- The Cavallo-blocks-+2 rule (§6a) is **implemented behind
+  `GameRules.nineBlockMode`** (`disabled` / `cancel` / `passOn`) with a
+  provisional default of `cancel`. The client picks; nobody rewrites code.
+- 37 conformance fixtures in `test/fixtures/game_conformance/` — the
+  acceptance tests for the Supabase authoritative function.
+- The existing Game Table UI is wired to the real engine through
+  `GameSession`; Pass & Play drives every seat manually. No screen was
+  redesigned.
 
-### Localization (Italian primary)
-`gen_l10n`, `app_it.arb` as the **template** (that is what makes Italian
-primary — an untranslated key falls back to Italian). 308 keys in each of the
-two ARB files.
-
-The 146 pre-existing Italian strings were extracted **programmatically** from
-the old `AppStrings` class and carried over verbatim, so no copy was retyped
-or lost. Keys kept the old getter names, so no existing call site changed.
-
-`Strings.s` gives controllers context-free access; `SettingsController` swaps
-the bundle and the tree rebuilds.
-
-### 16 new screens
-Onboarding, auth landing, login, signup, forgot password, online mode, create
-room, join room, room lobby, matchmaking, profile, edit profile, leaderboard,
-achievements, daily reward — plus Home reworked to the brief's layout.
-
-### Reusable components
-`ScreenScaffold`, `AppTextField`, `AppDialog`/`PanelDivider`, `StatCard`/
-`StatCardGrid`, `XpBar`, `PlayerSlotTile`, `AchievementTile`, `LoadingView`/
-`ErrorView`/`EmptyView`, `NetworkStatusBanner`, plus a `loading` state on
-`PremiumButton` and two new icon glyphs (`eye`, `eyeOff`).
-
-### Design system
-Every value the brief specifies **already existed** and matched exactly. The
-court inks and card-back gradient were lifted out of the painters into
-`AppColors` (`CourtInks`, `CardBackInks`) so the whole system reads from one
-file.
-
-### Achievements
-The catalogue now carries the brief's six (Prima Vittoria, Centouno!,
-Vendetta, Maestro del Nove, Imbattibile, Veterano). Three older badges that
-already unlock cosmetics were kept with **unchanged ids**, so nobody loses a
-cosmetic they earned. Copy moved out of the catalogue into ARB — it had been
-hardcoded Italian that would have shown in the English UI. The three new
-badges are actually granted in `statistics_service.dart`; none is unearnable.
-
-### Table shell
-A rules button, a turn-timer ring and a connection dot, all rendered from
-`TableSessionStatus`. No rule and no network code entered the presentation
-layer.
+Not touched, deliberately: Supabase, networking, Firebase, monetization,
+online multiplayer.
 
 ---
 
-## 2. Nothing pretends to be online
-
-This was the constraint I held hardest. `OnlineStatus.availability` is a
-single hard-coded `BackendAvailability.notConfigured`, and:
-
-- Auth forms validate and run a real submit cycle, then say the service is
-  not connected. `AuthController.submit()` **can only return false**.
-- No room is created or joined; the lobby seats only the local player and the
-  host's Start button is **disabled**.
-- Matchmaking's elapsed counter is real (time actually spent on screen) and it
-  never announces a found opponent — it shows 1 of 4.
-- Both leaderboards are empty and say the feature arrives with online play.
-- The daily reward cannot be claimed.
-- Social sign-in buttons are drawn and explicitly inert.
-
-Four widget tests assert these specific things, so a future change that
-quietly fakes one will fail the suite.
-
----
-
-## 3. Verification — what I actually ran
+## 1. Verification — exactly what ran
 
 | Gate | Result |
 |---|---|
-| `dart format .` | 151 files, 0 changed on the final pass |
-| `flutter pub get` | OK |
+| `dart format lib test` | 167 files, **0 changed** |
 | `flutter analyze` | **No issues found** |
-| `flutter test` | **210/210 passed** (~27 s), up from 120 |
-| `flutter build apk --debug` | **Built**, 156 MB debug APK |
+| `flutter test` | **403/403 passed** (~32 s), up from 214 at session start |
 
-Visual check: contact sheets rendered and inspected via
-`test/tools/render_previews.dart` — `preview/menus_gallery.png`,
-`account_gallery.png`, `rooms_gallery.png`, `player_gallery.png`. Three
-layout/copy defects were found this way and fixed (truncated button labels,
-a truncated screen title, and wrong empty-seat copy).
+Baseline before any edit: 214/214 (Session 1 doc said 210; a later commit
+had added four).
 
-**Not verified:** no physical device and no emulator exists on this machine
-(`flutter devices` lists only Linux desktop and Chrome). Nothing here has been
-run on real Android or iOS hardware. iOS has not been built at all — there is
-no macOS toolchain here.
+### Rule test results (all green)
 
----
+| Suite | Tests | Covers |
+|---|---|---|
+| `test/engine/card_model_test.dart` | 10 | 40 cards, 10/suit, 4/rank, unique, equality, ids, JSON, legacy keys, asset mapping |
+| `test/engine/game_start_test.dart` | 15 | 2/3/4 players, reject 1 and 5, unique ids, hand sizes, non-action opener, `anyCard`, first player, seed-pure deal, clock stamp |
+| `test/engine/turn_flow_test.dart` | 20 | turn order 2/3/4, direction, eliminated seats, wrong turn, ownership, suit/rank legality, unknown/eliminated/finished/roundOver actors, stale version, duplicate action, draw/pass discipline, immutability |
+| `test/engine/asso_test.dart` | 9 | skip with 2, 3 (incl. wrap), 4 players, eliminated seat, counter-clockwise, legality, last-card Asso |
+| `test/engine/due_test.dart` | 11 | +2, +4, +6, +8, draw resolution, only-2-under-chain, `stackDrawTwos=false`, penalty size, penalty reshuffle, chain at round end (both settings) |
+| `test/engine/nove_test.dart` | 13 | wild, `wildNineCanAlwaysPlay=false`, mandatory selection, chosen suit controls play, all four suits, last-card Cavallo, block `disabled`/`cancel`/`passOn`, `nineBlockChangesSuit=false`, blocking last card |
+| `test/engine/draw_pile_test.dart` | 8 | normal draw, drawn playable card, void tracking, exhaustion → reshuffle keeps top, 40-card invariant through real reshuffles, nothing-to-recycle, deterministic reshuffle, injected RNG |
+| `test/engine/score_policy_test.dart` | 13 | penalties, exact 101 reset, over 101 elimination, match winner, `eliminateAbove101=false`, double elimination, comeback, next round dealing, starter policies, full match to a winner |
+| `test/engine/serialization_test.dart` | 9 | Card, GameRules (fixed point), GameAction ×5, Player, mid-game GameState resume, finished state, legacy save, corrupt input |
+| `test/engine/determinism_test.dart` | 6 | same state+action → same state, full-match replay from seed+log, byte-identical reruns, stale replay refused, restore-and-continue, stateless engine |
+| `test/engine/conformance_fixture_test.dart` | 75 | 37 fixtures replayed + 37 scenario self-checks + file/catalogue parity |
+| `test/rules_test.dart` | 19 | Session 1 rule suite, now on `GameSession` |
+| `test/scoring_test.dart` | 20 | Session 1 scoring suite |
+| `test/edge_cases_test.dart` | 13 | random-match termination, conservation, corrupt saves, resume |
+| `test/bot_test.dart` | 10 | bots on the new engine; hidden-info guarantee |
+| `test/deck_test.dart` | 6 | deck build |
+| `test/gameplay_widget_test.dart` | 6 | the real table: taps → actions → engine |
 
-## 4. Things Session 2 must know
+**Game tests: 263.** Whole suite: 403.
 
-1. **`GAME_SPEC.md` §6a — the Cavallo cannot block a pending +2.** The brief
-   says it should. It is **not implemented**: `CardRuleResolver.canPlay`
-   allows only another 2 into a live chain. Four sub-questions must go to the
-   client before it is built; they are listed in the spec. Do not guess.
-2. **No online points formula exists** (§12b). The leaderboard cannot show
-   anything real until the client supplies one. None was invented.
-3. **Turn-timer expiry is undefined** — the ring is drawn, the behaviour is
-   not decided.
-4. **GetX lifetime trap.** `Get.put(..., permanent: false)` ties a controller
-   to the route that was current when it was registered. This previously
-   killed `GameController` the moment the table appeared. `MatchLauncher` uses
-   `permanent: true`. The widget tests now mount the **real route table** so
-   this class of bug is catchable.
-5. **`InitialBinding` now runs in `main.dart`**, before `runApp`, not as
-   `GetMaterialApp.initialBinding` — the shell has to read the locale while it
-   builds. Don't move it back.
-6. **`android/gradle.properties` heap was lowered** from `-Xmx8G`/`4G`
-   metaspace to `2560m`/`768m`. The old value could not be honoured on this
-   7.7 GB machine and the daemon was OOM-killed mid-build; the symptom is the
-   misleading "Gradle build daemon disappeared unexpectedly". Do not raise it
-   back on this hardware.
-7. **`test/tools/render_previews.dart` is a tool, not a test.** It calls
-   `exit(0)`, so `flutter test` reports a failure even when it succeeds — look
-   for the `wrote preview/…` line. Run one sheet at a time via `PREVIEW=`.
-8. Generated localizations in `lib/l10n/gen/` are **committed** deliberately,
-   so the analyzer and any CI need no extra step. Re-run `flutter gen-l10n`
-   after editing an ARB.
-9. `ProfileSummary.fromLocal` is a **local placeholder** for level/XP, flagged
-   by `isPlaceholderProgression`. Replace the factory, not the widgets.
+Not verified: no device/emulator on this machine, so nothing ran on real
+Android/iOS hardware. `flutter build apk --debug` was not re-run this
+session (no native/gradle change was made).
 
 ---
 
-## 5. Commands
+## 2. Ambiguous client rules (all implemented, all switchable)
+
+| # | Question | Field | Provisional default |
+|---|---|---|---|
+| 1 | Does a Cavallo cancel a pending +2 or pass it on? | `GameRules.nineBlockMode` | `cancel` |
+| 2 | Does a blocking Cavallo still change the suit? | `nineBlockChangesSuit` | `true` |
+| 3 | After drawing a playable card, may a *different* legal card be played? | `restrictPlayToDrawnCard` | `false` (any legal card) |
+| 4 | Opening discard is an action card — what then? | `starterCardPolicy` | `avoidActionCards` |
+| 5 | Who leads the next round? | `roundStarterPolicy` | `previousRoundWinner` |
+| 6 | Unanswered +2 when the round ends? | `pendingPenaltyAppliesAfterWin` | `false` |
+| 7 | Turn-timer expiry: auto-play, auto-draw, forfeit? | `turnTimeLimitSeconds` only stamps a deadline | **not implemented** |
+| 8 | Everyone eliminated in one round (§12a)? | code fallback: lowest total | unreachable in practice |
+| 9 | Online points formula (§12b) | none | **nothing invented** |
+
+Get 1–2 answered before the online rules are frozen; the fixtures
+`nove_blocks_chain_*` must be regenerated if the default changes.
+
+---
+
+## 3. Current blockers
+
+- **None for the engine.** Everything in the brief is implemented and green.
+- **For Session 3:** the client's answers to §2 rows 1, 2 and 9. Row 9
+  blocks the leaderboard; rows 1–2 only need a default flipped.
+- No physical device; iOS never built (no macOS toolchain here).
+
+---
+
+## 4. Files Session 3 must read
+
+1. `docs/GAME_ENGINE.md` — the engine contract the server must honour.
+2. `docs/GAME_SPEC.md` — rules, with every provisional flag marked.
+3. `lib/features/game/domain/engine/game_engine.dart` — the pure engine.
+4. `lib/features/game/domain/game_state.dart` — the wire format (`toJson`).
+5. `lib/features/game/domain/game_action.dart` — what clients will POST.
+6. `lib/features/game/domain/game_rules.dart` — what a room carries.
+7. `test/fixtures/game_conformance/*.json` and
+   `test/engine/conformance_fixture_test.dart` — run these against the
+   Supabase function exactly as the Dart test runs them against `GameEngine`.
+8. `lib/features/game/domain/engine/game_session.dart` — the seam an online
+   client fills with server snapshots instead of local `applyAction`.
+9. `lib/features/online/domain/online_status.dart` — still the hard-coded
+   `notConfigured` constant; Session 3 replaces it.
+10. `docs/ARCHITECTURE.md` §Backend — the seam table.
+
+---
+
+## 5. Things Session 3 must know
+
+1. **The seed is private.** `GameState.seed` determines the stock order.
+   The server must strip `seed` and `drawPile` (and other players' `hand`s)
+   from anything sent to a client. `GameState` today is the *authoritative*
+   shape; a redacted `PlayerView` is Session 3's to add.
+2. **`baseVersion` is mandatory online.** Every action a client sends must
+   carry the version it saw; the server rejects `staleState` and the client
+   re-syncs. Locally it is optional.
+3. **`StartNextRoundAction` may come from `system`.** The server can deal
+   the next round itself with `playerId: GameEngine.systemActorId`.
+4. **Time is injected.** `applyAction(state, action, now: epochMs)` stamps
+   `turnStartedAt`/`turnDeadlineAt`. The engine never reads a clock; the
+   server passes its own. Expiry behaviour is undefined (§2 row 7).
+5. **Events are hints.** `ActionAccepted.events` exist for animation. The
+   server only needs to persist the state; a client can rebuild the table
+   from state alone (the controller already re-renders from `GameState`).
+6. **Legacy saves load.** `GameState.fromJson` accepts pre-Session-2
+   (`TurnPhase`, English rank keys) JSON. `HomeController` still gates on
+   `GameStorageService.hasSavedMatch`.
+7. **Fixture regeneration** is explicit:
+   `GENERATE_FIXTURES=1 flutter test test/tools/generate_conformance_fixtures.dart`.
+   Without the variable the file is inert. The `assertions` block is
+   hand-written in `test/support/conformance_scenarios.dart` and is checked
+   against *both* the fixture and a fresh run.
+8. **Bots only ever see `BotView`** built from `GameState` in
+   `BotViewFactory`. If online bots are needed, run them server-side with
+   the same factory.
+9. **GetX trap (Session 1)** still stands: `MatchLauncher` registers
+   `GameController` and deletes it explicitly.
+10. **`android/gradle.properties` heap** was lowered in Session 1 for this
+    7.7 GB machine; don't raise it back here.
+
+---
+
+## 6. Session 1 notes that still apply
+
+- The repo was restored from GitHub on 2026-08-29; five phases of earlier
+  Firebase/online work are gone and unrecoverable from this machine.
+- Feature-first layout; GetX is the only state framework.
+- `app_it.arb` is the localization template (Italian primary); run
+  `flutter gen-l10n` after editing an ARB.
+- Nothing pretends to be online: `OnlineStatus.availability` is a constant.
+- `test/tools/render_previews.dart` is a tool, not a test (it `exit(0)`s).
+
+---
+
+## 7. Commands
 
 ```bash
 export PATH="$HOME/flutter-sdk/bin:$PATH"
 export ANDROID_SDK_ROOT="$HOME/Android/Sdk" ANDROID_HOME="$HOME/Android/Sdk"
 
 flutter pub get
-flutter gen-l10n                 # after editing lib/l10n/*.arb
 flutter analyze
 flutter test
-dart format .
-flutter build apk --debug
-
-PREVIEW=menus   flutter test test/tools/render_previews.dart
-PREVIEW=account flutter test test/tools/render_previews.dart
-PREVIEW=rooms   flutter test test/tools/render_previews.dart
-PREVIEW=player  flutter test test/tools/render_previews.dart
+flutter test test/engine                     # engine only, ~8 s
+dart format lib test
+GENERATE_FIXTURES=1 flutter test test/tools/generate_conformance_fixtures.dart
 ```
 
 ---
 
-## 6. Where things are
+## 8. Where things are
 
 | Looking for | Path |
 |---|---|
-| Routes | `lib/app/router/app_router.dart` |
-| Design system | `lib/app/theme/` |
-| Copy | `lib/l10n/app_it.arb` (template), `app_en.arb` |
-| Locale plumbing | `lib/app/localization/app_strings.dart` |
-| Shared widgets | `lib/core/widgets/` |
-| **Every game rule** | `lib/features/game/domain/game_rules_config.dart` |
+| **The engine** | `lib/features/game/domain/engine/game_engine.dart` |
+| **The state / wire format** | `lib/features/game/domain/game_state.dart` |
+| **Actions** | `lib/features/game/domain/game_action.dart` |
+| **Every game rule** | `lib/features/game/domain/game_rules.dart` |
 | **Card legality** | `lib/features/game/domain/engine/card_rule_resolver.dart` |
+| **Scoring** | `lib/features/game/domain/engine/score_policy.dart` |
+| Stateful local handle | `lib/features/game/domain/engine/game_session.dart` |
+| Conformance fixtures | `test/fixtures/game_conformance/` |
+| Fixture catalogue | `test/support/conformance_scenarios.dart` |
+| Test table builder | `test/support/engine_harness.dart` (`buildState`, `buildEngine`) |
+| Routes | `lib/app/router/app_router.dart` |
+| Copy | `lib/l10n/app_it.arb` (template), `app_en.arb` |
 | Backend seam | `lib/features/online/domain/online_status.dart` |
-| Singletons | `lib/app/bindings/initial_binding.dart` |
-
----
-
-## 7. Not done, deliberately
-
-No Supabase, no networking, no AdMob, no IAP, no store work. Session 1 built
-the foundation those sit on and stopped there.

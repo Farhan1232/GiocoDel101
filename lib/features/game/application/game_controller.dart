@@ -11,15 +11,14 @@ import '../domain/ai/bot_decision.dart';
 import '../domain/ai/bot_factory.dart';
 import '../domain/ai/bot_strategy.dart';
 import '../domain/ai/bot_view_factory.dart';
-import '../domain/engine/game_engine.dart';
+import '../domain/engine/game_session.dart';
 import '../domain/engine/game_event.dart';
 import '../domain/card_suit.dart';
 import '../domain/game_card.dart';
 import '../domain/game_player.dart';
-import '../domain/match_state.dart';
+import '../domain/game_state.dart';
 import '../domain/player_type.dart';
 import '../domain/round_result.dart';
-import '../domain/round_state.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/haptic_service.dart';
 import '../../../core/storage/game_storage_service.dart';
@@ -34,11 +33,11 @@ typedef CuePlayer = Future<void> Function(TableCue cue);
 /// Drives one match: owns the engine, paces the bots, orders the table's
 /// animations, and keeps a resumable snapshot on disk.
 ///
-/// All game rules live in [GameEngine]; this class only decides *when*
+/// All game rules live in the pure GameEngine behind [GameSession]; this class only decides *when*
 /// things happen and what they sound and feel like.
 class GameController extends GetxController {
   GameController({
-    required this.engine,
+    required this.session,
     required this.storage,
     required this.settings,
     required this.stats,
@@ -46,7 +45,7 @@ class GameController extends GetxController {
     Random? random,
   }) : _random = random ?? Random();
 
-  final GameEngine engine;
+  final GameSession session;
   final GameStorageService storage;
   final SettingsController settings;
   final StatsController stats;
@@ -96,9 +95,9 @@ class GameController extends GetxController {
   bool _running = false;
   String? _revealedSeat;
 
-  MatchState get state => engine.state;
-  RoundState get round => engine.round;
-  GamePlayer get currentPlayer => engine.currentPlayer;
+  GameState get state => session.state;
+  GameState get round => session.state;
+  GamePlayer get currentPlayer => session.currentPlayer;
 
   bool isHumanSeat(String id) => humanIds.contains(id);
   bool get isHumanTurn => isHumanSeat(currentPlayer.id);
@@ -123,15 +122,15 @@ class GameController extends GetxController {
       !busy.value &&
       handoverPlayerId.value == null &&
       isHumanTurn &&
-      round.phase == TurnPhase.awaitingAction;
+      round.status == GameStatus.awaitingAction;
 
   List<GameCard> get playableForViewer =>
-      isHumanTurn ? engine.playableCardsFor(currentPlayer) : const [];
+      isHumanTurn ? session.playableCardsFor(currentPlayer) : const [];
 
   @override
   void onInit() {
     super.onInit();
-    _unsubscribe = engine.listen(_onEngineEvent);
+    _unsubscribe = session.listen(_onEngineEvent);
     for (final p in state.players) {
       if (p.isBot) {
         _bots[p.id] = BotFactory.create(
@@ -144,7 +143,7 @@ class GameController extends GetxController {
     _revealedSeat = state.mode == GameMode.passAndPlay
         ? (isHumanTurn ? currentPlayer.id : humanIds.first)
         : humanIds.first;
-    chainTotal.value = round.pendingPenalty;
+    chainTotal.value = round.pendingDrawCount;
     chainLevel.value = round.chainLength;
   }
 
@@ -186,6 +185,16 @@ class GameController extends GetxController {
         _queue.add(
           ChainBreakCue(event.playerId, event.total, event.chainLength),
         );
+      case ChainBlockedEvent():
+        // §6a — a Cavallo stopped the chain. The table shows the chain
+        // collapsing; a passed-on chain keeps its level through ChainGrew.
+        if (event.cancelled) {
+          _queue.add(
+            ChainBreakCue(event.playerId, event.total, event.chainLength),
+          );
+        }
+      case RoundStartedEvent():
+        break;
       case SuitChosenEvent():
         _queue.add(SuitChosenCue(event.playerId, event.suit));
       case SuitChoiceRequestedEvent():
@@ -230,7 +239,7 @@ class GameController extends GetxController {
 
   Future<void> playCard(GameCard card) async {
     if (!canInteract) return;
-    if (!engine.canPlay(card)) {
+    if (!session.canPlay(card)) {
       HapticService.instance.error();
       AudioService.instance.play(Sfx.invalid);
       _queue.add(InvalidCue(card));
@@ -239,23 +248,23 @@ class GameController extends GetxController {
     }
     selectedCard.value = null;
     busy.value = true;
-    engine.playCard(card);
+    session.playCard(card);
     await _drain();
     await _resumeFlow();
   }
 
   Future<void> drawCard() async {
-    if (!canInteract || !engine.canDraw) return;
+    if (!canInteract || !session.canDraw) return;
     busy.value = true;
-    engine.drawCard();
+    session.drawCard();
     await _drain();
     await _resumeFlow();
   }
 
   Future<void> endTurn() async {
-    if (!canInteract || !engine.canEndTurn) return;
+    if (!canInteract || !session.canEndTurn) return;
     busy.value = true;
-    engine.endTurn();
+    session.endTurn();
     await _drain();
     await _resumeFlow();
   }
@@ -266,7 +275,7 @@ class GameController extends GetxController {
     busy.value = true;
     AudioService.instance.play(Sfx.suitSelect);
     HapticService.instance.medium();
-    engine.chooseSuit(suit);
+    session.chooseSuit(suit);
     await _drain();
     await _resumeFlow();
   }
@@ -293,14 +302,14 @@ class GameController extends GetxController {
     if (_disposed) return;
 
     while (!_disposed) {
-      if (state.matchOver || round.phase == TurnPhase.roundOver) {
+      if (state.isFinished || round.status == GameStatus.roundOver) {
         busy.value = false;
         revision.value++;
         _persist();
         return;
       }
 
-      if (round.phase == TurnPhase.awaitingSuitChoice) {
+      if (round.status == GameStatus.awaitingSuitChoice) {
         final seat = currentPlayer;
         if (isHumanSeat(seat.id)) {
           // Waiting on the Suit Ritual.
@@ -312,9 +321,9 @@ class GameController extends GetxController {
         final bot = _bots[seat.id];
         final suit = bot == null
             ? CardSuit.values[_random.nextInt(4)]
-            : bot.chooseSuit(BotViewFactory.forCurrentPlayer(engine));
+            : bot.chooseSuit(BotViewFactory.forCurrentPlayer(session.state));
         AudioService.instance.play(Sfx.suitSelect, volume: 0.8);
-        engine.chooseSuit(suit);
+        session.chooseSuit(suit);
         await _drain();
         continue;
       }
@@ -347,11 +356,11 @@ class GameController extends GetxController {
 
       // A bot that somehow failed to move must not spin the loop (§52).
       if (round.turnNumber == before &&
-          round.phase == TurnPhase.awaitingAction) {
-        if (engine.canDraw) {
-          engine.drawCard();
-        } else if (engine.canEndTurn) {
-          engine.endTurn();
+          round.status == GameStatus.awaitingAction) {
+        if (session.canDraw) {
+          session.drawCard();
+        } else if (session.canEndTurn) {
+          session.endTurn();
         } else {
           debugPrint('Bot turn stalled for ${seat.id}; ending round loop.');
           busy.value = false;
@@ -366,50 +375,52 @@ class GameController extends GetxController {
     final bot = _bots[seat.id];
     if (bot == null) {
       // Should not happen; keep the table moving rather than stalling.
-      if (engine.canDraw) {
-        engine.drawCard();
-      } else if (engine.canEndTurn) {
-        engine.endTurn();
+      if (session.canDraw) {
+        session.drawCard();
+      } else if (session.canEndTurn) {
+        session.endTurn();
       }
       return;
     }
 
-    final view = BotViewFactory.forCurrentPlayer(engine);
+    final view = BotViewFactory.forCurrentPlayer(session.state);
     final decision = bot.decide(view);
     switch (decision.action) {
       case BotAction.play:
-        final result = engine.playCard(
+        final result = session.playCard(
           decision.card!,
           chosenSuit: decision.suit,
         );
         if (!result.accepted) {
           // A bot proposing an illegal move is a bug, not a stall: fall back.
-          if (engine.canDraw) {
-            engine.drawCard();
-          } else if (engine.canEndTurn) {
-            engine.endTurn();
+          if (session.canDraw) {
+            session.drawCard();
+          } else if (session.canEndTurn) {
+            session.endTurn();
           }
           return;
         }
         _maybeBotReaction(seat, decision);
       case BotAction.draw:
-        engine.drawCard();
+        session.drawCard();
         if (round.drawnCard != null) {
           // §8 — a bot that draws something playable uses it straight away.
           await _drain();
           await _pauseForBot(short: true);
-          final next = bot.decide(BotViewFactory.forCurrentPlayer(engine));
+          final next = bot.decide(
+            BotViewFactory.forCurrentPlayer(session.state),
+          );
           if (next.action == BotAction.play && next.card != null) {
-            engine.playCard(next.card!, chosenSuit: next.suit);
-          } else if (engine.canEndTurn) {
-            engine.endTurn();
+            session.playCard(next.card!, chosenSuit: next.suit);
+          } else if (session.canEndTurn) {
+            session.endTurn();
           }
         }
       case BotAction.endTurn:
-        if (engine.canEndTurn) {
-          engine.endTurn();
-        } else if (engine.canDraw) {
-          engine.drawCard();
+        if (session.canEndTurn) {
+          session.endTurn();
+        } else if (session.canDraw) {
+          session.drawCard();
         }
     }
   }
@@ -543,7 +554,7 @@ class GameController extends GetxController {
 
   /// §49 — coalesced so a burst of penalty draws writes once.
   void _persist() {
-    if (state.matchOver) {
+    if (state.isFinished) {
       _saveTimer?.cancel();
       unawaited(storage.clear());
       return;
@@ -558,7 +569,7 @@ class GameController extends GetxController {
   /// when the app goes to the background.
   Future<void> persistNow() async {
     _saveTimer?.cancel();
-    if (state.matchOver) {
+    if (state.isFinished) {
       await storage.clear();
     } else {
       await storage.save(state);
@@ -573,7 +584,7 @@ class GameController extends GetxController {
     chainLevel.value = 0;
     chainTotal.value = 0;
     selectedCard.value = null;
-    engine.startNextRound();
+    session.startNextRound();
     _revealedSeat = state.mode == GameMode.passAndPlay
         ? (isHumanTurn ? currentPlayer.id : humanIds.first)
         : humanIds.first;

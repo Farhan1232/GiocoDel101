@@ -35,10 +35,17 @@ its `application/` or `presentation/`.
 ### The rule that matters most
 
 `features/game/domain/engine/` has **zero Flutter imports** and no knowledge
-that a UI exists. `GameEngine` owns `MatchState` and emits `GameEvent`s;
+that a UI exists. `GameEngine` is a *pure* function library over an
+immutable `GameState`: `validateAction` / `applyAction` / `getPlayableCards`.
+It owns nothing and draws no randomness of its own (shuffles derive from the
+state's seed and version), so `(state, action) → state'` is deterministic
+and the same code will run inside the authoritative server. `GameSession`
+is the one stateful handle: it holds the current `GameState`, forwards every
+move as a `GameAction`, and fans the returned `GameEvent`s out.
 `GameController` (application) turns those into an ordered `TableCue` queue
 that the gameplay view animates and acknowledges. Bots receive a `BotView`
-that structurally cannot contain hidden information.
+built from `GameState` that structurally cannot contain hidden information.
+Full reference: `docs/GAME_ENGINE.md`.
 
 This is why the table can be re-skinned, re-laid-out or driven by a server
 later without touching a rule.
@@ -58,7 +65,7 @@ language while it builds:
 | `SettingsController` | preferences, locale, unlocked cosmetics |
 | `StatsController` | lifetime counters, achievements |
 | `HomeController` | saved-match presence, daily challenge |
-| `GameController` | a live match |
+| `GameController` | a live match (owns a `GameSession`) |
 | `CreateRoomController` | a room being configured |
 | `AuthController` | one auth form's submit state |
 
@@ -144,14 +151,20 @@ Session 3 replaces that constant with a real check and fills in:
 | `LeaderboardBoard` | a query (needs the §12b formula first) |
 | `ProfileSummary.fromLocal` | server-owned level/XP |
 | `TableSessionStatus` | live connection + turn clock |
+| `GameSession` state | replaced by server snapshots; actions posted instead of applied locally |
 
-None of those requires a widget change.
+None of those requires a widget change. The engine's conformance fixtures
+(`test/fixtures/game_conformance/`) are the acceptance test for the server.
 
 ## Testing
 
-210 tests, ~20 s.
+403 tests, ~32 s.
 
-- Rules, scoring, deck, bots, edge cases — the pre-existing engine suite
+- `test/engine/` — the Session 2 engine suite: card model, game start, turn
+  flow & validation, Asso, Due, Nove, draw pile, score policy, serialization,
+  determinism, and the conformance-fixture replay
+- Rules, scoring, deck, bots, edge cases — the pre-existing engine suite,
+  now driving `GameSession`
 - `session1_domain_test.dart` — validators, room codes, profile maths, reward
   ladder, ARB parity, locale resolution
 - `session1_screens_test.dart` — all 16 new screens at three sizes in both

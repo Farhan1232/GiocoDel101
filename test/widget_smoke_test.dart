@@ -36,6 +36,7 @@ import 'package:gioco_del_101/features/game/presentation/widgets/handover_overla
 import 'package:gioco_del_101/features/game/presentation/widgets/reaction_bar.dart';
 import 'package:gioco_del_101/features/game/presentation/widgets/suit_ritual.dart';
 import 'package:gioco_del_101/core/widgets/app_icons.dart';
+import 'package:gioco_del_101/features/game/domain/game_state.dart';
 
 /// §66 — every screen and every signature effect is rendered at three sizes
 /// and must come up clean. This is the automated half of "verify every button
@@ -76,36 +77,54 @@ GameController _match({
     playerCount: players,
     difficulty: BotDifficulty.normal,
   );
-  final s = setup.engine.state;
-  s.players.first
-    ..hand.clear()
-    ..hand.addAll(const [
-      GameCard(CardSuit.coppe, CardRank.re),
-      GameCard(CardSuit.denari, CardRank.five),
-      GameCard(CardSuit.spade, CardRank.two),
-      GameCard(CardSuit.bastoni, CardRank.cavallo),
-      GameCard(CardSuit.coppe, CardRank.seven),
-    ]);
-  s.players.first.score = 82;
-  s.round.discardPile
-    ..clear()
-    ..add(const GameCard(CardSuit.coppe, CardRank.five));
-  s.round.activeSuit = CardSuit.coppe;
-  s.round.currentIndex = 0;
-  s.round.pendingPenalty = pendingPenalty;
-  s.round.chainLength = chainLength;
-  if (finished) {
-    s.matchOver = true;
-    s.matchWinnerId = s.players.first.id;
-    for (var i = 1; i < s.players.length; i++) {
-      s.players[i]
-        ..score = 104
-        ..eliminated = true;
-    }
+  var s = setup.session.state;
+  final human = s.players.first;
+  final hand = const [
+    GameCard(CardSuit.coppe, CardRank.re),
+    GameCard(CardSuit.denari, CardRank.cinque),
+    GameCard(CardSuit.spade, CardRank.due),
+    GameCard(CardSuit.bastoni, CardRank.cavallo),
+    GameCard(CardSuit.coppe, CardRank.sette),
+  ];
+  const top = GameCard(CardSuit.coppe, CardRank.cinque);
+  // Rebuild the piles so the 40-card invariant still holds.
+  // Re-deal every seat from a clean deck so no card is duplicated.
+  final stock = Deck.standard
+      .where((c) => !hand.contains(c) && c != top)
+      .toList();
+  final botHands = <String, List<GameCard>>{};
+  for (final p in s.players.skip(1)) {
+    botHands[p.id] = [for (var i = 0; i < 5; i++) stock.removeLast()];
   }
+  var seats = [
+    human.copyWith(hand: hand, score: 82),
+    for (final p in s.players.skip(1)) p.copyWith(hand: botHands[p.id]),
+  ];
+  var status = GameStatus.awaitingAction;
+  String? winnerId;
+  if (finished) {
+    status = GameStatus.finished;
+    winnerId = human.id;
+    seats = [
+      seats.first,
+      for (final p in seats.skip(1)) p.copyWith(score: 104, eliminated: true),
+    ];
+  }
+  s = s.copyWith(
+    players: seats,
+    drawPile: stock,
+    discardPile: const [top],
+    activeSuit: CardSuit.coppe,
+    currentSeat: 0,
+    pendingDrawCount: pendingPenalty,
+    chainLength: chainLength,
+    status: status,
+    winnerId: winnerId,
+  );
+  setup.session.restore(s);
   return Get.put(
     GameController(
-      engine: setup.engine,
+      session: setup.session,
       storage: Get.find<GameStorageService>(),
       settings: Get.find<SettingsController>(),
       stats: Get.find<StatsController>(),
@@ -314,7 +333,7 @@ void main() {
     testWidgets('last hand replay', (tester) async {
       await _boot();
       final c = _match();
-      c.engine.playCard(const GameCard(CardSuit.coppe, CardRank.re));
+      c.session.playCard(const GameCard(CardSuit.coppe, CardRank.re));
       await _render(
         tester,
         LastHandReplay(match: c.state, onClose: () {}),

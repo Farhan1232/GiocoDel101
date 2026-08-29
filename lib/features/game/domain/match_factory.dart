@@ -2,33 +2,40 @@ import 'dart:math';
 
 import 'bot_roster.dart';
 import '../../rewards/domain/daily_challenge.dart';
+import 'engine/game_session.dart';
 import 'game_player.dart';
-import 'game_rules_config.dart';
-import 'match_state.dart';
+import 'game_rules.dart';
+import 'game_state.dart';
 import 'player_type.dart';
-import 'engine/game_engine.dart';
 
-/// Result of seating a table: the engine plus the ids a person controls.
+/// Result of seating a table: the session plus the ids a person controls.
 class MatchSetup {
-  const MatchSetup(this.engine, this.humanIds);
+  const MatchSetup(this.session, this.humanIds);
 
-  final GameEngine engine;
+  final GameSession session;
   final List<String> humanIds;
 }
 
-/// Builds the seating for each mode (§6, §26, §40).
+/// Builds the seating for each mode. All dealing goes through
+/// [GameSession.newMatch] → `GameEngine.createGame`; nothing here touches a
+/// card.
 class MatchFactory {
   const MatchFactory._();
 
   static const String humanSeatId = 'p0';
+
+  static String _newGameId(Random rng) =>
+      'local-${DateTime.now().millisecondsSinceEpoch.toRadixString(36)}-'
+      '${rng.nextInt(1 << 30).toRadixString(36)}';
 
   static MatchSetup vsComputer({
     required String playerName,
     required String avatarId,
     required int playerCount,
     required BotDifficulty difficulty,
-    GameRulesConfig rules = const GameRulesConfig(),
+    GameRules rules = const GameRules(),
     Random? random,
+    int? seed,
   }) {
     final rng = random ?? Random();
     final bots = BotRoster.pick(playerCount - 1, rng);
@@ -50,22 +57,24 @@ class MatchFactory {
         ),
     ];
     return MatchSetup(
-      GameEngine.newMatch(
+      GameSession.newMatch(
+        gameId: _newGameId(rng),
         players: players,
         mode: GameMode.vsComputer,
         rules: rules,
-        random: rng,
+        seed: seed ?? rng.nextInt(1 << 31),
       ),
       const [humanSeatId],
     );
   }
 
-  /// §6/§67 — several people, one device.
+  /// Several people, one device.
   static MatchSetup passAndPlay({
     required List<String> names,
     required List<String> avatarIds,
-    GameRulesConfig rules = const GameRulesConfig(),
+    GameRules rules = const GameRules(),
     Random? random,
+    int? seed,
   }) {
     final rng = random ?? Random();
     final players = <GamePlayer>[
@@ -78,17 +87,18 @@ class MatchFactory {
         ),
     ];
     return MatchSetup(
-      GameEngine.newMatch(
+      GameSession.newMatch(
+        gameId: _newGameId(rng),
         players: players,
         mode: GameMode.passAndPlay,
         rules: rules,
-        random: rng,
+        seed: seed ?? rng.nextInt(1 << 31),
       ),
       players.map((p) => p.id).toList(),
     );
   }
 
-  /// §40/§68 — seeded entirely by the date, so the deal is reproducible.
+  /// Seeded entirely by the date, so the deal is reproducible.
   static MatchSetup dailyChallenge({
     required DailyChallenge challenge,
     required String playerName,
@@ -116,11 +126,11 @@ class MatchFactory {
         ),
     ];
     return MatchSetup(
-      GameEngine.newMatch(
+      GameSession.newMatch(
+        gameId: 'daily-${challenge.seed}',
         players: players,
         mode: GameMode.vsComputer,
         rules: challenge.rules,
-        random: rng,
         seed: challenge.seed,
         isDailyChallenge: true,
       ),
@@ -128,8 +138,8 @@ class MatchFactory {
     );
   }
 
-  /// Rebuilds the human seat list for a restored match (§49).
-  static List<String> humanIdsOf(MatchState state) => state.players
+  /// Rebuilds the human seat list for a restored match.
+  static List<String> humanIdsOf(GameState state) => state.players
       .where((p) => p.type == PlayerType.humanLocal)
       .map((p) => p.id)
       .toList();

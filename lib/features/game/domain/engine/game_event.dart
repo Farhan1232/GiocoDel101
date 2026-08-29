@@ -4,9 +4,9 @@ import '../round_result.dart';
 
 /// Something the table should react to.
 ///
-/// The engine never touches Flutter; it emits these instead, and the
-/// controller turns them into animations, sound and haptics. This is what
-/// keeps the engine unit-testable (§20) and networking-ready (§64).
+/// The engine never touches Flutter; it returns these alongside the new
+/// state, and the controller turns them into animations, sound and haptics.
+/// Events are presentation hints only — the state is complete without them.
 sealed class GameEvent {
   const GameEvent();
 }
@@ -29,19 +29,34 @@ class TurnSkippedEvent extends GameEvent {
   final String playerId;
 }
 
-/// §11 — a 2 was played and the Chain Storm grew.
+/// §6 — a 2 was played and the chain grew.
 class ChainGrewEvent extends GameEvent {
   const ChainGrewEvent(this.total, this.chainLength);
   final int total;
   final int chainLength;
 }
 
-/// §11 — somebody took the whole chain on the chin.
+/// §6 — somebody took the whole chain on the chin.
 class ChainResolvedEvent extends GameEvent {
   const ChainResolvedEvent(this.playerId, this.total, this.chainLength);
   final String playerId;
   final int total;
   final int chainLength;
+}
+
+/// §6a — a Cavallo was played into a live chain. [cancelled] is true when
+/// the pending total was wiped, false when it was passed on unchanged.
+class ChainBlockedEvent extends GameEvent {
+  const ChainBlockedEvent(
+    this.playerId,
+    this.total,
+    this.chainLength, {
+    required this.cancelled,
+  });
+  final String playerId;
+  final int total;
+  final int chainLength;
+  final bool cancelled;
 }
 
 class SuitChoiceRequestedEvent extends GameEvent {
@@ -66,9 +81,17 @@ class TurnChangedEvent extends GameEvent {
   final String playerId;
 }
 
+/// Emitted by [GameSession] (not the pure engine) when a play is refused as
+/// illegal, so the table can shake the card.
 class InvalidMoveEvent extends GameEvent {
   const InvalidMoveEvent(this.card);
   final GameCard card;
+}
+
+class RoundStartedEvent extends GameEvent {
+  const RoundStartedEvent(this.round, this.firstPlayerId);
+  final int round;
+  final String firstPlayerId;
 }
 
 class RoundEndedEvent extends GameEvent {
@@ -76,7 +99,7 @@ class RoundEndedEvent extends GameEvent {
   final RoundResult result;
 }
 
-/// §15 — the signature moment.
+/// §11 — the signature moment.
 class Exact101Event extends GameEvent {
   const Exact101Event(this.playerId);
   final String playerId;

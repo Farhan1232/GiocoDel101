@@ -28,8 +28,8 @@ void main() {
     });
 
     test('maps ranks to 1..10 with Fante/Cavallo/Re as 8/9/10', () {
-      expect(CardRank.ace.value, 1);
-      expect(CardRank.seven.value, 7);
+      expect(CardRank.asso.value, 1);
+      expect(CardRank.sette.value, 7);
       expect(CardRank.fante.value, 8);
       expect(CardRank.cavallo.value, 9);
       expect(CardRank.re.value, 10);

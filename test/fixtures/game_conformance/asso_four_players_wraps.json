@@ -1,0 +1,372 @@
+{
+  "name": "asso_four_players_wraps",
+  "description": "With four players, seat 3 playing an Asso skips seat 0 and lands on seat 1.",
+  "rulesNote": "GAME_SPEC §5",
+  "actor": "p3",
+  "action": {
+    "type": "playCard",
+    "playerId": "p3",
+    "card": "coppe_asso"
+  },
+  "initialState": {
+    "schema": 2,
+    "gameId": "test",
+    "mode": "vsComputer",
+    "rules": {
+      "minPlayers": 2,
+      "maxPlayers": 4,
+      "startingHandSize": 5,
+      "allowVoluntaryDraw": true,
+      "playDrawnCardImmediately": true,
+      "restrictPlayToDrawnCard": false,
+      "stackDrawTwos": true,
+      "wildNineCanAlwaysPlay": true,
+      "nineBlockMode": "cancel",
+      "nineBlockChangesSuit": true,
+      "exact101ResetsToZero": true,
+      "eliminateAbove101": true,
+      "targetScore": 101,
+      "mustDrawBeforePassing": true,
+      "drawTwoPenalty": 2,
+      "pendingPenaltyAppliesAfterWin": false,
+      "starterCardPolicy": "avoidActionCards",
+      "roundStarterPolicy": "previousRoundWinner",
+      "initialDirection": "clockwise",
+      "turnTimeLimitSeconds": null,
+      "scoreValues": {
+        "asso": 1,
+        "due": 2,
+        "tre": 3,
+        "quattro": 4,
+        "cinque": 5,
+        "sei": 6,
+        "sette": 7,
+        "fante": 8,
+        "cavallo": 9,
+        "re": 10
+      }
+    },
+    "players": [
+      {
+        "id": "p0",
+        "name": "P0",
+        "type": "humanLocal",
+        "avatarId": "marco",
+        "difficulty": null,
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "spade_tre"
+        ]
+      },
+      {
+        "id": "p1",
+        "name": "P1",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "denari_tre"
+        ]
+      },
+      {
+        "id": "p2",
+        "name": "P2",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "bastoni_tre"
+        ]
+      },
+      {
+        "id": "p3",
+        "name": "P3",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "coppe_asso",
+          "coppe_re"
+        ]
+      }
+    ],
+    "round": 1,
+    "currentSeat": 3,
+    "direction": "clockwise",
+    "drawPile": [
+      "denari_asso",
+      "denari_due",
+      "denari_quattro",
+      "denari_cinque",
+      "denari_sei",
+      "denari_sette",
+      "denari_fante",
+      "denari_cavallo",
+      "denari_re",
+      "coppe_due",
+      "coppe_tre",
+      "coppe_quattro",
+      "coppe_sei",
+      "coppe_sette",
+      "coppe_fante",
+      "coppe_cavallo",
+      "spade_asso",
+      "spade_due",
+      "spade_quattro",
+      "spade_cinque",
+      "spade_sei",
+      "spade_sette",
+      "spade_fante",
+      "spade_cavallo",
+      "spade_re",
+      "bastoni_asso",
+      "bastoni_due",
+      "bastoni_quattro",
+      "bastoni_cinque",
+      "bastoni_sei",
+      "bastoni_sette",
+      "bastoni_fante",
+      "bastoni_cavallo",
+      "bastoni_re"
+    ],
+    "discardPile": [
+      "coppe_cinque"
+    ],
+    "activeSuit": "coppe",
+    "pendingDrawCount": 0,
+    "chainLength": 0,
+    "status": "awaitingAction",
+    "winnerId": null,
+    "roundWinnerId": null,
+    "turnNumber": 0,
+    "hasDrawnThisTurn": false,
+    "drawnCard": null,
+    "lastAction": null,
+    "version": 0,
+    "turnStartedAt": null,
+    "turnDeadlineAt": null,
+    "seed": 7,
+    "isDailyChallenge": false,
+    "stats": {
+      "cardsPlayed": 0,
+      "acesPlayed": 0,
+      "twosPlayed": 0,
+      "longestChain": 0,
+      "resets101": 0,
+      "bestComeback": 0,
+      "roundsWon": {},
+      "cavalloSuits": {},
+      "suitsPlayed": {}
+    },
+    "history": [],
+    "playedCards": [],
+    "drawsByPlayer": {},
+    "voidSuits": {},
+    "lastRoundResult": null
+  },
+  "expectedFailure": null,
+  "expectedState": {
+    "schema": 2,
+    "gameId": "test",
+    "mode": "vsComputer",
+    "rules": {
+      "minPlayers": 2,
+      "maxPlayers": 4,
+      "startingHandSize": 5,
+      "allowVoluntaryDraw": true,
+      "playDrawnCardImmediately": true,
+      "restrictPlayToDrawnCard": false,
+      "stackDrawTwos": true,
+      "wildNineCanAlwaysPlay": true,
+      "nineBlockMode": "cancel",
+      "nineBlockChangesSuit": true,
+      "exact101ResetsToZero": true,
+      "eliminateAbove101": true,
+      "targetScore": 101,
+      "mustDrawBeforePassing": true,
+      "drawTwoPenalty": 2,
+      "pendingPenaltyAppliesAfterWin": false,
+      "starterCardPolicy": "avoidActionCards",
+      "roundStarterPolicy": "previousRoundWinner",
+      "initialDirection": "clockwise",
+      "turnTimeLimitSeconds": null,
+      "scoreValues": {
+        "asso": 1,
+        "due": 2,
+        "tre": 3,
+        "quattro": 4,
+        "cinque": 5,
+        "sei": 6,
+        "sette": 7,
+        "fante": 8,
+        "cavallo": 9,
+        "re": 10
+      }
+    },
+    "players": [
+      {
+        "id": "p0",
+        "name": "P0",
+        "type": "humanLocal",
+        "avatarId": "marco",
+        "difficulty": null,
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "spade_tre"
+        ]
+      },
+      {
+        "id": "p1",
+        "name": "P1",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "denari_tre"
+        ]
+      },
+      {
+        "id": "p2",
+        "name": "P2",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "bastoni_tre"
+        ]
+      },
+      {
+        "id": "p3",
+        "name": "P3",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "coppe_re"
+        ]
+      }
+    ],
+    "round": 1,
+    "currentSeat": 1,
+    "direction": "clockwise",
+    "drawPile": [
+      "denari_asso",
+      "denari_due",
+      "denari_quattro",
+      "denari_cinque",
+      "denari_sei",
+      "denari_sette",
+      "denari_fante",
+      "denari_cavallo",
+      "denari_re",
+      "coppe_due",
+      "coppe_tre",
+      "coppe_quattro",
+      "coppe_sei",
+      "coppe_sette",
+      "coppe_fante",
+      "coppe_cavallo",
+      "spade_asso",
+      "spade_due",
+      "spade_quattro",
+      "spade_cinque",
+      "spade_sei",
+      "spade_sette",
+      "spade_fante",
+      "spade_cavallo",
+      "spade_re",
+      "bastoni_asso",
+      "bastoni_due",
+      "bastoni_quattro",
+      "bastoni_cinque",
+      "bastoni_sei",
+      "bastoni_sette",
+      "bastoni_fante",
+      "bastoni_cavallo",
+      "bastoni_re"
+    ],
+    "discardPile": [
+      "coppe_cinque",
+      "coppe_asso"
+    ],
+    "activeSuit": "coppe",
+    "pendingDrawCount": 0,
+    "chainLength": 0,
+    "status": "awaitingAction",
+    "winnerId": null,
+    "roundWinnerId": null,
+    "turnNumber": 1,
+    "hasDrawnThisTurn": false,
+    "drawnCard": null,
+    "lastAction": {
+      "type": "playCard",
+      "playerId": "p3",
+      "card": "coppe_asso"
+    },
+    "version": 1,
+    "turnStartedAt": null,
+    "turnDeadlineAt": null,
+    "seed": 7,
+    "isDailyChallenge": false,
+    "stats": {
+      "cardsPlayed": 1,
+      "acesPlayed": 1,
+      "twosPlayed": 0,
+      "longestChain": 0,
+      "resets101": 0,
+      "bestComeback": 0,
+      "roundsWon": {},
+      "cavalloSuits": {},
+      "suitsPlayed": {
+        "coppe": 1
+      }
+    },
+    "history": [
+      {
+        "t": "play",
+        "p": "p3",
+        "c": "coppe_asso"
+      },
+      {
+        "t": "skip",
+        "p": "p0"
+      }
+    ],
+    "playedCards": [
+      "coppe_asso"
+    ],
+    "drawsByPlayer": {},
+    "voidSuits": {},
+    "lastRoundResult": null
+  },
+  "expectedEvents": [
+    "CardPlayedEvent",
+    "TurnSkippedEvent",
+    "TurnChangedEvent"
+  ],
+  "assertions": {
+    "currentPlayerId": "p1"
+  }
+}

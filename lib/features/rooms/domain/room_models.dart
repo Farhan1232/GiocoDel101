@@ -1,4 +1,4 @@
-import '../../game/domain/game_rules_config.dart';
+import '../../game/domain/game_rules.dart';
 
 /// How long a player has to move before the turn passes.
 enum TurnTimer {
@@ -22,7 +22,7 @@ enum TurnTimer {
 /// Everything the Create Room screen collects.
 ///
 /// A plain value object: it is built by the UI and will later be handed to the
-/// backend untouched. It carries the house rules as a [GameRulesConfig] so the
+/// backend untouched. It carries the house rules as a [GameRules] so the
 /// single-source-of-truth rule still holds online.
 class RoomConfig {
   const RoomConfig({
@@ -30,7 +30,7 @@ class RoomConfig {
     this.playerCount = 4,
     this.isPrivate = true,
     this.turnTimer = TurnTimer.thirty,
-    this.rules = const GameRulesConfig(),
+    this.rules = const GameRules(),
   });
 
   final String name;
@@ -40,14 +40,14 @@ class RoomConfig {
 
   final bool isPrivate;
   final TurnTimer turnTimer;
-  final GameRulesConfig rules;
+  final GameRules rules;
 
   RoomConfig copyWith({
     String? name,
     int? playerCount,
     bool? isPrivate,
     TurnTimer? turnTimer,
-    GameRulesConfig? rules,
+    GameRules? rules,
   }) => RoomConfig(
     name: name ?? this.name,
     playerCount: playerCount ?? this.playerCount,
