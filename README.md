@@ -15,35 +15,35 @@ no ads, no network calls of any kind.
 
 ```
 lib/
-├── app/                     App shell, routes, bindings, match launcher
-│   ├── app.dart             GetMaterialApp + lifecycle hooks
-│   ├── routes.dart          The eight routes and their custom transitions
-│   ├── match_launcher.dart  The single path by which a match reaches the screen
-│   └── bindings/            Dependency wiring
-├── core/
-│   ├── constants/           Spacing, radii, card metrics, animation durations
-│   └── utils/motion.dart    Animation-speed + Reduce Motion scaling
-├── data/                    Strings (IT), avatars, bot roster, achievements
-├── models/                  GameCard, GamePlayer, MatchState, RoundState,
-│                            GameRulesConfig, statistics, settings …
-├── game/
-│   ├── engine/              GameEngine, CardRuleResolver, ScoreCalculator,
-│   │                        DeckFactory, GameEvent  ← no Flutter imports
-│   ├── ai/                  BotStrategy, Easy/Normal/Hard, BotView
-│   └── match_factory.dart   Seating for each mode
-├── controllers/             GetX: settings, stats, home, setup, game
-├── services/                Audio, haptics, statistics, daily challenge
-├── storage/                 SharedPreferences wrappers + resumable snapshot
-├── theme/                   Colours, typography, table themes, card backs
-├── widgets/
-│   ├── cards/               The 40-card vector deck + card widget
-│   ├── common/              Buttons, panels, logo, medallions, backgrounds
-│   ├── icons/               The custom icon set
-│   └── table/               Fate Ring, Chain Storm, Suit Ritual, felt, seats
-└── screens/                 Exactly eight screens
+├── main.dart                Boot: storage, licences, orientation, bindings
+├── app/                     The shell — everything global
+│   ├── app.dart             GetMaterialApp, locale, lifecycle hooks
+│   ├── bindings/            Dependency wiring (run from main, pre-runApp)
+│   ├── localization/        Strings facade over gen_l10n
+│   ├── router/              AppRoutes + AppPages, one file
+│   └── theme/               Colours, typography, table themes, card backs
+├── core/                    Shared, feature-agnostic
+│   ├── constants/           Spacing, radii, card metrics, durations
+│   ├── services/            Audio, haptics
+│   ├── storage/             SharedPreferences wrappers + resumable snapshot
+│   ├── utils/               Motion scaling, glow
+│   └── widgets/             Buttons, panels, fields, the icon set, the deck
+├── features/
+│   ├── game/
+│   │   ├── domain/          Models + engine + AI  ← no Flutter imports
+│   │   ├── application/     GameController, TableCue, MatchLauncher
+│   │   └── presentation/    Table, setup, results, how-to-play
+│   ├── splash/  onboarding/  auth/  home/
+│   ├── online/  rooms/       profile/  leaderboard/
+│   └── achievements/  rewards/  settings/
+└── l10n/                    app_it.arb (template), app_en.arb, gen/
 ```
 
-**The important boundary:** `lib/game/engine/` imports nothing from Flutter. The
+Each feature holds up to three layers: `domain/` (no Flutter, no I/O),
+`application/` (state, no widgets), `presentation/` (renders state, decides
+nothing). `core/` never imports a feature.
+
+**The important boundary:** `lib/features/game/domain/engine/` imports nothing from Flutter. The
 engine owns the rules and emits `GameEvent`s; `GameController` turns those into
 animations, sound and haptics. That separation is what makes the rules testable
 and what would make networking possible later (§10 below).
@@ -56,8 +56,19 @@ Requires Flutter 3.44 or newer.
 
 ```bash
 flutter pub get
+flutter gen-l10n     # only after editing lib/l10n/*.arb
 flutter run
 ```
+
+Deeper documentation lives in `docs/`:
+
+| File | What it covers |
+|---|---|
+| `docs/GAME_SPEC.md` | Every rule, and the open questions for the client |
+| `docs/ARCHITECTURE.md` | Layers, state management, the backend seam |
+| `docs/ASSET_INVENTORY.md` | Cards, fonts, audio, icons — what exists and why |
+| `docs/ROADMAP.md` | The six sessions |
+| `docs/SESSION_HANDOFF.md` | What the last session changed and what is next |
 
 Run the tests:
 
@@ -141,7 +152,7 @@ open ios/Runner.xcworkspace          # then archive from Xcode
 
 ## 5. Where the game rules are configured
 
-**One file: `lib/models/game_rules_config.dart`.**
+**One file: `lib/features/game/domain/game_rules_config.dart`.**
 
 Nothing in the engine, the controllers or the widgets hardcodes a rule. Change a
 value there and it takes effect everywhere.
@@ -175,18 +186,18 @@ panel on the setup screen, which builds a `GameRulesConfig` in
 **There are no card image files.** All forty faces and every card back are drawn
 as vector art at paint time:
 
-- `lib/widgets/cards/suit_art.dart` — the four suit emblems (coin, chalice,
+- `lib/core/widgets/cards/suit_art.dart` — the four suit emblems (coin, chalice,
   sword, cudgel), authored in a unit square and scaled to anything from a 14 px
   corner pip to a 90 px centrepiece.
-- `lib/widgets/cards/figure_art.dart` — the three court figures, drawn full
+- `lib/core/widgets/cards/figure_art.dart` — the three court figures, drawn full
   length in the Neapolitan woodcut manner: a page under a plumed cap (Fante),
   a rider on horseback (Cavallo), a crowned king (Re), each carrying the sign
   of its own suit. Each suit dresses its court in its own colours, so the
   twelve court cards stay tellable apart by cloth as well as by sign.
-- `lib/widgets/cards/card_face_painter.dart` — stock, paper grain, bevel, double
+- `lib/core/widgets/cards/card_face_painter.dart` — stock, paper grain, bevel, double
   rule, corner indices, pip layouts.
-- `lib/widgets/cards/card_back_painter.dart` — the four backs.
-- `lib/widgets/cards/playing_card.dart` — the widget wrapper (thickness,
+- `lib/core/widgets/cards/card_back_painter.dart` — the four backs.
+- `lib/core/widgets/cards/playing_card.dart` — the widget wrapper (thickness,
   shadow, tilt, flip).
 
 This is deliberate. Vector art is crisp at every DPI, adds nothing to the bundle,
@@ -205,7 +216,7 @@ Bundled assets are limited to:
 
 ## 7. How local saves work
 
-`SharedPreferences` with JSON, via `lib/storage/`. Keys live in
+`SharedPreferences` with JSON, via `lib/core/storage/`. Keys live in
 `storage_keys.dart`; there are five.
 
 - **`gd101.match.v1`** — the resumable match. `MatchState.toJson()` captures the
@@ -228,12 +239,12 @@ key and returns null, so "Riprendi Partita" simply does not appear.
 
 ## 8. Adding a new table theme
 
-1. Add a `TableTheme` const to `lib/theme/table_themes.dart` and put it in
+1. Add a `TableTheme` const to `lib/app/theme/table_themes.dart` and put it in
    `TableThemes.all`. Set `unlockAchievementId` to `null` for an always-available
    theme, or to an achievement id to gate it.
 2. Pick one of the three `TablePattern` motifs, or add a case to
    `BackdropPainter` and `_FeltPainter` for a new one.
-3. Optionally add a matching `CardBackDesign` in `lib/theme/card_backs.dart` and
+3. Optionally add a matching `CardBackDesign` in `lib/app/theme/card_backs.dart` and
    point the theme's `cardBackId` at it.
 
 Nothing else needs touching: the setup screen, the settings screen and every
@@ -241,11 +252,11 @@ painter read from `TableThemes.all`.
 
 ## 9. Adding a new bot personality
 
-1. Add a value to `BotPersonality` in `lib/models/player_type.dart`.
+1. Add a value to `BotPersonality` in `lib/features/game/domain/player_type.dart`.
 2. Give it weights in `BotWeights.forPersonality()`
-   (`lib/game/ai/bot_strategy.dart`). The knobs are `shedHigh`, `suitControl`,
+   (`lib/features/game/domain/ai/bot_strategy.dart`). The knobs are `shedHigh`, `suitControl`,
    `action`, `holdCavallo`, `randomness` and `voidExploit`.
-3. Add a `BotProfile` to `lib/data/bot_roster.dart` with a name and a medallion.
+3. Add a `BotProfile` to `lib/features/game/domain/bot_roster.dart` with a name and a medallion.
 
 Personalities only re-weight move selection and reaction frequency. They never
 change what a bot is allowed to see — see below.
