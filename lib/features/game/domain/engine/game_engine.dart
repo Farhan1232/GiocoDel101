@@ -20,8 +20,14 @@ import 'score_policy.dart';
 /// and on the server. Tests may inject their own.
 typedef RandomSource = Random Function(GameState state);
 
-Random _seededRandom(GameState state) =>
-    Random(state.seed ^ (state.version * 0x9E3779B1));
+/// Both operands are kept below 2^31 before they are mixed. The Dart VM has
+/// 64-bit integers but dart2js truncates every bitwise operator to 32 bits;
+/// the authoritative server runs this very engine compiled to JavaScript,
+/// so the mix must be identical on both — it is, as long as neither side
+/// of the XOR exceeds 32 bits.
+Random _seededRandom(GameState state) => Random(
+  (state.seed & 0x7FFFFFFF) ^ ((state.version * 0x9E3779B1) & 0x7FFFFFFF),
+);
 
 /// The rules of Gioco del 101, expressed once, as pure functions over
 /// [GameState].
@@ -180,6 +186,12 @@ class GameEngine {
     }
 
     if (actor == null || actor.eliminated) return GameFailure.invalidPlayer;
+    if (action is ForfeitAction) {
+      // A seat may give up at any moment of a live match: on or off turn,
+      // between rounds, while a suit is pending. Only "already out" and
+      // "already finished" (checked above) refuse it.
+      return null;
+    }
     if (state.status == GameStatus.roundOver) return GameFailure.roundOver;
     if (actor.id != state.currentPlayerId) return GameFailure.notPlayersTurn;
 
@@ -222,6 +234,7 @@ class GameEngine {
         return null;
 
       case StartNextRoundAction():
+      case ForfeitAction():
         return null; // handled above
     }
   }
@@ -248,6 +261,7 @@ class GameEngine {
       ChooseSuitAction() => _chooseSuit(state, action, events),
       PassAction() => _advanceTurn(state, 1, events),
       StartNextRoundAction() => _startNextRound(state, events),
+      ForfeitAction() => _forfeit(state, action, events),
     };
     next = next.copyWith(version: state.version + 1, lastAction: action);
     next = _stampClock(next, previous: state, now: now);
@@ -712,6 +726,58 @@ class GameEngine {
     events.add(RoundStartedEvent(next.round, next.currentPlayerId));
     events.add(TurnChangedEvent(next.currentPlayerId));
     return next;
+  }
+
+  // --------------------------------------------------------------- forfeit
+
+  /// A seat leaves the match for good (abandonment, repeated timeouts, or an
+  /// explicit surrender online). The seat is eliminated; its cards go to the
+  /// bottom of the stock so the 40-card conservation invariant holds; any
+  /// chain aimed at it or suit it owed dies with it; if it was to act, play
+  /// moves to the next live seat; and if only one seat is left standing the
+  /// match is over and that seat wins.
+  GameState _forfeit(GameState s, ForfeitAction a, List<GameEvent> events) {
+    final player = s.playerById(a.playerId)!;
+    final seat = s.seatOf(player.id);
+    final wasCurrent = seat == s.currentSeat;
+
+    var next = s
+        .withPlayer(player.copyWith(hand: const [], eliminated: true))
+        .copyWith(drawPile: [...player.hand, ...s.drawPile])
+        .withHistory(
+          HistoryEntry(
+            type: HistoryEntryType.forfeit,
+            playerId: player.id,
+            count: player.hand.length,
+          ),
+        );
+    events.add(PlayerForfeitedEvent(player.id));
+    events.add(PlayerEliminatedEvent(player.id));
+
+    final alive = next.players.where((p) => !p.eliminated).toList();
+    if (alive.length <= 1) {
+      final winner = alive.isEmpty ? _lowestScore(next.players) : alive.first;
+      next = next.copyWith(
+        status: GameStatus.finished,
+        winnerId: winner.id,
+        pendingDrawCount: 0,
+        chainLength: 0,
+      );
+      events.add(MatchEndedEvent(winner.id));
+      return next;
+    }
+
+    if (next.isRoundOver) return next; // the next deal skips the empty seat
+    if (!wasCurrent) return next;
+
+    // Its turn goes with it: a pending chain is nobody's to answer and an
+    // unnamed suit stays whatever was active before the Cavallo.
+    next = next.copyWith(
+      pendingDrawCount: 0,
+      chainLength: 0,
+      status: GameStatus.awaitingAction,
+    );
+    return _advanceTurn(next, 1, events);
   }
 
   // --------------------------------------------------------------- dealing

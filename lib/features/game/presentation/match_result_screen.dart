@@ -3,7 +3,11 @@ import 'package:get/get.dart';
 
 import '../application/match_launcher.dart';
 import '../../../app/router/app_router.dart';
-import '../application/game_controller.dart';
+import 'dart:async';
+
+import '../application/table_controller.dart';
+import '../../online/application/online_match_controller.dart';
+import '../../online/application/online_match_launcher.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../app/localization/app_strings.dart';
@@ -30,7 +34,7 @@ class MatchResultScreen extends StatefulWidget {
 }
 
 class _MatchResultScreenState extends State<MatchResultScreen> {
-  final GameController c = Get.find<GameController>();
+  final TableController c = Get.find<TableController>();
   final SettingsController settings = Get.find<SettingsController>();
 
   @override
@@ -45,7 +49,25 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
   GamePlayer? get _winner =>
       c.state.winnerId == null ? null : c.state.playerById(c.state.winnerId!);
 
+  Timer? _rematchPoll;
+  Worker? _nextMatch;
+
   void _rematch() {
+    final online = c;
+    if (online is OnlineMatchController) {
+      unawaited(online.requestRematch());
+      _rematchPoll ??= Timer.periodic(
+        const Duration(seconds: 3),
+        (_) => online.pollRematch(),
+      );
+      _nextMatch ??= ever<String?>(online.nextMatchId, (id) {
+        if (id != null && mounted) {
+          _rematchPoll?.cancel();
+          unawaited(OnlineMatchLauncher.launch(id, replace: true));
+        }
+      });
+      return;
+    }
     final state = c.state;
     final setup = state.mode == GameMode.vsComputer
         ? MatchFactory.vsComputer(
@@ -72,6 +94,38 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
 
   void _home() {
     Get.until((route) => route.settings.name == AppRoutes.home);
+    if (c.isOnline) OnlineMatchLauncher.dismiss();
+  }
+
+  @override
+  void dispose() {
+    _rematchPoll?.cancel();
+    _nextMatch?.dispose();
+    super.dispose();
+  }
+
+  /// Online: the rematch is a vote; show where it stands.
+  Widget _rematchStatus() {
+    final online = c;
+    if (online is! OnlineMatchController) return const SizedBox.shrink();
+    return Obx(() {
+      if (!online.rematchRequested.value) return const SizedBox.shrink();
+      final s = Strings.s;
+      final text = online.nextMatchId.value != null
+          ? s.lobbyStarting
+          : s.onlineRematchWaiting(
+              online.rematchVotes.value,
+              online.rematchNeeded.value,
+            );
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+        child: Text(
+          text,
+          style: AppText.caption.copyWith(color: AppColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+      );
+    });
   }
 
   @override
@@ -177,6 +231,7 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                   padding: const EdgeInsets.all(AppSpacing.gutter),
                   child: Column(
                     children: [
+                      _rematchStatus(),
                       PremiumButton(
                         label: s.rematch,
                         accent: theme.accent,
@@ -186,23 +241,26 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
                       const SizedBox(height: AppSpacing.sm),
                       Row(
                         children: [
-                          Expanded(
-                            child: PremiumButton(
-                              label: s.newMatch,
-                              variant: ButtonVariant.secondary,
-                              // Small keeps "Nuova Partita" from ellipsising
-                              // when it shares the row with Home.
-                              size: ButtonSize.small,
-                              onPressed: () {
-                                Get.until(
-                                  (route) =>
-                                      route.settings.name == AppRoutes.home,
-                                );
-                                Get.toNamed<void>(AppRoutes.setup);
-                              },
+                          if (!c.isOnline) ...[
+                            Expanded(
+                              child: PremiumButton(
+                                label: s.newMatch,
+                                variant: ButtonVariant.secondary,
+                                // Small keeps "Nuova Partita" from
+                                // ellipsising when it shares the row with
+                                // Home.
+                                size: ButtonSize.small,
+                                onPressed: () {
+                                  Get.until(
+                                    (route) =>
+                                        route.settings.name == AppRoutes.home,
+                                  );
+                                  Get.toNamed<void>(AppRoutes.setup);
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
+                            const SizedBox(width: AppSpacing.md),
+                          ],
                           Expanded(
                             child: PremiumButton(
                               label: s.home,

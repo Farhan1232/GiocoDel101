@@ -528,6 +528,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get leaderboardWeekly => 'Settimanale';
 
   @override
+  String get lobbyAway => 'Assente';
+
+  @override
+  String get lobbyConnected => 'Connesso';
+
+  @override
   String get lobbyCopied => 'Codice copiato';
 
   @override
@@ -543,12 +549,18 @@ class AppLocalizationsIt extends AppLocalizations {
   String get lobbyNotReady => 'In attesa';
 
   @override
+  String get lobbyNotReadyToggle => 'Non sono pronto';
+
+  @override
   String lobbyPlayerSlot(int index) {
     return 'Posto $index';
   }
 
   @override
   String get lobbyReady => 'Pronto';
+
+  @override
+  String get lobbyReadyToggle => 'Sono pronto';
 
   @override
   String get lobbyRoomCode => 'Codice stanza';
@@ -560,11 +572,25 @@ class AppLocalizationsIt extends AppLocalizations {
   String get lobbyStart => 'INIZIA LA PARTITA';
 
   @override
+  String lobbyStartFailed(String reason) {
+    return 'Impossibile avviare: $reason';
+  }
+
+  @override
   String get lobbyStartPending =>
       'L’avvio delle partite online arriva con il prossimo aggiornamento.';
 
   @override
+  String get lobbyStarting => 'La partita sta per iniziare…';
+
+  @override
   String get lobbyTitle => 'Sala d’attesa';
+
+  @override
+  String get lobbyWaitingForHost => 'In attesa che l’host avvii la partita…';
+
+  @override
+  String get lobbyWaitingForPlayers => 'In attesa di altri giocatori…';
 
   @override
   String get locked => 'Da sbloccare';
@@ -591,6 +617,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get matchmakingBody => 'Stiamo cercando altri giocatori…';
 
   @override
+  String get matchmakingBusy => 'Hai già una partita in corso.';
+
+  @override
   String get matchmakingCancel => 'Annulla la ricerca';
 
   @override
@@ -604,8 +633,22 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get matchmakingMatched => 'Tavolo trovato!';
+
+  @override
   String get matchmakingPending =>
       'Le code per la partita rapida non sono ancora aperte.';
+
+  @override
+  String get matchmakingPlayers => 'Giocatori al tavolo';
+
+  @override
+  String get matchmakingSearch => 'Cerca partita';
+
+  @override
+  String matchmakingSearching(int count) {
+    return 'Cerchiamo altri giocatori veri per un tavolo da $count…';
+  }
 
   @override
   String get matchmakingTitle => 'Ricerca in corso';
@@ -668,17 +711,95 @@ class AppLocalizationsIt extends AppLocalizations {
   String get onlineCreateRoomHint => 'Invita gli amici con un codice';
 
   @override
+  String get onlineDisconnected => 'Connessione persa';
+
+  @override
+  String get onlineForfeit => 'Abbandona';
+
+  @override
+  String get onlineForfeitBody =>
+      'La partita verrà data persa e non potrai rientrare.';
+
+  @override
+  String get onlineForfeitTitle => 'Abbandoni la partita?';
+
+  @override
   String get onlineJoinRoomHint => 'Hai un codice? Entra subito';
 
   @override
+  String get onlineMatchAbandoned => 'La partita è stata abbandonata';
+
+  @override
+  String get onlineMoveRefused => 'Mossa non valida';
+
+  @override
+  String get onlineMoveStale => 'Il tavolo era cambiato: riprova';
+
+  @override
+  String onlineNextRoundAuto(int seconds) {
+    return 'Il prossimo round parte tra ${seconds}s';
+  }
+
+  @override
+  String onlineOpponentLeft(String name) {
+    return '$name ha abbandonato la partita';
+  }
+
+  @override
   String get onlineQuickMatchHint => 'Ti troviamo un tavolo libero';
+
+  @override
+  String get onlineReconnecting => 'Riconnessione…';
+
+  @override
+  String get onlineRejoinMatch => 'Rientra nella partita';
+
+  @override
+  String get onlineRejoinMatchHint => 'Una partita online ti sta aspettando';
+
+  @override
+  String onlineRematchAsked(String name) {
+    return '$name vuole la rivincita';
+  }
+
+  @override
+  String get onlineRematchRequested => 'Rivincita richiesta';
+
+  @override
+  String onlineRematchWaiting(int votes, int needed) {
+    return 'In attesa degli altri ($votes/$needed)';
+  }
+
+  @override
+  String onlineServerMoved(String name) {
+    return 'Il server ha giocato per $name';
+  }
 
   @override
   String get onlineSignInRequired =>
       'Accedi o gioca come ospite per usare le funzioni online.';
 
   @override
+  String get onlineSyncing => 'Aggiornamento del tavolo…';
+
+  @override
+  String get onlineTimedOut => 'Tempo scaduto';
+
+  @override
   String get onlineTitle => 'Gioca online';
+
+  @override
+  String onlineTurnSeconds(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String onlineWaitingFor(String name) {
+    return 'Tocca a $name';
+  }
+
+  @override
+  String get onlineYouForfeited => 'Hai abbandonato la partita';
 
   @override
   String get passPhoneHint => 'Le carte restano coperte fino al tuo tocco';
@@ -787,6 +908,34 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get reaction8 => 'Rivincita!';
+
+  @override
+  String get reactionAhahaha => 'Ahahaha! 😂';
+
+  @override
+  String get reactionBellaMossa => 'Bella mossa! 😎';
+
+  @override
+  String get reactionBravo => 'Bravo! 👏';
+
+  @override
+  String get reactionCheFortuna => 'Che fortuna! 🍀';
+
+  @override
+  String get reactionCiao => 'Ciao! 👋';
+
+  @override
+  String get reactionGg => 'GG! 🤝';
+
+  @override
+  String get reactionMammaMia => 'Mamma mia! 😱';
+
+  @override
+  String get reactionRateLimited =>
+      'Aspetta un attimo prima della prossima reazione';
+
+  @override
+  String get reactionRivincita => 'Rivincita? 🔁';
 
   @override
   String get reactions => 'Reazioni';

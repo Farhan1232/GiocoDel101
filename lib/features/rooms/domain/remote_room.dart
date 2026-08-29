@@ -9,6 +9,8 @@ class RemoteRoom {
     required this.isPrivate,
     required this.turnTimerSeconds,
     required this.status,
+    this.kind = 'private',
+    this.matchId,
     this.seats = const [],
   });
 
@@ -20,9 +22,19 @@ class RemoteRoom {
   final bool isPrivate;
   final int turnTimerSeconds;
   final String status;
+
+  /// `private` (host + code) or `quick` (assembled by the queue).
+  final String kind;
+
+  /// Set once the match has been dealt.
+  final String? matchId;
   final List<RemoteSeat> seats;
 
   bool get isOpen => status == 'lobby';
+  bool get isQuick => kind == 'quick';
+  bool get hasStarted => status == 'in_progress' && matchId != null;
+  bool get isFull => seats.length >= maxPlayers;
+  bool get everyoneReady => seats.every((s) => s.isReady || s.isHost);
 
   factory RemoteRoom.fromJson(Map<String, dynamic> json) => RemoteRoom(
     id: json['id'] as String,
@@ -33,6 +45,8 @@ class RemoteRoom {
     isPrivate: json['is_private'] as bool? ?? true,
     turnTimerSeconds: (json['turn_timer_seconds'] as num?)?.toInt() ?? 30,
     status: json['status'] as String? ?? 'lobby',
+    kind: json['kind'] as String? ?? 'private',
+    matchId: json['match_id'] as String?,
   );
 
   RemoteRoom withSeats(List<RemoteSeat> value) => RemoteRoom(
@@ -44,6 +58,8 @@ class RemoteRoom {
     isPrivate: isPrivate,
     turnTimerSeconds: turnTimerSeconds,
     status: status,
+    kind: kind,
+    matchId: matchId,
     seats: value,
   );
 }
@@ -58,6 +74,7 @@ class RemoteSeat {
     required this.nickname,
     required this.avatarId,
     required this.connection,
+    this.lastSeenAt,
   });
 
   final String userId;
@@ -67,6 +84,11 @@ class RemoteSeat {
   final String nickname;
   final String avatarId;
   final String connection;
+  final DateTime? lastSeenAt;
+
+  /// Derived from the heartbeat: a seat unseen for 20 s is shown as away.
+  bool isConnectedAt(DateTime now) =>
+      lastSeenAt == null || now.difference(lastSeenAt!).inSeconds < 20;
 
   factory RemoteSeat.fromJson(Map<String, dynamic> json) {
     final profile = json['profiles'] as Map<String, dynamic>? ?? const {};
@@ -78,6 +100,9 @@ class RemoteSeat {
       nickname: profile['nickname'] as String? ?? '',
       avatarId: profile['avatar_id'] as String? ?? 'lucia',
       connection: json['connection'] as String? ?? 'online',
+      lastSeenAt: json['last_seen_at'] is String
+          ? DateTime.tryParse(json['last_seen_at'] as String)?.toUtc()
+          : null,
     );
   }
 }

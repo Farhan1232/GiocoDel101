@@ -16,15 +16,20 @@ class ReactionSheet extends StatelessWidget {
     required this.onPick,
     required this.onDismiss,
     this.accent,
+    this.phrases,
   });
 
   final ValueChanged<String> onPick;
   final VoidCallback onDismiss;
   final Color? accent;
 
+  /// Defaults to the local table's eight lines; an online table hands in
+  /// the eight server-whitelisted presets instead.
+  final List<String>? phrases;
+
   @override
   Widget build(BuildContext context) {
-    final phrases = Strings.s.reactions8;
+    final phrases = this.phrases ?? Strings.s.reactions8;
     final colour = accent ?? AppColors.antiqueGold;
 
     return GestureDetector(

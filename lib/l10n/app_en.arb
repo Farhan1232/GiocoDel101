@@ -163,18 +163,33 @@
   "leaderboardRank": "Rank",
   "leaderboardTitle": "Leaderboard",
   "leaderboardWeekly": "Weekly",
+  "lobbyAway": "Away",
+  "lobbyConnected": "Connected",
   "lobbyCopied": "Code copied",
   "lobbyEmptySlot": "Waiting for a player",
   "lobbyHost": "Host",
   "lobbyLeave": "Leave room",
   "lobbyNotReady": "Not ready",
+  "lobbyNotReadyToggle": "Not ready",
   "lobbyPlayerSlot": "Seat {index}",
   "lobbyReady": "Ready",
+  "lobbyReadyToggle": "I’m ready",
   "lobbyRoomCode": "Room code",
   "lobbyShare": "Share code",
   "lobbyStart": "START MATCH",
+  "lobbyStartFailed": "Could not start: {reason}",
+  "@lobbyStartFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "lobbyStartPending": "Starting online matches arrives in the next update.",
+  "lobbyStarting": "The match is about to start…",
   "lobbyTitle": "Lobby",
+  "lobbyWaitingForHost": "Waiting for the host to start…",
+  "lobbyWaitingForPlayers": "Waiting for more players…",
   "locked": "Locked",
   "loginCta": "SIGN IN",
   "loginForgot": "Forgot your password?",
@@ -183,10 +198,22 @@
   "longestChain": "Longest chain",
   "matchWinner": "WINNER",
   "matchmakingBody": "Looking for other players…",
+  "matchmakingBusy": "You already have a match in progress.",
   "matchmakingCancel": "Cancel search",
   "matchmakingElapsed": "Waiting {seconds}s",
   "matchmakingFound": "{found} of {total} players",
+  "matchmakingMatched": "Table found!",
   "matchmakingPending": "Quick match queues are not open yet.",
+  "matchmakingPlayers": "Players at the table",
+  "matchmakingSearch": "Find a match",
+  "matchmakingSearching": "Looking for real players for a table of {count}…",
+  "@matchmakingSearching": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "matchmakingTitle": "Searching",
   "mode": "Mode",
   "modePassAndPlay": "Pass & Play",
@@ -206,10 +233,83 @@
   "onboard3Body": "Create a room, share the code and take on two to four players online.",
   "onboard3Title": "Play with friends",
   "onlineCreateRoomHint": "Invite friends with a code",
+  "onlineDisconnected": "Connection lost",
+  "onlineForfeit": "Leave",
+  "onlineForfeitBody": "The match will count as a loss and you cannot rejoin.",
+  "onlineForfeitTitle": "Leave the match?",
   "onlineJoinRoomHint": "Got a code? Jump straight in",
+  "onlineMatchAbandoned": "The match was abandoned",
+  "onlineMoveRefused": "Illegal move",
+  "onlineMoveStale": "The table had changed: try again",
+  "onlineNextRoundAuto": "Next round starts in {seconds}s",
+  "@onlineNextRoundAuto": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineOpponentLeft": "{name} left the match",
+  "@onlineOpponentLeft": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "onlineQuickMatchHint": "We find you an open table",
+  "onlineReconnecting": "Reconnecting…",
+  "onlineRejoinMatch": "Rejoin the match",
+  "onlineRejoinMatchHint": "An online match is waiting for you",
+  "onlineRematchAsked": "{name} wants a rematch",
+  "@onlineRematchAsked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineRematchRequested": "Rematch requested",
+  "onlineRematchWaiting": "Waiting for the others ({votes}/{needed})",
+  "@onlineRematchWaiting": {
+    "placeholders": {
+      "votes": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineServerMoved": "The server played for {name}",
+  "@onlineServerMoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "onlineSignInRequired": "Sign in or play as a guest to use online features.",
+  "onlineSyncing": "Updating the table…",
+  "onlineTimedOut": "Time is up",
   "onlineTitle": "Play online",
+  "onlineTurnSeconds": "{seconds}s",
+  "@onlineTurnSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineWaitingFor": "{name}’s turn",
+  "@onlineWaitingFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineYouForfeited": "You left the match",
   "passPhoneHint": "Cards stay face down until you tap",
   "passPhoneTo": "PASS THE PHONE TO {name}",
   "passTurn": "Pass",
@@ -244,6 +344,15 @@
   "reaction6": "Draw!",
   "reaction7": "Well played!",
   "reaction8": "Rematch!",
+  "reactionAhahaha": "Ahahaha! 😂",
+  "reactionBellaMossa": "Nice move! 😎",
+  "reactionBravo": "Bravo! 👏",
+  "reactionCheFortuna": "Lucky! 🍀",
+  "reactionCiao": "Ciao! 👋",
+  "reactionGg": "GG! 🤝",
+  "reactionMammaMia": "Mamma mia! 😱",
+  "reactionRateLimited": "Wait a moment before the next reaction",
+  "reactionRivincita": "Rematch? 🔁",
   "reactions": "Reactions",
   "reduceMotion": "Reduce motion",
   "rematch": "Rematch",

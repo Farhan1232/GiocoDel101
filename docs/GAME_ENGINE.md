@@ -137,6 +137,7 @@ Sealed. Every one carries the actor's `playerId` and an optional
 | `ChooseSuitAction` | `suit` | own turn and `status == awaitingSuitChoice` |
 | `PassAction` | — | own turn, no chain pending, drew this turn (unless `mustDrawBeforePassing` is off) |
 | `StartNextRoundAction` | — | `status == roundOver`; any seated player or the `system` actor |
+| `ForfeitAction` | — | any live seat, at any moment before `finished` (GAME_SPEC §12c) |
 
 JSON: `{"type": "playCard", "playerId": "p0", "card": "coppe_re",
 "chosenSuit": "denari", "baseVersion": 12}`. Round-trips exactly.
@@ -278,7 +279,10 @@ rebuild the table from state alone.
 `ChainGrewEvent` · `ChainResolvedEvent` · `ChainBlockedEvent(cancelled)` ·
 `SuitChoiceRequestedEvent` · `SuitChosenEvent` · `DeckRecycledEvent` ·
 `TurnChangedEvent` · `RoundStartedEvent` · `RoundEndedEvent(result)` ·
-`Exact101Event` · `PlayerEliminatedEvent` · `MatchEndedEvent`.
+`Exact101Event` · `PlayerEliminatedEvent` · `PlayerForfeitedEvent` ·
+`MatchEndedEvent`. Each has a stable wire `name` (`GameEventName`) —
+`runtimeType` is minified under dart2js, and the server reports events by
+that name.
 `InvalidMoveEvent` is emitted only by `GameSession` when a play is refused,
 so the table can shake the card.
 
@@ -288,7 +292,10 @@ so the table can shake the card.
 
 The engine draws no randomness of its own. Every shuffle (the deal at
 creation, every next-round deal, every discard recycle) uses
-`Random(state.seed ^ (state.version * 0x9E3779B1))`. Since `version`
+`Random((seed & 0x7FFFFFFF) ^ ((version * 0x9E3779B1) & 0x7FFFFFFF))` —
+both operands kept below 2³¹ because dart2js truncates bitwise operators to
+32 bits and the online server runs this engine compiled to JavaScript
+(Session 4). Since `version`
 increments on every action, `(state, action) → state'` is a pure function:
 replaying an action log from the same seed reproduces every intermediate
 state byte-for-byte, on any device or server.
@@ -302,6 +309,19 @@ seed is part of the state; an online server must treat it as **private**
 passes is **undefined by the client** and not implemented.
 
 ---
+
+### Redacted states (Session 4)
+
+The server publishes `GameState.toJson()` minus `seed`, `drawPile`,
+`drawnCard`, `history` and every `players[].hand`, adding `drawPileCount`
+and `players[].handCount` (`app_private.redact_game_state`). Such a JSON
+parses into a `GameState` with `isRedacted == true`,
+`drawPileCount` reporting the stock size and `GamePlayer.concealedCount` /
+`cardCount` reporting each hand's size. Merging the viewer's own hand
+(`withPlayer(me.copyWith(hand: …))`) gives a view on which
+`getPlayableCards`, `canDraw`, `canPass` and `mustTakePenalty` work exactly
+as offline — that is what the online table highlights with. A real state
+never emits the concealed keys (fixed-point tests unchanged).
 
 ## 9. Invariants
 
@@ -366,7 +386,8 @@ the real engine end-to-end with manual control of every seat.
 
 ## 13. Conformance fixtures
 
-`test/fixtures/game_conformance/*.json` — 37 cases. Each holds:
+`test/fixtures/game_conformance/*.json` — 41 cases (37 from Session 2 plus
+four forfeit cases). Each holds:
 
 ```json
 {
@@ -385,9 +406,11 @@ the real engine end-to-end with manual control of every seat.
 test/tools/generate_conformance_fixtures.dart`); `assertions` are written by
 hand in `test/support/conformance_scenarios.dart` and are checked against
 *both* the fixture and a fresh run, so the engine cannot regenerate its own
-approval unnoticed. Session 3 runs the same files against the Supabase
-authoritative function: feed `initialState` + `action`, expect
-`expectedState` / `expectedFailure`.
+approval unnoticed. Session 4 runs the same files against the compiled
+engine the Edge Function executes
+(`deno test --allow-read supabase/functions/match/engine_conformance_test.ts`):
+feed `initialState` + `action`, expect `expectedState` /
+`expectedFailure` / `expectedEvents` — 41/41 identical.
 
 ---
 

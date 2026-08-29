@@ -217,8 +217,13 @@ void main() {
     testWidgets('matchmaking never announces a found opponent', (tester) async {
       await _render(tester, const MatchmakingScreen(), sizes.first);
       final s = Strings.s;
-      // One seat filled out of four, and it is the local player.
-      expect(find.text(s.matchmakingFound(1, 4)), findsOneWidget);
+      // One seat filled out of two (the default table), and it is the
+      // local player; without a backend the search cannot even start.
+      expect(find.text(s.matchmakingFound(1, 2)), findsOneWidget);
+      final search = tester.widget<PremiumButton>(
+        find.widgetWithText(PremiumButton, s.matchmakingSearch),
+      );
+      expect(search.onPressed, isNull);
     });
 
     testWidgets('both leaderboards show the empty state', (tester) async {

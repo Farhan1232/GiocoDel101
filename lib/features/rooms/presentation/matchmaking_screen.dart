@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../app/bindings/backend_services.dart';
 import '../../../app/localization/app_strings.dart';
+import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -11,15 +13,19 @@ import '../../../core/utils/motion.dart';
 import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
+import '../../../core/widgets/segmented_control.dart';
+import '../../auth/application/session_controller.dart';
+import '../../online/domain/online_match_models.dart';
 import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
 
-/// §L — the waiting screen for a quick match.
+/// §L — the quick-match queue.
 ///
-/// The elapsed counter is real: it counts the time actually spent on this
-/// screen. The seat row shows the player and, honestly, nothing else — no
-/// opponent is ever announced, because none is being found. When there is no
-/// backend at all the screen says so instead of spinning forever.
+/// The player picks a table size, joins the server's queue and waits. The
+/// elapsed counter is real; the seat row shows the player and, honestly,
+/// nothing else until the server has assembled a room from real waiting
+/// players — no opponent is ever announced that is not seated in a row of
+/// `room_players`. Cancelling really leaves the queue.
 class MatchmakingScreen extends StatefulWidget {
   const MatchmakingScreen({super.key});
 
@@ -36,25 +42,113 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
   );
 
   Timer? _tick;
+  Timer? _heartbeat;
   int _elapsed = 0;
+  int _seats = 2;
+  bool _searching = false;
+  bool _matched = false;
+  String? _error;
 
-  /// Quick match seats four; only the local player is ever seated.
-  static const int _seats = 4;
+  /// Quick matches all play with the same clock so any two waiting players
+  /// are compatible; private rooms choose their own.
+  static const int _quickMatchTimerSeconds = 30;
+
+  bool get _canSearch =>
+      OnlineStatus.isConfigured && Get.find<SessionController>().isSignedIn;
 
   @override
   void initState() {
     super.initState();
     if (Motion.allowAmbient) _pulse.repeat();
-    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _elapsed++);
-    });
   }
 
   @override
   void dispose() {
     _tick?.cancel();
+    _heartbeat?.cancel();
     _pulse.dispose();
+    if (_searching && !_matched) {
+      unawaited(Get.find<BackendServices>().matchmaking.cancel());
+    }
     super.dispose();
+  }
+
+  Future<void> _search() async {
+    if (!_canSearch || _searching) return;
+    setState(() {
+      _searching = true;
+      _error = null;
+      _elapsed = 0;
+    });
+    _tick?.cancel();
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _elapsed++);
+    });
+    final queue = Get.find<BackendServices>().matchmaking;
+    try {
+      final entry = await queue.enqueue(
+        playerCount: _seats,
+        turnTimerSeconds: _quickMatchTimerSeconds,
+      );
+      if (!mounted) return;
+      if (entry.isMatched) {
+        await _matchedInto(entry);
+        return;
+      }
+      // The queue is re-checked by the server on every heartbeat; matching
+      // is done by the last compatible player to arrive.
+      _heartbeat = Timer.periodic(const Duration(seconds: 3), (_) => _poll());
+    } on OnlineException catch (e) {
+      if (!mounted) return;
+      _tick?.cancel();
+      setState(() {
+        _searching = false;
+        _error = e.error == OnlineError.conflict
+            ? Strings.s.matchmakingBusy
+            : e.error == OnlineError.notSignedIn
+            ? Strings.s.onlineSignInRequired
+            : Strings.s.authBackendPending;
+      });
+    }
+  }
+
+  Future<void> _poll() async {
+    if (!_searching || _matched) return;
+    final queue = Get.find<BackendServices>().matchmaking;
+    final entry = await queue.heartbeat();
+    if (!mounted || !_searching) return;
+    if (entry == null) {
+      // Our row is gone: matched and swept, or expired. Re-enqueue.
+      unawaited(_search());
+      return;
+    }
+    if (entry.isMatched) await _matchedInto(entry);
+  }
+
+  Future<void> _matchedInto(QueueEntry entry) async {
+    if (_matched) return;
+    _matched = true;
+    _tick?.cancel();
+    _heartbeat?.cancel();
+    setState(() {});
+    final room = await Get.find<BackendServices>().rooms.load(entry.roomId!);
+    if (!mounted) return;
+    if (room == null) {
+      _matched = false;
+      unawaited(_search());
+      return;
+    }
+    await Get.offNamed<void>(AppRoutes.roomLobby, arguments: room);
+  }
+
+  Future<void> _cancel() async {
+    _tick?.cancel();
+    _heartbeat?.cancel();
+    if (_searching && !_matched) {
+      await Get.find<BackendServices>().matchmaking.cancel();
+    }
+    _searching = false;
+    Get.back<void>();
   }
 
   @override
@@ -62,7 +156,7 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
     final s = Strings.s;
     return ScreenScaffold(
       title: s.matchmakingTitle,
-      onBack: () => Get.back<void>(),
+      onBack: _cancel,
       child: Obx(() {
         final accent = _settings.theme.accent;
         return Column(
@@ -76,7 +170,7 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
                 animation: _pulse,
                 builder: (context, child) => CustomPaint(
                   painter: _RadarPainter(
-                    progress: _pulse.value,
+                    progress: _searching ? _pulse.value : 0,
                     colour: accent,
                   ),
                   child: child,
@@ -91,19 +185,45 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
               ),
             ),
             const SizedBox(height: AppSpacing.xxl),
+            if (!_searching) ...[
+              Text(s.matchmakingPlayers, style: AppText.label),
+              const SizedBox(height: AppSpacing.sm),
+              SegmentedControl<int>(
+                options: const [
+                  SegmentOption(value: 2, label: '2'),
+                  SegmentOption(value: 3, label: '3'),
+                  SegmentOption(value: 4, label: '4'),
+                ],
+                value: _seats,
+                accent: accent,
+                onChanged: (n) => setState(() => _seats = n),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+            ],
             Text(
-              // No queue exists yet (Session 4); say so rather than search.
-              OnlineStatus.isConfigured
-                  ? s.matchmakingPending
-                  : s.authBackendPending,
-              style: AppText.body.copyWith(color: AppColors.textSecondary),
+              _error ??
+                  (_matched
+                      ? s.matchmakingMatched
+                      : _searching
+                      ? s.matchmakingSearching(_seats)
+                      : _canSearch
+                      ? s.onlineQuickMatchHint
+                      : OnlineStatus.isConfigured
+                      ? s.onlineSignInRequired
+                      : s.authBackendPending),
+              style: AppText.body.copyWith(
+                color: _error != null
+                    ? AppColors.terracottaCoral
+                    : AppColors.textSecondary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.md),
-            Text(
-              s.matchmakingElapsed(_elapsed),
-              style: AppText.scoreSmall.copyWith(color: AppColors.textMuted),
-            ),
+            if (_searching)
+              Text(
+                s.matchmakingElapsed(_elapsed),
+                style: AppText.scoreSmall.copyWith(color: AppColors.textMuted),
+              ),
             const SizedBox(height: AppSpacing.xxl),
             Text(s.matchmakingFound(1, _seats), style: AppText.label),
             const SizedBox(height: AppSpacing.md),
@@ -125,11 +245,18 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
               ],
             ),
             const SizedBox(height: AppSpacing.xxxl),
+            if (!_searching)
+              PremiumButton(
+                label: s.matchmakingSearch,
+                accent: accent,
+                onPressed: _canSearch ? _search : null,
+              ),
+            const SizedBox(height: AppSpacing.sm),
             PremiumButton(
               label: s.matchmakingCancel,
               variant: ButtonVariant.ghost,
               size: ButtonSize.medium,
-              onPressed: () => Get.back<void>(),
+              onPressed: _cancel,
             ),
             const SizedBox(height: AppSpacing.xl),
           ],
@@ -149,7 +276,7 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
   );
 }
 
-/// Three expanding rings. Decorative only — it is not tied to any search.
+/// Three expanding rings. Decorative only — still while nothing is searched.
 class _RadarPainter extends CustomPainter {
   const _RadarPainter({required this.progress, required this.colour});
 

@@ -79,6 +79,7 @@ class GameState {
     this.turnDeadlineAt,
     this.seed = 0,
     this.isDailyChallenge = false,
+    this.concealedDrawPileCount,
     MatchStats? stats,
     List<HistoryEntry> history = const [],
     List<GameCard> playedCards = const [],
@@ -168,6 +169,10 @@ class GameState {
   final int seed;
   final bool isDailyChallenge;
 
+  /// Set only on the server's *redacted* state, where the stock itself is
+  /// withheld and only its size is published. Null for a real state.
+  final int? concealedDrawPileCount;
+
   final MatchStats stats;
 
   /// Bounded tail of recent events, replayed by "Rivedi ultima mano".
@@ -200,6 +205,13 @@ class GameState {
   };
 
   GameCard get topCard => discardPile.last;
+
+  /// Cards in the stock — real or, on a redacted state, as reported.
+  int get drawPileCount => concealedDrawPileCount ?? drawPile.length;
+
+  /// True for a snapshot received from the server: hidden information
+  /// (seed, stock order, other hands) is absent, counts stand in for it.
+  bool get isRedacted => concealedDrawPileCount != null;
 
   bool get isPenaltyPending => pendingDrawCount > 0;
   bool get isRoundOver =>
@@ -291,6 +303,7 @@ class GameState {
         : (turnDeadlineAt ?? this.turnDeadlineAt),
     seed: seed,
     isDailyChallenge: isDailyChallenge,
+    concealedDrawPileCount: drawPile == null ? concealedDrawPileCount : null,
     stats: stats ?? this.stats,
     history: history ?? this.history,
     playedCards: playedCards ?? this.playedCards,
@@ -343,6 +356,7 @@ class GameState {
     'turnDeadlineAt': turnDeadlineAt,
     'seed': seed,
     'isDailyChallenge': isDailyChallenge,
+    if (concealedDrawPileCount != null) 'drawPileCount': concealedDrawPileCount,
     'stats': stats.toJson(),
     'history': history.map((h) => h.toJson()).toList(),
     'playedCards': playedCards.map((c) => c.id).toList(),
@@ -415,6 +429,10 @@ class GameState {
       turnDeadlineAt: (json['turnDeadlineAt'] as num?)?.toInt(),
       seed: (json['seed'] as num?)?.toInt() ?? 0,
       isDailyChallenge: json['isDailyChallenge'] as bool? ?? false,
+      // app_private.redact_game_state drops `drawPile` for `drawPileCount`.
+      concealedDrawPileCount: json['drawPile'] is List
+          ? null
+          : (json['drawPileCount'] as num?)?.toInt(),
       stats: MatchStats.fromJson(
         (json['stats'] as Map?)?.cast<String, dynamic>() ?? const {},
       ),

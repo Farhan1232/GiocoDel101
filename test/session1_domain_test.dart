@@ -313,6 +313,14 @@ void main() {
         'fieldNickname',
         'lobbyHost',
         'reaction4',
+        // Session 4 — the preset reactions are Italian interjections the
+        // English UI keeps on purpose, and "{seconds}s" is a unit.
+        'reactionCiao',
+        'reactionBravo',
+        'reactionMammaMia',
+        'reactionAhahaha',
+        'reactionGg',
+        'onlineTurnSeconds',
         'settingsAccount',
         'profileXpProgress',
         'suitSpade',

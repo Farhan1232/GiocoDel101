@@ -107,6 +107,13 @@ The app compiles in only the project URL and the **publishable** key via
 `service_role` key, database password, Management API token and MCP OAuth
 credentials are never in the repo, the app, logs or these docs.
 
+## Session 4
+
+The online game adds its own threat model, enforcement table and attack
+log: `docs/SECURITY.md`. Nothing above was weakened; the `srv_*` server
+API is callable by `service_role` only, and every new client RPC validates
+`auth.uid()` membership.
+
 ## Verification matrix
 
 `tool/supabase_smoke.dart` runs the following against a real project with two

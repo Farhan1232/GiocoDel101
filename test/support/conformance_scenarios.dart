@@ -812,4 +812,109 @@ List<ConformanceScenario> conformanceScenarios() => [
     },
     expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
   ),
+
+  // --------------------------------------------------------------- forfeit
+  ConformanceScenario(
+    name: 'forfeit_off_turn_three_players',
+    description:
+        'A seat gives up while somebody else is to act: it is eliminated, '
+        'its cards return to the bottom of the stock, the turn does not move.',
+    rulesNote: 'GAME_SPEC §15 (online forfeit / abandonment)',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_sp, CardRank.tre)],
+        [_c(_de, CardRank.tre), _c(_ba, CardRank.sei)],
+        [_c(_ba, CardRank.sette)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      currentIndex: 0,
+      version: 4,
+    ),
+    action: const ForfeitAction(playerId: 'p1', baseVersion: 4),
+    assertions: {
+      'currentPlayerId': 'p0',
+      'status': 'awaitingAction',
+      'eliminated.p1': true,
+      'handSize.p1': 0,
+      'drawPileSize': 36,
+      'version': 5,
+    },
+    expectedEvents: const ['PlayerForfeitedEvent', 'PlayerEliminatedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'forfeit_on_turn_clears_chain_and_advances',
+    description:
+        'The seat that owes a +4 gives up: the chain dies with it and play '
+        'moves to the next live seat.',
+    rulesNote: 'GAME_SPEC §15',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_sp, CardRank.tre)],
+        [_c(_de, CardRank.tre), _c(_ba, CardRank.sei)],
+        [_c(_ba, CardRank.sette)],
+      ],
+      top: _c(_co, CardRank.due),
+      currentIndex: 1,
+      pendingPenalty: 4,
+      chainLength: 2,
+      version: 9,
+    ),
+    action: const ForfeitAction(playerId: 'p1', baseVersion: 9),
+    assertions: {
+      'currentPlayerId': 'p2',
+      'pendingDrawCount': 0,
+      'chainLength': 0,
+      'eliminated.p1': true,
+      'status': 'awaitingAction',
+      'version': 10,
+    },
+    expectedEvents: const [
+      'PlayerForfeitedEvent',
+      'PlayerEliminatedEvent',
+      'TurnChangedEvent',
+    ],
+  ),
+  ConformanceScenario(
+    name: 'forfeit_two_players_ends_match',
+    description: 'With two seats, one giving up hands the match to the other.',
+    rulesNote: 'GAME_SPEC §15',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_sp, CardRank.tre)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      scores: [40, 12],
+      version: 2,
+    ),
+    action: const ForfeitAction(playerId: 'p0', baseVersion: 2),
+    assertions: {
+      'status': 'finished',
+      'winnerId': 'p1',
+      'eliminated.p0': true,
+      'version': 3,
+    },
+    expectedEvents: const [
+      'PlayerForfeitedEvent',
+      'PlayerEliminatedEvent',
+      'MatchEndedEvent',
+    ],
+  ),
+  ConformanceScenario(
+    name: 'reject_forfeit_when_already_out',
+    description: 'An eliminated seat cannot forfeit again.',
+    rulesNote: 'GAME_SPEC §15',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [_c(_de, CardRank.tre)],
+        [],
+      ],
+      top: _c(_co, CardRank.cinque),
+      eliminated: [false, false, true],
+      scores: [10, 20, 105],
+    ),
+    action: const ForfeitAction(playerId: 'p2'),
+    expectedFailure: GameFailure.invalidPlayer,
+  ),
 ];

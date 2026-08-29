@@ -58,6 +58,8 @@ sealed class GameAction {
           playerId: playerId,
           baseVersion: baseVersion,
         );
+      case ForfeitAction.kind:
+        return ForfeitAction(playerId: playerId, baseVersion: baseVersion);
     }
     throw FormatException('Unknown action type: $type');
   }
@@ -199,6 +201,29 @@ class StartNextRoundAction extends GameAction {
 
   @override
   bool _samePayload(GameAction other) => other is StartNextRoundAction;
+
+  @override
+  int get _payloadHash => 0;
+}
+
+/// The actor leaves the match for good and is eliminated (GAME_SPEC §15).
+///
+/// Sent by a player who surrenders, or by the server on behalf of a seat
+/// that abandoned the table or ran out of turn time too many times. Legal at
+/// any moment of a live match for any seat that is still in it.
+class ForfeitAction extends GameAction {
+  const ForfeitAction({required super.playerId, super.baseVersion});
+
+  static const String kind = 'forfeit';
+
+  @override
+  String get type => kind;
+
+  @override
+  Map<String, dynamic> _payload() => const {};
+
+  @override
+  bool _samePayload(GameAction other) => other is ForfeitAction;
 
   @override
   int get _payloadHash => 0;

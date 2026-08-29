@@ -17,6 +17,7 @@ class GamePlayer {
     this.score = 0,
     this.eliminated = false,
     List<GameCard> hand = const [],
+    this.concealedCount,
   }) : hand = List.unmodifiable(hand);
 
   final String id;
@@ -37,9 +38,17 @@ class GamePlayer {
   /// Private hand. Only the owner (and the engine) may see it.
   final List<GameCard> hand;
 
+  /// Set only on a seat received from the server's *redacted* state: the
+  /// number of cards this player holds when the cards themselves are not
+  /// ours to see. Null whenever [hand] is the real hand.
+  final int? concealedCount;
+
   bool get isHuman => type == PlayerType.humanLocal;
   bool get isBot => type == PlayerType.bot;
-  int get cardCount => hand.length;
+  int get cardCount => concealedCount ?? hand.length;
+
+  /// True when this seat's cards are hidden from the viewer (online).
+  bool get isConcealed => concealedCount != null;
 
   GamePlayer copyWith({
     String? name,
@@ -57,6 +66,8 @@ class GamePlayer {
     score: score ?? this.score,
     eliminated: eliminated ?? this.eliminated,
     hand: hand ?? this.hand,
+    // Giving a seat its real hand un-conceals it.
+    concealedCount: hand == null ? concealedCount : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -69,6 +80,7 @@ class GamePlayer {
     'score': score,
     'eliminated': eliminated,
     'hand': hand.map((c) => c.toStorage()).toList(),
+    if (concealedCount != null) 'handCount': concealedCount,
   };
 
   factory GamePlayer.fromJson(Map<String, dynamic> json) => GamePlayer(
@@ -87,6 +99,11 @@ class GamePlayer {
     hand: ((json['hand'] as List?) ?? const [])
         .map((e) => GameCard.fromJson(e))
         .toList(),
+    // The server's redacted state replaces `hand` with `handCount`
+    // (app_private.redact_game_state); a real hand always wins.
+    concealedCount: json['hand'] is List
+        ? null
+        : (json['handCount'] as num?)?.toInt(),
   );
 
   @override
@@ -101,6 +118,7 @@ class GamePlayer {
           other.personality == personality &&
           other.score == score &&
           other.eliminated == eliminated &&
+          other.concealedCount == concealedCount &&
           _sameCards(other.hand, hand));
 
   @override

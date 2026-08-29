@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:gioco_del_101/app/bindings/initial_binding.dart';
 import 'package:gioco_del_101/features/game/application/game_controller.dart';
+import 'package:gioco_del_101/features/game/application/table_controller.dart';
 import 'package:gioco_del_101/features/settings/application/settings_controller.dart';
 import 'package:gioco_del_101/features/profile/application/stats_controller.dart';
 import 'package:gioco_del_101/core/utils/motion.dart';
@@ -70,7 +71,7 @@ GameController _seat({
       chainLength: chainLength,
     ),
   );
-  return Get.put(
+  final controller = Get.put(
     GameController(
       session: session,
       storage: Get.find<GameStorageService>(),
@@ -79,6 +80,9 @@ GameController _seat({
       humanIds: const ['p0'],
     ),
   );
+  // The screens depend on the contract, exactly as MatchLauncher registers it.
+  Get.put<TableController>(controller);
+  return controller;
 }
 
 Future<void> _pumpTable(WidgetTester tester) async {

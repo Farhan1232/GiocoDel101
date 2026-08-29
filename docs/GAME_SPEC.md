@@ -222,6 +222,25 @@ leaderboard model exists (`LeaderboardEntry.points`) but **no points formula
 has been invented**. Session 3 must get this from the client before the
 leaderboard can show anything.
 
+## 12c. Forfeit — leaving a match for good (Session 4)
+
+A seat may **forfeit** at any moment of a live match (`ForfeitAction`): on
+or off turn, between rounds, while a suit is pending. Online this is what
+"leave the table", abandonment and the third consecutive turn timeout all
+resolve to; offline it is not used yet.
+
+- The seat is **eliminated** for the rest of the match and its cards go to
+  the bottom of the draw pile (the 40-card invariant holds).
+- A pending +2 chain aimed at it dies; an unnamed suit stays whatever was
+  active before the Cavallo.
+- If it was that seat's turn, play moves to the next live seat.
+- If only one seat is left standing the match ends and that seat wins.
+
+Turn-timer expiry (§14.4) is still undefined by the client; the online
+server applies the documented policy in `docs/ONLINE_MULTIPLAYER.md`
+("The turn clock and timeouts") — a server-made safe move, forfeit on the
+third strike — without changing any rule here.
+
 ## 13. Configurable rules summary
 
 All in `GameRules`, all with the defaults above:

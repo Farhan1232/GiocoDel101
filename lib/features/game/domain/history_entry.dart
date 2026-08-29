@@ -15,6 +15,7 @@ enum HistoryEntryType {
   chainBlocked,
   recycle,
   roundEnd,
+  forfeit,
 }
 
 class HistoryEntry {

@@ -114,3 +114,35 @@ class MatchEndedEvent extends GameEvent {
   const MatchEndedEvent(this.winnerId);
   final String winnerId;
 }
+
+/// A seat gave up (or was forfeited by the server) and is out of the match.
+/// Always followed by a [PlayerEliminatedEvent] for the same seat.
+class PlayerForfeitedEvent extends GameEvent {
+  const PlayerForfeitedEvent(this.playerId);
+  final String playerId;
+}
+
+/// Stable wire names for events. `runtimeType.toString()` is minified under
+/// dart2js, and the conformance fixtures and the server both need the
+/// same spelling as the Dart VM produces.
+extension GameEventName on GameEvent {
+  String get name => switch (this) {
+    CardPlayedEvent() => 'CardPlayedEvent',
+    CardsDrawnEvent() => 'CardsDrawnEvent',
+    TurnSkippedEvent() => 'TurnSkippedEvent',
+    ChainGrewEvent() => 'ChainGrewEvent',
+    ChainResolvedEvent() => 'ChainResolvedEvent',
+    ChainBlockedEvent() => 'ChainBlockedEvent',
+    SuitChoiceRequestedEvent() => 'SuitChoiceRequestedEvent',
+    SuitChosenEvent() => 'SuitChosenEvent',
+    DeckRecycledEvent() => 'DeckRecycledEvent',
+    TurnChangedEvent() => 'TurnChangedEvent',
+    InvalidMoveEvent() => 'InvalidMoveEvent',
+    RoundStartedEvent() => 'RoundStartedEvent',
+    RoundEndedEvent() => 'RoundEndedEvent',
+    Exact101Event() => 'Exact101Event',
+    PlayerEliminatedEvent() => 'PlayerEliminatedEvent',
+    MatchEndedEvent() => 'MatchEndedEvent',
+    PlayerForfeitedEvent() => 'PlayerForfeitedEvent',
+  };
+}

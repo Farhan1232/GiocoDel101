@@ -1076,6 +1076,18 @@ abstract class AppLocalizations {
   /// **'Settimanale'**
   String get leaderboardWeekly;
 
+  /// No description provided for @lobbyAway.
+  ///
+  /// In it, this message translates to:
+  /// **'Assente'**
+  String get lobbyAway;
+
+  /// No description provided for @lobbyConnected.
+  ///
+  /// In it, this message translates to:
+  /// **'Connesso'**
+  String get lobbyConnected;
+
   /// No description provided for @lobbyCopied.
   ///
   /// In it, this message translates to:
@@ -1106,6 +1118,12 @@ abstract class AppLocalizations {
   /// **'In attesa'**
   String get lobbyNotReady;
 
+  /// No description provided for @lobbyNotReadyToggle.
+  ///
+  /// In it, this message translates to:
+  /// **'Non sono pronto'**
+  String get lobbyNotReadyToggle;
+
   /// No description provided for @lobbyPlayerSlot.
   ///
   /// In it, this message translates to:
@@ -1117,6 +1135,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Pronto'**
   String get lobbyReady;
+
+  /// No description provided for @lobbyReadyToggle.
+  ///
+  /// In it, this message translates to:
+  /// **'Sono pronto'**
+  String get lobbyReadyToggle;
 
   /// No description provided for @lobbyRoomCode.
   ///
@@ -1136,17 +1160,41 @@ abstract class AppLocalizations {
   /// **'INIZIA LA PARTITA'**
   String get lobbyStart;
 
+  /// No description provided for @lobbyStartFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile avviare: {reason}'**
+  String lobbyStartFailed(String reason);
+
   /// No description provided for @lobbyStartPending.
   ///
   /// In it, this message translates to:
   /// **'L’avvio delle partite online arriva con il prossimo aggiornamento.'**
   String get lobbyStartPending;
 
+  /// No description provided for @lobbyStarting.
+  ///
+  /// In it, this message translates to:
+  /// **'La partita sta per iniziare…'**
+  String get lobbyStarting;
+
   /// No description provided for @lobbyTitle.
   ///
   /// In it, this message translates to:
   /// **'Sala d’attesa'**
   String get lobbyTitle;
+
+  /// No description provided for @lobbyWaitingForHost.
+  ///
+  /// In it, this message translates to:
+  /// **'In attesa che l’host avvii la partita…'**
+  String get lobbyWaitingForHost;
+
+  /// No description provided for @lobbyWaitingForPlayers.
+  ///
+  /// In it, this message translates to:
+  /// **'In attesa di altri giocatori…'**
+  String get lobbyWaitingForPlayers;
 
   /// No description provided for @locked.
   ///
@@ -1196,6 +1244,12 @@ abstract class AppLocalizations {
   /// **'Stiamo cercando altri giocatori…'**
   String get matchmakingBody;
 
+  /// No description provided for @matchmakingBusy.
+  ///
+  /// In it, this message translates to:
+  /// **'Hai già una partita in corso.'**
+  String get matchmakingBusy;
+
   /// No description provided for @matchmakingCancel.
   ///
   /// In it, this message translates to:
@@ -1214,11 +1268,35 @@ abstract class AppLocalizations {
   /// **'{found} di {total} giocatori'**
   String matchmakingFound(int found, int total);
 
+  /// No description provided for @matchmakingMatched.
+  ///
+  /// In it, this message translates to:
+  /// **'Tavolo trovato!'**
+  String get matchmakingMatched;
+
   /// No description provided for @matchmakingPending.
   ///
   /// In it, this message translates to:
   /// **'Le code per la partita rapida non sono ancora aperte.'**
   String get matchmakingPending;
+
+  /// No description provided for @matchmakingPlayers.
+  ///
+  /// In it, this message translates to:
+  /// **'Giocatori al tavolo'**
+  String get matchmakingPlayers;
+
+  /// No description provided for @matchmakingSearch.
+  ///
+  /// In it, this message translates to:
+  /// **'Cerca partita'**
+  String get matchmakingSearch;
+
+  /// No description provided for @matchmakingSearching.
+  ///
+  /// In it, this message translates to:
+  /// **'Cerchiamo altri giocatori veri per un tavolo da {count}…'**
+  String matchmakingSearching(int count);
 
   /// No description provided for @matchmakingTitle.
   ///
@@ -1334,11 +1412,65 @@ abstract class AppLocalizations {
   /// **'Invita gli amici con un codice'**
   String get onlineCreateRoomHint;
 
+  /// No description provided for @onlineDisconnected.
+  ///
+  /// In it, this message translates to:
+  /// **'Connessione persa'**
+  String get onlineDisconnected;
+
+  /// No description provided for @onlineForfeit.
+  ///
+  /// In it, this message translates to:
+  /// **'Abbandona'**
+  String get onlineForfeit;
+
+  /// No description provided for @onlineForfeitBody.
+  ///
+  /// In it, this message translates to:
+  /// **'La partita verrà data persa e non potrai rientrare.'**
+  String get onlineForfeitBody;
+
+  /// No description provided for @onlineForfeitTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Abbandoni la partita?'**
+  String get onlineForfeitTitle;
+
   /// No description provided for @onlineJoinRoomHint.
   ///
   /// In it, this message translates to:
   /// **'Hai un codice? Entra subito'**
   String get onlineJoinRoomHint;
+
+  /// No description provided for @onlineMatchAbandoned.
+  ///
+  /// In it, this message translates to:
+  /// **'La partita è stata abbandonata'**
+  String get onlineMatchAbandoned;
+
+  /// No description provided for @onlineMoveRefused.
+  ///
+  /// In it, this message translates to:
+  /// **'Mossa non valida'**
+  String get onlineMoveRefused;
+
+  /// No description provided for @onlineMoveStale.
+  ///
+  /// In it, this message translates to:
+  /// **'Il tavolo era cambiato: riprova'**
+  String get onlineMoveStale;
+
+  /// No description provided for @onlineNextRoundAuto.
+  ///
+  /// In it, this message translates to:
+  /// **'Il prossimo round parte tra {seconds}s'**
+  String onlineNextRoundAuto(int seconds);
+
+  /// No description provided for @onlineOpponentLeft.
+  ///
+  /// In it, this message translates to:
+  /// **'{name} ha abbandonato la partita'**
+  String onlineOpponentLeft(String name);
 
   /// No description provided for @onlineQuickMatchHint.
   ///
@@ -1346,17 +1478,89 @@ abstract class AppLocalizations {
   /// **'Ti troviamo un tavolo libero'**
   String get onlineQuickMatchHint;
 
+  /// No description provided for @onlineReconnecting.
+  ///
+  /// In it, this message translates to:
+  /// **'Riconnessione…'**
+  String get onlineReconnecting;
+
+  /// No description provided for @onlineRejoinMatch.
+  ///
+  /// In it, this message translates to:
+  /// **'Rientra nella partita'**
+  String get onlineRejoinMatch;
+
+  /// No description provided for @onlineRejoinMatchHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Una partita online ti sta aspettando'**
+  String get onlineRejoinMatchHint;
+
+  /// No description provided for @onlineRematchAsked.
+  ///
+  /// In it, this message translates to:
+  /// **'{name} vuole la rivincita'**
+  String onlineRematchAsked(String name);
+
+  /// No description provided for @onlineRematchRequested.
+  ///
+  /// In it, this message translates to:
+  /// **'Rivincita richiesta'**
+  String get onlineRematchRequested;
+
+  /// No description provided for @onlineRematchWaiting.
+  ///
+  /// In it, this message translates to:
+  /// **'In attesa degli altri ({votes}/{needed})'**
+  String onlineRematchWaiting(int votes, int needed);
+
+  /// No description provided for @onlineServerMoved.
+  ///
+  /// In it, this message translates to:
+  /// **'Il server ha giocato per {name}'**
+  String onlineServerMoved(String name);
+
   /// No description provided for @onlineSignInRequired.
   ///
   /// In it, this message translates to:
   /// **'Accedi o gioca come ospite per usare le funzioni online.'**
   String get onlineSignInRequired;
 
+  /// No description provided for @onlineSyncing.
+  ///
+  /// In it, this message translates to:
+  /// **'Aggiornamento del tavolo…'**
+  String get onlineSyncing;
+
+  /// No description provided for @onlineTimedOut.
+  ///
+  /// In it, this message translates to:
+  /// **'Tempo scaduto'**
+  String get onlineTimedOut;
+
   /// No description provided for @onlineTitle.
   ///
   /// In it, this message translates to:
   /// **'Gioca online'**
   String get onlineTitle;
+
+  /// No description provided for @onlineTurnSeconds.
+  ///
+  /// In it, this message translates to:
+  /// **'{seconds}s'**
+  String onlineTurnSeconds(int seconds);
+
+  /// No description provided for @onlineWaitingFor.
+  ///
+  /// In it, this message translates to:
+  /// **'Tocca a {name}'**
+  String onlineWaitingFor(String name);
+
+  /// No description provided for @onlineYouForfeited.
+  ///
+  /// In it, this message translates to:
+  /// **'Hai abbandonato la partita'**
+  String get onlineYouForfeited;
 
   /// No description provided for @passPhoneHint.
   ///
@@ -1561,6 +1765,60 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Rivincita!'**
   String get reaction8;
+
+  /// No description provided for @reactionAhahaha.
+  ///
+  /// In it, this message translates to:
+  /// **'Ahahaha! 😂'**
+  String get reactionAhahaha;
+
+  /// No description provided for @reactionBellaMossa.
+  ///
+  /// In it, this message translates to:
+  /// **'Bella mossa! 😎'**
+  String get reactionBellaMossa;
+
+  /// No description provided for @reactionBravo.
+  ///
+  /// In it, this message translates to:
+  /// **'Bravo! 👏'**
+  String get reactionBravo;
+
+  /// No description provided for @reactionCheFortuna.
+  ///
+  /// In it, this message translates to:
+  /// **'Che fortuna! 🍀'**
+  String get reactionCheFortuna;
+
+  /// No description provided for @reactionCiao.
+  ///
+  /// In it, this message translates to:
+  /// **'Ciao! 👋'**
+  String get reactionCiao;
+
+  /// No description provided for @reactionGg.
+  ///
+  /// In it, this message translates to:
+  /// **'GG! 🤝'**
+  String get reactionGg;
+
+  /// No description provided for @reactionMammaMia.
+  ///
+  /// In it, this message translates to:
+  /// **'Mamma mia! 😱'**
+  String get reactionMammaMia;
+
+  /// No description provided for @reactionRateLimited.
+  ///
+  /// In it, this message translates to:
+  /// **'Aspetta un attimo prima della prossima reazione'**
+  String get reactionRateLimited;
+
+  /// No description provided for @reactionRivincita.
+  ///
+  /// In it, this message translates to:
+  /// **'Rivincita? 🔁'**
+  String get reactionRivincita;
 
   /// No description provided for @reactions.
   ///

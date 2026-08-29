@@ -19,23 +19,23 @@ import '../domain/game_player.dart';
 import '../domain/game_state.dart';
 import '../domain/player_type.dart';
 import '../domain/round_result.dart';
+import '../domain/table_session_status.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/haptic_service.dart';
 import '../../../core/storage/game_storage_service.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../profile/application/stats_controller.dart';
 import 'table_cue.dart';
+import 'table_controller.dart';
 
-/// The view registers this so the controller can wait for an animation to
-/// finish before letting play continue.
-typedef CuePlayer = Future<void> Function(TableCue cue);
+export 'table_controller.dart' show CuePlayer;
 
-/// Drives one match: owns the engine, paces the bots, orders the table's
-/// animations, and keeps a resumable snapshot on disk.
+/// Drives one LOCAL match: owns the engine, paces the bots, orders the
+/// table's animations, and keeps a resumable snapshot on disk.
 ///
 /// All game rules live in the pure GameEngine behind [GameSession]; this class only decides *when*
 /// things happen and what they sound and feel like.
-class GameController extends GetxController {
+class GameController extends TableController {
   GameController({
     required this.session,
     required this.storage,
@@ -51,39 +51,68 @@ class GameController extends GetxController {
   final StatsController stats;
 
   /// Seats a person plays. One entry vs the computer, several in Pass & Play.
+  @override
   final List<String> humanIds;
 
   final Random _random;
 
   /// Bumped whenever the engine state changes, so `Obx` rebuilds cheaply
   /// without deep-copying the match on every card.
+  @override
   final RxInt revision = 0.obs;
 
   /// True while cues are playing: input is refused, bots wait their turn.
+  @override
   final RxBool busy = false.obs;
 
+  @override
   final Rx<GameCard?> selectedCard = Rx<GameCard?>(null);
 
   /// §13 — set while the Suit Ritual is open for a human.
+  @override
   final Rx<GameCard?> pendingSuitChoice = Rx<GameCard?>(null);
 
   /// §11 — live Chain Storm level, 0 when calm.
+  @override
   final RxInt chainLevel = 0.obs;
+  @override
   final RxInt chainTotal = 0.obs;
 
   /// §67 — the seat waiting behind the handover card.
+  @override
   final Rx<String?> handoverPlayerId = Rx<String?>(null);
 
   /// §61 — short-lived text over the table.
+  @override
   final Rx<String?> banner = Rx<String?>(null);
 
   /// §23 — reaction bubbles, keyed by player id.
+  @override
   final RxMap<String, String> reactions = <String, String>{}.obs;
 
   /// §36 — set once the round is scored, consumed by the results screen.
+  @override
   final Rx<RoundResult?> lastRoundResult = Rx<RoundResult?>(null);
 
-  CuePlayer? cuePlayer;
+  /// A local match has no clock and no connection to report.
+  @override
+  final Rx<TableSessionStatus> tableStatus = Rx<TableSessionStatus>(
+    TableSessionStatus.offlineLocal,
+  );
+
+  @override
+  bool get isOnline => false;
+
+  @override
+  bool get canDraw => session.canDraw;
+  @override
+  bool get canEndTurn => session.canEndTurn;
+  @override
+  bool get mustTakePenalty => session.mustTakePenalty;
+
+  /// Offline, leaving only means keeping the snapshot for "Riprendi".
+  @override
+  Future<void> abandon() => persistNow();
 
   final List<TableCue> _queue = [];
   final Map<String, BotStrategy> _bots = {};
@@ -95,14 +124,19 @@ class GameController extends GetxController {
   bool _running = false;
   String? _revealedSeat;
 
+  @override
   GameState get state => session.state;
   GameState get round => session.state;
+  @override
   GamePlayer get currentPlayer => session.currentPlayer;
 
+  @override
   bool isHumanSeat(String id) => humanIds.contains(id);
+  @override
   bool get isHumanTurn => isHumanSeat(currentPlayer.id);
 
   /// The seat whose hand is face up right now.
+  @override
   GamePlayer get viewingPlayer {
     if (state.mode == GameMode.passAndPlay) {
       final id = _revealedSeat;
@@ -115,15 +149,18 @@ class GameController extends GetxController {
     return state.playerById(humanIds.first) ?? state.players.first;
   }
 
+  @override
   List<GamePlayer> get opponents =>
       state.players.where((p) => p.id != viewingPlayer.id).toList();
 
+  @override
   bool get canInteract =>
       !busy.value &&
       handoverPlayerId.value == null &&
       isHumanTurn &&
       round.status == GameStatus.awaitingAction;
 
+  @override
   List<GameCard> get playableForViewer =>
       isHumanTurn ? session.playableCardsFor(currentPlayer) : const [];
 
@@ -148,6 +185,7 @@ class GameController extends GetxController {
   }
 
   /// Called by the view once it is laid out and able to play cues.
+  @override
   void start() {
     if (_running) return;
     _running = true;
@@ -211,6 +249,7 @@ class GameController extends GetxController {
         lastRoundResult.value = event.result;
       case Exact101Event():
       case PlayerEliminatedEvent():
+      case PlayerForfeitedEvent():
       case MatchEndedEvent():
         break;
     }
@@ -218,6 +257,7 @@ class GameController extends GetxController {
 
   // ------------------------------------------------------------ human moves
 
+  @override
   Future<void> selectCard(GameCard card) async {
     if (!canInteract) return;
     if (selectedCard.value == card) {
@@ -229,14 +269,17 @@ class GameController extends GetxController {
     AudioService.instance.play(Sfx.cardPickup, volume: 0.7);
   }
 
+  @override
   void clearSelection() => selectedCard.value = null;
 
   /// §28 — the player tried a card that cannot be played.
+  @override
   void rejectCard(GameCard card) {
     HapticService.instance.error();
     AudioService.instance.play(Sfx.invalid);
   }
 
+  @override
   Future<void> playCard(GameCard card) async {
     if (!canInteract) return;
     if (!session.canPlay(card)) {
@@ -253,6 +296,7 @@ class GameController extends GetxController {
     await _resumeFlow();
   }
 
+  @override
   Future<void> drawCard() async {
     if (!canInteract || !session.canDraw) return;
     busy.value = true;
@@ -261,6 +305,7 @@ class GameController extends GetxController {
     await _resumeFlow();
   }
 
+  @override
   Future<void> endTurn() async {
     if (!canInteract || !session.canEndTurn) return;
     busy.value = true;
@@ -269,6 +314,7 @@ class GameController extends GetxController {
     await _resumeFlow();
   }
 
+  @override
   Future<void> chooseSuit(CardSuit suit) async {
     if (pendingSuitChoice.value == null) return;
     pendingSuitChoice.value = null;
@@ -281,6 +327,7 @@ class GameController extends GetxController {
   }
 
   /// §23 — the player's own reaction.
+  @override
   void sendReaction(String phrase) {
     _showReaction(viewingPlayer.id, phrase);
     HapticService.instance.light();
@@ -288,6 +335,7 @@ class GameController extends GetxController {
   }
 
   /// §67 — the next person has picked the phone up.
+  @override
   void confirmHandover() {
     _revealedSeat = handoverPlayerId.value;
     handoverPlayerId.value = null;
@@ -567,6 +615,7 @@ class GameController extends GetxController {
 
   /// §49/§50 — force an immediate write, used when leaving the screen or
   /// when the app goes to the background.
+  @override
   Future<void> persistNow() async {
     _saveTimer?.cancel();
     if (state.isFinished) {
@@ -579,6 +628,7 @@ class GameController extends GetxController {
   // ----------------------------------------------------------- round change
 
   /// Deals the next round after the results screen is dismissed.
+  @override
   Future<void> beginNextRound() async {
     lastRoundResult.value = null;
     chainLevel.value = 0;

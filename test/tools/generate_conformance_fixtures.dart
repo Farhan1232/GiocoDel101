@@ -13,6 +13,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_event.dart';
 import 'package:gioco_del_101/features/game/domain/engine/game_failure.dart';
 
 import '../support/conformance_scenarios.dart';
@@ -49,8 +50,7 @@ void main() {
           ActionRejected() => sc.state.toJson(),
         },
         'expectedEvents': switch (result) {
-          ActionAccepted(:final events) =>
-            events.map((e) => e.runtimeType.toString()).toList(),
+          ActionAccepted(:final events) => events.map((e) => e.name).toList(),
           ActionRejected() => const <String>[],
         },
         'assertions': sc.assertions,

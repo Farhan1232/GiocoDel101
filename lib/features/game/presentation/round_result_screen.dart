@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/router/app_router.dart';
-import '../application/game_controller.dart';
+import '../application/table_controller.dart';
+import '../../online/application/online_match_launcher.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../profile/application/stats_controller.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -37,7 +38,7 @@ class RoundResultScreen extends StatefulWidget {
 }
 
 class _RoundResultScreenState extends State<RoundResultScreen> {
-  final GameController c = Get.find<GameController>();
+  final TableController c = Get.find<TableController>();
   final SettingsController settings = Get.find<SettingsController>();
   final StatsController stats = Get.find<StatsController>();
 
@@ -59,15 +60,29 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
           rows: [],
           matchOver: false,
         );
-    unawaited(
-      stats.recordRound(
-        match: c.state,
-        result: result,
-        humanId: c.humanIds.first,
-      ),
-    );
+    if (!c.isOnline) {
+      // Online, the server is the only bookkeeper (docs/SECURITY.md).
+      unawaited(
+        stats.recordRound(
+          match: c.state,
+          result: result,
+          humanId: c.humanIds.first,
+        ),
+      );
+    }
+    _dealtElsewhere = ever<RoundResult?>(c.lastRoundResult, (value) {
+      // Another seat (or the server's 30 s deal) started the next round:
+      // this sheet has nothing left to say.
+      if (value == null &&
+          mounted &&
+          Get.currentRoute == AppRoutes.roundResult) {
+        Get.back<void>();
+      }
+    });
     _revealNext();
   }
+
+  Worker? _dealtElsewhere;
 
   void _revealNext() {
     _timer?.cancel();
@@ -105,13 +120,16 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
 
   void _goToMatchResult() {
     if (!mounted) return;
-    unawaited(stats.recordMatch(match: c.state, humanId: c.humanIds.first));
+    if (!c.isOnline) {
+      unawaited(stats.recordMatch(match: c.state, humanId: c.humanIds.first));
+    }
     Get.offNamed<void>(AppRoutes.matchResult);
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _dealtElsewhere?.dispose();
     super.dispose();
   }
 
@@ -121,8 +139,9 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
   }
 
   Future<void> _exit() async {
-    await c.persistNow();
+    await c.abandon();
     Get.until((route) => route.settings.name == AppRoutes.home);
+    if (c.isOnline) OnlineMatchLauncher.dismiss();
   }
 
   @override

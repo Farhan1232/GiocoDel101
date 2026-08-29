@@ -162,6 +162,24 @@ confirmation e-mails: the built-in mailer rejects undeliverable domains
 (`email_address_invalid`), allows only a few messages per hour and delivers
 only to organisation members.
 
+## Edge Functions (Session 4)
+
+`supabase/functions/match/` is the authoritative match function. It loads
+the Dart engine compiled to JavaScript (`engine.js`, committed — rebuild
+with `tool/build_engine_js.sh` after any engine change).
+
+```bash
+# tests (Deno 2.x, no Docker needed)
+deno test --allow-read supabase/functions/match/
+
+# deploy to the linked project (the API bundles it; Docker is not required)
+supabase functions deploy match --use-api
+```
+
+The function needs no extra secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+and `SUPABASE_SERVICE_ROLE_KEY` are injected by the platform. `verify_jwt`
+stays on. `tool/online_matrix.dart` (below) is the end-to-end check.
+
 ## Verifying a project
 
 ```bash
@@ -172,7 +190,16 @@ dart run tool/supabase_smoke.dart
 ```
 
 Prints PASS/FAIL per check (see `docs/SUPABASE_SECURITY.md` → Verification
-matrix) and exits non-zero on any failure. A and B must be two confirmed
+matrix) and exits non-zero on any failure.
+
+```bash
+SUPABASE_URL=… SUPABASE_PUBLISHABLE_KEY=… dart run tool/online_matrix.dart
+```
+
+Signs up five fresh users and plays real 2/3/4-player matches through the
+deployed function, Realtime and the RPCs, including every attack in
+`docs/SECURITY.md`. Takes ~25 minutes (full games to 101); set
+`MATRIX_SKIP_TIMEOUT=1` to skip the 16 s turn-timer wait. A and B must be two confirmed
 email accounts on that project (with autoconfirm on, any fresh sign-up is
 one). Without the `SMOKE_*` variables it runs only the anonymous-key and
 guest checks. Session 3's run against the dev project: **33/33 PASS**.

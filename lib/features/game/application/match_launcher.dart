@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 
 import 'game_controller.dart';
+import 'table_controller.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../profile/application/stats_controller.dart';
 import '../domain/engine/game_session.dart';
@@ -20,10 +21,13 @@ class MatchLauncher {
   const MatchLauncher._();
 
   static void launch(MatchSetup setup, {bool replace = false}) {
+    if (Get.isRegistered<TableController>()) {
+      Get.delete<TableController>(force: true);
+    }
     if (Get.isRegistered<GameController>()) {
       Get.delete<GameController>(force: true);
     }
-    Get.put<GameController>(
+    final controller = Get.put<GameController>(
       GameController(
         session: setup.session,
         storage: Get.find<GameStorageService>(),
@@ -34,6 +38,8 @@ class MatchLauncher {
       ),
       permanent: false,
     );
+    // The screens depend on the contract, not on the local driver.
+    Get.put<TableController>(controller, permanent: false);
     if (replace) {
       Get.offNamed<void>(AppRoutes.game);
     } else {

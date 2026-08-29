@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 
 import '../../game/application/match_launcher.dart';
 import '../../../app/router/app_router.dart';
+import '../../../app/bindings/backend_services.dart';
+import '../../online/application/online_match_launcher.dart';
+import '../../online/domain/online_match_models.dart';
 import '../application/home_controller.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../profile/application/stats_controller.dart';
@@ -36,7 +39,10 @@ class _HomeScreenState extends State<HomeScreen>
   late final HomeController _home = Get.isRegistered<HomeController>()
       ? Get.find<HomeController>()
       : Get.put(
-          HomeController(Get.find<GameStorageService>()),
+          HomeController(
+            Get.find<GameStorageService>(),
+            matches: Get.find<BackendServices>().matches,
+          ),
           permanent: true,
         );
   late final SettingsController _settings = Get.find<SettingsController>();
@@ -60,6 +66,16 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _refresh() => _home.refreshSavedMatch();
+
+  /// "Rientra nella partita": the server says a seat is waiting for us.
+  Future<void> _rejoinOnline(String matchId) async {
+    try {
+      await OnlineMatchLauncher.launch(matchId);
+    } on OnlineException {
+      // The match ended or we are no longer seated: the card refreshes.
+    }
+    _refresh();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +138,24 @@ class _HomeScreenState extends State<HomeScreen>
                             const SizedBox(height: AppSpacing.md),
                             _stagger(0.16, _secondaryActions(s)),
                             const SizedBox(height: AppSpacing.md),
+                            if (_home.activeOnlineMatchId.value != null)
+                              _stagger(
+                                0.18,
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: AppSpacing.md,
+                                  ),
+                                  child: _actionCard(
+                                    icon: AppIcon.players,
+                                    title: s.onlineRejoinMatch,
+                                    subtitle: s.onlineRejoinMatchHint,
+                                    accent: theme.accent,
+                                    onTap: () => _rejoinOnline(
+                                      _home.activeOnlineMatchId.value!,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             if (_home.hasSavedMatch.value)
                               _stagger(
                                 0.20,

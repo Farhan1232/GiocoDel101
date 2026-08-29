@@ -211,11 +211,11 @@
         "score": 0,
         "eliminated": false,
         "hand": [
+          "denari_asso",
+          "bastoni_fante",
           "spade_quattro",
-          "coppe_tre",
-          "bastoni_due",
-          "coppe_cavallo",
-          "bastoni_tre"
+          "denari_cinque",
+          "spade_cinque"
         ]
       },
       {
@@ -228,11 +228,11 @@
         "score": 10,
         "eliminated": false,
         "hand": [
-          "bastoni_cinque",
+          "denari_fante",
+          "spade_due",
+          "bastoni_tre",
           "denari_tre",
-          "coppe_re",
-          "bastoni_asso",
-          "spade_fante"
+          "spade_cavallo"
         ]
       },
       {
@@ -245,11 +245,11 @@
         "score": 7,
         "eliminated": false,
         "hand": [
-          "spade_tre",
-          "denari_sei",
-          "bastoni_cavallo",
-          "coppe_fante",
-          "spade_sette"
+          "bastoni_re",
+          "denari_due",
+          "coppe_quattro",
+          "coppe_due",
+          "denari_sette"
         ]
       }
     ],
@@ -257,35 +257,35 @@
     "currentSeat": 1,
     "direction": "clockwise",
     "drawPile": [
-      "bastoni_sei",
-      "spade_sei",
-      "spade_re",
-      "spade_cinque",
-      "bastoni_fante",
-      "spade_asso",
-      "denari_due",
-      "coppe_quattro",
-      "spade_cavallo",
-      "coppe_due",
-      "denari_cinque",
-      "bastoni_sette",
-      "coppe_cinque",
-      "spade_due",
-      "coppe_asso",
-      "denari_fante",
-      "denari_re",
-      "denari_asso",
-      "bastoni_re",
+      "coppe_fante",
+      "spade_sette",
+      "bastoni_asso",
+      "bastoni_due",
       "bastoni_quattro",
-      "coppe_sei",
-      "coppe_sette",
+      "denari_sei",
+      "coppe_tre",
+      "coppe_re",
+      "bastoni_cavallo",
+      "coppe_cavallo",
+      "spade_asso",
+      "spade_tre",
+      "coppe_cinque",
       "denari_quattro",
-      "denari_cavallo"
+      "denari_cavallo",
+      "bastoni_sei",
+      "coppe_sette",
+      "coppe_sei",
+      "spade_sei",
+      "bastoni_sette",
+      "spade_re",
+      "spade_fante",
+      "coppe_asso",
+      "denari_re"
     ],
     "discardPile": [
-      "denari_sette"
+      "bastoni_cinque"
     ],
-    "activeSuit": "denari",
+    "activeSuit": "bastoni",
     "pendingDrawCount": 0,
     "chainLength": 0,
     "status": "awaitingAction",

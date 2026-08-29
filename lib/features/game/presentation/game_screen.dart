@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/router/app_router.dart';
-import '../application/game_controller.dart';
+import '../application/table_controller.dart';
+import '../../online/application/online_match_controller.dart';
+import '../../online/application/online_match_launcher.dart';
+import '../../../core/widgets/app_dialog.dart';
 import '../../settings/application/settings_controller.dart';
 import '../application/table_cue.dart';
 import '../../../core/constants/app_durations.dart';
@@ -43,7 +46,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-  final GameController c = Get.find<GameController>();
+  final TableController c = Get.find<TableController>();
   final SettingsController settings = Get.find<SettingsController>();
 
   final GlobalKey _rootKey = GlobalKey();
@@ -329,10 +332,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   // ------------------------------------------------------------------- exit
 
   Future<void> _confirmExit() async {
-    final leave = await showExitDialog(context, accent: settings.theme.accent);
-    if (leave != true) return;
-    await c.persistNow();
+    final bool leave;
+    if (c.isOnline) {
+      // Online, walking away is a forfeit: say so plainly.
+      final s = Strings.s;
+      leave = await AppDialog.confirm(
+        title: s.onlineForfeitTitle,
+        body: s.onlineForfeitBody,
+        confirmLabel: s.onlineForfeit,
+        cancelLabel: s.cancel,
+        destructive: true,
+      );
+    } else {
+      leave =
+          await showExitDialog(context, accent: settings.theme.accent) == true;
+    }
+    if (!leave) return;
+    await c.abandon();
     Get.until((route) => route.settings.name == AppRoutes.home);
+    if (c.isOnline) OnlineMatchLauncher.dismiss();
   }
 
   // ------------------------------------------------------------------ build
@@ -391,6 +409,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 Positioned.fill(
                   child: ReactionSheet(
                     accent: theme.accent,
+                    phrases: switch (c) {
+                      final OnlineMatchController online =>
+                        online.reactionPhrases,
+                      _ => null,
+                    },
                     onDismiss: () => setState(() => _reactionsOpen = false),
                     onPick: (phrase) {
                       c.sendReaction(phrase);
@@ -433,9 +456,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  /// §M — Session 1 only ever plays local matches, so the shell is handed the
-  /// offline status. Session 3 will pass a live one straight through.
-  TableSessionStatus get _session => TableSessionStatus.offlineLocal;
+  /// §M — timer and connection come from the driver: a local match reports
+  /// neither; an online one reports the server's deadline and the socket.
+  TableSessionStatus get _session => c.tableStatus.value;
 
   Widget _topBar(Color accent) {
     return Padding(
@@ -571,10 +594,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             KeyedSubtree(
               key: _drawKey,
               child: DrawPileView(
-                count: c.state.drawPile.length,
+                count: c.state.drawPileCount,
                 cardWidth: cw,
                 backId: settings.settings.cardBackId,
-                highlighted: c.canInteract && c.session.canDraw,
+                highlighted: c.canInteract && c.canDraw,
                 onTap: c.canInteract ? c.drawCard : null,
               ),
             ),
@@ -632,9 +655,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   /// §8 — contextual actions only. There is never a bare "pass" button.
   Widget _actionRow(Color accent) {
     final s = Strings.s;
-    final canDraw = c.canInteract && c.session.canDraw;
-    final mustTake = c.canInteract && c.session.mustTakePenalty;
-    final canPass = c.canInteract && c.session.canEndTurn;
+    final canDraw = c.canInteract && c.canDraw;
+    final mustTake = c.canInteract && c.mustTakePenalty;
+    final canPass = c.canInteract && c.canEndTurn;
 
     final children = <Widget>[];
     if (mustTake) {

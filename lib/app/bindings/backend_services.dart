@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
 import '../../features/auth/application/supabase_auth_gateway.dart';
 import '../../features/auth/domain/auth_gateway.dart';
 import '../../features/leaderboard/application/leaderboard_repository.dart';
+import '../../features/online/application/online_match_repository.dart';
 import '../../features/profile/application/profile_repository.dart';
 import '../../features/rewards/application/daily_reward_repository.dart';
 import '../../features/rooms/application/rooms_repository.dart';
@@ -19,6 +20,8 @@ class BackendServices {
     required this.leaderboards,
     required this.dailyRewards,
     required this.rooms,
+    required this.matches,
+    required this.matchmaking,
   });
 
   factory BackendServices.none() => BackendServices(
@@ -27,6 +30,8 @@ class BackendServices {
     leaderboards: const NoBackendLeaderboardRepository(),
     dailyRewards: const NoBackendDailyRewardRepository(),
     rooms: const NoBackendRoomsRepository(),
+    matches: const NoBackendOnlineMatchRepository(),
+    matchmaking: const NoBackendMatchmakingRepository(),
   );
 
   factory BackendServices.supabase(SupabaseClient client) => BackendServices(
@@ -35,6 +40,8 @@ class BackendServices {
     leaderboards: SupabaseLeaderboardRepository(client),
     dailyRewards: SupabaseDailyRewardRepository(client),
     rooms: SupabaseRoomsRepository(client),
+    matches: SupabaseOnlineMatchRepository(client),
+    matchmaking: SupabaseMatchmakingRepository(client),
   );
 
   final AuthGateway auth;
@@ -42,4 +49,8 @@ class BackendServices {
   final LeaderboardRepository leaderboards;
   final DailyRewardRepository dailyRewards;
   final RoomsRepository rooms;
+
+  /// The authoritative match: requests in, snapshots and live signals out.
+  final OnlineMatchRepository matches;
+  final MatchmakingRepository matchmaking;
 }

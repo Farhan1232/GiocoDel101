@@ -4,6 +4,9 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import '../domain/remote_room.dart';
 import '../domain/room_models.dart';
 
+/// Closes a live room watch.
+typedef RoomWatch = Future<void> Function();
+
 /// The lobby lifecycle, each call an RPC the database validates.
 abstract class RoomsRepository {
   Future<RemoteRoom> create(RoomConfig config);
@@ -12,6 +15,11 @@ abstract class RoomsRepository {
   Future<void> leave(String roomId);
   Future<void> setReady(String roomId, bool ready);
   Future<void> heartbeat(String roomId);
+
+  /// Fires whenever the room row or any of its seats changes (Realtime,
+  /// RLS-filtered). The callback is a hint to [load] again — the lobby never
+  /// assumes it saw every event and keeps a slow poll as well.
+  RoomWatch watch(String roomId, void Function() onChanged);
 }
 
 class NoBackendRoomsRepository implements RoomsRepository {
@@ -36,6 +44,9 @@ class NoBackendRoomsRepository implements RoomsRepository {
 
   @override
   Future<void> heartbeat(String roomId) async {}
+
+  @override
+  RoomWatch watch(String roomId, void Function() onChanged) => () async {};
 }
 
 class SupabaseRoomsRepository implements RoomsRepository {
@@ -80,7 +91,8 @@ class SupabaseRoomsRepository implements RoomsRepository {
     final seats = await _client
         .from('room_players')
         .select(
-          'user_id, seat, is_host, is_ready, connection, profiles(nickname, avatar_id)',
+          'user_id, seat, is_host, is_ready, connection, last_seen_at, '
+          'profiles(nickname, avatar_id)',
         )
         .eq('room_id', roomId)
         .order('seat');
@@ -109,6 +121,45 @@ class SupabaseRoomsRepository implements RoomsRepository {
     } catch (error) {
       debugPrint('room heartbeat: $error');
     }
+  }
+
+  @override
+  RoomWatch watch(String roomId, void Function() onChanged) {
+    final channel = _client.channel('room:$roomId');
+    channel
+        .onPostgresChanges(
+          event: sb.PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'room_players',
+          filter: sb.PostgresChangeFilter(
+            type: sb.PostgresChangeFilterType.eq,
+            column: 'room_id',
+            value: roomId,
+          ),
+          callback: (_) => onChanged(),
+        )
+        .onPostgresChanges(
+          event: sb.PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'rooms',
+          filter: sb.PostgresChangeFilter(
+            type: sb.PostgresChangeFilterType.eq,
+            column: 'id',
+            value: roomId,
+          ),
+          callback: (_) => onChanged(),
+        )
+        .subscribe((status, error) {
+          if (status == sb.RealtimeSubscribeStatus.subscribed) onChanged();
+          if (error != null) debugPrint('room channel $status: $error');
+        });
+    return () async {
+      try {
+        await _client.removeChannel(channel);
+      } catch (error) {
+        debugPrint('room channel close: $error');
+      }
+    };
   }
 
   Future<T> _guard<T>(Future<T> Function() call) async {

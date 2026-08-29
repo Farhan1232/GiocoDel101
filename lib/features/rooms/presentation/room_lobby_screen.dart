@@ -17,21 +17,23 @@ import '../../../core/widgets/player_slot.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
 import '../../auth/application/session_controller.dart';
+import '../../online/application/online_match_launcher.dart';
+import '../../online/domain/online_match_models.dart';
 import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
+import '../application/rooms_repository.dart';
 import '../domain/remote_room.dart';
 import '../domain/room_models.dart';
 
 /// §K — the waiting room.
 ///
-/// Renders entirely from a [RoomLobbyState]. Given a [RemoteRoom] (created or
-/// joined through the backend) it shows the real code and the real seats,
-/// refreshed every few seconds with a presence heartbeat, and leaving really
-/// leaves. Given only a [RoomConfig] or a code it builds the local pending
-/// state with the host seated and says the service is not connected. No
-/// seat is ever shown as filled by an invented player, and Start stays
-/// disabled: dealing the first hand is the authoritative match function of
-/// the next session.
+/// Renders entirely from a [RoomLobbyState]. Given a [RemoteRoom] it shows
+/// the real code and the real seats, kept fresh by Realtime (with a slow
+/// poll underneath and a presence heartbeat), lets guests toggle Ready, lets
+/// the host start once every seat is filled and ready, and takes everyone
+/// to the table the moment the server has dealt. Given only a [RoomConfig]
+/// or a code it builds the local pending state and says the service is not
+/// connected. No seat is ever shown as filled by an invented player.
 class RoomLobbyScreen extends StatefulWidget {
   const RoomLobbyScreen({super.key});
 
@@ -45,7 +47,12 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
   RemoteRoom? _room;
   late RoomLobbyState _state;
   Timer? _refresh;
+  Timer? _heartbeat;
+  RoomWatch? _watch;
   bool _leaving = false;
+  bool _starting = false;
+  bool _launched = false;
+  String? _error;
 
   @override
   void initState() {
@@ -54,7 +61,15 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
     if (args is RemoteRoom) {
       _room = args;
       _state = _fromRemote(args);
-      _refresh = Timer.periodic(const Duration(seconds: 3), (_) => _poll());
+      final rooms = Get.find<BackendServices>().rooms;
+      _watch = rooms.watch(args.id, () => unawaited(_poll()));
+      // Realtime first; the poll is the safety net for a missed event.
+      _refresh = Timer.periodic(const Duration(seconds: 5), (_) => _poll());
+      _heartbeat = Timer.periodic(
+        const Duration(seconds: 8),
+        (_) => rooms.heartbeat(args.id),
+      );
+      unawaited(rooms.heartbeat(args.id));
     } else {
       // Arrived from Create Room with a config, or from Join Room with a code.
       final config = args is RoomConfig ? args : const RoomConfig();
@@ -71,13 +86,16 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
   @override
   void dispose() {
     _refresh?.cancel();
+    _heartbeat?.cancel();
+    unawaited(_watch?.call());
     super.dispose();
   }
 
   bool get _isLive => _room != null;
+  String? get _self => Get.find<SessionController>().current?.userId;
 
   RoomLobbyState _fromRemote(RemoteRoom room) {
-    final self = Get.find<SessionController>().current?.userId;
+    final self = _self;
     final bySeat = {for (final s in room.seats) s.seat: s};
     return RoomLobbyState(
       code: room.code,
@@ -110,14 +128,12 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
 
   Future<void> _poll() async {
     final room = _room;
-    if (room == null || _leaving) return;
+    if (room == null || _leaving || _launched) return;
     final rooms = Get.find<BackendServices>().rooms;
-    unawaited(rooms.heartbeat(room.id));
     try {
       final next = await rooms.load(room.id);
-      if (!mounted || _leaving) return;
-      if (next == null || !next.isOpen) {
-        // Cancelled or started elsewhere: nothing to wait in any more.
+      if (!mounted || _leaving || _launched) return;
+      if (next == null || next.status == 'cancelled') {
         _refresh?.cancel();
         Get.back<void>();
         return;
@@ -126,8 +142,76 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
         _room = next;
         _state = _fromRemote(next);
       });
+      if (next.hasStarted) {
+        await _enterMatch(next.matchId!);
+        return;
+      }
+      // A quick-match room starts itself: the first seat deals as soon as
+      // everyone is in; any other seat may press Start if it does not.
+      if (next.isQuick &&
+          next.isOpen &&
+          next.isFull &&
+          next.hostId == _self &&
+          !_starting) {
+        unawaited(_start());
+      }
     } on RoomException {
       // A failed refresh keeps the last known seats; the next tick retries.
+    }
+  }
+
+  Future<void> _enterMatch(String matchId) async {
+    if (_launched) return;
+    _launched = true;
+    _refresh?.cancel();
+    _heartbeat?.cancel();
+    try {
+      await OnlineMatchLauncher.launch(matchId, replace: true);
+    } on OnlineException catch (e) {
+      _launched = false;
+      if (mounted) setState(() => _error = e.detail ?? e.error.name);
+    }
+  }
+
+  Future<void> _start() async {
+    final room = _room;
+    if (room == null || _starting) return;
+    setState(() {
+      _starting = true;
+      _error = null;
+    });
+    try {
+      final matchId = await Get.find<BackendServices>().matches.startRoom(
+        room.id,
+      );
+      await _enterMatch(matchId);
+    } on OnlineException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = Strings.s.lobbyStartFailed(_reason(e)));
+      unawaited(_poll());
+    } finally {
+      if (mounted) setState(() => _starting = false);
+    }
+  }
+
+  String _reason(OnlineException e) => switch (e.detail) {
+    'room_not_full' => Strings.s.lobbyWaitingForPlayers,
+    'not_everyone_ready' => Strings.s.lobbyNotReady,
+    'not_the_host' => Strings.s.lobbyWaitingForHost,
+    final other? => other,
+    null => e.error.name,
+  };
+
+  Future<void> _toggleReady() async {
+    final room = _room;
+    if (room == null) return;
+    final me = room.seats.where((s) => s.userId == _self).firstOrNull;
+    if (me == null) return;
+    try {
+      await Get.find<BackendServices>().rooms.setReady(room.id, !me.isReady);
+      await _poll();
+    } on RoomException {
+      // The next poll shows the truth either way.
     }
   }
 
@@ -145,10 +229,14 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
     if (room != null) {
       _leaving = true;
       _refresh?.cancel();
+      _heartbeat?.cancel();
       try {
         await Get.find<BackendServices>().rooms.leave(room.id);
       } on RoomException {
         // Leaving is best effort; a stale seat expires server-side.
+      }
+      if (room.isQuick) {
+        unawaited(Get.find<BackendServices>().matchmaking.cancel());
       }
     }
     Get.back<void>();
@@ -175,6 +263,8 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
   @override
   Widget build(BuildContext context) {
     final s = Strings.s;
+    final room = _room;
+    final now = DateTime.now().toUtc();
     return ScreenScaffold(
       title: s.lobbyTitle,
       onBack: _leave,
@@ -187,6 +277,28 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
             ),
       child: Obx(() {
         final accent = _settings.theme.accent;
+        final me = room?.seats.where((x) => x.userId == _self).firstOrNull;
+        final canStart =
+            room != null &&
+            room.isOpen &&
+            room.isFull &&
+            room.everyoneReady &&
+            (_state.selfIsHost || room.isQuick) &&
+            !_starting;
+        final String hint;
+        if (!_isLive || room == null) {
+          hint = s.authBackendPending;
+        } else if (_starting || room.hasStarted) {
+          hint = s.lobbyStarting;
+        } else if (!room.isFull) {
+          hint = s.lobbyWaitingForPlayers;
+        } else if (!room.everyoneReady) {
+          hint = s.lobbyNotReady;
+        } else if (!_state.selfIsHost && !room.isQuick) {
+          hint = s.lobbyWaitingForHost;
+        } else {
+          hint = '';
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -210,25 +322,39 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
                 isReady: seat.isReady,
                 isSelf: seat.isSelf,
                 hostLabel: s.lobbyHost,
-                readyLabel: s.lobbyReady,
+                readyLabel: _connected(room, seat, now)
+                    ? s.lobbyReady
+                    : s.lobbyAway,
                 waitingLabel: s.lobbyNotReady,
                 accent: accent,
               ),
               const SizedBox(height: AppSpacing.sm),
             ],
             const SizedBox(height: AppSpacing.xl),
-            if (_state.selfIsHost)
+            if (_isLive && me != null && !me.isHost)
+              PremiumButton(
+                label: me.isReady ? s.lobbyNotReadyToggle : s.lobbyReadyToggle,
+                variant: me.isReady
+                    ? ButtonVariant.secondary
+                    : ButtonVariant.primary,
+                accent: accent,
+                icon: AppIcon.check,
+                onPressed: room!.isOpen ? _toggleReady : null,
+              ),
+            if (!_isLive || _state.selfIsHost || room!.isQuick)
               PremiumButton(
                 label: s.lobbyStart,
                 accent: accent,
-                // Dealing the first hand is the authoritative match function
-                // (Session 4); until it exists the host cannot start.
-                onPressed: null,
+                onPressed: canStart ? _start : null,
               ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              _isLive ? s.lobbyStartPending : s.authBackendPending,
-              style: AppText.caption.copyWith(color: AppColors.textMuted),
+              _error ?? hint,
+              style: AppText.caption.copyWith(
+                color: _error != null
+                    ? AppColors.terracottaCoral
+                    : AppColors.textMuted,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -243,6 +369,12 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
         );
       }),
     );
+  }
+
+  bool _connected(RemoteRoom? room, RoomSeat seat, DateTime now) {
+    if (room == null || seat.isEmpty) return true;
+    final remote = room.seats.where((x) => x.seat == seat.index).firstOrNull;
+    return remote == null || remote.isConnectedAt(now);
   }
 
   Widget _codePanel(AppLocalizations s, Color accent) {

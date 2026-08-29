@@ -1,5 +1,8 @@
 {
   "@@locale": "it",
+  "accountGuestLabel": "Ospite",
+  "accountGuestUpgradeHint": "Crea un account per conservare i progressi su tutti i dispositivi.",
+  "accountSignedInAs": "Accesso come {name}",
   "@accountSignedInAs": {
     "placeholders": {
       "name": {
@@ -7,92 +10,6 @@
       }
     }
   },
-  "@authConfirmEmailBody": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "@createRoomTimerSeconds": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "@dailyRewardBalance": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "@dailyRewardDay": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "@forgotSentBody": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "@lobbyPlayerSlot": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      }
-    }
-  },
-  "@matchmakingElapsed": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "@matchmakingFound": {
-    "placeholders": {
-      "found": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "@passPhoneTo": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@profileLevelValue": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      }
-    }
-  },
-  "@profileXpProgress": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "target": {
-        "type": "int"
-      }
-    }
-  },
-  "accountGuestLabel": "Ospite",
-  "accountGuestUpgradeHint": "Crea un account per conservare i progressi su tutti i dispositivi.",
-  "accountSignedInAs": "Accesso come {name}",
   "accountSignedOut": "Non hai effettuato l’accesso",
   "achCatenaBody": "Porta una catena di 2 fino a +6",
   "achCatenaTitle": "Catena!",
@@ -125,6 +42,13 @@
   "appTagline": "Il classico napoletano, rivisitato",
   "authBackendPending": "L’accesso sarà attivo quando il servizio online sarà collegato.",
   "authConfirmEmailBody": "Abbiamo inviato un link di conferma a {email}. Aprilo, poi accedi.",
+  "@authConfirmEmailBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "authConfirmEmailTitle": "Controlla la tua email",
   "authContinueWithApple": "Continua con Apple",
   "authContinueWithGoogle": "Continua con Google",
@@ -179,18 +103,39 @@
   "createRoomTimer": "Timer del turno",
   "createRoomTimerOff": "Nessuno",
   "createRoomTimerSeconds": "{seconds} secondi",
+  "@createRoomTimerSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "createRoomTitle": "Crea una stanza",
   "dailyChallenge": "Sfida del Giorno",
   "dailyChallengeDone": "Sfida completata",
   "dailyCompleted": "Completata oggi",
   "dailyReward": "Ricompensa",
   "dailyRewardBalance": "{coins} monete",
+  "@dailyRewardBalance": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
   "dailyRewardBody": "Torna ogni giorno: la ricompensa cresce fino al settimo.",
   "dailyRewardClaim": "RITIRA",
   "dailyRewardClaimFailed": "Impossibile riscuotere il premio. Riprova.",
   "dailyRewardClaimed": "Ritirata",
   "dailyRewardClaimedToday": "Riscosso oggi. Torna domani!",
   "dailyRewardDay": "Giorno {day}",
+  "@dailyRewardDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
   "dailyRewardGuestHint": "Crea un account per riscuotere i premi giornalieri.",
   "dailyRewardTitle": "Ricompensa giornaliera",
   "dailyRewardTomorrow": "Torna domani",
@@ -220,6 +165,13 @@
   "forgotBody": "Inserisci la tua email: ti invieremo un link per reimpostare la password.",
   "forgotCta": "INVIA IL LINK",
   "forgotSentBody": "Se esiste un account per {email}, il link per reimpostare la password è in arrivo.",
+  "@forgotSentBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "forgotSentTitle": "Email inviata",
   "forgotTitle": "Recupera la password",
   "gotIt": "Ho capito",
@@ -253,18 +205,40 @@
   "leaderboardRank": "Pos.",
   "leaderboardTitle": "Classifica",
   "leaderboardWeekly": "Settimanale",
+  "lobbyAway": "Assente",
+  "lobbyConnected": "Connesso",
   "lobbyCopied": "Codice copiato",
   "lobbyEmptySlot": "In attesa di un giocatore",
   "lobbyHost": "Host",
   "lobbyLeave": "Esci dalla stanza",
   "lobbyNotReady": "In attesa",
+  "lobbyNotReadyToggle": "Non sono pronto",
   "lobbyPlayerSlot": "Posto {index}",
+  "@lobbyPlayerSlot": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
   "lobbyReady": "Pronto",
+  "lobbyReadyToggle": "Sono pronto",
   "lobbyRoomCode": "Codice stanza",
   "lobbyShare": "Condividi il codice",
   "lobbyStart": "INIZIA LA PARTITA",
+  "lobbyStartFailed": "Impossibile avviare: {reason}",
+  "@lobbyStartFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "lobbyStartPending": "L’avvio delle partite online arriva con il prossimo aggiornamento.",
+  "lobbyStarting": "La partita sta per iniziare…",
   "lobbyTitle": "Sala d’attesa",
+  "lobbyWaitingForHost": "In attesa che l’host avvii la partita…",
+  "lobbyWaitingForPlayers": "In attesa di altri giocatori…",
   "locked": "Da sbloccare",
   "loginCta": "ACCEDI",
   "loginForgot": "Password dimenticata?",
@@ -273,10 +247,39 @@
   "longestChain": "Catena più lunga",
   "matchWinner": "VINCITORE",
   "matchmakingBody": "Stiamo cercando altri giocatori…",
+  "matchmakingBusy": "Hai già una partita in corso.",
   "matchmakingCancel": "Annulla la ricerca",
   "matchmakingElapsed": "Tempo di attesa {seconds}s",
+  "@matchmakingElapsed": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "matchmakingFound": "{found} di {total} giocatori",
+  "@matchmakingFound": {
+    "placeholders": {
+      "found": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "matchmakingMatched": "Tavolo trovato!",
   "matchmakingPending": "Le code per la partita rapida non sono ancora aperte.",
+  "matchmakingPlayers": "Giocatori al tavolo",
+  "matchmakingSearch": "Cerca partita",
+  "matchmakingSearching": "Cerchiamo altri giocatori veri per un tavolo da {count}…",
+  "@matchmakingSearching": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "matchmakingTitle": "Ricerca in corso",
   "mode": "Modalità",
   "modePassAndPlay": "Passa & Gioca",
@@ -296,12 +299,92 @@
   "onboard3Body": "Crea una stanza, condividi il codice e sfida da due a quattro giocatori online.",
   "onboard3Title": "Gioca con gli amici",
   "onlineCreateRoomHint": "Invita gli amici con un codice",
+  "onlineDisconnected": "Connessione persa",
+  "onlineForfeit": "Abbandona",
+  "onlineForfeitBody": "La partita verrà data persa e non potrai rientrare.",
+  "onlineForfeitTitle": "Abbandoni la partita?",
   "onlineJoinRoomHint": "Hai un codice? Entra subito",
+  "onlineMatchAbandoned": "La partita è stata abbandonata",
+  "onlineMoveRefused": "Mossa non valida",
+  "onlineMoveStale": "Il tavolo era cambiato: riprova",
+  "onlineNextRoundAuto": "Il prossimo round parte tra {seconds}s",
+  "@onlineNextRoundAuto": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineOpponentLeft": "{name} ha abbandonato la partita",
+  "@onlineOpponentLeft": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "onlineQuickMatchHint": "Ti troviamo un tavolo libero",
+  "onlineReconnecting": "Riconnessione…",
+  "onlineRejoinMatch": "Rientra nella partita",
+  "onlineRejoinMatchHint": "Una partita online ti sta aspettando",
+  "onlineRematchAsked": "{name} vuole la rivincita",
+  "@onlineRematchAsked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineRematchRequested": "Rivincita richiesta",
+  "onlineRematchWaiting": "In attesa degli altri ({votes}/{needed})",
+  "@onlineRematchWaiting": {
+    "placeholders": {
+      "votes": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineServerMoved": "Il server ha giocato per {name}",
+  "@onlineServerMoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "onlineSignInRequired": "Accedi o gioca come ospite per usare le funzioni online.",
+  "onlineSyncing": "Aggiornamento del tavolo…",
+  "onlineTimedOut": "Tempo scaduto",
   "onlineTitle": "Gioca online",
+  "onlineTurnSeconds": "{seconds}s",
+  "@onlineTurnSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineWaitingFor": "Tocca a {name}",
+  "@onlineWaitingFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineYouForfeited": "Hai abbandonato la partita",
   "passPhoneHint": "Le carte restano coperte fino al tuo tocco",
   "passPhoneTo": "PASSA IL TELEFONO A {name}",
+  "@passPhoneTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "passTurn": "Passa",
   "penalty": "Penalità",
   "play": "GIOCA",
@@ -313,6 +396,13 @@
   "profileEdit": "Modifica profilo",
   "profileLevel": "Livello",
   "profileLevelValue": "Livello {level}",
+  "@profileLevelValue": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "profileLosses": "Sconfitte",
   "profileMatches": "Partite",
   "profileNicknameTaken": "Questo nickname è già in uso.",
@@ -322,6 +412,16 @@
   "profileWins": "Vittorie",
   "profileXp": "Esperienza",
   "profileXpProgress": "{current} / {target} XP",
+  "@profileXpProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "rankAce": "Asso",
   "rankCavallo": "Cavallo",
   "rankFante": "Fante",
@@ -334,6 +434,15 @@
   "reaction6": "Pesca!",
   "reaction7": "Bravo!",
   "reaction8": "Rivincita!",
+  "reactionAhahaha": "Ahahaha! 😂",
+  "reactionBellaMossa": "Bella mossa! 😎",
+  "reactionBravo": "Bravo! 👏",
+  "reactionCheFortuna": "Che fortuna! 🍀",
+  "reactionCiao": "Ciao! 👋",
+  "reactionGg": "GG! 🤝",
+  "reactionMammaMia": "Mamma mia! 😱",
+  "reactionRateLimited": "Aspetta un attimo prima della prossima reazione",
+  "reactionRivincita": "Rivincita? 🔁",
   "reactions": "Reazioni",
   "reduceMotion": "Riduci movimento",
   "rematch": "Rivincita",

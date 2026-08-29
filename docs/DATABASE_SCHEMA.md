@@ -10,6 +10,8 @@ by a file in `supabase/migrations/` — there are **no dashboard-only changes**.
 | `20260829135727_matches_state.sql` | `matches`, `match_players`, `match_public_state`, `match_private_state`, `match_actions`, `app_private.match_engine_state`, redaction + publish |
 | `20260829135729_progression_rewards.sql` | `achievements`, `user_achievements`, `daily_rewards`, `daily_missions`, `user_daily_missions`, `weekly_points`, progression API, `claim_daily_reward()`, `leaderboard()` |
 | `20260829162239_fk_covering_indexes.sql` | covering indexes for every foreign key the performance advisor flagged |
+| `20260829202017_online_multiplayer.sql` | Session 4: `rooms.kind`, the turn clock on `matches`, `match_action_receipts`, `matchmaking_queue`, `reaction_presets`, Realtime publication + private-channel policies, `settle_match`, `rating_deltas`, the `srv_*` server API, queue/snapshot/heartbeat/reaction RPCs, `expire_stale_matches`, pg_cron |
+| `20260829204500_realtime_topic_helper.sql` | `public.match_topic_id()` — the channel policy helper the `authenticated` role can execute |
 
 Two schemas:
 
@@ -212,10 +214,63 @@ PK `(user_id, week_start)`; `points`, `wins`, `matches`. Fed by
 
 `room_status`, `connection_state`, `match_status` enums.
 
+## Session 4 — online play
+
+Full narrative in `docs/ONLINE_MULTIPLAYER.md`; the access model in
+`docs/SECURITY.md`; the live feed in `docs/REALTIME.md`.
+
+### New columns
+- `rooms.kind` — `private` | `quick`.
+- `matches.current_user_id`, `turn_started_at`, `turn_deadline_at`,
+  `turn_timer_seconds`, `last_action_at`, `abandoned_by`, `rematch_of`.
+- `match_players.consecutive_timeouts`, `forfeited_at`,
+  `rematch_requested_at`, `last_reaction_at`.
+- `match_private_state.drawn_card` — the seat on turn's own drawn card.
+
+### New tables
+| Table | Purpose | Client |
+|---|---|---|
+| `match_action_receipts` PK `(match_id, action_id)` | idempotency: what each client action id produced | `SELECT` own rows |
+| `matchmaking_queue` PK `user_id` | one row per waiting player; `status` waiting/matched, `room_id` | `SELECT` own row |
+| `reaction_presets` | the eight allowed reaction keys | `SELECT` |
+
+### Client RPCs (authenticated)
+| RPC | Does |
+|---|---|
+| `enqueue_quick_match(player_count, turn_timer)` | upsert own queue row; under an advisory lock, assemble a `quick` room when enough compatible players wait |
+| `quick_match_heartbeat()` / `cancel_quick_match()` | keep the row alive / leave (and the assembled lobby) |
+| `my_active_match()` | the in-progress match this user is seated at |
+| `match_snapshot(match_id)` | one consistent read: public state, own hand, drawn card, clock, seats (RLS applies — runs as the caller) |
+| `match_heartbeat(match_id)` | presence for the abandonment policy |
+| `send_reaction(match_id, key)` | whitelist + 2 s gap, then `realtime.send()` on the private channel |
+| `leave_room(room_id)` | now refuses during a live match (`match_in_progress`) |
+
+### Server API (service_role only — the `match` Edge Function)
+`srv_load_match`, `srv_find_receipt`, `srv_record_rejection`,
+`srv_commit_action`, `srv_room_for_deal`, `srv_commit_match`,
+`srv_rematch_vote`, `srv_remove_seat`. Each is `SECURITY DEFINER`, revoked
+from `authenticated`/`anon`, and the commit ones lock their row
+`FOR UPDATE`.
+
+### Server-only helpers (`app_private`)
+`settle_match(match_id, state)` (placements, winner, room → finished, then
+`record_match_result`), `rating_deltas(match_id)` (all zeros until §12b is
+confirmed), `epoch_ms_to_ts`, `expire_stale_matches(interval)`;
+`publish_match_state` now also writes `drawn_card`.
+
+### Realtime
+Publication: `rooms`, `room_players`, `matches`, `match_public_state`,
+`match_private_state`, `matchmaking_queue` (all `REPLICA IDENTITY FULL`).
+`realtime.messages` policies for `match:<uuid>`: members receive
+broadcast + presence; members may insert presence only.
+
+### Scheduled
+pg_cron: `gioco101-expire-stale-rooms` and `gioco101-expire-stale-matches`
+every 10 minutes.
+
 ## What is deliberately not here
 
-- Realtime publication (`alter publication supabase_realtime add table …`) —
-  Session 4, when the lobby and table subscribe.
 - Storage buckets — avatars are built-in vector art; no upload exists.
-- Any rating formula, turn-timer expiry rule or daily-mission generator —
-  each waits on a client decision (see `docs/SESSION_HANDOFF.md`).
+- Any rating formula or daily-mission generator — each waits on a client
+  decision (see `docs/SESSION_HANDOFF.md`). The turn-timer expiry rule is
+  implemented server-side under a documented provisional policy.

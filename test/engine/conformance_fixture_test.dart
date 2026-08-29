@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_event.dart';
 import 'package:gioco_del_101/features/game/domain/engine/game_failure.dart';
 import 'package:gioco_del_101/features/game/domain/game_action.dart';
 import 'package:gioco_del_101/features/game/domain/game_state.dart';
@@ -136,7 +137,7 @@ void main() {
           reason: 'state diverged from fixture',
         );
         expect(
-          accepted.events.map((e) => e.runtimeType.toString()).toList(),
+          accepted.events.map((e) => e.name).toList(),
           (json['expectedEvents'] as List).cast<String>(),
         );
         // The hand-written facts must hold for both the fixture and the run.
@@ -161,7 +162,7 @@ void main() {
         checkAssertions(accepted.state, sc.assertions, sc.name);
         if (sc.expectedEvents != null) {
           expect(
-            accepted.events.map((e) => e.runtimeType.toString()).toList(),
+            accepted.events.map((e) => e.name).toList(),
             sc.expectedEvents,
           );
         }
