@@ -77,7 +77,12 @@ CAPTCHA/Turnstile before production.
 - Privileged functions live in `app_private` with no client grant.
 - Default privileges on functions in `public` are revoked, so a new function
   is not callable until a migration grants it.
-- The security advisor's `authenticated_security_definer_function_executable`
+- The security advisor's `auth_allow_anonymous_sign_ins` warnings (one per
+  table) are expected: guests are players, and no policy grants anything by
+  role alone — every one is scoped by ownership (`auth.uid()`), membership
+  (`is_room_member` / `is_match_member`) or is a public read of public data.
+  Leaked-password protection is a paid-plan feature.
+- The advisor's `authenticated_security_definer_function_executable`
   warnings list exactly the intended RPC set (`claim_daily_reward`,
   `create_room`, `join_room`, `leave_room`, `set_ready`, `room_heartbeat`,
   `touch_presence`, `is_room_member`, `is_match_member`). Each is reviewed
@@ -89,9 +94,9 @@ CAPTCHA/Turnstile before production.
 | Setting | Dev | Why |
 |---|---|---|
 | Email sign-up | on | |
-| Confirm email | on (Supabase default) | the app handles "check your email"; disable locally in `config.toml` if convenient |
-| Anonymous sign-ins | **must be on** | guests; local `config.toml` has it on; remote needs the dashboard/Management API toggle (see SUPABASE_SETUP) |
-| Manual identity linking | on locally | needed for guest → email upgrade via `updateUser` |
+| Confirm email | **off on dev** (`mailer_autoconfirm`) | lets sign-ups complete without SMTP; the app still handles "check your email" for environments where it is on; **on in production** |
+| Anonymous sign-ins | **on** (pushed from `config.toml`) | guests |
+| Manual identity linking | on | needed for guest → email upgrade via `updateUser` |
 | Minimum password length | 8 | matches `AuthValidators.minPasswordLength` |
 | Built-in mailer | rate-limited (a handful of emails/hour) | configure custom SMTP before any real testing of sign-up/reset |
 
@@ -122,5 +127,11 @@ confirmed accounts A and B and the publishable key only:
 | A reads `match_private_state` | only rows with `user_id = A` |
 | A reads reward status and both leaderboards | allowed |
 
-Results of the run against `GiocoDel101-Dev` are recorded in
-`docs/SESSION_HANDOFF.md` §Verification.
+Run against `GiocoDel101-Dev` on 2026-08-29: **33/33 PASS**. In addition,
+with one match seeded server-side through `publish_match_state`, REST reads
+as A and B each returned only their own `match_private_state` row, an
+explicit filter for the other player's row returned `[]`, the public state
+carried only `handCount`/`drawPileCount`, `app_private` was not an exposed
+schema (`PGRST106`), a non-player guest saw nothing, and PATCH/POST attempts
+on `matches`, `match_players` and `match_actions` were all `42501`. Full
+table in `docs/SESSION_HANDOFF.md` §1.

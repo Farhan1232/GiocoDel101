@@ -92,11 +92,11 @@ Every schema change is a file in `supabase/migrations/`, created with:
 supabase migration new <snake_case_name>     # writes <timestamp>_<name>.sql
 ```
 
-Session 3 applied the four migrations to the dev project through the
-Supabase MCP (`apply_migration`) and then aligned the remote
-`supabase_migrations.schema_migrations` versions with the local filenames, so
-`supabase migration list` shows local and remote in step once the project is
-linked. From now on prefer the CLI:
+Session 3 applied the first four migrations through the Supabase MCP
+(`apply_migration`) and aligned the remote
+`supabase_migrations.schema_migrations` versions with the local filenames;
+the fifth (`fk_covering_indexes`) went through `supabase db push` on the
+linked project. `supabase migration list` shows 5 = 5. Prefer the CLI:
 
 ```bash
 supabase db push            # apply pending local migrations to the linked project
@@ -144,19 +144,23 @@ environment (dev and production):
 | Anonymous sign-ins | Authentication → Sign In / Providers → Anonymous | `[auth] enable_anonymous_sign_ins = true` |
 | Manual identity linking | Authentication → Sign In / Providers → Manual linking | `[auth] enable_manual_linking = true` |
 
-With a linked project they can be pushed from `config.toml`:
+Session 3 pushed them from `config.toml` with `supabase config push`; the
+dev project now has **anonymous sign-ins ON, manual linking ON, minimum
+password 8, and email confirmations OFF** (`mailer_autoconfirm: true`).
+Confirmations are off *for the dev loop only* — sign-ups return a session
+immediately and need no SMTP. Production must keep them on.
 
-```bash
-supabase config push --dry-run   # shows the diff
-supabase config push
-```
+`supabase config push` has no dry run in CLI 2.116 and, in a non-TTY shell,
+**auto-confirms every service's diff** (auth, storage, …). Run it from a real
+terminal and read each diff, and keep `config.toml` aligned with the remote
+for everything you do not mean to change (the `[storage.vector]` section must
+stay `enabled = false` on the free plan — the push fails with 402 otherwise,
+harmlessly).
 
-Careful: `config.toml` also has `[auth.email] enable_confirmations = false`
-for local convenience. Decide before pushing whether the remote project should
-keep email confirmation on (recommended for anything beyond a private dev
-loop). Also configure a custom SMTP provider before real sign-up testing —
-the built-in mailer allows only a few emails per hour and delivers only to
-organisation members.
+Configure a custom SMTP provider before testing password reset or
+confirmation e-mails: the built-in mailer rejects undeliverable domains
+(`email_address_invalid`), allows only a few messages per hour and delivers
+only to organisation members.
 
 ## Verifying a project
 
@@ -169,8 +173,9 @@ dart run tool/supabase_smoke.dart
 
 Prints PASS/FAIL per check (see `docs/SUPABASE_SECURITY.md` → Verification
 matrix) and exits non-zero on any failure. A and B must be two confirmed
-email accounts on that project. Without the `SMOKE_*` variables it runs only
-the anonymous-key and guest checks.
+email accounts on that project (with autoconfirm on, any fresh sign-up is
+one). Without the `SMOKE_*` variables it runs only the anonymous-key and
+guest checks. Session 3's run against the dev project: **33/33 PASS**.
 
 ## Creating the production project later
 

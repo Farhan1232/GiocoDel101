@@ -16,9 +16,10 @@ client that never pretends.**
 - **Development project** `GiocoDel101-Dev` (`fnyllrjchbqfrzezfeso`,
   eu-central-1, free plan) — found already created; inspected; it was empty.
   The unrelated `Farhan1232's Project` was not touched.
-- **Four migrations** in `supabase/migrations/` (1,263 lines), applied to the
-  dev project through the Supabase MCP and version-aligned with the local
-  filenames. Every table has RLS and an explicit grant; default privileges
+- **Five migrations** in `supabase/migrations/` (four schema files applied
+  through the Supabase MCP and version-aligned with the filenames, plus
+  `20260829162239_fk_covering_indexes.sql` pushed with the linked CLI —
+  `supabase migration list` shows local and remote identical). Every table has RLS and an explicit grant; default privileges
   are revoked so exposure is opt-in; privileged code lives in `app_private`.
   Reference: `docs/DATABASE_SCHEMA.md`.
 - **Security model** — column-level grant + RLS + trigger on `profiles`;
@@ -46,10 +47,11 @@ client that never pretends.**
   `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` from `--dart-define`;
   `env/supabase.dev.json.example` is committed, `env/*.json` is ignored.
   No secret of any kind is in the repo. Reference: `docs/SUPABASE_SETUP.md`.
-- **Tooling**: Supabase CLI 2.116.0 installed (npm), `supabase init` done,
-  `supabase/config.toml` prepared for local (anonymous sign-ins on, manual
-  linking on, min password 8). `tool/supabase_smoke.dart` — a pure-Dart
-  end-to-end auth + RLS matrix runner.
+- **Tooling**: Supabase CLI 2.116.0 (npm), logged in and **linked** to
+  `fnyllrjchbqfrzezfeso`; `supabase config push` applied the auth settings
+  to the remote (anonymous sign-ins ON, manual linking ON, min password 8,
+  email confirmations OFF for dev). `tool/supabase_smoke.dart` — a pure-Dart
+  end-to-end auth + RLS matrix runner, run green against the dev project.
 - **Tests**: +17 (`test/session3_auth_test.dart`): BootRouter matrix,
   OnlineStatus, no-backend gateway, SessionController, AuthController,
   Supabase error mapping, remote profile parsing, ladder parity.
@@ -74,56 +76,58 @@ queue, any rating formula (all Session 4 or waiting on the client).
 
 | Check | Result |
 |---|---|
-| MCP: list organisations / projects | ok — 1 org, 2 projects |
-| MCP: `list_tables` before | `public` empty, no migrations |
-| MCP: `apply_migration` ×4 | success; `list_migrations` shows 4; versions aligned to local filenames |
-| MCP: `get_advisors(security)` | 9 WARN = the intended `SECURITY DEFINER` RPC list; 1 INFO = `app_private.match_engine_state` (intended); no ERROR |
-| Data API, publishable key, no session: `POST /auth/v1/signup {}` | `422 anonymous_provider_disabled` — **anonymous sign-ins are OFF on the remote project** |
-| `GET /auth/v1/settings` | `anonymous_users: false`, `email: true`, `mailer_autoconfirm: false` |
-| Email sign-up attempts | `.test` addresses rejected as invalid; then `email rate limit exceeded` (built-in mailer) |
-| SQL as `authenticated`: `update profiles set rating` | `42501 permission denied for table profiles` (column grant) ✔ |
-| SQL as `authenticated`: `select … app_private.match_engine_state` | `42501 permission denied for schema app_private` ✔ |
-| SQL as `authenticated`: `app_private.grant_xp(…)` | `42501` ✔ |
-| SQL as `anon`: `select from profiles` | `42501` ✔ |
-| SQL as `authenticated` + `is_anonymous:true`: `claim_daily_reward()` | `guest_not_allowed` ✔ |
-| SQL as `authenticated`: `leaderboard('all_time',10)`, `is_permanent_user()` | callable, 0 rows, `true` ✔ |
-| SQL: `redact_game_state(<conformance fixture>)` | no `seed`/`drawPile`/`drawnCard`/`history`; `drawPileCount 36`; players carry `handCount` only; `hand_of(s,'p1') = ["spade_tre"]`; no hidden card id in the output ✔ |
+| CLI `supabase projects list` / `supabase link` | authenticated; linked to `fnyllrjchbqfrzezfeso` (no project created) |
+| CLI `supabase migration list` | 5 local = 5 remote |
+| CLI `supabase config push` | auth config applied; storage untouched (vector buckets are paid → 402, nothing changed) |
+| `GET /auth/v1/settings` after push | `anonymous_users: true`, `mailer_autoconfirm: true` |
+| MCP `get_advisors(security)` | WARN: the 9 intended SECURITY DEFINER RPCs; WARN `auth_allow_anonymous_sign_ins` on every table (expected — guests are players; every policy is scoped by ownership/membership, not by role); WARN leaked-password protection off (paid feature); INFO `app_private.match_engine_state` no policy (intended) |
+| MCP `get_advisors(performance)` | unindexed FKs → fixed by migration 5; remaining INFO = unused indexes on an empty DB |
+| **Anonymous sign-in** `POST /auth/v1/signup {}` | real user `is_anonymous: true`; trigger created `Ospite-364D` (`is_guest: true`, avatar `lucia`, stats row) |
+| Guest `claim_daily_reward` | `42501 guest_not_allowed` |
+| Guest logout | 204 |
+| **Email sign-up** A (`Alpha`, `sofia`) and B (`Alpha`, `not-an-avatar`) | both created with sessions (autoconfirm); trigger gave B `Alpha-1` and fell back to `lucia` |
+| **Login** A, wrong password, **refresh-token restore**, `GET /auth/v1/user`, duplicate sign-up, **logout**, reuse of the revoked refresh token | ok / `invalid_credentials` / same user / ok / `user_already_exists` / 204 / `refresh_token_not_found` |
+| **Password reset** `POST /auth/v1/recover` | `email_address_invalid` for `@example.com` — the mailer refuses undeliverable domains; needs a real inbox or custom SMTP |
+| **`tool/supabase_smoke.dart`** (two users + guest, publishable key only) | **33/33 PASS** — see `docs/SUPABASE_SECURITY.md` matrix |
+| Seeded one dev match (A/B) via `app_private.publish_match_state`, then over REST: A `match_private_state` | only A's row, hand `["coppe_asso","coppe_re"]` |
+| B `match_private_state` | only B's row, `["spade_tre"]` |
+| A filters explicitly for B's row | `[]` |
+| A `match_public_state` | `handCount` per player, `drawPileCount`, no `hand`/`seed`/`drawPile`/`drawnCard`/`history` |
+| A reads `app_private` over REST | `PGRST106 Invalid schema` (not exposed) |
+| Non-player guest reads that match / public / private state | `[]` / `[]` / `[]` |
+| A PATCH `matches.winner_id`, POST `match_actions`, PATCH `match_players.is_winner/xp_awarded` | all `42501` |
+| A `claim_daily_reward` twice | `{day_index: 1, amount: 10}` then `already_claimed`; `player_stats.coins = 10` |
+| SQL role-simulation probes (column grant, `app_private`, anon, guest claim, redaction on a conformance fixture) | all as designed |
+
+The seeded match was deleted afterwards. Dev accounts left in place:
+`s3-alpha@example.com`, `s3-bravo@example.com` (passwords were session-local
+and are gone — sign up fresh ones; autoconfirm is on) and three anonymous
+guests.
 
 ### Not verified
 
-- **Real anonymous sign-in on the remote project** — blocked by the project
-  setting (see §3). Local `config.toml` has it on.
-- **Real email sign-up / login / password reset / session restore on the
-  remote project** — no confirmed test account could be created: the
-  built-in mailer is rate limited, `.test` domains are rejected, and
-  seeding `auth.users` by SQL was declined by the environment's policy.
-- **The two-user RLS matrix over REST** (`tool/supabase_smoke.dart`) — needs
-  the two accounts above. The same policies were exercised by role
-  simulation in SQL (table above).
+- **Password-reset e-mail delivery** — the built-in mailer rejects
+  undeliverable test domains and is rate-limited; needs custom SMTP or a real
+  inbox.
+- **Guest → permanent account upgrade** (`updateUser` with email) — not wired
+  in the UI yet; manual linking is enabled for it.
 - **Local Supabase** (`supabase start` / `db reset`) — no Docker on this
   machine.
-- **On-device run** — no emulator/device here; the app was not launched
-  with the defines. Everything on the Flutter side is covered by
-  analyzer + 420 tests with the no-backend gateway.
+- **On-device run** with the defines — no emulator/device here.
 
 ---
 
 ## 2. Blockers
 
-1. **One browser authorisation.** Enabling anonymous sign-ins (and, if
-   wanted, pushing the rest of `config.toml`) needs a Management API token.
-   Run `! supabase login` in this session; the rest (`supabase link
-   --project-ref fnyllrjchbqfrzezfeso`, `supabase config push`, the smoke
-   run) is scripted in `docs/SUPABASE_SETUP.md` and I can drive it. The
-   dashboard toggle (Authentication → Providers → Anonymous) is the manual
-   alternative.
-2. **SMTP.** Sign-up/reset e-mails through the built-in mailer are limited
-   to a few per hour and only reach org members. Configure a custom SMTP
-   provider (or, for a private dev loop, disable confirmations remotely)
-   before testing real sign-ups.
-3. **Client decisions still open** (unchanged from Session 2): the online
+1. **SMTP.** Sign-up works (autoconfirm on, dev only), but password reset
+   and any confirmation e-mail need a custom SMTP provider; the built-in
+   mailer only delivers to organisation members and is rate-limited.
+   Production must turn confirmations back on.
+2. **Client decisions still open** (unchanged from Session 2): the online
    points formula (§12b — `profiles.rating` exists, nothing moves it), the
    Cavallo-vs-+2 defaults (§6a), turn-timer expiry.
+3. **Leaked-password protection** is a paid-plan feature; enable it when the
+   production project is on Pro.
 
 ---
 
@@ -163,10 +167,14 @@ queue, any rating formula (all Session 4 or waiting on the client).
    (`Alpha-1`) and reported as `23505` on edit (the UI shows "taken").
 6. **`ProfileController.reload()`** — not `refresh()`, which GetX already
    defines.
-7. **Migrations only through files.** `supabase migration new …`, then
-   `apply_migration` (MCP) or `db push` (CLI). If MCP is used, align the
-   version in `supabase_migrations.schema_migrations` with the filename, as
-   Session 3 did.
+7. **Migrations only through files.** `supabase migration new …` (check the
+   file is non-empty — the CLI's JSON output once left it blank), then
+   `supabase db push` (the project is linked). If MCP `apply_migration` is
+   used instead, align the version in `supabase_migrations.schema_migrations`
+   with the filename, as Session 3 did for the first four.
+8. **`supabase config push` in a non-TTY shell auto-confirms every
+   service.** Review the diff first in a real terminal, or keep `config.toml`
+   aligned with the remote (Session 3 did) so the diff is only what you mean.
 
 ---
 

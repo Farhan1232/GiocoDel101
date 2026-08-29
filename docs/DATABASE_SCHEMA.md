@@ -9,6 +9,7 @@ by a file in `supabase/migrations/` — there are **no dashboard-only changes**.
 | `20260829135725_rooms_lobby.sql` | `rooms`, `room_players`, lobby RPCs, room codes, stale-room sweep |
 | `20260829135727_matches_state.sql` | `matches`, `match_players`, `match_public_state`, `match_private_state`, `match_actions`, `app_private.match_engine_state`, redaction + publish |
 | `20260829135729_progression_rewards.sql` | `achievements`, `user_achievements`, `daily_rewards`, `daily_missions`, `user_daily_missions`, `weekly_points`, progression API, `claim_daily_reward()`, `leaderboard()` |
+| `20260829162239_fk_covering_indexes.sql` | covering indexes for every foreign key the performance advisor flagged |
 
 Two schemas:
 
