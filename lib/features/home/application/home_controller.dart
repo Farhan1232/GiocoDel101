@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../online/application/online_match_repository.dart';
 import '../../rewards/domain/daily_challenge.dart';
 import '../../rewards/application/daily_challenge_service.dart';
 import '../../../core/storage/game_storage_service.dart';
+import '../../../core/utils/log.dart';
 
 /// Backs the home screen: whether a match is waiting, and what today's
 /// challenge is.
@@ -44,7 +44,7 @@ class HomeController extends GetxController {
       return;
     }
     final id = await _matches.activeMatchId();
-    debugPrint('home: active online match = $id');
+    Log.d('home: active online match = $id');
     activeOnlineMatchId.value = id;
   }
 }

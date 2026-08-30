@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../../../app/localization/app_strings.dart';
+
 import '../domain/game_rules.dart';
 import '../domain/game_state.dart';
 import '../domain/player_type.dart';
@@ -28,9 +30,9 @@ class SetupController extends GetxController {
 
   /// Names for the extra people in Pass & Play (index 0 is the owner).
   final RxList<String> passAndPlayNames = <String>[
-    'Giocatore 2',
-    'Giocatore 3',
-    'Giocatore 4',
+    Strings.s.setupPlayerN(2),
+    Strings.s.setupPlayerN(3),
+    Strings.s.setupPlayerN(4),
   ].obs;
 
   @override

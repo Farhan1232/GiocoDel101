@@ -126,7 +126,29 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
     );
   }
 
+  bool _polling = false;
+  bool _pollAgain = false;
+
+  /// Coalesced: a Realtime hint or a tick that lands during a load asks for
+  /// one more load afterwards, never a pile-up, and never a stale reply
+  /// painted over a newer one.
   Future<void> _poll() async {
+    if (_polling) {
+      _pollAgain = true;
+      return;
+    }
+    _polling = true;
+    try {
+      do {
+        _pollAgain = false;
+        await _pollOnce();
+      } while (_pollAgain && mounted && !_leaving && !_launched);
+    } finally {
+      _polling = false;
+    }
+  }
+
+  Future<void> _pollOnce() async {
     final room = _room;
     if (room == null || _leaving || _launched) return;
     final rooms = Get.find<BackendServices>().rooms;
@@ -169,7 +191,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
       await OnlineMatchLauncher.launch(matchId, replace: true);
     } on OnlineException catch (e) {
       _launched = false;
-      if (mounted) setState(() => _error = e.detail ?? e.error.name);
+      if (mounted) setState(() => _error = _enterFailure(e));
     }
   }
 
@@ -194,12 +216,30 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
     }
   }
 
+  /// Every server code the start op can answer with, in the player's
+  /// language. Anything unexpected gets the generic line — never the raw
+  /// code or an exception string.
   String _reason(OnlineException e) => switch (e.detail) {
     'room_not_full' => Strings.s.lobbyWaitingForPlayers,
     'not_everyone_ready' => Strings.s.lobbyNotReady,
     'not_the_host' => Strings.s.lobbyWaitingForHost,
-    final other? => other,
-    null => e.error.name,
+    'room_not_startable' ||
+    'room_changed' ||
+    'already_in_match' => Strings.s.roomAlreadyStarted,
+    _ => switch (e.error) {
+      OnlineError.network ||
+      OnlineError.unavailable => Strings.s.onlineUnavailableRetry,
+      OnlineError.notSignedIn => Strings.s.onlineSignInRequired,
+      _ => Strings.s.commonErrorBody,
+    },
+  };
+
+  String _enterFailure(OnlineException e) => switch (e.error) {
+    OnlineError.network ||
+    OnlineError.unavailable => Strings.s.onlineUnavailableRetry,
+    OnlineError.notSignedIn => Strings.s.onlineSignInRequired,
+    OnlineError.notParticipant => Strings.s.onlineMatchAbandoned,
+    _ => Strings.s.commonErrorBody,
   };
 
   Future<void> _toggleReady() async {
@@ -257,6 +297,11 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
       s.lobbyShare,
       s.lobbyCopied,
       snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.surfaceRaised,
+      colorText: AppColors.textPrimary,
+      borderColor: AppColors.hairline,
+      borderWidth: 1,
+      margin: const EdgeInsets.all(AppSpacing.md),
     );
   }
 

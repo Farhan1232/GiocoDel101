@@ -9,6 +9,7 @@ import 'core/services/audio_service.dart';
 import 'core/services/supabase_bootstrap.dart';
 import 'core/storage/local_storage.dart';
 import 'features/online/domain/online_status.dart';
+import 'core/utils/log.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,10 @@ Future<void> main() async {
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks(const [
       'Cinzel',
+    ], await rootBundle.loadString('assets/fonts/OFL-Cinzel.txt'));
+    yield LicenseEntryWithLineBreaks(const [
       'Manrope',
-    ], await rootBundle.loadString('assets/fonts/OFL.txt'));
+    ], await rootBundle.loadString('assets/fonts/OFL-Manrope.txt'));
   });
 
   // §27/§47 — portrait-first on phones, where the fan and the felt are tuned
@@ -58,5 +61,5 @@ Future<void> main() async {
 }
 
 void unawaited(Future<void> future) {
-  future.catchError((Object error) => debugPrint('startup: $error'));
+  future.catchError((Object error) => Log.d('startup: $error'));
 }

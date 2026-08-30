@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+
+import '../core/utils/motion.dart';
+import '../core/widgets/app_dialog.dart';
+import '../features/auth/application/session_controller.dart';
 
 import '../features/game/application/game_controller.dart';
 import '../features/settings/application/settings_controller.dart';
@@ -26,14 +32,32 @@ class GiocoDel101App extends StatefulWidget {
 
 class _GiocoDel101AppState extends State<GiocoDel101App>
     with WidgetsBindingObserver {
+  Worker? _sessionWatch;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (Get.isRegistered<SessionController>()) {
+      final sessions = Get.find<SessionController>();
+      _sessionWatch = ever<bool>(sessions.expired, (raised) {
+        if (!raised) return;
+        sessions.expired.value = false;
+        final s = Strings.s;
+        unawaited(
+          AppDialog.notice(
+            title: s.commonErrorTitle,
+            body: s.sessionExpired,
+            dismissLabel: s.gotIt,
+          ),
+        );
+      });
+    }
   }
 
   @override
   void dispose() {
+    _sessionWatch?.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -89,6 +113,7 @@ class _GiocoDel101AppState extends State<GiocoDel101App>
             // §47/§48 — respect the platform text scale, but keep the table
             // readable by refusing extremes that would clip the hand.
             final media = MediaQuery.of(context);
+            Motion.systemReduceMotion = media.disableAnimations;
             final scale = media.textScaler.scale(14) / 14;
             return MediaQuery(
               data: media.copyWith(

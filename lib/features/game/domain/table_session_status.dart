@@ -40,4 +40,18 @@ class TableSessionStatus {
   static const TableSessionStatus offlineLocal = TableSessionStatus(
     isOnline: false,
   );
+
+  // Value semantics: the online driver republishes this once a second, and
+  // an Rx only notifies its listeners when the value actually changed.
+  @override
+  bool operator ==(Object other) =>
+      other is TableSessionStatus &&
+      other.isOnline == isOnline &&
+      other.connection == connection &&
+      other.turnSecondsRemaining == turnSecondsRemaining &&
+      other.turnSecondsTotal == turnSecondsTotal;
+
+  @override
+  int get hashCode =>
+      Object.hash(isOnline, connection, turnSecondsRemaining, turnSecondsTotal);
 }

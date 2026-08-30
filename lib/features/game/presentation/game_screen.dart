@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/router/app_router.dart';
+import '../application/match_launcher.dart';
 import '../application/table_controller.dart';
 import '../../online/application/online_match_controller.dart';
 import '../../online/application/online_match_launcher.dart';
@@ -91,7 +92,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       if (_navigatedToResult) return;
       _navigatedToResult = true;
       Future<void>.delayed(Motion.scale(const Duration(milliseconds: 520)), () {
-        if (mounted) Get.toNamed<void>(AppRoutes.roundResult);
+        // Online, another seat may have dealt the next round inside this
+        // beat; a sheet opened now would have nothing to show and nothing
+        // would ever close it (the headless-Chrome host lost a whole match
+        // behind one). Only open it for a result that still stands.
+        if (!mounted || c.lastRoundResult.value == null) return;
+        if (Get.currentRoute != AppRoutes.game) return;
+        Get.toNamed<void>(AppRoutes.roundResult);
       });
     });
   }
@@ -410,7 +417,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (!leave) return;
     await c.abandon();
     Get.until((route) => route.settings.name == AppRoutes.home);
-    if (c.isOnline) OnlineMatchLauncher.dismiss();
+    if (c.isOnline) {
+      OnlineMatchLauncher.dismiss();
+    } else {
+      MatchLauncher.dismiss();
+    }
   }
 
   // ------------------------------------------------------------------ build
@@ -551,7 +562,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
       child: Row(
         children: [
-          IconPill(icon: AppIcon.back, size: 38, onTap: _confirmExit),
+          IconPill(
+            icon: AppIcon.back,
+            size: 38,
+            tooltip: Strings.s.commonBack,
+            onTap: _confirmExit,
+          ),
           // §M — the rules reference, reachable without leaving the match.
           const SizedBox(width: AppSpacing.xs),
           IconPill(
@@ -586,21 +602,32 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           const Spacer(),
           // §M — turn timer and connection state. Both come from the session
           // status; an offline match produces neither, so nothing is drawn.
-          if (_session.hasTimer) ...[
-            TurnTimerRing(
-              progress: _session.timerProgress,
-              secondsRemaining: _session.turnSecondsRemaining!,
-            ),
-            const SizedBox(width: AppSpacing.xs),
-          ],
-          if (_session.showsConnection) ...[
-            _ConnectionDot(status: _session.connection),
-            const SizedBox(width: AppSpacing.xs),
-          ],
+          // Its own reactive scope: the online driver republishes the status
+          // every second, and only this ring may repaint for that.
+          Obx(() {
+            final session = c.tableStatus.value;
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (session.hasTimer) ...[
+                  TurnTimerRing(
+                    progress: session.timerProgress,
+                    secondsRemaining: session.turnSecondsRemaining!,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                ],
+                if (session.showsConnection) ...[
+                  _ConnectionDot(status: session.connection),
+                  const SizedBox(width: AppSpacing.xs),
+                ],
+              ],
+            );
+          }),
           IconPill(
             icon: AppIcon.reactions,
             size: 38,
             accent: accent,
+            tooltip: Strings.s.reactions,
             onTap: () => setState(() => _reactionsOpen = true),
           ),
         ],

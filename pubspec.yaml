@@ -29,6 +29,8 @@ flutter:
   assets:
     - assets/audio/
     - assets/fonts/OFL.txt
+    - assets/fonts/OFL-Cinzel.txt
+    - assets/fonts/OFL-Manrope.txt
   fonts:
     - family: Cinzel
       fonts:

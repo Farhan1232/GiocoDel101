@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/supabase_env.dart';
+import '../utils/log.dart';
 
 /// Initialises the Supabase client once, before the first frame.
 ///
@@ -26,7 +26,7 @@ class SupabaseBootstrap {
       );
       return supabase.client;
     } catch (error) {
-      debugPrint('supabase: initialise failed: $error');
+      Log.d('supabase: initialise failed: $error');
       return null;
     }
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../localization/app_strings.dart';
+
 /// §33 — the three table dressings. A theme changes the felt, the ambient
 /// accent, the button tint, the particle colour and the card-back variation.
 /// It never changes how readable a card face is.
@@ -7,7 +9,6 @@ class TableTheme {
   const TableTheme({
     required this.id,
     required this.name,
-    required this.tagline,
     required this.backdropTop,
     required this.backdropBottom,
     required this.feltInner,
@@ -24,7 +25,13 @@ class TableTheme {
 
   final String id;
   final String name;
-  final String tagline;
+
+  /// One line of mood under the name on the setup screen.
+  String get tagline => switch (id) {
+    'maiolica' => Strings.s.tableTaglineMaiolica,
+    'vesuvio' => Strings.s.tableTaglineVesuvio,
+    _ => Strings.s.tableTaglineNapoli,
+  };
 
   /// Page background gradient.
   final Color backdropTop;
@@ -64,7 +71,6 @@ class TableThemes {
   static const TableTheme napoliNotte = TableTheme(
     id: 'napoli_notte',
     name: 'Napoli Notte',
-    tagline: 'Oro antico sul golfo che dorme',
     backdropTop: Color(0xFF0B1020),
     backdropBottom: Color(0xFF181026),
     feltInner: Color(0xFF16304A),
@@ -83,7 +89,6 @@ class TableThemes {
   static const TableTheme maiolica = TableTheme(
     id: 'maiolica',
     name: 'Maiolica',
-    tagline: 'Ceramica mediterranea, cobalto e sole',
     backdropTop: Color(0xFF1B2A4A),
     backdropBottom: Color(0xFF0F1A30),
     feltInner: Color(0xFFEDE0C6),
@@ -102,7 +107,6 @@ class TableThemes {
   static const TableTheme vesuvio = TableTheme(
     id: 'vesuvio',
     name: 'Vesuvio',
-    tagline: 'Cenere calda e bagliori di terracotta',
     backdropTop: Color(0xFF16100F),
     backdropBottom: Color(0xFF2A1114),
     feltInner: Color(0xFF3A1A1C),

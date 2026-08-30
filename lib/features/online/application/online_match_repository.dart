@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../../game/domain/card_suit.dart';
 import '../../game/domain/game_card.dart';
 import '../domain/online_match_models.dart';
+import '../../../core/utils/log.dart';
 
 /// A request the table sends. The server decides whether it is legal; the
 /// client never applies it locally. [actionId] makes a retry idempotent.
@@ -228,7 +228,7 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
         params: {'p_match_id': matchId},
       );
     } catch (e) {
-      debugPrint('match heartbeat: $e');
+      Log.d('match heartbeat: $e');
     }
   }
 
@@ -256,7 +256,7 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
       if (r is Map && r['matchId'] is String) return r['matchId'] as String;
       return null;
     } catch (e) {
-      debugPrint('my_active_match: $e');
+      Log.d('my_active_match: $e');
       return null;
     }
   }
@@ -271,7 +271,7 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
           .maybeSingle();
       return row?['match_id'] as String?;
     } catch (e) {
-      debugPrint('currentMatchOfRoom: $e');
+      Log.d('currentMatchOfRoom: $e');
       return null;
     }
   }
@@ -331,7 +331,7 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
           callback: (_) => onStateChanged(-1),
         )
         .subscribe((status, error) {
-          if (error != null) debugPrint('match rows channel $status: $error');
+          if (error != null) Log.d('match rows channel $status: $error');
           if (status == sb.RealtimeSubscribeStatus.subscribed) {
             onStateChanged(-1); // catch up on anything missed while joining
           }
@@ -377,7 +377,7 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
         case sb.RealtimeSubscribeStatus.closed:
         case sb.RealtimeSubscribeStatus.channelError:
         case sb.RealtimeSubscribeStatus.timedOut:
-          debugPrint('match channel $status ${error ?? ''}');
+          Log.d('match channel $status ${error ?? ''}');
           onStatus(MatchChannelStatus.disconnected);
       }
     });
@@ -388,7 +388,7 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
           await _client.removeChannel(rows);
           await _client.removeChannel(channel);
         } catch (e) {
-          debugPrint('match channel close: $e');
+          Log.d('match channel close: $e');
         }
       },
     );
@@ -461,7 +461,7 @@ class SupabaseMatchmakingRepository implements MatchmakingRepository {
       if (r is Map) return QueueEntry.fromJson(r.cast<String, dynamic>());
       return null;
     } catch (e) {
-      debugPrint('queue heartbeat: $e');
+      Log.d('queue heartbeat: $e');
       return null;
     }
   }
@@ -471,7 +471,7 @@ class SupabaseMatchmakingRepository implements MatchmakingRepository {
     try {
       await _client.rpc<void>('cancel_quick_match');
     } catch (e) {
-      debugPrint('cancel_quick_match: $e');
+      Log.d('cancel_quick_match: $e');
     }
   }
 }

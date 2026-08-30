@@ -111,6 +111,12 @@ enum RoomError {
   notFound,
   full,
   invalidCode,
+
+  /// The room exists but its match is already under way.
+  alreadyStarted,
+
+  /// The caller is still seated at a live online match.
+  alreadyInMatch,
   notSignedIn,
   unavailable,
   unknown,

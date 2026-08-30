@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../app/localization/app_strings.dart';
+
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_typography.dart';
 import '../../app/theme/table_themes.dart';
@@ -109,6 +111,7 @@ class ScreenScaffold extends StatelessWidget {
             IconPill(
               icon: AppIcon.back,
               accent: theme.accent,
+              tooltip: Strings.s.commonBack,
               onTap: onBack ?? () => Get.back<void>(),
             )
           else

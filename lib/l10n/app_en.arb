@@ -22,12 +22,10 @@
   "achServerHint": "Online achievements are validated by the server; offline ones stay on this device.",
   "achSfidanteBody": "Complete a Daily Challenge",
   "achSfidanteTitle": "Challenger",
-  "achUnlocked": "Unlocked",
   "achVendettaBody": "Win the very next match after a defeat",
   "achVendettaTitle": "Vendetta",
   "achVeteranoBody": "Complete 25 matches",
   "achVeteranoTitle": "Veteran",
-  "achievementUnlockedToast": "Achievement unlocked",
   "achievements": "Achievements",
   "activeSuit": "Active suit",
   "advancedRules": "Advanced rules",
@@ -56,11 +54,37 @@
   "authSocialUnavailable": "Social sign-in is not enabled yet.",
   "authSubtitle": "Sign in to play online and keep your progress.",
   "authTitle": "Welcome",
-  "backToZero": "BACK TO ZERO",
   "bestComeback": "Best comeback",
   "botThinking": "Thinking…",
   "cancel": "Cancel",
   "cardBack": "Card back",
+  "cardName": "{rank} of {suit}",
+  "@cardName": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      },
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSemanticsNotPlayable": "{card}, not playable now",
+  "@cardSemanticsNotPlayable": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSemanticsPlayable": "{card}, playable",
+  "@cardSemanticsPlayable": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
   "cardsLeft": "cards",
   "cardsPlayed": "Cards played",
   "centounoBody": "{name} is back to zero",
@@ -72,6 +96,16 @@
     }
   },
   "centounoTitle": "CENTOUNO!",
+  "challengeEdgeBody": "Start at 80 points against a hard opponent. One bad round and you are out.",
+  "challengeEdgeTitle": "On the edge",
+  "challengeFullBody": "Four players, hard opponents, no voluntary draw.",
+  "challengeFullTitle": "Full table",
+  "challengeStormBody": "An 8-card hand and unleashed chains of twos. Survive the storm.",
+  "challengeStormTitle": "Storm of twos",
+  "challengeTightBody": "Only 3 cards each. Few choices, no room for error.",
+  "challengeTightTitle": "Tight hand",
+  "challengeZeroBody": "Start at 94 points: find exactly 7 points and return to zero.",
+  "challengeZeroTitle": "Back to zero",
   "chooseSuit": "Choose the suit",
   "coachDraw": "No legal card? Tap the deck to draw.",
   "coachFateRing": "The ring shows how far you are from 101. Exactly 101 sends you back to zero.",
@@ -80,7 +114,6 @@
   "commonBack": "Back",
   "commonClose": "Close",
   "commonComingSoon": "Coming soon",
-  "commonEmptyBody": "When there is data, it will show up here.",
   "commonEmptyTitle": "Nothing here yet",
   "commonErrorBody": "We could not complete that. Please try again.",
   "commonErrorTitle": "Something went wrong",
@@ -107,7 +140,6 @@
   "createRoomTitle": "Create a room",
   "dailyChallenge": "Daily Challenge",
   "dailyChallengeDone": "Challenge complete",
-  "dailyCompleted": "Completed today",
   "dailyReward": "Reward",
   "dailyRewardBalance": "{coins} coins",
   "dailyRewardBody": "Come back every day — the reward grows up to the seventh.",
@@ -119,14 +151,20 @@
   "dailyRewardGuestHint": "Create an account to claim daily rewards.",
   "dailyRewardTitle": "Daily reward",
   "dailyRewardTomorrow": "Come back tomorrow",
-  "dailyStartHint": "A different setup every day.",
-  "dailyTitle": "Daily Challenge",
   "defaultDifficulty": "Default difficulty",
   "difficulty": "Difficulty",
   "difficultyEasy": "Easy",
   "difficultyHard": "Hard",
   "difficultyNormal": "Normal",
   "discardPile": "Discard",
+  "discardTop": "Discard: {card}",
+  "@discardTop": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
   "drawCard": "Draw",
   "drawPile": "Deck",
   "editProfileAvatar": "Choose an avatar",
@@ -169,7 +207,6 @@
   "joinRoomPaste": "Paste",
   "joinRoomTitle": "Join a room",
   "largeCards": "Large cards",
-  "lastCard": "LAST CARD",
   "leaderboardAllTime": "All time",
   "leaderboardEmpty": "The leaderboard arrives with online play.",
   "leaderboardLoadFailed": "Could not load the leaderboard.",
@@ -182,14 +219,12 @@
   "leaderboardWeekly": "Weekly",
   "leaderboardYourRank": "Your rank",
   "lobbyAway": "Away",
-  "lobbyConnected": "Connected",
   "lobbyCopied": "Code copied",
   "lobbyEmptySlot": "Waiting for a player",
   "lobbyHost": "Host",
   "lobbyLeave": "Leave room",
   "lobbyNotReady": "Not ready",
   "lobbyNotReadyToggle": "Not ready",
-  "lobbyPlayerSlot": "Seat {index}",
   "lobbyReady": "Ready",
   "lobbyReadyToggle": "I’m ready",
   "lobbyRoomCode": "Room code",
@@ -203,7 +238,7 @@
       }
     }
   },
-  "lobbyStartPending": "Starting online matches arrives in the next update.",
+  "lobbyStartPending": "The match starts once every seat is taken and every player is ready.",
   "lobbyStarting": "The match is about to start…",
   "lobbyTitle": "Lobby",
   "lobbyWaitingForHost": "Waiting for the host to start…",
@@ -215,7 +250,6 @@
   "loginTitle": "Sign in",
   "longestChain": "Longest chain",
   "matchWinner": "WINNER",
-  "matchmakingBody": "Looking for other players…",
   "matchmakingBusy": "You already have a match in progress.",
   "matchmakingCancel": "Cancel search",
   "matchmakingCpuHint": "No other players for now. You can play offline against the computer right away: it does not count for the leaderboard.",
@@ -223,7 +257,6 @@
   "matchmakingElapsed": "Waiting {seconds}s",
   "matchmakingFound": "{found} of {total} players",
   "matchmakingMatched": "Table found!",
-  "matchmakingPending": "Quick match queues are not open yet.",
   "matchmakingPlayers": "Players at the table",
   "matchmakingSearch": "Find a match",
   "matchmakingSearching": "Looking for real players for a table of {count}…",
@@ -323,10 +356,9 @@
   "missionsTitle": "Today’s missions",
   "mode": "Mode",
   "modePassAndPlay": "Pass & Play",
-  "modeVsComputer": "Vs Computer",
+  "modeVsComputer": "Versus computer",
   "music": "Music",
   "networkOffline": "No connection",
-  "networkOnline": "Back online",
   "networkReconnecting": "Reconnecting…",
   "newGame": "New Game",
   "newMatch": "New Match",
@@ -339,22 +371,15 @@
   "onboard3Body": "Create a room, share the code and take on two to four players online.",
   "onboard3Title": "Play with friends",
   "onlineCreateRoomHint": "Invite friends with a code",
-  "onlineDisconnected": "Connection lost",
+  "onlineDisconnected": "Connection lost. Trying to reconnect...",
   "onlineForfeit": "Leave",
   "onlineForfeitBody": "The match will count as a loss and you cannot rejoin.",
   "onlineForfeitTitle": "Leave the match?",
   "onlineJoinRoomHint": "Got a code? Jump straight in",
   "onlineMatchAbandoned": "The match was abandoned",
-  "onlineMoveRefused": "Illegal move",
+  "onlineMoveRefused": "Illegal move.",
   "onlineMoveStale": "The table had changed: try again",
-  "onlineNextRoundAuto": "Next round starts in {seconds}s",
-  "@onlineNextRoundAuto": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
+  "onlineNotYourTurn": "It is not your turn.",
   "onlineOpponentLeft": "{name} left the match",
   "@onlineOpponentLeft": {
     "placeholders": {
@@ -364,18 +389,8 @@
     }
   },
   "onlineQuickMatchHint": "We find you an open table",
-  "onlineReconnecting": "Reconnecting…",
   "onlineRejoinMatch": "Rejoin the match",
   "onlineRejoinMatchHint": "An online match is waiting for you",
-  "onlineRematchAsked": "{name} wants a rematch",
-  "@onlineRematchAsked": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineRematchRequested": "Rematch requested",
   "onlineRematchWaiting": "Waiting for the others ({votes}/{needed})",
   "@onlineRematchWaiting": {
     "placeholders": {
@@ -387,17 +402,7 @@
       }
     }
   },
-  "onlineServerMoved": "The server played for {name}",
-  "@onlineServerMoved": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "onlineSignInRequired": "Sign in or play as a guest to use online features.",
-  "onlineSyncing": "Updating the table…",
-  "onlineTimedOut": "Time is up",
   "onlineTitle": "Play online",
   "onlineTurnSeconds": "{seconds}s",
   "@onlineTurnSeconds": {
@@ -408,15 +413,6 @@
     }
   },
   "onlineUnavailableRetry": "The online service cannot be reached. Offline play is still available.",
-  "onlineWaitingFor": "{name}’s turn",
-  "@onlineWaitingFor": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineYouForfeited": "You left the match",
   "passPhoneHint": "Cards stay face down until you tap",
   "passPhoneTo": "PASS THE PHONE TO {name}",
   "passTurn": "Pass",
@@ -425,13 +421,11 @@
   "pauseTitle": "Paused",
   "penalty": "Penalty",
   "play": "PLAY",
-  "playDrawn": "Play the drawn card",
   "playerName": "Your name",
   "playersCount": "Players",
   "profile": "Profile",
   "profileBestStreak": "Best streak",
   "profileEdit": "Edit profile",
-  "profileLevel": "Level",
   "profileLevelValue": "Level {level}",
   "profileLosses": "Losses",
   "profileMatches": "Matches",
@@ -448,7 +442,6 @@
   "profileSaveFailed": "Could not save your profile. Try again.",
   "profileWinRate": "Win rate",
   "profileWins": "Wins",
-  "profileXp": "Experience",
   "profileXpProgress": "{current} / {target} XP",
   "profileXpToNext": "{xp} XP to go",
   "@profileXpToNext": {
@@ -482,15 +475,18 @@
   "reactions": "Reactions",
   "reduceMotion": "Reduce motion",
   "rematch": "Rematch",
+  "replayAgain": "Replay",
   "replayLastHand": "Replay last hand",
   "resetStatistics": "Reset statistics",
   "resetStatisticsBody": "All local progress will be erased. Continue?",
   "resumeMatch": "Continue match",
   "resumeMatchHint": "Pick up where you left off",
+  "roomAlreadyInMatch": "You already have an online match in progress. Rejoin the table or leave it before opening another.",
+  "roomAlreadyStarted": "The match has already started.",
   "roomCreateFailed": "Could not open the room. Try again.",
   "roomFull": "That room is full.",
   "roomJoinFailed": "Could not join the room. Try again.",
-  "roomNotFound": "No open room has that code.",
+  "roomNotFound": "Room not found.",
   "round": "Round",
   "roundComplete": "ROUND COMPLETE",
   "roundWinner": "Round winner",
@@ -509,11 +505,11 @@
   "ruleVoluntaryDrawHint": "You may draw even holding a card",
   "ruleWildNine": "Cavallo always playable",
   "ruleWildNineHint": "The 9 changes suit at any time",
-  "rulesActiveHint": "The house rules chosen for the table in play.",
   "rulesActiveTitle": "Rules for this match",
   "savedFrom101": "SAFE!",
   "sectionSettings": "SETTINGS",
   "sectionStatistics": "STATISTICS",
+  "sessionExpired": "Session expired. Sign in again.",
   "settings": "Settings",
   "settingsAccount": "ACCOUNT",
   "settingsGuestLogoutBody": "You are a guest: signing out loses this account and its online progress for good.",
@@ -526,12 +522,21 @@
   "settingsLogoutGuest": "Sign out (guest account)",
   "settingsPrivacy": "Privacy policy",
   "settingsTerms": "Terms of service",
+  "setupOtherPlayers": "Other players",
+  "setupPlayerN": "Player {n}",
+  "@setupPlayerN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "setupResetRules": "Reset rules",
   "showPassword": "Show password",
   "signupCta": "SIGN UP",
   "signupHaveAccount": "Already have an account?",
   "signupTitle": "Create an account",
   "soundEffects": "Sound effects",
-  "startChallenge": "ACCEPT THE CHALLENGE",
   "startMatch": "START MATCH",
   "startingHand": "Starting cards",
   "statAces": "Aces used",
@@ -557,8 +562,10 @@
   "suitDenari": "Coins",
   "suitSpade": "Swords",
   "tableRules": "Rules",
+  "tableTaglineMaiolica": "Mediterranean ceramic, cobalt and sun",
+  "tableTaglineNapoli": "Antique gold over the sleeping gulf",
+  "tableTaglineVesuvio": "Warm ash and terracotta glow",
   "tableTheme": "Table",
-  "tableTurnTimer": "Time",
   "takePenalty": "Take",
   "turnSkipped": "TURN SKIPPED",
   "tutAceDone": "{name} skipped a turn. With two players, the Ace hands the turn straight back to you.",

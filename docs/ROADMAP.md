@@ -59,11 +59,15 @@ matchmaking. See `docs/OFFLINE_MODE.md`, `docs/BOTS.md`,
 `docs/PROGRESSION.md` and `docs/SESSION_HANDOFF.md`. The on-device
 accessibility audit still needs a device.
 
-## Session 6 — Release readiness
+## Session 6 — Release readiness ✅ (audit, test, break, fix, verify, polish)
 
-Store assets, privacy policy and terms with real destinations, crash
-reporting, performance pass on low-end Android, signed builds, QA on physical
-devices.
+Full audit of security (server + client), performance, accessibility,
+localisation and hygiene; migration 10 and a redeployed `match` function;
+52-bit deal seeds; release manifest and signing config; the verification
+matrix in `docs/FINAL_VERIFICATION.md`. Still open for the client: the
+rating formula, the XP economy, a signing keystore, store assets, privacy
+policy and terms, physical-device QA (no device was available here), and
+the production Supabase checklist.
 
 ## Explicitly out of scope until asked
 

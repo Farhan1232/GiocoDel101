@@ -27,6 +27,7 @@ import '../../settings/application/settings_controller.dart';
 import '../../profile/application/stats_controller.dart';
 import 'table_cue.dart';
 import 'table_controller.dart';
+import '../../../core/utils/log.dart';
 
 export 'table_controller.dart' show CuePlayer;
 
@@ -469,7 +470,7 @@ class GameController extends TableController {
         } else if (session.canEndTurn) {
           session.endTurn();
         } else {
-          debugPrint('Bot turn stalled for ${seat.id}; ending round loop.');
+          Log.d('Bot turn stalled for ${seat.id}; ending round loop.');
           busy.value = false;
           return;
         }
@@ -567,7 +568,7 @@ class GameController extends TableController {
     } on TimeoutException {
       // The view stalled or was torn down; never block the match on it.
     } catch (error) {
-      debugPrint('cue failed: $error');
+      Log.d('cue failed: $error');
     }
   }
 

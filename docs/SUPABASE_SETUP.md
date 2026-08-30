@@ -96,7 +96,11 @@ Session 3 applied the first four migrations through the Supabase MCP
 (`apply_migration`) and aligned the remote
 `supabase_migrations.schema_migrations` versions with the local filenames;
 the fifth (`fk_covering_indexes`) went through `supabase db push` on the
-linked project. `supabase migration list` shows 5 = 5. Prefer the CLI:
+linked project; Sessions 4–5 pushed with the CLI; Session 6's
+`release_hardening` and `receipt_scope` were applied through the MCP again
+(their remote versions `20260830100111` / `20260830110458` are the MCP's
+timestamps, and the local files are named to match). `supabase migration
+list` shows 11 = 11. Prefer the CLI:
 
 ```bash
 supabase db push            # apply pending local migrations to the linked project

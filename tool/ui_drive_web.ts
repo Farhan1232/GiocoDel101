@@ -21,7 +21,13 @@ const APP = Deno.args[1] ?? "http://127.0.0.1:8787/";
 const URL = "https://fnyllrjchbqfrzezfeso.supabase.co";
 const KEY = "sb_publishable_xO6ZTjeNdRcm2GqLHD9lUw_QjhNlfGe";
 const HOST_EMAIL = "s4-ui-host@example.com";
-const HOST_PASSWORD = "UiHost-2026!";
+// The dev-project test account's password comes from the environment; a
+// credential, even a throw-away one, does not live in the repository.
+const HOST_PASSWORD = Deno.env.get("UI_HOST_PASSWORD") ?? "";
+if (!HOST_PASSWORD) {
+  console.error("UI_HOST_PASSWORD is required (the s4-ui-host test account)");
+  Deno.exit(2);
+}
 
 let failures = 0;
 function check(name: string, ok: boolean, detail?: unknown) {

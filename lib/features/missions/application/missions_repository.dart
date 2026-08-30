@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../domain/mission.dart';
+import '../../../core/utils/log.dart';
 
 enum MissionsError {
   notCompleted,
@@ -74,7 +74,7 @@ class SupabaseMissionsRepository implements MissionsRepository {
       if (row == null) throw const MissionsException(MissionsError.unknown);
       return row;
     } on sb.PostgrestException catch (error) {
-      debugPrint('missions: ${error.code} ${error.message}');
+      Log.d('missions: ${error.code} ${error.message}');
       final m = error.message;
       if (m.contains('not_completed')) {
         throw MissionsException(MissionsError.notCompleted, m);

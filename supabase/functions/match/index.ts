@@ -64,11 +64,17 @@ const admin: SupabaseClient = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+const KNOWN_DB_ERRORS = /^[a-z_]{3,40}$/;
+
 async function rpc<T = any>(fn: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await admin.rpc(fn, args);
   if (error) {
-    // PostgREST surfaces `raise exception 'name'` as message = name.
-    throw new ApiError(pgStatus(error.message), error.message ?? "db_error", error.details ?? undefined);
+    // PostgREST surfaces `raise exception 'name'` as message = name. Anything
+    // else (constraint text, SQL fragments) stays in the function log.
+    const message = error.message ?? "";
+    if (KNOWN_DB_ERRORS.test(message)) throw new ApiError(pgStatus(message), message);
+    console.error(`match: ${fn} failed`, error);
+    throw new ApiError(500, "internal");
   }
   return data as T;
 }
@@ -78,6 +84,7 @@ function pgStatus(message: string | undefined): number {
     case "not_a_participant":
     case "not_a_member":
     case "not_the_host":
+    case "already_in_match":
       return 403;
     case "match_not_found":
     case "room_not_found":
@@ -87,6 +94,7 @@ function pgStatus(message: string | undefined): number {
     case "room_not_startable":
     case "match_not_in_progress":
     case "match_not_finished":
+    case "action_id_taken":
       return 409;
     default:
       return 500;
@@ -125,10 +133,12 @@ function ms(ts: string | null | undefined): number | null {
   return Number.isNaN(t) ? null : t;
 }
 
-function seed31(): number {
-  const buf = new Uint32Array(1);
+/** 52 random bits: wide enough that the deal cannot be brute-forced from a
+ * dealt hand, and exact in the engine's number arithmetic (< 2^53). */
+function seed52(): number {
+  const buf = new Uint32Array(2);
   crypto.getRandomValues(buf);
-  return buf[0] & 0x7fffffff;
+  return (buf[0] & 0xfffff) * 0x100000000 + buf[1];
 }
 
 // ------------------------------------------------------------------ ops
@@ -165,11 +175,12 @@ async function opAction(userId: string, body: any) {
   if (a.type === "chooseSuit" && !SUIT.test(String(a.suit))) throw new ApiError(400, "bad_request", "action.suit");
 
   for (let attempt = 0; attempt < 3; attempt++) {
-    const receipt = await rpc("srv_find_receipt", { p_match_id: matchId, p_action_id: actionId });
+    // Membership first (not_a_participant), then the caller's own receipts.
+    const ctx = await rpc<Ctx>("srv_load_match", { p_match_id: matchId, p_user_id: userId });
+    const receipt = await rpc("srv_find_receipt", { p_match_id: matchId, p_action_id: actionId, p_user_id: userId });
     if (receipt) {
       return { ok: true, duplicate: true, accepted: receipt.accepted, failure: receipt.failure, version: receipt.version };
     }
-    const ctx = await rpc<Ctx>("srv_load_match", { p_match_id: matchId, p_user_id: userId });
     if (ctx.match.status !== "in_progress") {
       return { ok: false, accepted: false, failure: "gameFinished", version: ctx.match.version, status: ctx.match.status };
     }
@@ -178,7 +189,7 @@ async function opAction(userId: string, body: any) {
       // A concurrent copy of THIS request may have just won the race between
       // our receipt lookup and our state load: answer with its receipt, not
       // with "stale", so a double tap never looks like a refusal.
-      const late = await rpc("srv_find_receipt", { p_match_id: matchId, p_action_id: actionId });
+      const late = await rpc("srv_find_receipt", { p_match_id: matchId, p_action_id: actionId, p_user_id: userId });
       if (late) {
         return { ok: true, duplicate: true, accepted: late.accepted, failure: late.failure, version: late.version };
       }
@@ -241,6 +252,7 @@ async function opTimeout(userId: string, body: any) {
   if (ctx.match.status !== "in_progress") {
     return { ok: false, failure: "gameFinished", version: ctx.match.version, status: ctx.match.status };
   }
+  if (ctx.me.forfeitedAt) return { ok: false, failure: "invalidPlayer", version: ctx.match.version };
   const state = ctx.state;
   const nowMs = ms(ctx.match.now) ?? Date.now();          // the DATABASE clock
   const deadlineMs = ms(ctx.match.turnDeadlineAt);
@@ -280,6 +292,11 @@ async function opTimeout(userId: string, body: any) {
       p_actions: applied,
       p_kind: plan.kind,
     });
+    if (plan.kind === "forfeit" && current) {
+      // Like a voluntary forfeit: out of the room too, so a rematch vote
+      // never waits on a seat that is no longer there.
+      await rpc("srv_remove_seat", { p_room_id: ctx.match.roomId, p_user_id: current.userId });
+    }
     return { ok: true, kind: plan.kind, version: commit.version, status: commit.status, events, turnDeadlineAt: commit.turnDeadlineAt };
   } catch (e) {
     if (e instanceof ApiError && e.code === "stale_version") {
@@ -340,9 +357,9 @@ async function dealAndCommit(
     gameId: matchId,
     players,
     rules,
-    seed: seed31(),
+    seed: seed52(),
     mode: "passAndPlay",
-    startingSeat: seed31() % players.length,   // the server picks who opens
+    startingSeat: seed52() % players.length,   // the server picks who opens
     now: Date.now(),
   });
   if (!created.ok) throw new ApiError(400, created.failure, created.message);
@@ -425,6 +442,6 @@ Deno.serve(async (req: Request) => {
       return json({ ok: false, error: e.code, detail: e.message }, e.status);
     }
     console.error("match: unhandled", e);
-    return json({ ok: false, error: "internal", detail: String(e) }, 500);
+    return json({ ok: false, error: "internal" }, 500);
   }
 });

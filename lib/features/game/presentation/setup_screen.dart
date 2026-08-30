@@ -45,9 +45,19 @@ class _SetupScreenState extends State<SetupScreen> {
     text: _settings.settings.playerName,
   );
 
+  /// One controller per guest seat, created once: a controller built inside
+  /// `build` is never disposed and drops the caret on every rebuild.
+  late final List<TextEditingController> _guestNames = [
+    for (var i = 0; i < 3; i++)
+      TextEditingController(text: _setup.passAndPlayNames[i]),
+  ];
+
   @override
   void dispose() {
     _name.dispose();
+    for (final c in _guestNames) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -199,7 +209,11 @@ class _SetupScreenState extends State<SetupScreen> {
     ),
     child: Row(
       children: [
-        IconPill(icon: AppIcon.back, onTap: Get.back<void>),
+        IconPill(
+          icon: AppIcon.back,
+          tooltip: Strings.s.commonBack,
+          onTap: Get.back<void>,
+        ),
         Expanded(
           child: Text(
             title,
@@ -251,28 +265,25 @@ class _SetupScreenState extends State<SetupScreen> {
   );
 
   Widget _passAndPlayNames(Color accent) {
+    final s = Strings.s;
     return _block(
-      'Altri giocatori',
+      s.setupOtherPlayers,
       Column(
         children: [
           for (var i = 0; i < _setup.playerCount.value - 1; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: TextField(
-                controller:
-                    TextEditingController(text: _setup.passAndPlayNames[i])
-                      ..selection = TextSelection.collapsed(
-                        offset: _setup.passAndPlayNames[i].length,
-                      ),
+                controller: _guestNames[i],
                 maxLength: 16,
                 style: AppText.body,
                 cursorColor: accent,
                 onChanged: (v) => _setup.passAndPlayNames[i] = v.trim().isEmpty
-                    ? 'Giocatore ${i + 2}'
+                    ? s.setupPlayerN(i + 2)
                     : v.trim(),
                 decoration: InputDecoration(
                   counterText: '',
-                  hintText: 'Giocatore ${i + 2}',
+                  hintText: s.setupPlayerN(i + 2),
                 ),
               ),
             ),
@@ -490,7 +501,7 @@ class _SetupScreenState extends State<SetupScreen> {
                       bottom: AppSpacing.md,
                     ),
                     child: PremiumButton(
-                      label: 'Ripristina regole',
+                      label: Strings.s.setupResetRules,
                       variant: ButtonVariant.ghost,
                       size: ButtonSize.small,
                       expand: false,

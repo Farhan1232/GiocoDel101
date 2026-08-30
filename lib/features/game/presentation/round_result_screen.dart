@@ -71,6 +71,14 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
         ),
       );
     }
+    if (c.lastRoundResult.value == null) {
+      // Opened for a round that is already over and dealt: nothing to show.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && Get.currentRoute == AppRoutes.roundResult) {
+          Get.back<void>();
+        }
+      });
+    }
     _dealtElsewhere = ever<RoundResult?>(c.lastRoundResult, (value) {
       // Another seat (or the server's 30 s deal) started the next round:
       // this sheet has nothing left to say.

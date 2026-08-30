@@ -1,284 +1,201 @@
-# Session Handoff — Session 5 → Session 6
+# Session Handoff — Session 6 → next phase (monetisation & stores)
 
 Date: 2026-08-30. Branch: `feature/session-1-ui-foundation` (continued; the
-Session 5 checkpoint commit sits on top of Session 4's `6c9a1c6`).
+Session 6 commit sits on top of Session 5's `64388e3`).
 
-Sessions 1–4 handoffs are in git history at their checkpoints; what still
-matters from them is summarised in §7.
+Session 6 added **no feature**. It audited, broke, fixed, verified and
+polished what Sessions 1–5 built. The feature-by-feature evidence table is
+`docs/FINAL_VERIFICATION.md`; this file is the narrative, the numbers and
+what is still open.
 
 ---
 
-## 0. What Session 5 delivered
+## 0. What Session 6 found and fixed
 
-**The offline game, the bots, and the player-retention layer — on the same
-engine, without touching how online play works.** Full narratives:
-`docs/OFFLINE_MODE.md`, `docs/BOTS.md`, `docs/PROGRESSION.md`.
+Four parallel read-only audits (server security, client performance,
+hygiene/localisation/theme, cards/layout/accessibility) plus a live
+inspection of `GiocoDel101-Dev`. Everything below was **reproduced or read
+in the code first**, then fixed, then re-verified.
 
-### Offline play (works with no network at all)
-- 1 human + 1/2/3 bots and pass & play, all through `GameSession` →
-  `GameEngine` — the one rule set (`docs/GAME_ENGINE.md`). No card rule is
-  duplicated anywhere in the bots or the UI.
-- **Pause / resume** (`TableController.pause()`; `PauseOverlay` with sound,
-  music and vibration switches, the rules and exit): bots finish their
-  "thinking" pause and then wait; input is refused; the app going to the
-  background pauses the table and flushes the save (`app.dart`).
-- **Continua partita**: the live `GameState` is saved (coalesced, 350 ms)
-  after every state change and immediately on leaving; Home offers the
-  card; `MatchLauncher.resume()` restores the canonical state. Fixed a real
-  resume bug: a save taken while the Suit Ritual was open restored to a
-  table that could not be played (`pendingSuitChoice` is now rebuilt in
-  `GameController.onInit`; `test/session5_offline_test.dart`).
-- Quit confirmation (offline: autosave; online: forfeit; tutorial: plain
-  exit), round/match result, rematch, "Nuova partita".
-- **Bot thinking delay** (420–900 ms, `AppDurations.botThinkMin/Max`,
-  scaled by the speed setting / Reduce Motion) plus a visible "thinking"
-  indicator on the active bot seat (`ThinkingDots`).
-- **Deal animation** (`DealCue` → `GameScreen._animateDeal`): a fresh match
-  and every new round are dealt round-robin from the stock; a resumed match
-  simply appears. Draw / play / Asso skip / +2 Chain Storm / Cavallo Suit
-  Ritual / victory were already there and are unchanged.
-- **CENTOUNO!** — `CentounoFlourish`: the word in struck gold with one slow
-  sheen, the Fate Ring completing and resetting, the score counting
-  101 → 0. Shown full-stage on the round-result screen and in the tutorial.
-  Static under Reduce Motion. No confetti.
-- Reactions: the eight local lines, bubble animation, **2 s cooldown**
-  (`GameController.reactionCooldown`, the same gap the server enforces),
-  sound through the effects toggle.
-- Audio: the project's own 17 synthesized assets (`docs/ASSET_INVENTORY.md`)
-  — nothing downloaded. Music, effects and vibration toggles were already
-  wired; they are now also on the pause sheet.
+### Server (migrations 10 `20260830100111_release_hardening.sql` and 11 `20260830110458_receipt_scope.sql`, `match` function redeployed)
 
-### Bots (`lib/features/game/domain/ai/`)
-`BotStrategy` with `EasyBot` (random legal card, spots the winning card,
-40 % random suit), `NormalBot` (weighted: shed high cards, suit control,
-Asso/2 timed against the next seat's hand size, +2 answered, Cavallo held
-until the endgame, suit = longest suit) and `HardBot` (Normal plus counting
-the cards that went by, exploiting suits an opponent could not follow,
-scarcity, danger/endgame weighting, pressure on a doomed opponent, keeping a
-2 as an answer, aimed Asso/2 at a one-card hand). Personalities (Marco,
-Sofia, Luca, Giulia) scale the weights. **No hidden information exists in
-`BotView`**: no opponent hand, no stock order, no seed — cheating is
-impossible to express (`test/bot_test.dart` proves two tables that differ
-only in hidden cards yield the same move).
+| Finding | Severity | Fix |
+|---|---|---|
+| 31-bit deal seed: a modified client with the engine could enumerate 2³¹ deals until one matched its own hand and know every card | **high** | `seed52()`; `_seededRandom` folds the high bits in with arithmetic (dart2js-safe); two wide-seed conformance fixtures prove VM = JS; 41 old fixtures byte-identical |
+| A seat at a live match could `create_room` / `join_room` (only the queue refused) — observed: one user at **four** stalled tables on the dev project | med | `app_private.assert_not_in_match` in all three; `join_room` also answers `match_already_started` |
+| Instant-forfeit result farming with a throw-away guest (+1 win, +65 XP, streak, badges for three requests) | med | `settle_match` records nothing when the match ended by forfeit before a completed round (provisional — §5) |
+| Refused actions logged the card the actor holds; every seat reads the log | med | card stripped from the log; ≤ 100 refusals per seat per match |
+| `rooms.rules` unvalidated, unbounded, straight into the engine | med | `sanitize_room_rules` (key allow-list, types, ranges, ≤ 4 KB) |
+| Receipt lookup before the membership check, unscoped | low | membership first; `srv_find_receipt(match, action, user)`; the lookup inside `srv_commit_action` refuses another seat's receipt (`action_id_taken`, migration 11 — the matrix's new hardening area caught that the first fix was incomplete) |
+| `timeout` accepted from a forfeited caller; a third-strike forfeit left the seat in the room and blocked the rematch vote | low | refused / seat removed |
+| Unmapped Postgres errors echoed verbatim (`Key (…) already exists`) | low | `{error: "internal"}` + function log |
+| `handle_new_user` could end a nickname with a space (fails the trimmed check → **sign-up fails**); invisible/bidi characters accepted | low | trim after cut; check constraint |
+| Stale `matched` queue row after leaving the lobby by another door | low | membership re-checked |
+| All-absent tables waited 24 h; receipts grew forever | low | abandoned after 1 h with no action and no heartbeat; receipts pruned after 7 days |
+| `app_private` functions had default `EXECUTE` for everyone (schema `USAGE` already refused) | low | revoked, default privileges too |
 
-### Interactive tutorial (`lib/features/tutorial/`)
-Eight lessons, each a fixed `GameState` the real engine plays on the real
-table (`TutorialController` implements `TableController`; `TutorialScreen`
-is `GameScreen` plus a lesson card): seme o valore → pescare (and play the
-drawn card) → Asso → Due → catena di Due (+4) → Cavallo (and the Suit
-Ritual) → Cavallo contro il 2 (block) → **Centouno!** (your last card puts
-Marco on exactly 101). Only the asked-for card lights up; a wrong card is
-refused with a hint; the scripted opponent is the Normal bot on a hand
-chosen so its reply is the one the lesson wants to show. No statistics, no
-saves, no results screen. `test/session5_tutorial_test.dart` proves every
-lesson holds 40 distinct cards and that every asked-for move is legal and
-has the described effect, then walks the whole course through the
-controller.
+### Client
 
-### Rules screen
-Ten illustrated pages as before, plus: opened from a table it shows
-**"Regole di questa partita"** — the actual `GameRules` of that match and
-its turn timer (`_ActiveRulesPanel`); opened from Home it offers the
-tutorial.
+| Finding | Fix |
+|---|---|
+| **Release APK had no `INTERNET` permission** (only the debug/profile manifests did) — online play impossible in any release build | added to `main/AndroidManifest.xml` |
+| Realtime reconnect **churn loop**: closing the old channel reported `closed` to the same callback, which re-armed the reconnect and tore down the healthy new channel — forever, on every app resume | subscription generation gate; `connected` cancels the pending reconnect |
+| The **whole table rebuilt once a second** online: `TableSessionStatus` had no `==` and the top bar read it inside the screen-wide `Obx` | value semantics + a scoped `Obx` around the timer ring and connection dot |
+| Polls (6 s snapshot, 10 s heartbeat, 1 s clock) kept running after the match finished | stopped in `_maybeFinish`. (An attempt to stretch the snapshot poll to 18 s while the socket is healthy was **reverted**: with a missed Realtime UPDATE the Chrome host learned of its turn too late and was forfeited after three timeouts — the 6 s poll is load-bearing for the turn timer) |
+| Offline `MatchLauncher` registered the driver route-scoped; with `replace: true` (CPU fallback, offline rematch) GetX deleted it as soon as the launching route was disposed — bots would stop | `permanent: true` + `MatchLauncher.dismiss()` on exit / home; regression test |
+| Lobby showed raw error text (`e.detail ?? e.error.name`, raw server codes) in two places | mapped to Italian/English copy; lobby poll coalesced |
+| **Online round-result sheet could open empty and never close** (found only by the headless-Chrome driver): `GameScreen` pushed the sheet 520 ms after `lastRoundResult` was set without re-checking it; a fast opponent dealing the next round inside that beat left the host behind a blank "Round completato" — its turns timed out and the server forfeited it after three strikes (runs 4 and 5 of the driver) | the delayed navigation re-checks the result and the route; a sheet built with no result pops itself; regression test |
+| Card flights changed `elevation` per frame → shadow blur re-rasterised up to 28 cards per frame during a deal | constant elevation |
+| Felt ambient layer repainted every frame for the whole match | time quantised to 24 steps |
+| Matchmaking: a vanished queue row never re-enqueued (`_search` refused while `_searching`) | fixed |
+| Setup screen built a `TextEditingController` per rebuild | one per seat, disposed |
+| `xp_bar` caption overflowed 320 px / large text (Home, Missions) | `Flexible` + ellipsis (the only overflow in 154 screen×size×scale cases) |
+| Cards, hand and discard pile had **no semantics**; icon pills unlabeled | `cardDisplayName` (localised), `Semantics` on `PlayingCard`, hand cards, discard, every back/reactions pill |
+| Contrast: `textMuted #7A7285` (off-palette, 3.3:1), ivory on terracotta buttons (2.8:1) | muted = `#B6AC9C` at 80 %; dark ink on danger buttons |
+| Hand-fan tap step could fall to 25 px; settings rows not tappable | `minStep ≥ 48`; the row toggles its switch |
+| OS reduce-motion flag ignored; hand shake ignored the setting | `Motion.systemReduceMotion` from `MediaQuery.disableAnimations` |
+| ~20 hardcoded Italian literals (setup names, replay sheet, daily challenges, theme taglines) broke the English locale | localised |
+| Missing copy from the brief | `Stanza non trovata.`, `La partita è già iniziata.`, `Connessione persa. Tentativo di riconnessione...`, `Mossa non valida.`, `Non è il tuo turno.`, `Sessione scaduta. Accedi di nuovo.` (shown once by the app shell when a session the player did not end goes away) |
+| "seme" vs the brief's "palo" | all Italian copy now says **palo / pali** (`Scegli il palo`, `Palo attivo`, `Rituale dei Pali`) — §5 |
+| `debugPrint` in 38 places prints in release too | `Log.d` (debug builds only) |
+| Unused code / assets | `FlippingCard`, `CardBackInks`, `BotProfile.blurb`, `DailyChallenge.reward`, 28 unused ARB keys removed; `OFL-Cinzel.txt` / `OFL-Manrope.txt` now bundled and registered |
+| Template leftovers | web title/description/theme colour, white Android launch flash, `ic_launcher_background`, gradle `TODO`s; release signing reads `android/key.properties` when present |
+| Test-account password in `tool/ui_drive_web.ts` | `UI_HOST_PASSWORD` from the environment |
+| Create/Join Room footer still said "L’avvio delle partite online arriva con il prossimo aggiornamento" (Session 3 placeholder, spotted in the driver's screenshot) | "La partita parte quando tutti i posti sono occupati e ogni giocatore è pronto." |
 
-### Statistics — two ledgers, never mixed
-- Offline (`StatisticsModel`, local): matches, rounds, cards, chains,
-  101s, streaks, achievements, **offline XP** (`xp`, 20 per match + 45 per
-  win, plus offline mission rewards; migrated from the old derived number so
-  nobody's level drops) and today's mission counters.
-- Online (`profiles` / `player_stats`, server-owned): shown read-only on the
-  Statistics tab under "ONLINE — PROFILO" and on the Profile screen.
-- **Offline games never touch `profiles.rating`, the leaderboard, online XP
-  or online achievements** — there is no code path from the local ledger to
-  the server.
-
-### Leaderboard
-Real `public.leaderboard(scope, limit, offset)` in pages of 25 with "Carica
-altri", weekly (`weekly_points`, ISO week Europe/Rome) and all-time
-(`profiles.rating`), the player's row highlighted, and a pinned **"La tua
-posizione"** row from `my_leaderboard_rank(scope)` when the player is not
-on the loaded pages (or "not ranked yet"). No fake users. Errors show a
-retry.
-
-### Achievements — Prima Vittoria, Centouno!, Vendetta, Maestro del Nove, Imbattibile, Veterano (+ Catena, Mano Perfetta, Sfidante)
-- Offline: `StatisticsService` as before, local only.
-- **Online: server-validated.** Migration 8 adds `match_round_results`
-  (written by `srv_commit_action` from the engine's `lastRoundResult` when a
-  round ends) and `app_private.evaluate_achievements`, run by
-  `settle_match` after `record_match_result` — the rules per badge are in
-  `docs/PROGRESSION.md`. The client only reads `user_achievements`;
-  `AchievementsScreen` shows the union, labelled "Sbloccato online" /
-  "Sbloccato offline".
-
-### Progression
-Level ladder unchanged (120 + 40/level, identical in `LevelLadder` and
-`app_private.level_for_xp`). Profile shows level, XP into the level, the
-next level and the XP to go. Online XP moves only through
-`app_private.grant_xp` (match results, mission claims).
-
-### Daily missions — 7-day cycle
-`MissionCatalog.rotation` (Dart) = `app_private.mission_rotation(isodow)`
-(SQL): Mon–Sun, three missions a day — play 2/3 matches, win 1/2, play 3/4
-Assi, play 3/4 twos, use 1–3 Cavalli, block a +2, complete 1–2 online
-matches. Online: rows are materialised by the server for the Europe/Rome
-day, progress is written **only** by `srv_commit_action` (the actor's own
-accepted Asso / 2 / Cavallo / Cavallo-into-chain) and `settle_match`
-(matches, wins, online matches), and `claim_mission_reward` re-checks the
-date, completion and prior claim on the database clock before granting XP.
-Offline: the same rotation, counted from the person's own plays at the local
-table, rewarded with local XP only; `online_match` is shown as online-only.
-`MissionsScreen` shows both halves; the Home "Missioni" card counts them.
-
-### Settings
-Italian/English, music, sound, vibration, reduce animation, large cards,
-logout — and a **guest logout with a warning** that the account and its
-online progress are lost for good (guests previously had no way out).
-
-### Online resilience
-Every online screen already handled "not configured" and "not signed in";
-matchmaking now also shows a real "service unreachable" message with the
-offline game one tap away. Nothing online can crash the offline game: the
-backend seam is `BackendServices.none()` when Supabase is absent.
-
-### "Continua contro CPU"
-`MatchmakingScreen`: after 30 s in the queue with nobody else
-(`cpuOfferAfterSeconds`) the screen offers an **offline** match against
-bots for the same table size. It cancels the queue for real and launches
-`MatchFactory.vsComputer`; the seats are the bot roster's, nothing is
-ranked, and no bot is ever presented as a human
-(`test/session5_screens_test.dart`).
-
-### Server (migrations 8 and 9, applied to GiocoDel101-Dev)
-`20260830120000_progression_missions.sql`, `20260830123000_claim_mission_fix.sql`
-— see `docs/DATABASE_SCHEMA.md` and `docs/SECURITY.md`. The engine did
-**not** change: `engine.js` is byte-identical, no redeploy of the `match`
-function was needed, the 41 conformance fixtures and the 48 Deno tests are
-untouched.
-
-### Not done, deliberately
-- No rating formula (§12b still unconfirmed — deltas remain 0).
-- XP amounts (20/45, mission rewards) remain provisional placeholders.
-- No online bots at online tables (the CPU offer is an offline match).
-- No AdMob / IAP / publishing (as instructed).
+### Left alone on purpose
+- `CardAsset.imagePath` (documented future work), `preview/*.png` contact
+  sheets, `env/supabase.dev.json.example` holding the dev project's
+  publishable key (public by design, and the tools depend on it).
+- No AdMob, IAP, subscriptions or store work — next phase.
 
 ---
 
 ## 1. Verification — exactly what ran
 
-### Local gates
+### Local gates (final tree)
 
 | Gate | Result |
 |---|---|
 | `dart format lib test tool` | clean |
 | `flutter analyze` | **No issues found** |
-| `flutter test` | **501/501 passed** (454 baseline + 47 new) |
-| `deno test --allow-read supabase/functions/match/` | **48/48** (engine unchanged) |
-| `dart run tool/bot_simulation.dart` | **270 matches (Easy/Normal/Hard × 2/3/4 players × 30), 90 796 actions, 0 invariant violations, 0 hangs, 0 illegal proposals, ~3.5 s.** Every combination exercised reshuffles, +2 chains up to length 4, Cavallo blocks, Asso skips and penalty draws; exact-101 resets occurred in 8 of the 9 combinations (none happened to fall in easy × 2 players on these seeds). Invariants checked after every step: exactly 40 cards, no duplicates, discard never empty, current seat live, no negative counts, every bot move accepted by the engine, termination, finished state stable (further actions refused, version unchanged), exactly one winner |
-| `flutter build apk --debug` | **ok** — `build/app/outputs/flutter-apk/app-debug.apk` (Gradle `assembleDebug`, 520 s on this machine); not installed anywhere (no device) |
-
-New tests this session: `test/bot_simulation_test.dart` (10),
-`test/session5_tutorial_test.dart` (19), `test/session5_offline_test.dart`
-(10), `test/session5_screens_test.dart` (8). Two existing tests were updated
-for the explicit offline `xp` counter.
+| `flutter test` | **515/515** (505 before Session 6 + 10 in `test/session6_release_test.dart`) |
+| `deno test --allow-read supabase/functions/match/` | **50/50** (43 conformance fixtures incl. two wide-seed ones + 7 timeout tests) |
+| `deno check supabase/functions/match/index.ts` | clean (added to the routine after a missed `seed31` reference reached the dev deployment for eight minutes — see below) |
+| `dart run tool/bot_simulation.dart` | **270 matches, 90 796 actions, 0 invariant violations, 0 hangs, 0 illegal proposals** |
+| `flutter build apk --debug --dart-define-from-file=env/supabase.dev.json` | ok — `build/app/outputs/flutter-apk/app-debug.apk` (178 MB), rebuilt from the final tree |
+| `flutter build apk --release …` | ok — `build/app/outputs/flutter-apk/app-release.apk` (59.7 MB), **debug-signed** (no `key.properties`) |
+| `flutter build appbundle --release …` | ok — `build/app/outputs/bundle/release/app-release.aab` (57.6 MB), debug-signed |
+| `flutter build web` | ok (1 min 17 s), used by the headless-Chrome driver |
 
 ### Remote — GiocoDel101-Dev (`fnyllrjchbqfrzezfeso`)
 
-**Online regression, `tool/online_matrix.dart`** (five independent
-authenticated clients, the deployed `match` function, migrations 8–9 live):
+Inspected through the Supabase MCP before any change: 9 migrations
+(11 after), 1 Edge Function, every table RLS-enabled with
+SELECT-only client grants, `srv_*` service-role only, two pg_cron sweeps
+running every 10 min, no duplicate seats/members, no orphan engine state,
+no duplicate daily-reward rows, an empty queue — and the four stalled
+4-seat tables described above (now `abandoned`). Advisors: the only real
+item is **leaked-password protection disabled** (known production
+checklist); the SECURITY DEFINER and "anonymous access" warnings are the
+intended RPC/guest design.
 
-| Run | Scope | Result |
-|---|---|---|
-| quick (`MATRIX_QUICK=1`, 733 s) | 2-player to 101 + every section except the 3/4-player games | **99/100** — every functional area PASS (private room, private hands 20/20, concurrency & attacks 12/12, 2-player, match result, rematch, reconnect, realtime, reactions, RLS, turn timer, forfeit/leave, quick match 15/15, 9 block). The one FAIL is the aggregate "draw pile recycled across the games (0×)": in quick mode only the 2-player game runs and that deal happened to finish without exhausting the stock — a luck-of-the-deal statistic, not a behaviour change |
-| **full** (`MATRIX_SKIP_TIMEOUT=1`, 1711 s, after migrations 8–9) | **ALL PASS — 22/22 areas, 130/130 checks.** 2-player to 101 (384 actions, 12 rounds, 23 Assi, 20 Due, 29 Cavalli, max chain 3, 2 reshuffles), 3-player to 45 (227 actions, 8 rounds), 4-player to 45 with 8-card hands (245 actions, 5 rounds, max chain 4, 3 Cavallo blocks, 5 reshuffles); 0 app-engine moves refused by the server; match result 21/21 (placements, `is_winner`, XP 65/20, profiles moved server-side) |
+**Baseline** `tool/online_matrix.dart` (full, before Session 6's changes,
+1465 s): every area PASS except REALTIME 3/5 — two `postgres_changes`
+UPDATE events were not received within the wait window. Session 5's full
+run had passed the same checks; treated as delivery latency on the free
+tier and re-checked below.
 
-**Progression, `tool/progression_smoke.dart`** (new; two fresh users play a
-complete 2-player match through the function, then every Session 5 server
-path is checked):
+**After** (migration 10 + redeployed function, full run):
 
 | Run | Result |
 |---|---|
-| 1 (migration 8 only) | 81 checks, **5 FAIL — a real bug**: `claim_mission_reward` failed with `column reference "mission_id" is ambiguous` (its `RETURNS TABLE` names shadowed the table columns). Everything else PASS: profiles +1 match / XP 65 & 20 / level; `match_round_results` 18 rows = 2 seats × 9 rounds with one round winner each, agreeing with every client-observed `lastRoundResult`; `prima_vittoria` for the winner only, `mano_perfetta` where the server saw a no-draw round win, `maestro_semi` for a winner who named all four suits, `rinascita`/`catena` correctly absent; missions `play_aces 3/3`, `use_nine 3/3` (capped), `online_match 1/2`; client writes to `user_daily_missions` / `daily_missions` refused (42501), `app_private.track_mission` unreachable; leaderboard pages 1..25 / 26.., own rank consistent with paging, weekly points = 65, legacy two-argument call still works |
-| 2 (after migration 9, 582 s) | **81 checks, 0 failures.** Match: 330 actions, 11 rounds, winner A; 22 `match_round_results` rows (2 × 11) matching the 11 rounds both clients saw; XP 0 → 65 (winner) / 20; `play_aces` claim +25 XP (65 → 90, level consistent), second claim → `already_claimed` with XP unchanged, incomplete `online_match` (1/2) → `not_completed`, random id → `mission_expired`, progress untouched by the refused attempts; all Session 5 write-protection and leaderboard checks PASS again |
+| **full** (2377 s, five independent users, deployed function + migration 10) | **22 of 23 areas PASS, 156/157 checks.** SETUP 1/1 · PRIVATE ROOM 6/6 · PRIVATE HAND SECURITY 20/20 · CONCURRENCY & ATTACKS 14/14 · 2 PLAYER 2/2 · MATCH RESULT 21/21 · REMATCH 8/8 · RECONNECT 3/3 · **REALTIME 5/5** (the baseline's two misses did not recur) · REACTIONS 5/5 · RLS 9/9 · TURN TIMER 7/7 · FORFEIT / LEAVE 4/4 · QUICK MATCH 15/15 · 3 PLAYER 3/3 · 4 PLAYER 3/3 · ASSO, +2, STACKING, 9, RESHUFFLE, 9 BLOCK all PASS. Games: **2-player to 101** — 495 actions in 822 s, 15 rounds, 32 Assi, 24 Due, 37 Cavalli (2 blocks), max chain 2, 0 refused; **3-player to 45** — 126 actions, 4 rounds, 10 Assi, 9 Due, 12 Cavalli (1 block), 5 penalty draws, 0 refused; **4-player to 45, 8-card hands** — 448 actions in 1162 s, 7 rounds, 33 Assi, 35 Due, 41 Cavalli (2 blocks), max chain 3, 26 penalty draws, **6 reshuffles**, 0 refused. The one FAIL was in the **new** SESSION 6 HARDENING area (21/22): "another seat reusing an action id is judged afresh" — `srv_commit_action`'s own receipt lookup still matched on `(match, action)` only. Fixed by migration 11 (`action_id_taken`), redeployed, re-run below |
+| **quick** (`MATRIX_QUICK=1`, 784 s, after migration 11 + redeploy) | **ALL PASS — 17 areas, 144/144 checks**, SESSION 6 HARDENING **22/22**: the reused action id is now answered `409 action_id_taken` |
 
-### Real app
-No phone or emulator on this machine (§2). The Session 4 headless-Chrome
-driver (`tool/ui_drive_web.ts`) was not re-run this session; the online
-client code paths it exercised were not changed (see "Do not let offline
-changes break online" below).
+**Progression** `tool/progression_smoke.dart` (after):
 
-### Do not let offline changes break online — what was checked
-- `OnlineMatchController` untouched except one added `DealCue` sound case
-  in its cue switch (it never emits a `DealCue`).
-- `TableController` gained defaults only (`paused`, `canPause`,
-  `isTutorial`, `showsCoachMarks`); the online driver inherits them.
-- `srv_commit_action` was re-created with the same contract plus the round
-  record and mission ticks; the full matrix above is the regression.
-- `test/session4_online_test.dart` (controller against the in-process fake
-  server) still passes in the suite.
+| Run | Result |
+|---|---|
+| after migration 10 + redeploy (322 s) | **81 checks, 0 failures.** Two fresh users play a complete 2-player match through the function (winner A); XP 0 → 65 (winner) / 20; `match_round_results` rows agree with what both clients saw; `prima_vittoria` for the winner only; missions `play_aces 3/3`, `use_nine 3/3`, `online_match 1/2`; `play_aces` claim +25 XP (65 → 90), second claim → `already_claimed`, incomplete → `not_completed`, unknown id → `mission_expired`; client writes to `user_daily_missions` / `daily_missions` refused (42501); leaderboard pages and own rank consistent; the forfeit-before-round rule did **not** touch a normally finished match |
 
-### Dev-project state left behind
-Test accounts `s4-*@example.com`, `s5-prog-*@example.com`, their rooms,
-finished matches, `match_round_results`, `user_achievements` and
-`user_daily_missions` rows.
+**Real app** `tool/ui_drive_web.ts` (the web build of the app in headless
+Chrome as the host, driven only through its semantics tree; three
+independent supabase-js guests):
+
+| Run | Result |
+|---|---|
+| 1–2 (before the round-result fix) | booted, signed in, created the room, three independent guests joined and readied, host started, table reached (14 PASS) — then the host stopped acting after round 1 and was forfeited: the blank round-result sheet described above |
+| 3 and 7 | refused at "Crea stanza" with **`already_in_match`** — the new guard doing its job on a host still seated at the previous run's table; swept, re-run |
+| 6 (profile bundle, readable stack) | the three `pageerror: Cannot read properties of null (reading 'toString')` lines in every run are Flutter's web `KeyboardConverter` choking on puppeteer's synthetic key events during login typing — engine code, not the app, harmless to play |
+| **8 (final tree, 1303 s)** | **19/19 PASS, exit 0.** Boot → semantics tree → account landing → real login → Home → room created → code read → three guests signed up, joined by code, readied → lobby showed them → host pressed Start → table → 4-player match to the end: 334 guest actions, 23 host turns through the UI, 8 rounds, **finished** with the host's screen on the result; server logged the host's own actions and never forfeited it; winner and placements recorded (winner 65 XP, others 20); guest profile updated |
+
+Caveat: the driver only presses Pesca / Passa / Prendi (cards carry semantics
+now, but it was written before they did), and it gives the host 12 s per turn
+to find a button in the semantics tree; the host still collected two timeouts
+in run 8, so on a 30 s timer a slow client is not comfortable. Worth a look on
+a real phone.
+
+### The one regression Session 6 caused, and caught
+The first redeploy still called the removed `seed31()` at two sites
+(`ReferenceError` in the function log): `start` answered 500 for eight
+minutes on the dev project and the first post-fix matrix run failed at
+"host started the match". Fixed, `deno check` added to the routine,
+redeployed, re-run. Nothing was persisted by the failing calls.
 
 ### Not verified
-- Android / iOS on a device or emulator (none available).
-- Missions keyed to weekdays other than the run day are covered by unit
-  tests of the rotation, not by a server run on each weekday.
+- Anything on a physical Android/iOS device or an emulator (none on this
+  machine); the APK/AAB were built but **not installed anywhere**.
+- iOS compilation (no macOS/Xcode).
+- Airplane-mode style network loss (simulated only by channel
+  unsubscribe/resubscribe, app-resume and token refresh in the matrix).
 
 ---
 
-## 2. Blockers
+## 2. Blockers / configuration still needed
 
-1. **Rating formula (§12b)** — unchanged: `app_private.rating_deltas()`
-   returns zeros.
-2. **XP economy** — 20/45 per match/win and the mission rewards are
-   placeholders; the client should confirm before release.
-3. **No device or emulator on this machine** — the APK builds (see §1) but
-   was not installed anywhere; the web build is the only runtime target
-   here.
-4. Session 3/4 production checklist unchanged: SMTP, leaked-password
-   protection, CAPTCHA, per-user function rate limiting.
-
----
-
-## 3. Files Session 6 must read
-
-1. `docs/OFFLINE_MODE.md`, `docs/BOTS.md`, `docs/PROGRESSION.md` — this
-   session's design.
-2. `docs/ONLINE_MULTIPLAYER.md`, `docs/SECURITY.md` — still the online
-   contract; §"Rounds, results, rematch" now mentions the settlement steps.
-3. `supabase/migrations/20260830120000_progression_missions.sql` and
-   `…123000_claim_mission_fix.sql`.
-4. `lib/features/game/application/game_controller.dart` and
-   `lib/features/tutorial/application/tutorial_controller.dart` — the two
-   local drivers of `TableController`.
-5. `tool/bot_simulation.dart`, `tool/progression_smoke.dart`,
-   `tool/online_matrix.dart` — re-run all three after any change to the
-   engine, the bots or the server.
+1. **Signing keystore** — `android/key.properties` + upload keystore; until
+   then release builds are debug-signed.
+2. **Rating formula (§12b)** — `app_private.rating_deltas()` returns zeros.
+3. **XP economy** — 20/45 per match/win and mission rewards are
+   placeholders.
+4. **Production Supabase checklist** — SMTP, leaked-password protection,
+   CAPTCHA for anonymous sign-ins, per-user Edge Function rate limit, a
+   retention period for finished matches.
+5. **Device QA** — everything above ran on Linux + Chrome only.
+6. Store assets, privacy policy and terms with real URLs (next phase).
 
 ---
 
-## 4. Things Session 6 must know
+## 3. Files the next phase must read
 
-1. **`GetxController.refresh()` exists** — never name a method `refresh` on
-   a controller (`MissionsController.reload()`).
-2. **Widget tests and fake time**: awaiting a controller method that plays
-   cues (`playCard`, `chooseSuit`) inside `testWidgets` deadlocks — use
-   `unawaited(...)` and pump the clock; and settle every pending timer
-   (save coalescing, banners, bot pacing) before the test body ends.
-3. `RETURNS TABLE` column names are PL/pgSQL variables: qualify every table
-   reference or set `#variable_conflict use_column` (migration 9 lesson).
-4. The mission rotation lives in two places on purpose (`MissionCatalog`
-   in Dart for the offline table, `app_private.mission_rotation` in SQL for
-   online); `test/session5_offline_test.dart` pins the Dart side, the smoke
-   tool checks the SQL side against the day it runs. Change both together.
-5. Every new public function needs an explicit `GRANT` (default privileges
-   are revoked); every new table needs RLS + `GRANT SELECT`.
-6. `flutter gen-l10n` after editing an ARB; the IT/EN identical-string test
-   has an allow-list (`centounoTitle`, `missionsReward` were added).
-7. `supabase db push < /dev/null` still works without a password prompt on
-   the linked project; `supabase migration list` should show 9 = 9.
+1. `docs/FINAL_VERIFICATION.md` — the evidence table.
+2. `docs/SECURITY.md` §"Session 6 findings" and §"Known limits".
+3. `supabase/migrations/20260830100111_release_hardening.sql` and
+   `…110458_receipt_scope.sql`.
+4. `lib/features/online/application/online_match_controller.dart`
+   (subscription generations, poll cadence, finish).
+5. `README.md` — rewritten: setup, env, migrations, run/test/build.
+
+---
+
+## 4. Things the next phase must know
+
+1. After **any** engine change: `tool/build_engine_js.sh`, `deno test`,
+   **`deno check supabase/functions/match/index.ts`**, redeploy.
+2. Migrations 10 and 11 were applied through the MCP; their remote
+   versions are `20260830100111` / `20260830110458` and the local files
+   are named to match, so `supabase migration list` shows 11 = 11. The CLI `db push` is blocked by
+   the tool sandbox in this environment; the MCP `apply_migration` works.
+3. `Motion.reduceMotion` is now a getter (user OR system); tests still
+   assign it.
+4. `MatchLauncher` is `permanent: true` — call `MatchLauncher.dismiss()`
+   when leaving an offline table for good (exit dialog and result screen do).
+5. `Log.d` instead of `debugPrint`.
+6. The matrix's `hardening` area leaves every player free; the two
+   throw-away tables it creates are finished by forfeit.
+7. `pkill -f <pattern>` still kills the calling shell when the pattern
+   appears in its own command line; use `pgrep -f "patter[n]"`.
 
 ---
 
@@ -295,8 +212,12 @@ finished matches, `match_round_results`, `user_achievements` and
 | 7 | Quick-match timer | `MatchmakingScreen._quickMatchTimerSeconds` | 30 s |
 | 8 | Forfeited seat's cards to the stock or out? | `GameEngine._forfeit` | bottom of the stock |
 | 9 | CPU offer after how long in the queue? | `MatchmakingScreen.cpuOfferAfterSeconds` | 30 s |
-| 10 | Should offline missions exist at all, or online only? | `MissionsController` | both halves shown, offline pays local XP only |
+| 10 | Offline missions at all, or online only? | `MissionsController` | both, offline pays local XP only |
 | 11 | Bot difficulty default | `SettingsModel.defaultDifficulty` | Normal |
+| 12 | **New:** a forfeit before the first completed round — nothing for anyone (current), or a loss for the quitter? | `app_private.settle_match` | nothing for anyone |
+| 13 | **New:** "palo" (as in the brief) or "seme" (standard Italian) for a suit? | `app_it.arb` | palo |
+| 14 | **New:** guests on the leaderboards and in ranked play? | `leaderboard`, `enqueue_quick_match` | allowed |
+| 15 | **New:** retention of finished matches (engine state keeps every hand) | `expire_stale_matches` | kept indefinitely |
 
 ---
 
@@ -304,33 +225,40 @@ finished matches, `match_round_results`, `user_achievements` and
 
 ```bash
 export PATH="$HOME/flutter-sdk/bin:$HOME/.deno/bin:$PATH"
+export ANDROID_HOME=$HOME/Android/Sdk
 
 flutter pub get && flutter analyze && flutter test
 dart format lib test tool
 flutter gen-l10n                                  # after editing an ARB
 
-dart run tool/bot_simulation.dart                 # SIM_MATCHES=… to change the count
-tool/build_engine_js.sh                           # after any engine change (none this session)
-deno test --allow-read supabase/functions/match/
-supabase db push < /dev/null                      # linked project
-supabase migration list
+dart run tool/bot_simulation.dart
+tool/build_engine_js.sh && deno test --allow-read supabase/functions/match/ && deno check supabase/functions/match/index.ts
+supabase functions deploy match --use-api
+supabase migration list                           # 11 = 11
 
-SUPABASE_URL=… SUPABASE_PUBLISHABLE_KEY=… dart run tool/progression_smoke.dart
-SUPABASE_URL=… SUPABASE_PUBLISHABLE_KEY=… MATRIX_QUICK=1 dart run tool/online_matrix.dart
+export SUPABASE_URL=… SUPABASE_PUBLISHABLE_KEY=…
+dart run tool/online_matrix.dart                  # MATRIX_QUICK=1 for the short form
+dart run tool/progression_smoke.dart
+flutter build web --dart-define-from-file=env/supabase.dev.json
+(cd build/web && python3 -m http.server 8787 --bind 127.0.0.1 &)
+UI_HOST_PASSWORD=… deno run -A tool/ui_drive_web.ts <outDir>
 
-flutter build apk --debug                         # ANDROID_HOME=$HOME/Android/Sdk
+flutter build apk --release --dart-define-from-file=env/supabase.dev.json
+flutter build appbundle --release --dart-define-from-file=env/supabase.dev.json
 ```
 
 ---
 
-## 7. Still true from Sessions 1–4
+## 7. Still true from Sessions 1–5
 
-- Feature-first layout; GetX only; `app_it.arb` is the template.
+- Feature-first layout; GetX only; `app_it.arb` is the template; ARB files
+  kept sorted; the IT==EN test has an allow-list.
 - `MatchLauncher` / `OnlineMatchLauncher` / `TutorialLauncher` register the
   `TableController`; `InitialBinding` runs before `runApp`.
-- The engine is pure and deterministic; `seed` is private; after any
-  engine change rebuild `engine.js`, run the Deno tests, redeploy.
+- The engine is pure and deterministic; `seed` is private to the server.
 - Two Realtime channels per match; policies may only call `public`
   functions; the online driver is `permanent: true`.
-- `test/tools/*` are tools, not tests; `android/gradle.properties` heap
-  stays lowered on this machine.
+- Every new public function needs an explicit `GRANT`; every new table
+  needs RLS + `GRANT SELECT`; the mission rotation lives in Dart and SQL.
+- `test/tools/*` are tools; `android/gradle.properties` heap stays lowered
+  on this machine.

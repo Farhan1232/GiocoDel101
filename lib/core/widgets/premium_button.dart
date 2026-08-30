@@ -224,7 +224,8 @@ class _PremiumButtonState extends State<PremiumButton> {
     ButtonVariant.primary => AppColors.inkDeep,
     ButtonVariant.secondary => AppColors.textPrimary,
     ButtonVariant.ghost => base,
-    ButtonVariant.danger => AppColors.warmIvory,
+    // Ivory on terracotta is 2.8:1; the deep ink reads at 5.6:1.
+    ButtonVariant.danger => AppColors.inkDeep,
   };
 
   static Gradient? _bodyGradient(ButtonVariant v, Color base) {

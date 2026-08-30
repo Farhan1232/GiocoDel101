@@ -1,5 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
+import '../utils/log.dart';
 
 /// §42 — every sound the game can make.
 enum Sfx {
@@ -68,7 +68,7 @@ class AudioService {
       );
       _ready = true;
     } catch (error) {
-      debugPrint('Audio unavailable, continuing silently: $error');
+      Log.d('Audio unavailable, continuing silently: $error');
       _ready = false;
     }
   }
@@ -93,7 +93,7 @@ class AudioService {
     _next = (_next + 1) % _pool.length;
     player
         .play(AssetSource('audio/${sfx.file}'), volume: volume.clamp(0.0, 1.0))
-        .catchError((Object error) => debugPrint('sfx: $error'));
+        .catchError((Object error) => Log.d('sfx: $error'));
   }
 
   /// §43 — the loop sits far back in the mix and is off by default.
@@ -105,7 +105,7 @@ class AudioService {
       await _music!.setVolume(0.22);
       await _music!.play(AssetSource('audio/music_loop.wav'), volume: 0.22);
     } catch (error) {
-      debugPrint('music: $error');
+      Log.d('music: $error');
     }
   }
 

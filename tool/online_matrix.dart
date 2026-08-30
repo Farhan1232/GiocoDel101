@@ -109,7 +109,11 @@ class Player {
     );
     view = state.withPlayer(me.copyWith(hand: hand));
     version = (snap['version'] as num).toInt();
+    pid = me.id;
   }
+
+  /// This player's engine seat, known after the first snapshot.
+  String? pid;
 
   String enginePlayerId(Map<String, dynamic> snap) {
     for (final p in (snap['players'] as List)) {
@@ -1272,6 +1276,235 @@ Future<void> quickMatch(List<Player> ps, int size) async {
   _lastRoom = roomId;
 }
 
+// ------------------------------------------------- session 6: hardening
+
+Future<Map<String, dynamic>> _profile(Player p) async {
+  final r = await p.client
+      .from('profiles')
+      .select('wins, xp, matches, current_streak')
+      .eq('id', p.id)
+      .single();
+  return r;
+}
+
+/// The attacks the final audit added, run against the deployed function and
+/// migration 10. Leaves every player free (no live match) when it returns.
+Future<void> hardening(List<Player> ps) async {
+  area('SESSION 6 HARDENING');
+  final a = ps[0], b = ps[1], c = ps[2], d = ps[3], e = ps[4];
+
+  // Room rules are validated key by key.
+  for (final bad in <String, Map<String, dynamic>>{
+    'unknown key': {'evil': 1},
+    'out-of-range hand size': {'startingHandSize': 40},
+    'wrong type': {'stackDrawTwos': 'yes'},
+    'oversized object': {'nineBlockMode': 'x' * 5000},
+  }.entries) {
+    final r = await rpcOrError(a.client, 'create_room', {
+      'p_name': 'bad',
+      'p_max_players': 2,
+      'p_is_private': true,
+      'p_turn_timer_seconds': 0,
+      'p_rules': bad.value,
+    });
+    check(
+      'create_room refuses ${bad.key} (invalid_rules)',
+      r!['ok'] == false && '${r['message']}'.contains('invalid_rules'),
+      r['message'],
+    );
+  }
+
+  // A 3-player table: A hosts, B and C join, A starts.
+  final code = await createRoom(a, 3, timer: 0);
+  final roomB = await joinRoom(b, code);
+  await joinRoom(c, code);
+  final roomId = roomB['id'] as String;
+  for (final p in [b, c]) {
+    await p.client.rpc<void>(
+      'set_ready',
+      params: {'p_room_id': roomId, 'p_ready': true},
+    );
+  }
+  final started = await a.call({'op': 'start', 'roomId': roomId});
+  check('3-player table started', started['ok'] == true, started);
+  final matchId = started['matchId'] as String;
+
+  // Joining a started room by code is "already started", not "not found".
+  final late = await rpcOrError(d.client, 'join_room', {'p_code': code});
+  check(
+    'joining a room whose match started → match_already_started',
+    late!['ok'] == false &&
+        '${late['message']}'.contains('match_already_started'),
+    late['message'],
+  );
+  // A seated player cannot open or enter another table.
+  final second = await rpcOrError(a.client, 'create_room', {
+    'p_name': 'second',
+    'p_max_players': 2,
+    'p_is_private': true,
+    'p_turn_timer_seconds': 0,
+    'p_rules': <String, dynamic>{},
+  });
+  check(
+    'create_room while seated at a live match → already_in_match',
+    second!['ok'] == false &&
+        '${second['message']}'.contains('already_in_match'),
+    second['message'],
+  );
+  final otherCode = await createRoom(d, 2);
+  final sneak = await rpcOrError(b.client, 'join_room', {'p_code': otherCode});
+  check(
+    'join_room while seated at a live match → already_in_match',
+    sneak!['ok'] == false && '${sneak['message']}'.contains('already_in_match'),
+    sneak['message'],
+  );
+  final queue = await rpcOrError(c.client, 'enqueue_quick_match', {
+    'p_player_count': 2,
+    'p_turn_timer_seconds': 30,
+  });
+  check(
+    'quick-match queue while seated at a live match → already_in_match',
+    queue!['ok'] == false && '${queue['message']}'.contains('already_in_match'),
+    queue['message'],
+  );
+  // A member re-entering by code simply gets the room back.
+  final back = await rpcOrError(b.client, 'join_room', {'p_code': code});
+  check(
+    'a member re-entering the code gets the room',
+    back!['ok'] == true,
+    back['message'],
+  );
+
+  // A refused play must not write the card into the shared action log.
+  await a.snapshot(matchId);
+  await b.snapshot(matchId);
+  await c.snapshot(matchId);
+  final onTurn = [a, b, c].firstWhere((p) => p.view!.currentPlayer.id == p.pid);
+  final idle = [a, b, c].firstWhere((p) => p != onTurn);
+  final idleCard = idle.view!.playerById(idle.pid!)!.hand.first;
+  final rejectedId = _uuid();
+  final refused = await idle.call({
+    'op': 'action',
+    'matchId': matchId,
+    'actionId': rejectedId,
+    'expectedVersion': idle.version,
+    'action': {'type': 'playCard', 'card': idleCard.id},
+  });
+  check(
+    'playing out of turn is refused (notPlayersTurn)',
+    refused['accepted'] == false && refused['failure'] == 'notPlayersTurn',
+    refused,
+  );
+  final logged = await onTurn.client
+      .from('match_actions')
+      .select('action, accepted')
+      .eq('match_id', matchId)
+      .eq('accepted', false);
+  check(
+    'the refused action is logged without the card',
+    logged.isNotEmpty &&
+        logged.every((r) => !((r['action'] as Map).containsKey('card'))),
+    logged.map((r) => r['action']).toList(),
+  );
+  // Receipts are per caller: another seat reusing the id is not a replay.
+  final reuse = await onTurn.call({
+    'op': 'action',
+    'matchId': matchId,
+    'actionId': rejectedId,
+    'expectedVersion': onTurn.version,
+    'action': {'type': 'drawCard'},
+  });
+  check(
+    "another seat reusing an action id is judged afresh, not replayed",
+    reuse['duplicate'] != true,
+    reuse,
+  );
+  await a.snapshot(matchId);
+  await b.snapshot(matchId);
+  await c.snapshot(matchId);
+
+  // A forfeited seat can neither claim a timeout nor block the rematch.
+  final quit = await c.call({'op': 'forfeit', 'matchId': matchId});
+  check(
+    'C forfeits the 3-player table (match continues)',
+    quit['ok'] == true && quit['status'] != 'finished',
+    quit,
+  );
+  final ghost = await c.call({'op': 'timeout', 'matchId': matchId});
+  check(
+    'a forfeited seat cannot claim a timeout (invalidPlayer)',
+    ghost['ok'] == false && ghost['failure'] == 'invalidPlayer',
+    ghost,
+  );
+  final seats = await a.client
+      .from('room_players')
+      .select('user_id')
+      .eq('room_id', roomId);
+  check('the forfeited seat left the room', seats.length == 2, seats.length);
+  // End the table so A and B are free again.
+  final end = await a.call({'op': 'forfeit', 'matchId': matchId});
+  check(
+    'second forfeit finishes the table (B wins)',
+    end['ok'] == true && end['status'] == 'finished',
+    end,
+  );
+
+  // A table ended by forfeit before any round was played awards nothing.
+  final before = await _profile(d);
+  final beforeE = await _profile(e);
+  final code2 = await createRoom(d, 2, timer: 0);
+  final room2 = await joinRoom(e, code2);
+  await e.client.rpc<void>(
+    'set_ready',
+    params: {'p_room_id': room2['id'], 'p_ready': true},
+  );
+  final s2 = await d.call({'op': 'start', 'roomId': room2['id']});
+  final m2 = s2['matchId'] as String;
+  final walk = await e.call({'op': 'forfeit', 'matchId': m2});
+  check(
+    'E walks out before a round is played',
+    walk['ok'] == true && walk['status'] == 'finished',
+    walk,
+  );
+  final after = await _profile(d);
+  final afterE = await _profile(e);
+  check(
+    'no win / XP / match counted for the remaining seat',
+    after['wins'] == before['wins'] &&
+        after['xp'] == before['xp'] &&
+        after['matches'] == before['matches'],
+    '$before → $after',
+  );
+  check(
+    'nothing counted for the seat that walked out either',
+    afterE['xp'] == beforeE['xp'] && afterE['matches'] == beforeE['matches'],
+    '$beforeE → $afterE',
+  );
+  final placed = await d.client
+      .from('match_players')
+      .select('is_winner, placement')
+      .eq('match_id', m2)
+      .eq('user_id', d.id)
+      .single();
+  check(
+    'the table itself still records who was left standing',
+    placed['is_winner'] == true,
+    placed,
+  );
+
+  // The function never echoes raw database text.
+  final raw = await a.call({
+    'op': 'rematch',
+    'matchId': '00000000-0000-0000-0000-000000000000',
+  });
+  check(
+    'unknown match → a code, no SQL in the reply',
+    raw['ok'] == false &&
+        !('${raw['detail'] ?? ''}${raw['error']}'.contains('Key (')),
+    raw,
+  );
+}
+
 Future<void> joinRace(List<Player> ps) async {
   area('CONCURRENCY & ATTACKS');
   final host = ps[0];
@@ -1566,6 +1799,7 @@ Future<void> main() async {
   }
 
   await joinRace(ps);
+  await hardening(ps);
   await turnTimer(ps.sublist(0, 2));
   await quickMatch(ps.sublist(0, 5), 2);
   final qm = _lastMatch!;

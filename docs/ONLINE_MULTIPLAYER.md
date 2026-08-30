@@ -54,8 +54,8 @@ tap card  ──▶  OnlineMatchController.playCard
                  · MatchActionRequest{matchId, actionId (uuid), expectedVersion, action}
                POST /functions/v1/match {op:"action", …}   (user JWT)
                  · authenticate → auth.users.id
-                 · srv_find_receipt(match, actionId)      → replay if seen
                  · srv_load_match(match, user)            → full state, my seat, clock
+                 · srv_find_receipt(match, actionId, user)→ replay if seen (the caller's own)
                  · expectedVersion == version ?           → else {failure:"staleState"}
                  · action.playerId := MY seat (client value ignored)
                  · engine.applyAction(state, action, now)
@@ -91,9 +91,9 @@ in progress (`match_in_progress`) — leaving a live table is a forfeit
 
 **Start** is `match {op:"start", roomId}`: host only for private rooms, any
 member for quick-match rooms; the room must be full and every guest ready.
-The function deals with the engine (random 31-bit seed and random opening
-seat from `crypto.getRandomValues`, rules = the room's house rules plus
-`turnTimeLimitSeconds` from the room's timer) and calls `srv_commit_match`,
+The function deals with the engine (random **52-bit** seed and random
+opening seat from `crypto.getRandomValues`, rules = the room's validated
+house rules plus `turnTimeLimitSeconds` from the room's timer) and calls `srv_commit_match`,
 which re-checks the seat set under the room lock, creates `matches`,
 `match_players`, publishes the state and flips the room to `in_progress`.
 A second start (double tap, two members, a retry) returns the same match
@@ -134,12 +134,14 @@ corrects local skew).
    round. Every move is validated by the engine like any other.
 3. The seat's `consecutive_timeouts` grows; any accepted action of its own
    resets it. On the **third** consecutive timeout the server forfeits the
-   seat instead (below).
+   seat instead (below) and removes it from the room, exactly as a
+   voluntary forfeit does. A forfeited seat cannot claim timeouts.
 4. With no timer, a seat that has not sent a heartbeat for **90 s while it
    is its turn** counts as timed out (abandonment) — same escalation.
-5. A match nobody touched for **24 h** is marked `abandoned` and its room
+5. A match nobody touched for **24 h** — or with no action **and** no
+   heartbeat from any seat for **1 h** — is marked `abandoned` and its room
    `finished` by `app_private.expire_stale_matches()` (pg_cron, every
-   10 min, alongside the Session 3 lobby sweep).
+   10 min, alongside the Session 3 lobby sweep). Nothing is awarded.
 
 So no table can stay stuck: a live opponent always has a lever, and the
 sweep closes the rest.
@@ -181,9 +183,15 @@ online says plainly that leaving is a forfeit.
 ## Reconnect and resume
 
 - The socket drops → `TableSessionStatus.connection = connecting`, the top
-  bar shows the dot and the banner says **Riconnessione…**; the controller
-  re-subscribes with backoff (1.5 s → 15 s) and re-reads the snapshot on
-  reconnect. Data still flows through the 6 s poll meanwhile.
+  bar shows the dot and the banner says **Connessione persa. Tentativo di
+  riconnessione...**; the controller re-subscribes with backoff
+  (1.5 s → 15 s) and re-reads the snapshot on reconnect. Subscriptions carry
+  a generation number: the `closed` farewell of a channel being replaced is
+  ignored, so a reconnect never tears down the healthy new channel (a loop
+  Session 6 found and fixed). Data still flows through the 6 s poll meanwhile
+  (kept at 6 s on purpose: a stretched 18 s poll cost the headless-Chrome
+  host its seat to three timeouts when Realtime UPDATEs went missing); the
+  clock, the poll and the heartbeat stop once the match is over.
 - App resume (`AppLifecycleState.resumed`) → re-subscribe + snapshot +
   heartbeat.
 - Restart: `my_active_match()` tells the home screen a seat is waiting;

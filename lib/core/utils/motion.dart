@@ -8,8 +8,17 @@ class Motion {
   const Motion._();
 
   static double speedFactor = 1.0;
-  static bool reduceMotion = false;
   static bool hapticsEnabled = true;
+
+  static bool _userReduceMotion = false;
+
+  /// The platform's own "reduce motion" accessibility flag
+  /// (`MediaQuery.disableAnimations`), pushed in by the app shell.
+  static bool systemReduceMotion = false;
+
+  /// True when either the player or the operating system asked for it.
+  static bool get reduceMotion => _userReduceMotion || systemReduceMotion;
+  static set reduceMotion(bool value) => _userReduceMotion = value;
 
   /// Scales an authored duration by the animation-speed setting. With Reduce
   /// Motion on, everything collapses to a short cross-fade instead.

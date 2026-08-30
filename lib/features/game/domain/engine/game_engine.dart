@@ -20,14 +20,20 @@ import 'score_policy.dart';
 /// and on the server. Tests may inject their own.
 typedef RandomSource = Random Function(GameState state);
 
-/// Both operands are kept below 2^31 before they are mixed. The Dart VM has
-/// 64-bit integers but dart2js truncates every bitwise operator to 32 bits;
-/// the authoritative server runs this very engine compiled to JavaScript,
-/// so the mix must be identical on both — it is, as long as neither side
-/// of the XOR exceeds 32 bits.
-Random _seededRandom(GameState state) => Random(
-  (state.seed & 0x7FFFFFFF) ^ ((state.version * 0x9E3779B1) & 0x7FFFFFFF),
-);
+/// The seed may carry up to 52 bits. A 31-bit seed is not enough online: a
+/// modified client holding this very engine could enumerate 2^31 deals until
+/// one reproduced its own hand and then know every card in the match. The
+/// Dart VM has 64-bit integers but dart2js truncates every bitwise operator
+/// to 32 bits, and the authoritative server runs this engine compiled to
+/// JavaScript — so the high part of the seed is folded in with arithmetic
+/// only, which is exact below 2^53 on both runtimes, and the XOR sees two
+/// operands below 2^31. Seeds below 2^31 mix exactly as they always did.
+Random _seededRandom(GameState state) {
+  final low = state.seed % 0x80000000;
+  final high = state.seed ~/ 0x80000000;
+  final mixed = low ^ ((state.version * 0x9E3779B1) & 0x7FFFFFFF);
+  return Random(mixed + high * 0x80000000);
+}
 
 /// The rules of Gioco del 101, expressed once, as pure functions over
 /// [GameState].

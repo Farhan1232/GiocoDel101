@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/glow.dart';
 import '../../../core/utils/motion.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_typography.dart';
 
 /// §37/§62 — the match-victory flourish.
 ///
@@ -205,7 +206,7 @@ class _TrophyPainter extends CustomPainter {
       text: TextSpan(
         text: '101',
         style: TextStyle(
-          fontFamily: 'Cinzel',
+          fontFamily: AppText.display,
           fontSize: w * 0.15,
           fontWeight: FontWeight.w700,
           color: AppColors.goldShadow.withValues(alpha: 0.65),

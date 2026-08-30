@@ -34,7 +34,7 @@ ids, and `test/deck_preview_test.dart` paints every one of them.
 
 `lib/app/theme/card_backs.dart`: `oro`, `cobalto`, `brace`, `notturno`.
 Painted by `lib/core/widgets/cards/card_back_painter.dart`, on the
-`#17233F → #0B1327` gradient with antique gold (`CardBackInks`).
+`#17233F → #0B1327` gradient with antique gold (`CardBacks.oro`).
 
 `oro` ships unlocked; the other three are tied to achievements.
 
@@ -48,8 +48,9 @@ Painted by `lib/core/widgets/cards/card_back_painter.dart`, on the
 | Manrope | 400, 500, 600, 700, 800 | UI, body, all numerals |
 
 Exactly the two families the brief names. Licences travel with them
-(`OFL.txt`, `OFL-Cinzel.txt`, `OFL-Manrope.txt`) and are registered into the
-app at startup in `lib/main.dart`, so they appear in the licence page too.
+(`OFL.txt`, `OFL-Cinzel.txt`, `OFL-Manrope.txt`); the two per-family files
+are bundled and registered into the app at startup in `lib/main.dart`, so
+they appear in the licence page too.
 
 ## Audio — 17 files, 1.6 MB
 

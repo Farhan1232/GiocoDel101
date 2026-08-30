@@ -33,7 +33,9 @@ class AppColors {
   // Text
   static const Color textPrimary = Color(0xFFF3E9D8);
   static const Color textSecondary = Color(0xFFB6AC9C);
-  static const Color textMuted = Color(0xFF7A7285);
+  // The muted tone is the secondary ivory at 80 %: over the surface it
+  // composites to ≈5.3:1, enough for the 11 px captions that use it.
+  static const Color textMuted = Color(0xCCB6AC9C);
 
   // Fate Ring states (§17)
   static const Color fateCalm = Color(0xFF2AA89B);
@@ -128,13 +130,4 @@ class CourtInks {
 
   /// Faces and hands.
   static const Color skin = Color(0xFFEAC49B);
-}
-
-/// §4 — the card back gradient, antique gold on deep navy.
-class CardBackInks {
-  const CardBackInks._();
-
-  static const Color gradientTop = Color(0xFF17233F);
-  static const Color gradientBottom = Color(0xFF0B1327);
-  static const Color gold = AppColors.antiqueGold;
 }

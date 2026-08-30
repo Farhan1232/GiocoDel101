@@ -812,6 +812,70 @@ List<ConformanceScenario> conformanceScenarios() => [
     },
     expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
   ),
+  ConformanceScenario(
+    name: 'start_next_round_wide_seed',
+    description:
+        'A 52-bit seed (what the server draws) deals the same round on the '
+        'Dart VM and in the compiled JavaScript engine.',
+    rulesNote: 'SECURITY — seed width',
+    state: buildState(
+      hands: [
+        [],
+        [_c(_de, CardRank.re)],
+        [_c(_ba, CardRank.sette)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      status: GameStatus.roundOver,
+      scores: [0, 10, 7],
+      currentIndex: 1,
+      version: 12,
+      seed: 4503599627370495, // 2^52 - 1
+    ).copyWith(roundWinnerId: 'p1'),
+    action: const StartNextRoundAction(playerId: 'p2'),
+    assertions: {
+      'status': 'awaitingAction',
+      'currentPlayerId': 'p1',
+      'round': 2,
+      'handSize.p0': 5,
+      'handSize.p1': 5,
+      'handSize.p2': 5,
+      'discardPileSize': 1,
+      'drawPileSize': 24,
+      'version': 13,
+    },
+    expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'draw_reshuffles_wide_seed',
+    description:
+        'A reshuffle driven by a 52-bit seed orders the recycled pile '
+        'identically on the Dart VM and in the compiled JavaScript engine.',
+    rulesNote: 'SECURITY — seed width',
+    state: buildState(
+      hands: [
+        [_c(_sp, CardRank.sette)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      discardBelowTop: [
+        _c(_ba, CardRank.tre),
+        _c(_ba, CardRank.quattro),
+        _c(_ba, CardRank.sei),
+        _c(_sp, CardRank.re),
+        _c(_de, CardRank.fante),
+      ],
+      fillDeck: false,
+      seed: 3141592653589793,
+      version: 7,
+    ),
+    action: const DrawCardAction(playerId: 'p0'),
+    assertions: {
+      'topCard': 'coppe_cinque',
+      'discardPileSize': 1,
+      'drawPileSize': 4,
+      'handSize.p0': 2,
+    },
+  ),
 
   // --------------------------------------------------------------- forfeit
   ConformanceScenario(

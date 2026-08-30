@@ -90,7 +90,9 @@ class _TableSurfaceState extends State<TableSurface>
                     painter: _AmbientPainter(
                       ambient: ambient ?? palette.ambient,
                       suit: widget.activeSuit,
-                      t: _ambient.value,
+                      // 24 steps per cycle: the drift is imperceptible at
+                      // that rate and 23 of every 24 frames skip the paint.
+                      t: (_ambient.value * 24).floor() / 24,
                       intensity: widget.intensity,
                     ),
                   ),

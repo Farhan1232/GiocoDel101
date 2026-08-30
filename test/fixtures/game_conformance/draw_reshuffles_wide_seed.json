@@ -1,0 +1,263 @@
+{
+  "name": "draw_reshuffles_wide_seed",
+  "description": "A reshuffle driven by a 52-bit seed orders the recycled pile identically on the Dart VM and in the compiled JavaScript engine.",
+  "rulesNote": "SECURITY — seed width",
+  "actor": "p0",
+  "action": {
+    "type": "drawCard",
+    "playerId": "p0"
+  },
+  "initialState": {
+    "schema": 2,
+    "gameId": "test",
+    "mode": "vsComputer",
+    "rules": {
+      "minPlayers": 2,
+      "maxPlayers": 4,
+      "startingHandSize": 5,
+      "allowVoluntaryDraw": true,
+      "playDrawnCardImmediately": true,
+      "restrictPlayToDrawnCard": false,
+      "stackDrawTwos": true,
+      "wildNineCanAlwaysPlay": true,
+      "nineBlockMode": "cancel",
+      "nineBlockChangesSuit": true,
+      "exact101ResetsToZero": true,
+      "eliminateAbove101": true,
+      "targetScore": 101,
+      "mustDrawBeforePassing": true,
+      "drawTwoPenalty": 2,
+      "pendingPenaltyAppliesAfterWin": false,
+      "starterCardPolicy": "avoidActionCards",
+      "roundStarterPolicy": "previousRoundWinner",
+      "initialDirection": "clockwise",
+      "turnTimeLimitSeconds": null,
+      "scoreValues": {
+        "asso": 1,
+        "due": 2,
+        "tre": 3,
+        "quattro": 4,
+        "cinque": 5,
+        "sei": 6,
+        "sette": 7,
+        "fante": 8,
+        "cavallo": 9,
+        "re": 10
+      }
+    },
+    "players": [
+      {
+        "id": "p0",
+        "name": "P0",
+        "type": "humanLocal",
+        "avatarId": "marco",
+        "difficulty": null,
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "spade_sette"
+        ]
+      },
+      {
+        "id": "p1",
+        "name": "P1",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "denari_tre"
+        ]
+      }
+    ],
+    "round": 1,
+    "currentSeat": 0,
+    "direction": "clockwise",
+    "drawPile": [],
+    "discardPile": [
+      "bastoni_tre",
+      "bastoni_quattro",
+      "bastoni_sei",
+      "spade_re",
+      "denari_fante",
+      "coppe_cinque"
+    ],
+    "activeSuit": "coppe",
+    "pendingDrawCount": 0,
+    "chainLength": 0,
+    "status": "awaitingAction",
+    "winnerId": null,
+    "roundWinnerId": null,
+    "turnNumber": 0,
+    "hasDrawnThisTurn": false,
+    "drawnCard": null,
+    "lastAction": null,
+    "version": 7,
+    "turnStartedAt": null,
+    "turnDeadlineAt": null,
+    "seed": 3141592653589793,
+    "isDailyChallenge": false,
+    "stats": {
+      "cardsPlayed": 0,
+      "acesPlayed": 0,
+      "twosPlayed": 0,
+      "longestChain": 0,
+      "resets101": 0,
+      "bestComeback": 0,
+      "roundsWon": {},
+      "cavalloSuits": {},
+      "suitsPlayed": {}
+    },
+    "history": [],
+    "playedCards": [],
+    "drawsByPlayer": {},
+    "voidSuits": {},
+    "lastRoundResult": null
+  },
+  "expectedFailure": null,
+  "expectedState": {
+    "schema": 2,
+    "gameId": "test",
+    "mode": "vsComputer",
+    "rules": {
+      "minPlayers": 2,
+      "maxPlayers": 4,
+      "startingHandSize": 5,
+      "allowVoluntaryDraw": true,
+      "playDrawnCardImmediately": true,
+      "restrictPlayToDrawnCard": false,
+      "stackDrawTwos": true,
+      "wildNineCanAlwaysPlay": true,
+      "nineBlockMode": "cancel",
+      "nineBlockChangesSuit": true,
+      "exact101ResetsToZero": true,
+      "eliminateAbove101": true,
+      "targetScore": 101,
+      "mustDrawBeforePassing": true,
+      "drawTwoPenalty": 2,
+      "pendingPenaltyAppliesAfterWin": false,
+      "starterCardPolicy": "avoidActionCards",
+      "roundStarterPolicy": "previousRoundWinner",
+      "initialDirection": "clockwise",
+      "turnTimeLimitSeconds": null,
+      "scoreValues": {
+        "asso": 1,
+        "due": 2,
+        "tre": 3,
+        "quattro": 4,
+        "cinque": 5,
+        "sei": 6,
+        "sette": 7,
+        "fante": 8,
+        "cavallo": 9,
+        "re": 10
+      }
+    },
+    "players": [
+      {
+        "id": "p0",
+        "name": "P0",
+        "type": "humanLocal",
+        "avatarId": "marco",
+        "difficulty": null,
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "spade_sette",
+          "bastoni_sei"
+        ]
+      },
+      {
+        "id": "p1",
+        "name": "P1",
+        "type": "bot",
+        "avatarId": "marco",
+        "difficulty": "normal",
+        "personality": null,
+        "score": 0,
+        "eliminated": false,
+        "hand": [
+          "denari_tre"
+        ]
+      }
+    ],
+    "round": 1,
+    "currentSeat": 1,
+    "direction": "clockwise",
+    "drawPile": [
+      "bastoni_tre",
+      "denari_fante",
+      "spade_re",
+      "bastoni_quattro"
+    ],
+    "discardPile": [
+      "coppe_cinque"
+    ],
+    "activeSuit": "coppe",
+    "pendingDrawCount": 0,
+    "chainLength": 0,
+    "status": "awaitingAction",
+    "winnerId": null,
+    "roundWinnerId": null,
+    "turnNumber": 1,
+    "hasDrawnThisTurn": false,
+    "drawnCard": null,
+    "lastAction": {
+      "type": "drawCard",
+      "playerId": "p0"
+    },
+    "version": 8,
+    "turnStartedAt": null,
+    "turnDeadlineAt": null,
+    "seed": 3141592653589793,
+    "isDailyChallenge": false,
+    "stats": {
+      "cardsPlayed": 0,
+      "acesPlayed": 0,
+      "twosPlayed": 0,
+      "longestChain": 0,
+      "resets101": 0,
+      "bestComeback": 0,
+      "roundsWon": {},
+      "cavalloSuits": {},
+      "suitsPlayed": {}
+    },
+    "history": [
+      {
+        "t": "recycle",
+        "p": "",
+        "n": 5
+      },
+      {
+        "t": "draw",
+        "p": "p0",
+        "n": 1
+      }
+    ],
+    "playedCards": [],
+    "drawsByPlayer": {
+      "p0": 1
+    },
+    "voidSuits": {
+      "p0": [
+        "coppe"
+      ]
+    },
+    "lastRoundResult": null
+  },
+  "expectedEvents": [
+    "DeckRecycledEvent",
+    "CardsDrawnEvent",
+    "TurnChangedEvent"
+  ],
+  "assertions": {
+    "topCard": "coppe_cinque",
+    "discardPileSize": 1,
+    "drawPileSize": 4,
+    "handSize.p0": 2
+  }
+}

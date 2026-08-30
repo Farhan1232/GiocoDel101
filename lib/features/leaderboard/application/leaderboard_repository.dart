@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../domain/leaderboard_models.dart';
+import '../../../core/utils/log.dart';
 
 /// Loads a board. One RPC (`public.leaderboard`) serves both scopes, one
 /// page at a time; `my_leaderboard_rank` answers "where am I" even when the
@@ -66,7 +66,7 @@ class SupabaseLeaderboardRepository implements LeaderboardRepository {
     final entries = [
       for (final raw in rows) _entry((raw as Map).cast<String, dynamic>()),
     ];
-    debugPrint('leaderboard: ${scope.name} +${entries.length} @ $offset');
+    Log.d('leaderboard: ${scope.name} +${entries.length} @ $offset');
     return LeaderboardBoard(
       scope: scope,
       entries: entries,

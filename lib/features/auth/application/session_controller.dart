@@ -17,7 +17,13 @@ class SessionController extends GetxController {
 
   final Rx<AuthSession?> session = Rx<AuthSession?>(null);
 
+  /// Raised once when a session the player did not end goes away — a
+  /// refresh token the server refused, an account deleted elsewhere. The
+  /// app shell shows "Sessione scaduta" and lowers it again.
+  final RxBool expired = false.obs;
+
   StreamSubscription<AuthSession?>? _sub;
+  bool _signingOut = false;
 
   AuthSession? get current => session.value;
   bool get isSignedIn => session.value != null;
@@ -31,7 +37,11 @@ class SessionController extends GetxController {
     // so what the gateway reports here is the real restored state — the
     // splash never has to wait on a second round trip.
     session.value = gateway.current;
-    _sub = gateway.changes.listen((next) => session.value = next);
+    _sub = gateway.changes.listen((next) {
+      final had = session.value != null;
+      session.value = next;
+      if (had && next == null && !_signingOut) expired.value = true;
+    });
   }
 
   Future<AuthOutcome> signUp({
@@ -59,8 +69,13 @@ class SessionController extends GetxController {
       gateway.sendPasswordReset(email);
 
   Future<void> signOut() async {
-    await gateway.signOut();
-    session.value = null;
+    _signingOut = true;
+    try {
+      await gateway.signOut();
+      session.value = null;
+    } finally {
+      _signingOut = false;
+    }
   }
 
   Future<AuthOutcome> _adopt(Future<AuthOutcome> call) async {

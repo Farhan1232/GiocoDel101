@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import '../../online/domain/online_status.dart';
 import '../domain/auth_gateway.dart';
 import '../domain/auth_session.dart';
+import '../../../core/utils/log.dart';
 
 /// [AuthGateway] over Supabase Auth.
 ///
@@ -97,7 +98,7 @@ class SupabaseAuthGateway implements AuthGateway {
       await _auth.signOut();
     } on sb.AuthException catch (error) {
       // A revoked or expired refresh token still means "signed out" locally.
-      debugPrint('auth: signOut ${error.code ?? error.statusCode}');
+      Log.d('auth: signOut ${error.code ?? error.statusCode}');
     }
   }
 
@@ -105,7 +106,7 @@ class SupabaseAuthGateway implements AuthGateway {
     try {
       return await call();
     } on sb.AuthException catch (error) {
-      debugPrint('auth: ${error.code ?? error.statusCode} ${error.message}');
+      Log.d('auth: ${error.code ?? error.statusCode} ${error.message}');
       return AuthFailed(mapError(error), error.message);
     } on SocketException catch (error) {
       return AuthFailed(AuthErrorCode.network, error.message);

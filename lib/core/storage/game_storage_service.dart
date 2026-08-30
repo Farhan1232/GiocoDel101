@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
-
 import '../../features/game/domain/game_state.dart';
 import 'local_storage.dart';
 import 'storage_keys.dart';
+import '../utils/log.dart';
 
 /// §49 — persists a resumable snapshot of the live match.
 ///
@@ -25,7 +24,7 @@ class GameStorageService {
     try {
       await _storage.writeJson(StorageKeys.savedMatch, state.toJson());
     } catch (error, stack) {
-      debugPrint('Could not persist match: $error\n$stack');
+      Log.d('Could not persist match: $error\n$stack');
     }
   }
 
@@ -37,7 +36,7 @@ class GameStorageService {
       return GameState.fromJson(json);
     } catch (error) {
       // §52 — a corrupt save is discarded, never surfaced to the player.
-      debugPrint('Discarding invalid saved match: $error');
+      Log.d('Discarding invalid saved match: $error');
       unawaited(clear());
       return null;
     }
@@ -47,5 +46,5 @@ class GameStorageService {
 }
 
 void unawaited(Future<void> future) {
-  future.catchError((Object error) => debugPrint('storage: $error'));
+  future.catchError((Object error) => Log.d('storage: $error'));
 }

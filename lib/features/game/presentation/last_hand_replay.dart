@@ -12,6 +12,7 @@ import '../domain/game_state.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/widgets/cards/playing_card.dart';
+import '../../../core/widgets/cards/card_names.dart';
 import '../../../core/widgets/premium_button.dart';
 
 /// §36 "Rivedi ultima mano" — replays the closing moves.
@@ -139,7 +140,7 @@ class _LastHandReplayState extends State<LastHandReplay> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     PremiumButton(
-                      label: 'Rivedi',
+                      label: Strings.s.replayAgain,
                       size: ButtonSize.small,
                       variant: ButtonVariant.secondary,
                       expand: false,
@@ -150,7 +151,7 @@ class _LastHandReplayState extends State<LastHandReplay> {
                     ),
                     const SizedBox(width: AppSpacing.md),
                     PremiumButton(
-                      label: 'Chiudi',
+                      label: Strings.s.commonClose,
                       size: ButtonSize.small,
                       variant: ButtonVariant.ghost,
                       expand: false,
@@ -205,7 +206,7 @@ class _LastHandReplayState extends State<LastHandReplay> {
     };
     return Container(
       width: 96,
-      height: 96 * 1.55,
+      height: 96 * CardMetrics.aspect,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(96 * 0.075),
         color: AppColors.surfaceRaised,
@@ -227,22 +228,6 @@ class _LastHandReplayState extends State<LastHandReplay> {
     };
   }
 
-  static String _cardName(GameCard? card) {
-    if (card == null) return '';
-    final s = Strings.s;
-    final rank = switch (card.rank.name) {
-      'asso' => s.rankAce,
-      'fante' => s.rankFante,
-      'cavallo' => s.rankCavallo,
-      're' => s.rankRe,
-      _ => '${card.rank.value}',
-    };
-    final suit = switch (card.suit.name) {
-      'denari' => s.suitDenari,
-      'coppe' => s.suitCoppe,
-      'spade' => s.suitSpade,
-      _ => s.suitBastoni,
-    };
-    return '$rank di $suit';
-  }
+  static String _cardName(GameCard? card) =>
+      card == null ? '' : cardDisplayName(card);
 }

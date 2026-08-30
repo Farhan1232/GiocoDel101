@@ -99,7 +99,11 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
 
   void _home() {
     Get.until((route) => route.settings.name == AppRoutes.home);
-    if (c.isOnline) OnlineMatchLauncher.dismiss();
+    if (c.isOnline) {
+      OnlineMatchLauncher.dismiss();
+    } else {
+      MatchLauncher.dismiss();
+    }
   }
 
   @override

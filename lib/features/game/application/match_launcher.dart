@@ -36,14 +36,30 @@ class MatchLauncher {
         humanIds: setup.humanIds,
         random: Random(),
       ),
-      permanent: false,
+      // `permanent`: a route-scoped registration is deleted the moment the
+      // route it was created under is disposed. With `replace: true` that
+      // route is the one being replaced — the launching screen — so the
+      // driver would be closed ~300 ms into the match and the bots would
+      // stop. The exit paths call [dismiss] instead.
+      permanent: true,
     );
     // The screens depend on the contract, not on the local driver.
-    Get.put<TableController>(controller, permanent: false);
+    Get.put<TableController>(controller, permanent: true);
     if (replace) {
       Get.offNamed<void>(AppRoutes.game);
     } else {
       Get.toNamed<void>(AppRoutes.game);
+    }
+  }
+
+  /// Tears the local driver down when the player leaves the table for good
+  /// (exit, home from the result screen). A relaunch replaces it anyway.
+  static void dismiss() {
+    if (Get.isRegistered<TableController>()) {
+      Get.delete<TableController>(force: true);
+    }
+    if (Get.isRegistered<GameController>()) {
+      Get.delete<GameController>(force: true);
     }
   }
 

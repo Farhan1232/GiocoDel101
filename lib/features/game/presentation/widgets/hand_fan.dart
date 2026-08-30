@@ -6,7 +6,10 @@ import '../../../../core/constants/app_durations.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/motion.dart';
 import '../../domain/game_card.dart';
+import '../../../../app/localization/app_strings.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_typography.dart';
+import '../../../../core/widgets/cards/card_names.dart';
 import '../../../../core/widgets/cards/playing_card.dart';
 
 /// §27/§28 — the player's hand.
@@ -86,7 +89,7 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final cw = widget.cardWidth;
-    final ch = cw * 1.55;
+    final ch = cw * CardMetrics.aspect;
     final n = widget.cards.length;
     if (n == 0) {
       return SizedBox(height: ch + 26);
@@ -101,7 +104,8 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
           final fit = (available - cw) / (n - 1);
           step = math.min(step, fit);
         }
-        final minStep = cw * 0.30;
+        // Never let neighbouring cards share less than a thumb's width.
+        final minStep = math.max(cw * 0.30, 48.0);
         final scrolls = step < minStep;
         if (scrolls) step = minStep;
 
@@ -180,7 +184,8 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
         animation: _shake,
         builder: (context, inner) {
           final t = _shake.value;
-          final dx = math.sin(t * math.pi * 6) * 9 * (1 - t);
+          final dx =
+              math.sin(t * math.pi * 6) * 9 * (1 - t) * Motion.shakeScale;
           return Transform.translate(offset: Offset(dx, 0), child: inner);
         },
         child: child,
@@ -206,38 +211,47 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
       width: cw,
       height: ch,
       child: widget.enabled
-          ? GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                if (!isPlayable) {
-                  _reject(card);
-                  return;
-                }
-                widget.onSelect(card);
-              },
-              onPanStart: (_) {
-                if (!isPlayable) return;
-                setState(() {
-                  _dragging = card;
-                  _dragOffset = Offset.zero;
-                });
-                widget.onSelect(card);
-              },
-              onPanUpdate: (details) {
-                if (_dragging != card) return;
-                setState(() => _dragOffset += details.delta);
-              },
-              onPanEnd: (_) {
-                if (_dragging != card) return;
-                final travelled = -_dragOffset.dy;
-                setState(() {
-                  _dragging = null;
-                  _dragOffset = Offset.zero;
-                });
-                // A decisive push toward the table plays the card.
-                if (travelled > ch * 0.42) widget.onPlay(card);
-              },
-              child: tilted,
+          ? Semantics(
+              button: true,
+              enabled: isPlayable,
+              selected: isSelected,
+              label: isPlayable
+                  ? Strings.s.cardSemanticsPlayable(cardDisplayName(card))
+                  : Strings.s.cardSemanticsNotPlayable(cardDisplayName(card)),
+              excludeSemantics: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  if (!isPlayable) {
+                    _reject(card);
+                    return;
+                  }
+                  widget.onSelect(card);
+                },
+                onPanStart: (_) {
+                  if (!isPlayable) return;
+                  setState(() {
+                    _dragging = card;
+                    _dragOffset = Offset.zero;
+                  });
+                  widget.onSelect(card);
+                },
+                onPanUpdate: (details) {
+                  if (_dragging != card) return;
+                  setState(() => _dragOffset += details.delta);
+                },
+                onPanEnd: (_) {
+                  if (_dragging != card) return;
+                  final travelled = -_dragOffset.dy;
+                  setState(() {
+                    _dragging = null;
+                    _dragOffset = Offset.zero;
+                  });
+                  // A decisive push toward the table plays the card.
+                  if (travelled > ch * 0.42) widget.onPlay(card);
+                },
+                child: tilted,
+              ),
             )
           : IgnorePointer(child: tilted),
     );
@@ -272,7 +286,7 @@ class OpponentHand extends StatelessWidget {
       width: cardWidth + step * (shown - 1),
       // Tall enough to contain the fan's own arc, so the cards below it are
       // never overlapped.
-      height: cardWidth * 1.55 * 0.74,
+      height: cardWidth * CardMetrics.aspect * 0.74,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -328,7 +342,7 @@ class CardCountChip extends StatelessWidget {
       child: Text(
         '$count',
         style: TextStyle(
-          fontFamily: 'Manrope',
+          fontFamily: AppText.ui,
           fontSize: 12,
           fontWeight: FontWeight.w800,
           color: colour,

@@ -107,7 +107,7 @@ ARB has no list type, so `reactions8` is eight keys joined by an extension.
 
 Centralised in `app/theme/`:
 
-- `AppColors` — surfaces, gold ramp, text, plus `CourtInks` and `CardBackInks`
+- `AppColors` — surfaces, gold ramp, text, plus `CourtInks`
 - `SuitPalette` — colour **and** shape per suit, so colour is never the only
   differentiator
 - `AppText` — Cinzel for display, Manrope for UI and every numeral

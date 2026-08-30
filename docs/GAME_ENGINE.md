@@ -292,10 +292,15 @@ so the table can shake the card.
 
 The engine draws no randomness of its own. Every shuffle (the deal at
 creation, every next-round deal, every discard recycle) uses
-`Random((seed & 0x7FFFFFFF) ^ ((version * 0x9E3779B1) & 0x7FFFFFFF))` —
-both operands kept below 2³¹ because dart2js truncates bitwise operators to
-32 bits and the online server runs this engine compiled to JavaScript
-(Session 4). Since `version`
+`Random((seed % 2³¹ ^ ((version * 0x9E3779B1) & 0x7FFFFFFF)) + (seed ~/ 2³¹) * 2³¹)`
+— the XOR sees two operands below 2³¹ because dart2js truncates bitwise
+operators to 32 bits and the online server runs this engine compiled to
+JavaScript (Session 4); the high part of the seed is folded in with
+arithmetic, exact below 2⁵³ on both runtimes, so the server can hand out
+**52-bit seeds** (Session 6 — a 31-bit seed could be brute-forced from a
+single dealt hand by a modified client). Seeds below 2³¹ mix exactly as
+before; two conformance fixtures with wide seeds prove the VM and the
+JavaScript build still agree. Since `version`
 increments on every action, `(state, action) → state'` is a pure function:
 replaying an action log from the same seed reproduces every intermediate
 state byte-for-byte, on any device or server.

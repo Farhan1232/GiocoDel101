@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Online play (Supabase auth, database, Realtime, the match function).
+         The offline game never opens a socket; this is the only permission. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Gioco del 101"
         android:name="${applicationName}"

@@ -1,11 +1,11 @@
 {
-    "name": "gioco_del_101",
-    "short_name": "gioco_del_101",
+    "name": "Gioco del 101",
+    "short_name": "Gioco del 101",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0B1020",
+    "theme_color": "#0B1020",
+    "description": "Gioco del 101 — il gioco di carte napoletano, offline e online.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

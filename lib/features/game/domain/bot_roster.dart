@@ -10,13 +10,11 @@ class BotProfile {
     required this.name,
     required this.avatarId,
     required this.personality,
-    required this.blurb,
   });
 
   final String name;
   final String avatarId;
   final BotPersonality personality;
-  final String blurb;
 }
 
 class BotRoster {
@@ -27,25 +25,21 @@ class BotRoster {
       name: 'Marco',
       avatarId: 'marco',
       personality: BotPersonality.aggressive,
-      blurb: 'Non si tiene mai un Asso in mano',
     ),
     BotProfile(
       name: 'Sofia',
       avatarId: 'sofia',
       personality: BotPersonality.tactical,
-      blurb: 'Conserva le carte forti per il momento giusto',
     ),
     BotProfile(
       name: 'Luca',
       avatarId: 'luca',
       personality: BotPersonality.risky,
-      blurb: 'Ogni tanto fa una giocata che non ti aspetti',
     ),
     BotProfile(
       name: 'Giulia',
       avatarId: 'giulia',
       personality: BotPersonality.calm,
-      blurb: 'Controlla i semi con pazienza',
     ),
   ];
 

@@ -231,7 +231,7 @@ class TutorialFigures {
 
   static Widget _fan(double cw, List<GameCard> cards) => SizedBox(
     width: cw + (cards.length - 1) * cw * 0.42,
-    height: cw * 1.55 + 12,
+    height: cw * CardMetrics.aspect + 12,
     child: Stack(
       children: [
         for (var i = 0; i < cards.length; i++)
@@ -249,7 +249,7 @@ class TutorialFigures {
 
   static Widget _emptySlot(double cw) => Container(
     width: cw,
-    height: cw * 1.55,
+    height: cw * CardMetrics.aspect,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(cw * 0.075),
       border: Border.all(

@@ -147,6 +147,8 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
         body: switch (error.error) {
           RoomError.notFound || RoomError.invalidCode => s.roomNotFound,
           RoomError.full => s.roomFull,
+          RoomError.alreadyStarted => s.roomAlreadyStarted,
+          RoomError.alreadyInMatch => s.roomAlreadyInMatch,
           _ => s.roomJoinFailed,
         },
         dismissLabel: s.gotIt,

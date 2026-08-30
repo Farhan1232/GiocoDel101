@@ -8,6 +8,8 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/card_backs.dart';
 import 'card_back_painter.dart';
 import 'card_face_painter.dart';
+import 'card_names.dart';
+import '../../../app/localization/app_strings.dart';
 
 /// One card, face up or face down, with printed thickness and a soft
 /// contact shadow (§34).
@@ -116,51 +118,15 @@ class PlayingCard extends StatelessWidget {
       );
     }
 
-    return RepaintBoundary(
-      child: SizedBox(width: width, height: height + thickness, child: content),
-    );
-  }
-}
-
-/// Flips between back and face around the card's vertical axis (§30).
-class FlippingCard extends StatelessWidget {
-  const FlippingCard({
-    super.key,
-    required this.width,
-    required this.card,
-    required this.progress,
-    this.backId = 'oro',
-    this.elevation = 1.0,
-    this.highContrast = false,
-  });
-
-  final double width;
-  final GameCard card;
-
-  /// 0 = fully face down, 1 = fully face up.
-  final double progress;
-  final String backId;
-  final double elevation;
-  final bool highContrast;
-
-  @override
-  Widget build(BuildContext context) {
-    final angle = progress * math.pi;
-    final showFace = progress > 0.5;
-    return Transform(
-      alignment: Alignment.center,
-      transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.0014)
-        ..rotateY(showFace ? angle - math.pi : angle),
-      child: PlayingCard(
-        width: width,
-        card: card,
-        faceUp: showFace,
-        backId: backId,
-        elevation: elevation,
-        highContrast: highContrast,
-        // A sheen crosses the back as it turns.
-        shine: showFace ? 0 : (1 - (progress * 2 - 0.5).abs()).clamp(0.0, 1.0),
+    return Semantics(
+      image: true,
+      label: showFace ? cardDisplayName(card!) : Strings.s.cardBack,
+      child: RepaintBoundary(
+        child: SizedBox(
+          width: width,
+          height: height + thickness,
+          child: content,
+        ),
       ),
     );
   }

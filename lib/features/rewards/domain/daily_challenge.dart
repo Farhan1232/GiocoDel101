@@ -16,7 +16,6 @@ class DailyChallenge {
     required this.startingScore,
     required this.opponentStartingScore,
     required this.rules,
-    required this.reward,
   });
 
   /// `yyyyMMdd`.
@@ -35,5 +34,4 @@ class DailyChallenge {
   final int opponentStartingScore;
 
   final GameRules rules;
-  final String reward;
 }

@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @achMaestroNoveBody.
   ///
   /// In it, this message translates to:
-  /// **'Vinci dopo aver scelto tutti e quattro i semi col Cavallo'**
+  /// **'Vinci dopo aver scelto tutti e quattro i pali col Cavallo'**
   String get achMaestroNoveBody;
 
   /// No description provided for @achMaestroNoveTitle.
@@ -230,12 +230,6 @@ abstract class AppLocalizations {
   /// **'Sfidante'**
   String get achSfidanteTitle;
 
-  /// No description provided for @achUnlocked.
-  ///
-  /// In it, this message translates to:
-  /// **'Sbloccato'**
-  String get achUnlocked;
-
   /// No description provided for @achVendettaBody.
   ///
   /// In it, this message translates to:
@@ -260,12 +254,6 @@ abstract class AppLocalizations {
   /// **'Veterano'**
   String get achVeteranoTitle;
 
-  /// No description provided for @achievementUnlockedToast.
-  ///
-  /// In it, this message translates to:
-  /// **'Obiettivo sbloccato'**
-  String get achievementUnlockedToast;
-
   /// No description provided for @achievements.
   ///
   /// In it, this message translates to:
@@ -275,7 +263,7 @@ abstract class AppLocalizations {
   /// No description provided for @activeSuit.
   ///
   /// In it, this message translates to:
-  /// **'Seme attivo'**
+  /// **'Palo attivo'**
   String get activeSuit;
 
   /// No description provided for @advancedRules.
@@ -434,12 +422,6 @@ abstract class AppLocalizations {
   /// **'Benvenuto'**
   String get authTitle;
 
-  /// No description provided for @backToZero.
-  ///
-  /// In it, this message translates to:
-  /// **'RITORNO A ZERO'**
-  String get backToZero;
-
   /// No description provided for @bestComeback.
   ///
   /// In it, this message translates to:
@@ -463,6 +445,24 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Dorso delle carte'**
   String get cardBack;
+
+  /// No description provided for @cardName.
+  ///
+  /// In it, this message translates to:
+  /// **'{rank} di {suit}'**
+  String cardName(String rank, String suit);
+
+  /// No description provided for @cardSemanticsNotPlayable.
+  ///
+  /// In it, this message translates to:
+  /// **'{card}, non giocabile ora'**
+  String cardSemanticsNotPlayable(String card);
+
+  /// No description provided for @cardSemanticsPlayable.
+  ///
+  /// In it, this message translates to:
+  /// **'{card}, giocabile'**
+  String cardSemanticsPlayable(String card);
 
   /// No description provided for @cardsLeft.
   ///
@@ -488,10 +488,70 @@ abstract class AppLocalizations {
   /// **'CENTOUNO!'**
   String get centounoTitle;
 
+  /// No description provided for @challengeEdgeBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Parti da 80 punti contro un avversario difficile. Un round sbagliato e sei fuori.'**
+  String get challengeEdgeBody;
+
+  /// No description provided for @challengeEdgeTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Sull’orlo'**
+  String get challengeEdgeTitle;
+
+  /// No description provided for @challengeFullBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Quattro giocatori, avversari difficili, nessuna pesca volontaria.'**
+  String get challengeFullBody;
+
+  /// No description provided for @challengeFullTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Tavolo pieno'**
+  String get challengeFullTitle;
+
+  /// No description provided for @challengeStormBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Mano da 8 carte e catene di 2 scatenate. Sopravvivi alla tempesta.'**
+  String get challengeStormBody;
+
+  /// No description provided for @challengeStormTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Tempesta di due'**
+  String get challengeStormTitle;
+
+  /// No description provided for @challengeTightBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Solo 3 carte a testa. Poche scelte, nessun margine di errore.'**
+  String get challengeTightBody;
+
+  /// No description provided for @challengeTightTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Mano stretta'**
+  String get challengeTightTitle;
+
+  /// No description provided for @challengeZeroBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Parti da 94 punti: trova i 7 punti esatti e torna a zero.'**
+  String get challengeZeroBody;
+
+  /// No description provided for @challengeZeroTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Ritorno a zero'**
+  String get challengeZeroTitle;
+
   /// No description provided for @chooseSuit.
   ///
   /// In it, this message translates to:
-  /// **'Scegli il seme'**
+  /// **'Scegli il palo'**
   String get chooseSuit;
 
   /// No description provided for @coachDraw.
@@ -509,13 +569,13 @@ abstract class AppLocalizations {
   /// No description provided for @coachMatch.
   ///
   /// In it, this message translates to:
-  /// **'Gioca una carta dello stesso seme o valore.'**
+  /// **'Gioca una carta dello stesso palo o valore.'**
   String get coachMatch;
 
   /// No description provided for @coachSpecials.
   ///
   /// In it, this message translates to:
-  /// **'Asso salta il turno, 2 fa pescare, Cavallo cambia seme.'**
+  /// **'Asso salta il turno, 2 fa pescare, Cavallo cambia palo.'**
   String get coachSpecials;
 
   /// No description provided for @commonBack.
@@ -535,12 +595,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Disponibile a breve'**
   String get commonComingSoon;
-
-  /// No description provided for @commonEmptyBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Quando ci saranno dati, li vedrai qui.'**
-  String get commonEmptyBody;
 
   /// No description provided for @commonEmptyTitle.
   ///
@@ -698,12 +752,6 @@ abstract class AppLocalizations {
   /// **'Sfida completata'**
   String get dailyChallengeDone;
 
-  /// No description provided for @dailyCompleted.
-  ///
-  /// In it, this message translates to:
-  /// **'Completata oggi'**
-  String get dailyCompleted;
-
   /// No description provided for @dailyReward.
   ///
   /// In it, this message translates to:
@@ -770,18 +818,6 @@ abstract class AppLocalizations {
   /// **'Torna domani'**
   String get dailyRewardTomorrow;
 
-  /// No description provided for @dailyStartHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Una configurazione diversa ogni giorno.'**
-  String get dailyStartHint;
-
-  /// No description provided for @dailyTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Sfida del Giorno'**
-  String get dailyTitle;
-
   /// No description provided for @defaultDifficulty.
   ///
   /// In it, this message translates to:
@@ -817,6 +853,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Scarti'**
   String get discardPile;
+
+  /// No description provided for @discardTop.
+  ///
+  /// In it, this message translates to:
+  /// **'Scarti: {card}'**
+  String discardTop(String card);
 
   /// No description provided for @drawCard.
   ///
@@ -1070,12 +1112,6 @@ abstract class AppLocalizations {
   /// **'Carte grandi'**
   String get largeCards;
 
-  /// No description provided for @lastCard.
-  ///
-  /// In it, this message translates to:
-  /// **'ULTIMA CARTA'**
-  String get lastCard;
-
   /// No description provided for @leaderboardAllTime.
   ///
   /// In it, this message translates to:
@@ -1148,12 +1184,6 @@ abstract class AppLocalizations {
   /// **'Assente'**
   String get lobbyAway;
 
-  /// No description provided for @lobbyConnected.
-  ///
-  /// In it, this message translates to:
-  /// **'Connesso'**
-  String get lobbyConnected;
-
   /// No description provided for @lobbyCopied.
   ///
   /// In it, this message translates to:
@@ -1189,12 +1219,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Non sono pronto'**
   String get lobbyNotReadyToggle;
-
-  /// No description provided for @lobbyPlayerSlot.
-  ///
-  /// In it, this message translates to:
-  /// **'Posto {index}'**
-  String lobbyPlayerSlot(int index);
 
   /// No description provided for @lobbyReady.
   ///
@@ -1235,7 +1259,7 @@ abstract class AppLocalizations {
   /// No description provided for @lobbyStartPending.
   ///
   /// In it, this message translates to:
-  /// **'L’avvio delle partite online arriva con il prossimo aggiornamento.'**
+  /// **'La partita parte quando tutti i posti sono occupati e ogni giocatore è pronto.'**
   String get lobbyStartPending;
 
   /// No description provided for @lobbyStarting.
@@ -1304,12 +1328,6 @@ abstract class AppLocalizations {
   /// **'VINCITORE'**
   String get matchWinner;
 
-  /// No description provided for @matchmakingBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Stiamo cercando altri giocatori…'**
-  String get matchmakingBody;
-
   /// No description provided for @matchmakingBusy.
   ///
   /// In it, this message translates to:
@@ -1351,12 +1369,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Tavolo trovato!'**
   String get matchmakingMatched;
-
-  /// No description provided for @matchmakingPending.
-  ///
-  /// In it, this message translates to:
-  /// **'Le code per la partita rapida non sono ancora aperte.'**
-  String get matchmakingPending;
 
   /// No description provided for @matchmakingPlayers.
   ///
@@ -1517,7 +1529,7 @@ abstract class AppLocalizations {
   /// No description provided for @modeVsComputer.
   ///
   /// In it, this message translates to:
-  /// **'Vs Computer'**
+  /// **'Contro il computer'**
   String get modeVsComputer;
 
   /// No description provided for @music.
@@ -1531,12 +1543,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Nessuna connessione'**
   String get networkOffline;
-
-  /// No description provided for @networkOnline.
-  ///
-  /// In it, this message translates to:
-  /// **'Di nuovo online'**
-  String get networkOnline;
 
   /// No description provided for @networkReconnecting.
   ///
@@ -1583,7 +1589,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboard2Body.
   ///
   /// In it, this message translates to:
-  /// **'L’Asso salta il turno, il 2 fa pescare, il Cavallo cambia seme. Arrivare a 101 esatti azzera il punteggio.'**
+  /// **'L’Asso salta il turno, il 2 fa pescare, il Cavallo cambia palo. Arrivare a 101 esatti azzera il punteggio.'**
   String get onboard2Body;
 
   /// No description provided for @onboard2Title.
@@ -1613,7 +1619,7 @@ abstract class AppLocalizations {
   /// No description provided for @onlineDisconnected.
   ///
   /// In it, this message translates to:
-  /// **'Connessione persa'**
+  /// **'Connessione persa. Tentativo di riconnessione...'**
   String get onlineDisconnected;
 
   /// No description provided for @onlineForfeit.
@@ -1649,7 +1655,7 @@ abstract class AppLocalizations {
   /// No description provided for @onlineMoveRefused.
   ///
   /// In it, this message translates to:
-  /// **'Mossa non valida'**
+  /// **'Mossa non valida.'**
   String get onlineMoveRefused;
 
   /// No description provided for @onlineMoveStale.
@@ -1658,11 +1664,11 @@ abstract class AppLocalizations {
   /// **'Il tavolo era cambiato: riprova'**
   String get onlineMoveStale;
 
-  /// No description provided for @onlineNextRoundAuto.
+  /// No description provided for @onlineNotYourTurn.
   ///
   /// In it, this message translates to:
-  /// **'Il prossimo round parte tra {seconds}s'**
-  String onlineNextRoundAuto(int seconds);
+  /// **'Non è il tuo turno.'**
+  String get onlineNotYourTurn;
 
   /// No description provided for @onlineOpponentLeft.
   ///
@@ -1676,12 +1682,6 @@ abstract class AppLocalizations {
   /// **'Ti troviamo un tavolo libero'**
   String get onlineQuickMatchHint;
 
-  /// No description provided for @onlineReconnecting.
-  ///
-  /// In it, this message translates to:
-  /// **'Riconnessione…'**
-  String get onlineReconnecting;
-
   /// No description provided for @onlineRejoinMatch.
   ///
   /// In it, this message translates to:
@@ -1694,47 +1694,17 @@ abstract class AppLocalizations {
   /// **'Una partita online ti sta aspettando'**
   String get onlineRejoinMatchHint;
 
-  /// No description provided for @onlineRematchAsked.
-  ///
-  /// In it, this message translates to:
-  /// **'{name} vuole la rivincita'**
-  String onlineRematchAsked(String name);
-
-  /// No description provided for @onlineRematchRequested.
-  ///
-  /// In it, this message translates to:
-  /// **'Rivincita richiesta'**
-  String get onlineRematchRequested;
-
   /// No description provided for @onlineRematchWaiting.
   ///
   /// In it, this message translates to:
   /// **'In attesa degli altri ({votes}/{needed})'**
   String onlineRematchWaiting(int votes, int needed);
 
-  /// No description provided for @onlineServerMoved.
-  ///
-  /// In it, this message translates to:
-  /// **'Il server ha giocato per {name}'**
-  String onlineServerMoved(String name);
-
   /// No description provided for @onlineSignInRequired.
   ///
   /// In it, this message translates to:
   /// **'Accedi o gioca come ospite per usare le funzioni online.'**
   String get onlineSignInRequired;
-
-  /// No description provided for @onlineSyncing.
-  ///
-  /// In it, this message translates to:
-  /// **'Aggiornamento del tavolo…'**
-  String get onlineSyncing;
-
-  /// No description provided for @onlineTimedOut.
-  ///
-  /// In it, this message translates to:
-  /// **'Tempo scaduto'**
-  String get onlineTimedOut;
 
   /// No description provided for @onlineTitle.
   ///
@@ -1753,18 +1723,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Servizio online non raggiungibile. Il gioco offline resta disponibile.'**
   String get onlineUnavailableRetry;
-
-  /// No description provided for @onlineWaitingFor.
-  ///
-  /// In it, this message translates to:
-  /// **'Tocca a {name}'**
-  String onlineWaitingFor(String name);
-
-  /// No description provided for @onlineYouForfeited.
-  ///
-  /// In it, this message translates to:
-  /// **'Hai abbandonato la partita'**
-  String get onlineYouForfeited;
 
   /// No description provided for @passPhoneHint.
   ///
@@ -1814,12 +1772,6 @@ abstract class AppLocalizations {
   /// **'GIOCA'**
   String get play;
 
-  /// No description provided for @playDrawn.
-  ///
-  /// In it, this message translates to:
-  /// **'Gioca la carta pescata'**
-  String get playDrawn;
-
   /// No description provided for @playerName.
   ///
   /// In it, this message translates to:
@@ -1849,12 +1801,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Modifica profilo'**
   String get profileEdit;
-
-  /// No description provided for @profileLevel.
-  ///
-  /// In it, this message translates to:
-  /// **'Livello'**
-  String get profileLevel;
 
   /// No description provided for @profileLevelValue.
   ///
@@ -1909,12 +1855,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Vittorie'**
   String get profileWins;
-
-  /// No description provided for @profileXp.
-  ///
-  /// In it, this message translates to:
-  /// **'Esperienza'**
-  String get profileXp;
 
   /// No description provided for @profileXpProgress.
   ///
@@ -2072,6 +2012,12 @@ abstract class AppLocalizations {
   /// **'Rivincita'**
   String get rematch;
 
+  /// No description provided for @replayAgain.
+  ///
+  /// In it, this message translates to:
+  /// **'Rivedi'**
+  String get replayAgain;
+
   /// No description provided for @replayLastHand.
   ///
   /// In it, this message translates to:
@@ -2102,6 +2048,18 @@ abstract class AppLocalizations {
   /// **'Continua da dove eri rimasto'**
   String get resumeMatchHint;
 
+  /// No description provided for @roomAlreadyInMatch.
+  ///
+  /// In it, this message translates to:
+  /// **'Hai già una partita online in corso. Rientra al tavolo o abbandonala prima di aprirne un’altra.'**
+  String get roomAlreadyInMatch;
+
+  /// No description provided for @roomAlreadyStarted.
+  ///
+  /// In it, this message translates to:
+  /// **'La partita è già iniziata.'**
+  String get roomAlreadyStarted;
+
   /// No description provided for @roomCreateFailed.
   ///
   /// In it, this message translates to:
@@ -2123,7 +2081,7 @@ abstract class AppLocalizations {
   /// No description provided for @roomNotFound.
   ///
   /// In it, this message translates to:
-  /// **'Nessuna stanza aperta con questo codice.'**
+  /// **'Stanza non trovata.'**
   String get roomNotFound;
 
   /// No description provided for @round.
@@ -2231,14 +2189,8 @@ abstract class AppLocalizations {
   /// No description provided for @ruleWildNineHint.
   ///
   /// In it, this message translates to:
-  /// **'Il 9 cambia seme in ogni momento'**
+  /// **'Il 9 cambia palo in ogni momento'**
   String get ruleWildNineHint;
-
-  /// No description provided for @rulesActiveHint.
-  ///
-  /// In it, this message translates to:
-  /// **'Le regole della casa scelte per il tavolo in corso.'**
-  String get rulesActiveHint;
 
   /// No description provided for @rulesActiveTitle.
   ///
@@ -2263,6 +2215,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'STATISTICHE'**
   String get sectionStatistics;
+
+  /// No description provided for @sessionExpired.
+  ///
+  /// In it, this message translates to:
+  /// **'Sessione scaduta. Accedi di nuovo.'**
+  String get sessionExpired;
 
   /// No description provided for @settings.
   ///
@@ -2336,6 +2294,24 @@ abstract class AppLocalizations {
   /// **'Termini di servizio'**
   String get settingsTerms;
 
+  /// No description provided for @setupOtherPlayers.
+  ///
+  /// In it, this message translates to:
+  /// **'Altri giocatori'**
+  String get setupOtherPlayers;
+
+  /// No description provided for @setupPlayerN.
+  ///
+  /// In it, this message translates to:
+  /// **'Giocatore {n}'**
+  String setupPlayerN(int n);
+
+  /// No description provided for @setupResetRules.
+  ///
+  /// In it, this message translates to:
+  /// **'Ripristina regole'**
+  String get setupResetRules;
+
   /// No description provided for @showPassword.
   ///
   /// In it, this message translates to:
@@ -2365,12 +2341,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Effetti sonori'**
   String get soundEffects;
-
-  /// No description provided for @startChallenge.
-  ///
-  /// In it, this message translates to:
-  /// **'ACCETTA LA SFIDA'**
-  String get startChallenge;
 
   /// No description provided for @startMatch.
   ///
@@ -2417,7 +2387,7 @@ abstract class AppLocalizations {
   /// No description provided for @statFavouriteSuit.
   ///
   /// In it, this message translates to:
-  /// **'Seme preferito'**
+  /// **'Palo preferito'**
   String get statFavouriteSuit;
 
   /// No description provided for @statMatches.
@@ -2522,17 +2492,29 @@ abstract class AppLocalizations {
   /// **'Regole'**
   String get tableRules;
 
+  /// No description provided for @tableTaglineMaiolica.
+  ///
+  /// In it, this message translates to:
+  /// **'Ceramica mediterranea, cobalto e sole'**
+  String get tableTaglineMaiolica;
+
+  /// No description provided for @tableTaglineNapoli.
+  ///
+  /// In it, this message translates to:
+  /// **'Oro antico sul golfo che dorme'**
+  String get tableTaglineNapoli;
+
+  /// No description provided for @tableTaglineVesuvio.
+  ///
+  /// In it, this message translates to:
+  /// **'Cenere calda e bagliori di terracotta'**
+  String get tableTaglineVesuvio;
+
   /// No description provided for @tableTheme.
   ///
   /// In it, this message translates to:
   /// **'Tavolo'**
   String get tableTheme;
-
-  /// No description provided for @tableTurnTimer.
-  ///
-  /// In it, this message translates to:
-  /// **'Tempo'**
-  String get tableTurnTimer;
 
   /// No description provided for @takePenalty.
   ///
@@ -2579,7 +2561,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutBlockSuit.
   ///
   /// In it, this message translates to:
-  /// **'Catena annullata: nessuno pesca. Scegli il seme.'**
+  /// **'Catena annullata: nessuno pesca. Scegli il palo.'**
   String get tutBlockSuit;
 
   /// No description provided for @tutBlockTitle.
@@ -2591,7 +2573,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutCavalloDone.
   ///
   /// In it, this message translates to:
-  /// **'Il seme attivo ora è {suit}. Il Cavallo non impone il proprio seme: impone quello che scegli tu.'**
+  /// **'Il palo attivo ora è {suit}. Il Cavallo non impone il proprio palo: impone quello che scegli tu.'**
   String tutCavalloDone(String suit);
 
   /// No description provided for @tutCavalloPrompt.
@@ -2603,13 +2585,13 @@ abstract class AppLocalizations {
   /// No description provided for @tutCavalloSuit.
   ///
   /// In it, this message translates to:
-  /// **'Ora scegli il nuovo seme attivo: conviene quello di cui hai più carte.'**
+  /// **'Ora scegli il nuovo palo attivo: conviene quello di cui hai più carte.'**
   String get tutCavalloSuit;
 
   /// No description provided for @tutCavalloTitle.
   ///
   /// In it, this message translates to:
-  /// **'Cavallo — cambia seme'**
+  /// **'Cavallo — cambia palo'**
   String get tutCavalloTitle;
 
   /// No description provided for @tutCentounoDone.
@@ -2675,7 +2657,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutFirstCardDone.
   ///
   /// In it, this message translates to:
-  /// **'Perfetto. Ogni carta giocata deve seguire il seme attivo oppure il valore della carta in cima agli scarti.'**
+  /// **'Perfetto. Ogni carta giocata deve seguire il palo attivo oppure il valore della carta in cima agli scarti.'**
   String get tutFirstCardDone;
 
   /// No description provided for @tutFirstCardPrompt.
@@ -2687,7 +2669,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutFirstCardTitle.
   ///
   /// In it, this message translates to:
-  /// **'Seme o valore'**
+  /// **'Palo o valore'**
   String get tutFirstCardTitle;
 
   /// No description provided for @tutTwoDone.
@@ -2735,13 +2717,13 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialCavallo.
   ///
   /// In it, this message translates to:
-  /// **'Cavallo — cambia seme'**
+  /// **'Cavallo — cambia palo'**
   String get tutorialCavallo;
 
   /// No description provided for @tutorialCavalloBody.
   ///
   /// In it, this message translates to:
-  /// **'Il Cavallo (9) si gioca in qualsiasi momento e ti lascia scegliere il nuovo seme attivo con il Rituale dei Semi.'**
+  /// **'Il Cavallo (9) si gioca in qualsiasi momento e ti lascia scegliere il nuovo palo attivo con il Rituale dei Pali.'**
   String get tutorialCavalloBody;
 
   /// No description provided for @tutorialCompleteBody.
@@ -2813,13 +2795,13 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialMatch.
   ///
   /// In it, this message translates to:
-  /// **'Seme o valore'**
+  /// **'Palo o valore'**
   String get tutorialMatch;
 
   /// No description provided for @tutorialMatchBody.
   ///
   /// In it, this message translates to:
-  /// **'Puoi giocare una carta dello stesso seme attivo oppure dello stesso valore della carta in cima agli scarti.'**
+  /// **'Puoi giocare una carta dello stesso palo attivo oppure dello stesso valore della carta in cima agli scarti.'**
   String get tutorialMatchBody;
 
   /// No description provided for @tutorialOver101.

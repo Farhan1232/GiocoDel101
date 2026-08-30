@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../domain/remote_room.dart';
 import '../domain/room_models.dart';
+import '../../../core/utils/log.dart';
 
 /// Closes a live room watch.
 typedef RoomWatch = Future<void> Function();
@@ -119,7 +119,7 @@ class SupabaseRoomsRepository implements RoomsRepository {
     try {
       await _client.rpc<void>('room_heartbeat', params: {'p_room_id': roomId});
     } catch (error) {
-      debugPrint('room heartbeat: $error');
+      Log.d('room heartbeat: $error');
     }
   }
 
@@ -151,13 +151,13 @@ class SupabaseRoomsRepository implements RoomsRepository {
         )
         .subscribe((status, error) {
           if (status == sb.RealtimeSubscribeStatus.subscribed) onChanged();
-          if (error != null) debugPrint('room channel $status: $error');
+          if (error != null) Log.d('room channel $status: $error');
         });
     return () async {
       try {
         await _client.removeChannel(channel);
       } catch (error) {
-        debugPrint('room channel close: $error');
+        Log.d('room channel close: $error');
       }
     };
   }
@@ -166,12 +166,18 @@ class SupabaseRoomsRepository implements RoomsRepository {
     try {
       return await call();
     } on sb.PostgrestException catch (error) {
-      debugPrint('rooms: ${error.code} ${error.message}');
+      Log.d('rooms: ${error.code} ${error.message}');
       final m = error.message;
       if (m.contains('room_not_found')) {
         throw RoomException(RoomError.notFound, m);
       }
       if (m.contains('room_full')) throw RoomException(RoomError.full, m);
+      if (m.contains('match_already_started')) {
+        throw RoomException(RoomError.alreadyStarted, m);
+      }
+      if (m.contains('already_in_match')) {
+        throw RoomException(RoomError.alreadyInMatch, m);
+      }
       if (m.contains('invalid_code')) {
         throw RoomException(RoomError.invalidCode, m);
       }

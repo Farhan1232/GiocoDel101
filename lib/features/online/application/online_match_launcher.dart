@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../../app/bindings/backend_services.dart';
@@ -8,6 +7,7 @@ import '../../game/application/game_controller.dart';
 import '../../game/application/table_controller.dart';
 import '../domain/online_match_models.dart';
 import 'online_match_controller.dart';
+import '../../../core/utils/log.dart';
 
 /// Puts an online match on screen — from a lobby start, a quick match, a
 /// rematch, or "Rientra nella partita" after a restart. Always the same
@@ -32,7 +32,7 @@ class OnlineMatchLauncher {
     final userId = Get.find<SessionController>().current?.userId;
     if (userId == null) throw const OnlineException(OnlineError.notSignedIn);
     final snapshot = await backend.matches.snapshot(matchId);
-    debugPrint('online-match: launch $matchId snapshot v${snapshot.version}');
+    Log.d('online-match: launch $matchId snapshot v${snapshot.version}');
 
     dismiss();
     if (Get.isRegistered<GameController>()) {

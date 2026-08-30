@@ -92,8 +92,13 @@ class SettingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A 52×30 switch is below the 48 px target; the row is the target.
+    final control = trailing;
+    final tap =
+        onTap ??
+        (control is AppSwitch ? () => control.onChanged(!control.value) : null);
     return InkWell(
-      onTap: onTap,
+      onTap: tap,
       borderRadius: BorderRadius.circular(AppRadii.sm),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm + 2),

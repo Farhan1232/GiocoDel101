@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../domain/remote_profile.dart';
+import '../../../core/utils/log.dart';
 
 /// Reads and edits the signed-in player's server profile.
 abstract class ProfileRepository {
@@ -115,7 +115,7 @@ class SupabaseProfileRepository implements ProfileRepository {
     try {
       await _client.rpc<void>('touch_presence');
     } catch (error) {
-      debugPrint('presence: $error');
+      Log.d('presence: $error');
     }
   }
 
@@ -125,7 +125,7 @@ class SupabaseProfileRepository implements ProfileRepository {
     } on ProfileException {
       rethrow;
     } on sb.PostgrestException catch (error) {
-      debugPrint('profile: ${error.code} ${error.message}');
+      Log.d('profile: ${error.code} ${error.message}');
       switch (error.code) {
         case '23505':
           throw ProfileException(ProfileError.nicknameTaken, error.message);

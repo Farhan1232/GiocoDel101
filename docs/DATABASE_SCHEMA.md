@@ -292,6 +292,26 @@ broadcast + presence; members may insert presence only.
 pg_cron: `gioco101-expire-stale-rooms` and `gioco101-expire-stale-matches`
 every 10 minutes.
 
+## Session 6 — release hardening (`20260830100111_release_hardening.sql`)
+
+No new table. What changed, and why:
+
+| Object | Change |
+|---|---|
+| `app_private.assert_not_in_match(user)` | new; raises `already_in_match` (P0031) for a seat at a live match |
+| `public.create_room`, `public.join_room` | call it (only the quick-match queue used to); `join_room` raises `match_already_started` (P0004) for a room whose match is under way, `room_not_found` only for finished/cancelled/unknown codes; a member re-entering the code gets the room back; room names lose control characters |
+| `app_private.sanitize_room_rules(jsonb)` | new; `rooms.rules` accepts only `GameRules.toJson()` keys with the right JSON type, integer ranges (`startingHandSize` 3–10, `targetScore` 11–999, `drawTwoPenalty` 1–4, players 2–4), ≤ 4 KB, `scoreValues` ≤ 10 entries in 0–100; `turnTimeLimitSeconds` is dropped (the room's timer wins) |
+| `public.srv_record_rejection` | the logged action no longer carries `card` / `chosenSuit` / `suit`; at most 100 refusals per seat per match are logged (the receipt is always written) |
+| `public.srv_find_receipt(match, action, user)` | replaces the two-argument form; receipts are the caller's own |
+| `app_private.settle_match` | a match that ends by forfeit before any `match_round_results` row exists writes placements and `is_winner` but skips `record_match_result` and `evaluate_achievements` |
+| `app_private.handle_new_user` | trims after cutting to 16 characters (a trailing space used to fail the whole sign-up); strips zero-width / bidi characters |
+| `profiles_nickname_visible` | new check: no `U+200B–U+200F`, `U+202A–U+202E`, `U+2060–U+206F`, `U+FEFF` |
+| `public.enqueue_quick_match` | an old `matched` row counts only while the caller is still seated in that room |
+| `app_private.expire_stale_matches` | also abandons a match with no action **and** no seat heartbeat for 1 hour; prunes `match_action_receipts` of matches finished > 7 days ago |
+| `app_private.*` | `EXECUTE` revoked from `public`, `anon`, `authenticated` (and by default for future functions) |
+
+`20260830110458_receipt_scope.sql` — `srv_commit_action`'s own receipt lookup (under the engine-row lock) refuses a receipt that belongs to another seat with `action_id_taken` (P0013) instead of replaying it.
+
 ## What is deliberately not here
 
 - Storage buckets — avatars are built-in vector art; no upload exists.

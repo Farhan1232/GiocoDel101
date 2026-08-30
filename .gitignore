@@ -56,3 +56,8 @@ supabase/.env
 supabase/.env.*
 .env
 .env.*
+
+# Signing material never belongs in the repository
+*.jks
+*.keystore
+**/key.properties

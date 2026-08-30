@@ -1446,9 +1446,9 @@ If:function If(a,b){this.a=a
 this.b=b},
 YE:function YE(a,b){this.a=a
 this.b=b},
-ts(a){var t=new A.vY()
-t.L(a.dy&2147483647^a.cy*2654435761&2147483647)
-return t},
+ts(a){var t=2147483648,s=a.dy,r=new A.vY()
+r.L(((B.jn.h(s,t)^a.cy*2654435761&2147483647)>>>0)+B.jn.B(s,t)*2147483648)
+return r},
 yV(a,b,c){var t,s,r,q=a.WH(0,b)
 if(q==null||!B.Nm.tg(q,c.b))return a
 t=A.qC(a,u.N,u.a)
@@ -1608,8 +1608,8 @@ L8(a9){var t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3=null,a4="nineBloc
 if(u.f.b(a8)){t=A.Fl(u.c,u.S)
 for(s=0;s<10;++s){r=B.x0[s]
 q=r.b
-if(a8.x4(q))t.Y(0,r,B.CD.yu(A.z5(a8.WH(0,q))))
-else if(a8.x4(A.Ie(r)))t.Y(0,r,B.CD.yu(A.z5(a8.WH(0,A.Ie(r)))))}p=t}else p=B.yY
+if(a8.NZ(q))t.Y(0,r,B.CD.yu(A.z5(a8.WH(0,q))))
+else if(a8.NZ(A.Ie(r)))t.Y(0,r,B.CD.yu(A.z5(a8.WH(0,A.Ie(r)))))}p=t}else p=B.yY
 t=A.cU(a9.WH(0,"minPlayers"))
 t=t==null?a3:B.CD.yu(t)
 if(t==null)t=2
@@ -2222,7 +2222,7 @@ s=Math.log(t)/0.6931471805599453|0
 r=Math.pow(2,s)
 q=t<1?t/r:r/t
 return((q*9007199254740992|0)+(q*3542243181176521|0))*599197+s*1259&536870911},
-zY(a,b){var t=a%b
+h(a,b){var t=a%b
 if(t===0)return 0
 if(t>0)return t
 return t+b},
@@ -2276,7 +2276,7 @@ A.Zy.prototype={}
 A.ol.prototype={$ibQ:1}
 A.by.prototype={
 tY(a,b,c){return new A.by(this.a,this.$ti.C("@<1,2>").K(b).K(c).C("by<1,2,3,4>"))},
-x4(a){return this.a.x4(a)},
+NZ(a){return this.a.NZ(a)},
 WH(a,b){return this.$ti.C("4?").a(this.a.WH(0,b))},
 U(a,b){this.a.U(0,new A.aA(this,this.$ti.C("~(3,4)").a(b)))},
 gv(){var t=this.$ti
@@ -2385,10 +2385,10 @@ gkF(a){return this.b.length},
 gM(){var t=this.$keys
 if(t==null){t=Object.keys(this.a)
 this.$keys=t}return t},
-x4(a){if(typeof a!="string")return!1
+NZ(a){if(typeof a!="string")return!1
 if("__proto__"===a)return!1
 return this.a.hasOwnProperty(a)},
-WH(a,b){if(!this.x4(b))return null
+WH(a,b){if(!this.NZ(b))return null
 return this.b[this.a[b]]},
 U(a,b){var t,s,r,q
 this.$ti.C("~(1,2)").a(b)
@@ -2416,7 +2416,7 @@ Ag(){var t=this,s=t.$map
 if(s==null){s=new A.cL(t.$ti.C("cL<1,2>"))
 A.B7(t.a,s)
 t.$map=s}return s},
-x4(a){return this.Ag().x4(a)},
+NZ(a){return this.Ag().NZ(a)},
 WH(a,b){return this.Ag().WH(0,b)},
 U(a,b){this.$ti.C("~(1,2)").a(b)
 this.Ag().U(0,b)},
@@ -2486,7 +2486,7 @@ gl0(a){return this.a===0},
 gv(){return new A.Gp(this,A.Lh(this).C("Gp<1>"))},
 gUQ(){return new A.GP(this,A.Lh(this).C("GP<2>"))},
 gPu(){return new A.C5(this,A.Lh(this).C("C5<1,2>"))},
-x4(a){var t,s
+NZ(a){var t,s
 if(typeof a=="string"){t=this.b
 if(t==null)return!1
 return t[a]!=null}else{s=this.CX(a)
@@ -2524,10 +2524,10 @@ t=p.d
 if(t==null)t=p.d=p.j()
 s=p.xi(a)
 r=t[s]
-if(r==null)t[s]=[p.h(a,b)]
+if(r==null)t[s]=[p.x4(a,b)]
 else{q=p.X(r,a)
 if(q>=0)r[q].b=b
-else r.push(p.h(a,b))}},
+else r.push(p.x4(a,b))}},
 U(a,b){var t,s,r=this
 A.Lh(r).C("~(1,2)").a(b)
 t=r.e
@@ -2539,9 +2539,9 @@ m(a,b,c){var t,s=A.Lh(this)
 s.c.a(b)
 s.y[1].a(c)
 t=a[b]
-if(t==null)a[b]=this.h(b,c)
+if(t==null)a[b]=this.x4(b,c)
 else t.b=c},
-h(a,b){var t=this,s=A.Lh(t),r=new A.vh(s.c.a(a),s.y[1].a(b))
+x4(a,b){var t=this,s=A.Lh(t),r=new A.vh(s.c.a(a),s.y[1].a(b))
 if(t.e==null)t.e=t.f=r
 else t.f=t.f.c=r;++t.a
 t.r=t.r+1&1073741823
@@ -2568,7 +2568,7 @@ gkF(a){return this.a.a},
 gl0(a){return this.a.a===0},
 gkz(a){var t=this.a
 return new A.N6(t,t.r,t.e,this.$ti.C("N6<1>"))},
-tg(a,b){return this.a.x4(b)}}
+tg(a,b){return this.a.NZ(b)}}
 A.N6.prototype={
 gl(){return this.d},
 G(){var t,s=this,r=s.a
@@ -2767,7 +2767,7 @@ for(s=this.gv(),s=s.gkz(s),o=o.C("il.V");s.G();){r=s.gl()
 q=this.WH(0,r)
 p=b.$2(r,q==null?o.a(q):q)
 t.Y(0,p.a,p.b)}return t},
-x4(a){return this.gv().tg(0,a)},
+NZ(a){return this.gv().tg(0,a)},
 gkF(a){var t=this.gv()
 return t.gkF(t)},
 gl0(a){var t=this.gv()
@@ -2811,7 +2811,7 @@ A.KP.prototype={}
 A.Pn.prototype={
 tY(a,b,c){return this.a.tY(0,b,c)},
 WH(a,b){return this.a.WH(0,b)},
-x4(a){return this.a.x4(a)},
+NZ(a){return this.a.NZ(a)},
 U(a,b){this.a.U(0,A.Lh(this).C("~(1,2)").a(b))},
 gl0(a){var t=this.a
 return t.gl0(t)},
@@ -2845,7 +2845,7 @@ return new A.Gp(t,A.Lh(t).C("Gp<1>"))}return new A.i8(this)},
 gUQ(){var t,s=this
 if(s.b==null){t=s.c
 return new A.GP(t,A.Lh(t).C("GP<2>"))}return A.K1(s.Cf(),new A.FE(s),u.N,u.z)},
-x4(a){if(this.b==null)return this.c.x4(a)
+NZ(a){if(this.b==null)return this.c.NZ(a)
 if(typeof a!="string")return!1
 return Object.prototype.hasOwnProperty.call(this.a,a)},
 U(a,b){var t,s,r,q,p=this
@@ -2878,7 +2878,7 @@ gkz(a){var t=this.a
 if(t.b==null){t=t.gv()
 t=t.gkz(t)}else{t=t.Cf()
 t=new J.m1(t,t.length,A.t6(t).C("m1<1>"))}return t},
-tg(a,b){return this.a.x4(b)}}
+tg(a,b){return this.a.NZ(b)}}
 A.Uk.prototype={}
 A.ze.prototype={}
 A.Ud.prototype={
@@ -3103,7 +3103,7 @@ gkF(a){return this.a.length},
 return t.charCodeAt(0)==0?t:t},
 $iBL:1}
 A.vY.prototype={
-L(a){var t,s,r,q,p,o,n,m=this,l=4294967296
+L(a){var t,s,r,q,p,o,n,m=this,l=4294967296,k=a<0?-1:0
 do{t=a>>>0
 a=B.jn.B(a-t,l)
 s=a>>>0
@@ -3129,7 +3129,7 @@ m.b=n
 o=(o^q)>>>0
 m.a=o
 p=(n^s+((s<<31|t>>>1)>>>0)+p>>>0)>>>0
-m.b=p}while(a!==0)
+m.b=p}while(a!==k)
 if(p===0&&o===0)m.a=23063
 m.S()
 m.S()
@@ -3401,7 +3401,7 @@ for(;;){if(m<c){t=l+1
 s=l<p
 l=t}else s=!1
 if(!s)break
-n=B.jn.zY(n+(o===B.Up?1:-1)+q,q)
+n=B.jn.h(n+(o===B.Up?1:-1)+q,q)
 if(!r[n].w)++m}return n},
 zV(a,b,c){var t,s,r
 u.F.a(c)
@@ -3756,7 +3756,7 @@ QP(a){var t=this.db.WH(0,a)
 return t==null?a.c:t},
 Lt(){var t,s,r,q=this,p=u.N,o=A.Fl(p,u.I)
 for(t=q.db,s=0;s<10;++s){r=B.x0[s]
-if(t.x4(r))o.Y(0,r.b,t.WH(0,r))}return A.EF(["minPlayers",q.a,"maxPlayers",q.b,"startingHandSize",q.c,"allowVoluntaryDraw",q.d,"playDrawnCardImmediately",q.e,"restrictPlayToDrawnCard",q.f,"stackDrawTwos",q.r,"wildNineCanAlwaysPlay",q.w,"nineBlockMode",q.x.b,"nineBlockChangesSuit",q.y,"exact101ResetsToZero",q.z,"eliminateAbove101",q.Q,"targetScore",q.as,"mustDrawBeforePassing",q.at,"drawTwoPenalty",q.ax,"pendingPenaltyAppliesAfterWin",q.ay,"starterCardPolicy",q.ch.b,"roundStarterPolicy",q.CW.b,"initialDirection",q.cx.b,"turnTimeLimitSeconds",q.cy,"scoreValues",o],p,u.z)},
+if(t.NZ(r))o.Y(0,r.b,t.WH(0,r))}return A.EF(["minPlayers",q.a,"maxPlayers",q.b,"startingHandSize",q.c,"allowVoluntaryDraw",q.d,"playDrawnCardImmediately",q.e,"restrictPlayToDrawnCard",q.f,"stackDrawTwos",q.r,"wildNineCanAlwaysPlay",q.w,"nineBlockMode",q.x.b,"nineBlockChangesSuit",q.y,"exact101ResetsToZero",q.z,"eliminateAbove101",q.Q,"targetScore",q.as,"mustDrawBeforePassing",q.at,"drawTwoPenalty",q.ax,"pendingPenaltyAppliesAfterWin",q.ay,"starterCardPolicy",q.ch.b,"roundStarterPolicy",q.CW.b,"initialDirection",q.cx.b,"turnTimeLimitSeconds",q.cy,"scoreValues",o],p,u.z)},
 DN(a,b){var t,s,r,q,p,o,n=this
 if(b==null)return!1
 if(n===b)return!0

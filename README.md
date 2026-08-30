@@ -1,342 +1,267 @@
 # Gioco del 101
 
-A premium, fully offline Neapolitan card game for Android and iOS, built with Flutter.
+A premium Neapolitan card game for Android and iOS, built with Flutter, that
+plays **offline against bots or pass-and-play** and **online against real
+people** through a server-authoritative Supabase backend.
 
-Forty cards, four suits, one number. Empty your hand before anyone else; whatever
-your opponents are still holding becomes penalty points. Cross **101** and you are
-out. Land on **101 exactly** and your score resets to zero.
+Forty cards, four suits, one number. Empty your hand before anyone else;
+whatever your opponents are still holding becomes penalty points. Cross
+**101** and you are out. Land on **101 exactly** and your score resets to
+zero. Asso skips, Due draws two (and chains), the Cavallo changes the suit.
 
-Everything runs on the device. No accounts, no backend, no database, no analytics,
-no ads, no network calls of any kind.
+| | |
+|---|---|
+| Flutter / Dart | **3.44.6 / 3.12.2** (stable channel; `sdk: ^3.12.0`) |
+| State management | GetX (`get ^4.7`) — controllers, routing, reactive views |
+| Persistence | `shared_preferences` (settings, statistics, resumable match) |
+| Backend | Supabase (`supabase_flutter ^2.17`): Auth, Postgres + RLS, Realtime, one Edge Function |
+| Localisation | `gen_l10n`, Italian template (`lib/l10n/app_it.arb`) + English |
+| Package id | `it.giocodel101.gioco_del_101` |
+| Tests | 515 Flutter tests, 50 Deno tests, bot simulation, two real-backend regression tools |
+
+Documentation for every part lives in `docs/`; the final state of the
+project, with what was and was not verified, is
+`docs/FINAL_VERIFICATION.md` and `docs/SESSION_HANDOFF.md`.
 
 ---
 
-## 1. Project structure
+## 1. Project overview and layout
+
+Feature-first. Each feature holds up to three layers: `domain/` (no
+Flutter, no I/O), `application/` (state, no widgets), `presentation/`
+(renders state, decides nothing). `core/` never imports a feature.
 
 ```
 lib/
-├── main.dart                Boot: storage, licences, orientation, bindings
-├── app/                     The shell — everything global
-│   ├── app.dart             GetMaterialApp, locale, lifecycle hooks
-│   ├── bindings/            Dependency wiring (run from main, pre-runApp)
-│   ├── localization/        Strings facade over gen_l10n
-│   ├── router/              AppRoutes + AppPages, one file
-│   └── theme/               Colours, typography, table themes, card backs
-├── core/                    Shared, feature-agnostic
-│   ├── constants/           Spacing, radii, card metrics, durations
-│   ├── services/            Audio, haptics
-│   ├── storage/             SharedPreferences wrappers + resumable snapshot
-│   ├── utils/               Motion scaling, glow
-│   └── widgets/             Buttons, panels, fields, the icon set, the deck
+├── main.dart                     Boot: storage, licences, orientation, Supabase, bindings
+├── app/
+│   ├── app.dart                  GetMaterialApp, locale, lifecycle, session-expiry notice
+│   ├── bindings/                 InitialBinding, BackendServices (the backend seam)
+│   ├── localization/             Strings facade over gen_l10n
+│   ├── router/                   AppRoutes + AppPages
+│   └── theme/                    Palette, typography, table themes, card backs
+├── core/
+│   ├── config/                   SupabaseEnv (--dart-define values)
+│   ├── constants/                Spacing, radii, card metrics, durations
+│   ├── services/                 Audio, haptics, Supabase bootstrap
+│   ├── storage/                  SharedPreferences wrappers, resumable snapshot
+│   ├── utils/                    Motion, glow, Log
+│   └── widgets/                  Buttons, panels, fields, icons, the vector deck
 ├── features/
-│   ├── game/
-│   │   ├── domain/          Models + engine + AI  ← no Flutter imports
-│   │   ├── application/     GameController, TableCue, MatchLauncher
-│   │   └── presentation/    Table, setup, results, how-to-play
-│   ├── splash/  onboarding/  auth/  home/
-│   ├── online/  rooms/       profile/  leaderboard/
-│   └── achievements/  rewards/  settings/
-└── l10n/                    app_it.arb (template), app_en.arb, gen/
+│   ├── game/                     domain/ (engine + AI), application/, presentation/
+│   ├── tutorial/                 Eight scripted lessons on the real table
+│   ├── online/                   OnlineMatchController, repositories, mode screen
+│   ├── rooms/                    Create / join / lobby / quick match
+│   ├── auth/  profile/  home/  splash/  onboarding/
+│   ├── leaderboard/  achievements/  missions/  rewards/  settings/
+└── l10n/                         app_it.arb (template), app_en.arb, gen/
+
+supabase/
+├── migrations/                   11 SQL migrations — the schema's source of truth
+├── functions/match/              The authoritative match function (Deno) + engine.js
+└── config.toml                   Auth settings for the linked project
+
+tool/                             build_engine_js.sh, online_matrix, progression_smoke,
+                                  bot_simulation, ui_drive_web (headless Chrome)
+test/                             Flutter tests; fixtures/game_conformance/*.json
+docs/                             Design, engine, schema, security, verification
 ```
 
-Each feature holds up to three layers: `domain/` (no Flutter, no I/O),
-`application/` (state, no widgets), `presentation/` (renders state, decides
-nothing). `core/` never imports a feature.
-
-**The important boundary:** `lib/features/game/domain/engine/` imports nothing from Flutter. The
-engine owns the rules and emits `GameEvent`s; `GameController` turns those into
-animations, sound and haptics. That separation is what makes the rules testable
-and what would make networking possible later (§10 below).
-
----
-
-## 2. How to run
-
-The game runs fully offline with no configuration. To connect it to the
-Supabase development project (accounts, guests, profiles, rooms,
-leaderboards) pass the two public values with a git-ignored define file —
-see `docs/SUPABASE_SETUP.md`:
-
-```bash
-cp env/supabase.dev.json.example env/supabase.dev.json
-flutter run --dart-define-from-file=env/supabase.dev.json
-```
-
-Requires Flutter 3.44 or newer.
-
-```bash
-flutter pub get
-flutter gen-l10n     # only after editing lib/l10n/*.arb
-flutter run
-```
-
-Deeper documentation lives in `docs/`:
-
-| File | What it covers |
+| Document | What it covers |
 |---|---|
 | `docs/GAME_SPEC.md` | Every rule, and the open questions for the client |
-| `docs/ARCHITECTURE.md` | Layers, state management, the backend seam |
-| `docs/ASSET_INVENTORY.md` | Cards, fonts, audio, icons — what exists and why |
 | `docs/GAME_ENGINE.md` | The pure, deterministic rules engine |
-| `docs/ONLINE_MULTIPLAYER.md`, `docs/REALTIME.md`, `docs/SECURITY.md` | Server-authoritative online play |
-| `docs/OFFLINE_MODE.md` | Bots at the table, pause/resume, saves, the tutorial, animations |
-| `docs/BOTS.md` | Easy / Normal / Hard, what a bot may see, the simulation harness |
-| `docs/PROGRESSION.md` | XP, achievements, missions, leaderboard — offline vs online ledgers |
-| `docs/ROADMAP.md` | The six sessions |
-| `docs/SESSION_HANDOFF.md` | What the last session changed and what is next |
+| `docs/ARCHITECTURE.md` | Layers, state management, the backend seam |
+| `docs/OFFLINE_MODE.md`, `docs/BOTS.md` | Bots, pause/resume, saves, tutorial, animations |
+| `docs/ONLINE_MULTIPLAYER.md`, `docs/REALTIME.md` | Server-authoritative online play, the live feed |
+| `docs/SECURITY.md`, `docs/SUPABASE_SECURITY.md` | Threat model, enforcement, the attacks that were run |
+| `docs/DATABASE_SCHEMA.md`, `docs/SUPABASE_SETUP.md` | Tables, RPCs, migrations, linking the project |
+| `docs/PROGRESSION.md` | XP, achievements, missions, leaderboard |
+| `docs/ASSET_INVENTORY.md` | Cards, fonts, audio |
+| `docs/FINAL_VERIFICATION.md` | Feature-by-feature verification matrix |
+| `docs/SESSION_HANDOFF.md`, `docs/ROADMAP.md` | Latest session, what is next |
 
-Run the tests:
+---
+
+## 2. Architecture in one paragraph each
+
+### Offline
+
+`GameEngine` (`lib/features/game/domain/engine/`) is a pure, deterministic
+state machine: `applyAction(state, action) → (state, events)` or a typed
+failure. It has no clock, no I/O and no Flutter import. `GameSession` wraps
+it; `GameController` (the offline driver) turns engine events into table
+cues — animations, sound, haptics — and drives the bots
+(`domain/ai/`: Easy / Normal / Hard, four personalities). A `BotView` holds
+no hidden information, so a bot cannot cheat. The live state is saved after
+every change (coalesced, 350 ms) and on backgrounding; Home offers
+**Continua partita**. The tutorial (`features/tutorial/`) is eight fixed
+states played on the same table. Offline statistics, XP, achievements and
+missions live in a local ledger that never reaches the server.
+
+### Online
+
+**Flutter asks; the server decides; Postgres remembers; Realtime tells
+everyone.** The same engine is compiled with `dart compile js`
+(`tool/build_engine_js.sh` → `supabase/functions/match/engine.js`,
+committed) and executed by the `match` Edge Function. Every commit goes
+through `public.srv_*` SECURITY DEFINER functions (service_role only) with a
+row lock, a version check and an idempotency receipt. The phone receives a
+**redacted** snapshot (`handCount`, `drawPileCount`) plus its own hand; the
+seed (52 bits) and the deck order never leave the database. Two Realtime
+channels per match: `match-rows:<id>` for RLS-filtered row changes and the
+private `match:<id>` for presence and server-sent reactions. Results, XP,
+weekly points, achievements and missions are computed only by
+`app_private.settle_match`. Rating deltas are still 0 (formula unconfirmed).
+
+---
+
+## 3. Supabase setup
+
+The app runs fully offline with no configuration: without credentials
+`BackendServices.none()` is wired and every online screen explains that the
+service is not configured.
+
+To connect it to the development project **GiocoDel101-Dev**
+(`fnyllrjchbqfrzezfeso`, eu-central-1):
 
 ```bash
-flutter test
+cp env/supabase.dev.json.example env/supabase.dev.json   # git-ignored
 ```
 
-118 tests, about twelve seconds. They fall into three groups:
+`env/supabase.dev.json` holds the two public values:
 
-- **Rules** (`deck_test`, `rules_test`, `scoring_test`, `edge_cases_test`) —
-  the deck, every matching rule, the Ace, the +2 chain, the Cavallo, scoring,
-  the exact-101 reset, elimination, deck recycling, corrupt saves and
-  save/restore. Includes a fuzz test that plays 40 complete random matches and
-  asserts they always terminate, never lose a card and never deadlock.
-- **AI** (`bot_test`) — every difficulty is checked for legal play across 25
-  seeded matches, Hard is checked to beat Easy over 40 matches, and a fairness
-  test proves a bot's decision does not change when the opponents' hidden hands
-  change but the public table does not.
-- **Interface** (`widget_smoke_test`, `gameplay_widget_test`) — every screen and
-  every signature effect is rendered at three sizes (390×844, 360×640,
-  834×1112) under all three table themes and asserted clean; and the table is
-  actually played through the real widgets: tap a card and the engine must have
-  played it, tap an illegal one and it must stay in hand, play a Cavallo and the
-  Suit Ritual must open and set the suit, take a +2 penalty and the cards must
-  arrive.
+| Key | Meaning |
+|---|---|
+| `SUPABASE_URL` | `https://<project-ref>.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | the project's publishable (anon) key — public by design, RLS does the protecting |
 
-### Rendering the preview sheets
+They reach the app as compile-time defines (`SupabaseEnv`,
+`lib/core/config/`). **No secret ever belongs in the repository**: the
+service-role key exists only as an Edge Function environment variable on
+Supabase; the database password and access tokens live in the CLI's own
+store. `docs/SUPABASE_SETUP.md` has the full walk-through, the auth
+settings (`supabase/config.toml`) and the production checklist (SMTP, leaked
+password protection, CAPTCHA, per-user function rate limit).
 
-`test/tools/render_previews.dart` draws contact sheets into `preview/`. It is a
-tool rather than a test — it calls `exit` when it is done, so `flutter test`
-reports the shell ending early. Run one sheet at a time:
+Tools that talk to the real project read the same two values from the
+environment, plus `UI_HOST_PASSWORD` for the headless-Chrome driver:
 
 ```bash
-PREVIEW=menus   flutter test test/tools/render_previews.dart
-PREVIEW=table   flutter test test/tools/render_previews.dart
-PREVIEW=results flutter test test/tools/render_previews.dart
-PREVIEW=deck    flutter test test/tools/render_previews.dart
+export SUPABASE_URL=https://fnyllrjchbqfrzezfeso.supabase.co
+export SUPABASE_PUBLISHABLE_KEY=sb_publishable_…
 ```
 
----
+### Migrations
 
-## 3. Building an Android APK / AAB
+`supabase/migrations/` (11 files) is the only source of truth for the
+schema. Apply with the linked CLI or the Supabase MCP:
 
 ```bash
-# Debug
-flutter build apk --debug
-
-# Release APK (sideloading, direct distribution)
-flutter build apk --release
-
-# Release App Bundle (Play Store)
-flutter build appbundle --release
+supabase db push < /dev/null     # apply pending local migrations
+supabase migration list          # local vs remote — should be 11 = 11
+supabase functions deploy match --use-api
 ```
 
-Output lands in `build/app/outputs/`.
-
-For a Play Store release, add a signing config to `android/app/build.gradle.kts`
-and a `android/key.properties`; the project currently builds release with the
-default debug signing so it can be installed and tested immediately.
-
-- Application id: `it.giocodel101.gioco_del_101`
-- Label: **Gioco del 101**
-- No permissions are declared beyond Flutter's defaults. The game asks for
-  nothing: no internet, no storage, no location, no camera, no microphone.
+Every new public function needs an explicit `GRANT` (default privileges are
+revoked) and every new table needs RLS plus `GRANT SELECT`. The mission
+rotation exists twice on purpose (`MissionCatalog` in Dart,
+`app_private.mission_rotation` in SQL) — change both.
 
 ---
 
-## 4. Building for iOS
+## 4. Run
 
 ```bash
-flutter build ios --release          # needs macOS + Xcode
-open ios/Runner.xcworkspace          # then archive from Xcode
+export PATH="$HOME/flutter-sdk/bin:$PATH"           # if Flutter is not on PATH
+flutter pub get
+flutter gen-l10n                                     # only after editing an ARB
+
+flutter run                                          # offline only
+flutter run --dart-define-from-file=env/supabase.dev.json   # with the dev backend
+flutter run -d chrome --dart-define-from-file=env/supabase.dev.json
 ```
 
-- Display name: **Gioco del 101**
-- Portrait-only on iPhone (`Info.plist`), matching the `SystemChrome` call in
-  `main.dart`. iPad keeps all four orientations.
-- No capabilities or entitlements are required.
+## 5. Test
 
----
+```bash
+flutter analyze
+flutter test                                         # 515 tests, ~50 s
+dart run tool/bot_simulation.dart                    # 270 bot matches, invariants (SIM_MATCHES=…)
+deno test --allow-read supabase/functions/match/     # 43 conformance fixtures + timeout policy
 
-## 5. Where the game rules are configured
+# Against the real dev project (five / two independent users):
+MATRIX_QUICK=1 dart run tool/online_matrix.dart      # ~13 min; omit MATRIX_QUICK for 2/3/4-player games (~30 min)
+dart run tool/progression_smoke.dart                 # results, achievements, missions, leaderboard (~10 min)
 
-**One file: `lib/features/game/domain/game_rules.dart`.**
+# The real web app in headless Chrome, one seat driven through semantics:
+flutter build web --dart-define-from-file=env/supabase.dev.json
+(cd build/web && python3 -m http.server 8787 --bind 127.0.0.1 &)
+UI_HOST_PASSWORD=… deno run -A tool/ui_drive_web.ts <outDir>
+```
 
-Nothing in the engine, the controllers or the widgets hardcodes a rule. Change a
-value there and it takes effect everywhere.
+`test/tools/*` are tools, not tests (`render_previews.dart` draws the
+contact sheets in `preview/`; `generate_conformance_fixtures.dart`
+regenerates the fixtures with `GENERATE_FIXTURES=1`).
 
-| Field | Default | What it does |
-|---|---|---|
-| `startingHandSize` | `5` | Cards dealt to each player |
-| `scoreValues` | Ace 1 … Re 10 | Penalty value of every rank |
-| `eliminateAbove101` | `true` | Overshooting knocks a player out; when `false` the match ends on the first overshoot and the lowest score wins |
-| `exact101ResetsToZero` | `true` | Landing on exactly the target wipes the score |
-| `targetScore` | `101` | The number the game is named after |
-| `stackDrawTwos` | `true` | 2s chain into +4 / +6 / +8 |
-| `wildNineCanAlwaysPlay` | `true` | The Cavallo ignores the active suit |
-| `allowVoluntaryDraw` | `true` | Drawing is allowed even with a playable card |
-| `playDrawnCardImmediately` | `true` | A legal drawn card may be played at once |
-| `mustDrawBeforePassing` | `true` | No unrestricted pass |
-| `drawTwoPenalty` | `2` | Cards each 2 adds to the chain |
-| `pendingPenaltyAppliesAfterWin` | `false` | Whether an unanswered chain still bites when the winning card ends the round |
-| `nineBlockMode` | `cancel` | *Provisional* — how a Cavallo answers a pending +2: `disabled` / `cancel` / `passOn` |
-| `nineBlockChangesSuit` | `true` | *Provisional* — whether a blocking Cavallo still names the suit |
-| `restrictPlayToDrawnCard` | `false` | *Provisional* — after drawing, only the drawn card may be played |
-| `starterCardPolicy` | `avoidActionCards` | *Provisional* — what may open the discard pile |
-| `roundStarterPolicy` | `previousRoundWinner` | *Provisional* — who leads the next round |
-| `turnTimeLimitSeconds` | `null` | Stamps `turnDeadlineAt`; expiry behaviour undefined |
+After **any** change under `lib/features/game/domain/`: rebuild the engine
+(`tool/build_engine_js.sh`), run the Deno tests, redeploy the function.
 
-The first three are the ones the brief flags as likely to change; they are
-plain fields with no other copy anywhere in the codebase.
+## 6. Build
 
-Players can also override most of these per match from the **Regole avanzate**
-panel on the setup screen, which builds a `GameRules` in
-`SetupController.buildRules()`.
+```bash
+export ANDROID_HOME=$HOME/Android/Sdk
+D=--dart-define-from-file=env/supabase.dev.json
 
----
+flutter build apk --debug $D
+flutter build apk --release $D          # build/app/outputs/flutter-apk/app-release.apk
+flutter build appbundle --release $D    # build/app/outputs/bundle/release/app-release.aab
+```
 
-## 6. Where the card assets are
+- `android/app/src/main/AndroidManifest.xml` declares exactly one
+  permission: `INTERNET` (online play). Nothing else is requested.
+- Release signing: put `android/key.properties` (git-ignored) next to your
+  upload keystore and the release build signs with it; without the file the
+  build falls back to the debug key so it can still be installed for
+  testing. The Play Store needs the signed one.
+- iOS: `flutter build ios --release` needs macOS and Xcode; the project has
+  the display name, portrait lock and no extra capabilities, but it has not
+  been compiled on a Mac from this repository.
 
-**There are no card image files.** All forty faces and every card back are drawn
-as vector art at paint time:
+## 7. Where the rules live
 
-- `lib/core/widgets/cards/suit_art.dart` — the four suit emblems (coin, chalice,
-  sword, cudgel), authored in a unit square and scaled to anything from a 14 px
-  corner pip to a 90 px centrepiece.
-- `lib/core/widgets/cards/figure_art.dart` — the three court figures, drawn full
-  length in the Neapolitan woodcut manner: a page under a plumed cap (Fante),
-  a rider on horseback (Cavallo), a crowned king (Re), each carrying the sign
-  of its own suit. Each suit dresses its court in its own colours, so the
-  twelve court cards stay tellable apart by cloth as well as by sign.
-- `lib/core/widgets/cards/card_face_painter.dart` — stock, paper grain, bevel, double
-  rule, corner indices, pip layouts.
-- `lib/core/widgets/cards/card_back_painter.dart` — the four backs.
-- `lib/core/widgets/cards/playing_card.dart` — the widget wrapper (thickness,
-  shadow, tilt, flip).
+One file: `lib/features/game/domain/game_rules.dart` (`GameRules`). Nothing
+in the engine, the controllers or the widgets hardcodes a rule, and the
+same object travels to the server as the room's house rules (validated key
+by key by `app_private.sanitize_room_rules`). The provisional choices the
+client still has to confirm are listed in `docs/GAME_SPEC.md` and in the
+handoff's client-questions table.
 
-This is deliberate. Vector art is crisp at every DPI, adds nothing to the bundle,
-lets the deck respond to the theme and the high-contrast setting, and is
-unambiguously original work — nothing is traced from a commercial deck.
+## 8. Cards, fonts, audio
 
-Bundled assets are limited to:
+There are no card image files: all forty faces and the four backs are
+vector art painted at runtime (`lib/core/widgets/cards/`), crisp at every
+DPI and original work. Fonts are Cinzel and Manrope (SIL OFL, licences
+bundled and shown in the licence page). The seventeen audio assets are
+synthesised, not sampled. See `docs/ASSET_INVENTORY.md`.
 
-- `assets/fonts/` — Cinzel and Manrope, both SIL Open Font License (the licences
-  are bundled alongside them).
-- `assets/audio/` — sixteen sound effects and one music loop, all synthesised
-  from scratch (noise, damped sines, Karplus-Strong plucked strings). Original
-  work; nothing sampled or licensed.
+## 9. Design notes
 
----
+Palette: midnight navy `#0B1020`, surfaces `#141A2E` / `#1C2440`, ink
+`#060911`, antique gold `#D9A441` / `#F6DFA6` / `#8A5F1C`, Mediterranean
+teal `#2AA89B`, terracotta `#DF654B`, ivory `#F3E9D8`, muted `#B6AC9C`;
+cards `#F7EEDC` / `#CBB68E`. Typography: Cinzel for titles, Manrope for
+everything else. No Material defaults show through (explicit
+`ColorScheme`, themed inputs, dialogs, snackbars).
 
-## 7. How local saves work
+Accessibility: every suit has a distinct shape as well as a colour; cards,
+the discard pile and every icon button carry semantics labels; Reduce
+Motion honours both the in-app switch and the platform flag; large-card
+mode; text scaling is respected between 0.85× and 1.30×.
 
-`SharedPreferences` with JSON, via `lib/core/storage/`. Keys live in
-`storage_keys.dart`; there are five.
+## 10. Privacy
 
-- **`gd101.match.v1`** — the resumable match. `GameState.toJson()` captures the
-  deck order, both piles, every hand, scores, eliminations, the turn cursor, the
-  active suit, the pending +2, the round number, the rule config and the recent
-  action history. `GameController` writes it after every card played, card drawn
-  and turn change, coalesced through a 350 ms timer so a +8 penalty writes once.
-  It is written immediately when leaving the table or backgrounding the app, and
-  deleted the moment a match finishes.
-- **`gd101.settings.v1`**, **`gd101.statistics.v1`**, **`gd101.setup.v1`**,
-  **`gd101.daily.v1`** — preferences, lifetime counters, remembered setup
-  choices and daily-challenge state.
-
-Every read is defensive. A corrupt or half-written value is discarded rather than
-crashing the launch: `GameState.fromJson` throws `FormatException` on
-structurally invalid data, and `GameStorageService.load()` catches it, clears the
-key and returns null, so "Riprendi Partita" simply does not appear.
-
----
-
-## 8. Adding a new table theme
-
-1. Add a `TableTheme` const to `lib/app/theme/table_themes.dart` and put it in
-   `TableThemes.all`. Set `unlockAchievementId` to `null` for an always-available
-   theme, or to an achievement id to gate it.
-2. Pick one of the three `TablePattern` motifs, or add a case to
-   `BackdropPainter` and `_FeltPainter` for a new one.
-3. Optionally add a matching `CardBackDesign` in `lib/app/theme/card_backs.dart` and
-   point the theme's `cardBackId` at it.
-
-Nothing else needs touching: the setup screen, the settings screen and every
-painter read from `TableThemes.all`.
-
-## 9. Adding a new bot personality
-
-1. Add a value to `BotPersonality` in `lib/features/game/domain/player_type.dart`.
-2. Give it weights in `BotWeights.forPersonality()`
-   (`lib/features/game/domain/ai/bot_strategy.dart`). The knobs are `shedHigh`, `suitControl`,
-   `action`, `holdCavallo`, `randomness` and `voidExploit`.
-3. Add a `BotProfile` to `lib/features/game/domain/bot_roster.dart` with a name and a medallion.
-
-Personalities only re-weight move selection and reaction frequency. They never
-change what a bot is allowed to see — see below.
-
----
-
-## 10. How online multiplayer could be added later
-
-The engine is already independent of presentation and of time.
-
-- `GameEngine` has no Flutter, no timers and no I/O. It is a pure state machine:
-  you call `playCard` / `drawCard` / `chooseSuit`, and it emits `GameEvent`s.
-- `PlayerType` already distinguishes `humanLocal` from `bot`. Adding
-  `humanRemote` is a new enum value; the engine only ever asks whether a seat is
-  driven locally.
-- `GameState.toJson()` is already a complete, exact wire format — the same one
-  used for local saves, and covered by a round-trip test.
-- `GameController` is the only class that decides *when* a move happens. A
-  networked build would replace its bot-driving loop with "wait for the remote
-  seat's move", leaving the rules untouched.
-- `BotViewFactory` is the single choke point that decides what a non-local seat
-  is allowed to know, which is exactly the boundary a server would enforce.
-
-No networking is implemented, and no placeholder online screens exist.
-
----
-
-## 11. Design notes
-
-- **Visual direction:** "Modern Napoli After Dark" — midnight navy, deep
-  aubergine, warm ivory, antique gold, Mediterranean teal, terracotta coral.
-  Deliberately not the primary-colour palette of the games this genre is
-  associated with.
-- **Signature moments**, in the order they earn the strongest effects:
-  1. **101 Fate Ring** (`widgets/table/fate_ring.dart`) — the arc fills, a gold
-     shockwave breaks it into shards, the shards spin back and the number turns
-     to zero under **SALVO!**
-  2. **Match victory** (`screens/match_result/victory_flourish.dart`).
-  3. **Chain Storm** (`widgets/table/chain_storm.dart`) — the +2 chain around the
-     stock, growing link by link with rising pitch and haptics.
-  4. **Suit Ritual** (`widgets/table/suit_ritual.dart`) — the Cavallo's radial
-     selector.
-  5. **Ace skip** — a gold flash and a floating *TURNO SALTATO*.
-- **Tavolo Vivo** (`widgets/table/table_surface.dart`) — the felt reacts to the
-  active suit: a gold glimmer for Denari, a wine vignette for Coppe, a steel
-  sweep for Spade, olive edge light for Bastoni, cross-fading over ~500 ms.
-- **Performance:** the game paints no `MaskFilter.blur` anywhere. Soft light
-  comes from radial gradients (`core/utils/glow.dart`), which costs a fraction
-  as much and does not collapse on weak GPUs. The felt and the page backdrop are
-  each split into a static layer that rasterises once and a small animated layer
-  on top, so an idle table repaints almost nothing.
-- **Accessibility:** every suit carries a distinct *shape* as well as a colour,
-  so identification never depends on colour alone. Large-card mode, high
-  contrast, Reduce Motion, and independent sound and haptic toggles are all in
-  Settings, and `Motion` applies them globally.
-
-## 12. Privacy
-
-The game makes zero network calls. There is no analytics SDK, no advertising
-SDK, no account system, no tracking, and no access to location, contacts, the
-microphone or the camera. The only data stored is the local game state described
-in section 7, on the device, in the app's own sandbox.
+Offline play makes no network call. Online play talks only to the Supabase
+project: account e-mail (or an anonymous guest identity), nickname, avatar,
+match records and progression. No analytics SDK, no advertising SDK, no
+tracking, and no access to location, contacts, microphone or camera.

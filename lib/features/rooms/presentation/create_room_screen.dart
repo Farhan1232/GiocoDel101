@@ -59,11 +59,13 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
       final room = await Get.find<BackendServices>().rooms.create(config);
       if (!mounted) return;
       await Get.toNamed<void>(AppRoutes.roomLobby, arguments: room);
-    } on RoomException {
+    } on RoomException catch (error) {
       final s = Strings.s;
       await AppDialog.notice(
         title: s.commonErrorTitle,
-        body: s.roomCreateFailed,
+        body: error.error == RoomError.alreadyInMatch
+            ? s.roomAlreadyInMatch
+            : s.roomCreateFailed,
         dismissLabel: s.gotIt,
       );
     } finally {

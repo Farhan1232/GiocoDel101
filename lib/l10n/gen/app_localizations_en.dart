@@ -80,9 +80,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achSfidanteTitle => 'Challenger';
 
   @override
-  String get achUnlocked => 'Unlocked';
-
-  @override
   String get achVendettaBody => 'Win the very next match after a defeat';
 
   @override
@@ -93,9 +90,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get achVeteranoTitle => 'Veteran';
-
-  @override
-  String get achievementUnlockedToast => 'Achievement unlocked';
 
   @override
   String get achievements => 'Achievements';
@@ -189,9 +183,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authTitle => 'Welcome';
 
   @override
-  String get backToZero => 'BACK TO ZERO';
-
-  @override
   String get bestComeback => 'Best comeback';
 
   @override
@@ -202,6 +193,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardBack => 'Card back';
+
+  @override
+  String cardName(String rank, String suit) {
+    return '$rank of $suit';
+  }
+
+  @override
+  String cardSemanticsNotPlayable(String card) {
+    return '$card, not playable now';
+  }
+
+  @override
+  String cardSemanticsPlayable(String card) {
+    return '$card, playable';
+  }
 
   @override
   String get cardsLeft => 'cards';
@@ -216,6 +222,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get centounoTitle => 'CENTOUNO!';
+
+  @override
+  String get challengeEdgeBody =>
+      'Start at 80 points against a hard opponent. One bad round and you are out.';
+
+  @override
+  String get challengeEdgeTitle => 'On the edge';
+
+  @override
+  String get challengeFullBody =>
+      'Four players, hard opponents, no voluntary draw.';
+
+  @override
+  String get challengeFullTitle => 'Full table';
+
+  @override
+  String get challengeStormBody =>
+      'An 8-card hand and unleashed chains of twos. Survive the storm.';
+
+  @override
+  String get challengeStormTitle => 'Storm of twos';
+
+  @override
+  String get challengeTightBody =>
+      'Only 3 cards each. Few choices, no room for error.';
+
+  @override
+  String get challengeTightTitle => 'Tight hand';
+
+  @override
+  String get challengeZeroBody =>
+      'Start at 94 points: find exactly 7 points and return to zero.';
+
+  @override
+  String get challengeZeroTitle => 'Back to zero';
 
   @override
   String get chooseSuit => 'Choose the suit';
@@ -242,9 +283,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonComingSoon => 'Coming soon';
-
-  @override
-  String get commonEmptyBody => 'When there is data, it will show up here.';
 
   @override
   String get commonEmptyTitle => 'Nothing here yet';
@@ -327,9 +365,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyChallengeDone => 'Challenge complete';
 
   @override
-  String get dailyCompleted => 'Completed today';
-
-  @override
   String get dailyReward => 'Reward';
 
   @override
@@ -369,12 +404,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyRewardTomorrow => 'Come back tomorrow';
 
   @override
-  String get dailyStartHint => 'A different setup every day.';
-
-  @override
-  String get dailyTitle => 'Daily Challenge';
-
-  @override
   String get defaultDifficulty => 'Default difficulty';
 
   @override
@@ -391,6 +420,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discardPile => 'Discard';
+
+  @override
+  String discardTop(String card) {
+    return 'Discard: $card';
+  }
 
   @override
   String get drawCard => 'Draw';
@@ -522,9 +556,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get largeCards => 'Large cards';
 
   @override
-  String get lastCard => 'LAST CARD';
-
-  @override
   String get leaderboardAllTime => 'All time';
 
   @override
@@ -563,9 +594,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lobbyAway => 'Away';
 
   @override
-  String get lobbyConnected => 'Connected';
-
-  @override
   String get lobbyCopied => 'Code copied';
 
   @override
@@ -582,11 +610,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lobbyNotReadyToggle => 'Not ready';
-
-  @override
-  String lobbyPlayerSlot(int index) {
-    return 'Seat $index';
-  }
 
   @override
   String get lobbyReady => 'Ready';
@@ -610,7 +633,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lobbyStartPending =>
-      'Starting online matches arrives in the next update.';
+      'The match starts once every seat is taken and every player is ready.';
 
   @override
   String get lobbyStarting => 'The match is about to start…';
@@ -646,9 +669,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matchWinner => 'WINNER';
 
   @override
-  String get matchmakingBody => 'Looking for other players…';
-
-  @override
   String get matchmakingBusy => 'You already have a match in progress.';
 
   @override
@@ -673,9 +693,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get matchmakingMatched => 'Table found!';
-
-  @override
-  String get matchmakingPending => 'Quick match queues are not open yet.';
 
   @override
   String get matchmakingPlayers => 'Players at the table';
@@ -820,16 +837,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modePassAndPlay => 'Pass & Play';
 
   @override
-  String get modeVsComputer => 'Vs Computer';
+  String get modeVsComputer => 'Versus computer';
 
   @override
   String get music => 'Music';
 
   @override
   String get networkOffline => 'No connection';
-
-  @override
-  String get networkOnline => 'Back online';
 
   @override
   String get networkReconnecting => 'Reconnecting…';
@@ -871,7 +885,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineCreateRoomHint => 'Invite friends with a code';
 
   @override
-  String get onlineDisconnected => 'Connection lost';
+  String get onlineDisconnected => 'Connection lost. Trying to reconnect...';
 
   @override
   String get onlineForfeit => 'Leave';
@@ -890,15 +904,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineMatchAbandoned => 'The match was abandoned';
 
   @override
-  String get onlineMoveRefused => 'Illegal move';
+  String get onlineMoveRefused => 'Illegal move.';
 
   @override
   String get onlineMoveStale => 'The table had changed: try again';
 
   @override
-  String onlineNextRoundAuto(int seconds) {
-    return 'Next round starts in ${seconds}s';
-  }
+  String get onlineNotYourTurn => 'It is not your turn.';
 
   @override
   String onlineOpponentLeft(String name) {
@@ -909,21 +921,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineQuickMatchHint => 'We find you an open table';
 
   @override
-  String get onlineReconnecting => 'Reconnecting…';
-
-  @override
   String get onlineRejoinMatch => 'Rejoin the match';
 
   @override
   String get onlineRejoinMatchHint => 'An online match is waiting for you';
-
-  @override
-  String onlineRematchAsked(String name) {
-    return '$name wants a rematch';
-  }
-
-  @override
-  String get onlineRematchRequested => 'Rematch requested';
 
   @override
   String onlineRematchWaiting(int votes, int needed) {
@@ -931,19 +932,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String onlineServerMoved(String name) {
-    return 'The server played for $name';
-  }
-
-  @override
   String get onlineSignInRequired =>
       'Sign in or play as a guest to use online features.';
-
-  @override
-  String get onlineSyncing => 'Updating the table…';
-
-  @override
-  String get onlineTimedOut => 'Time is up';
 
   @override
   String get onlineTitle => 'Play online';
@@ -956,14 +946,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onlineUnavailableRetry =>
       'The online service cannot be reached. Offline play is still available.';
-
-  @override
-  String onlineWaitingFor(String name) {
-    return '$name’s turn';
-  }
-
-  @override
-  String get onlineYouForfeited => 'You left the match';
 
   @override
   String get passPhoneHint => 'Cards stay face down until you tap';
@@ -992,9 +974,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get play => 'PLAY';
 
   @override
-  String get playDrawn => 'Play the drawn card';
-
-  @override
   String get playerName => 'Your name';
 
   @override
@@ -1008,9 +987,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileEdit => 'Edit profile';
-
-  @override
-  String get profileLevel => 'Level';
 
   @override
   String profileLevelValue(int level) {
@@ -1042,9 +1018,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileWins => 'Wins';
-
-  @override
-  String get profileXp => 'Experience';
 
   @override
   String profileXpProgress(int current, int target) {
@@ -1129,6 +1102,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rematch => 'Rematch';
 
   @override
+  String get replayAgain => 'Replay';
+
+  @override
   String get replayLastHand => 'Replay last hand';
 
   @override
@@ -1145,6 +1121,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resumeMatchHint => 'Pick up where you left off';
 
   @override
+  String get roomAlreadyInMatch =>
+      'You already have an online match in progress. Rejoin the table or leave it before opening another.';
+
+  @override
+  String get roomAlreadyStarted => 'The match has already started.';
+
+  @override
   String get roomCreateFailed => 'Could not open the room. Try again.';
 
   @override
@@ -1154,7 +1137,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roomJoinFailed => 'Could not join the room. Try again.';
 
   @override
-  String get roomNotFound => 'No open room has that code.';
+  String get roomNotFound => 'Room not found.';
 
   @override
   String get round => 'Round';
@@ -1211,9 +1194,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ruleWildNineHint => 'The 9 changes suit at any time';
 
   @override
-  String get rulesActiveHint => 'The house rules chosen for the table in play.';
-
-  @override
   String get rulesActiveTitle => 'Rules for this match';
 
   @override
@@ -1224,6 +1204,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sectionStatistics => 'STATISTICS';
+
+  @override
+  String get sessionExpired => 'Session expired. Sign in again.';
 
   @override
   String get settings => 'Settings';
@@ -1264,6 +1247,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTerms => 'Terms of service';
 
   @override
+  String get setupOtherPlayers => 'Other players';
+
+  @override
+  String setupPlayerN(int n) {
+    return 'Player $n';
+  }
+
+  @override
+  String get setupResetRules => 'Reset rules';
+
+  @override
   String get showPassword => 'Show password';
 
   @override
@@ -1277,9 +1271,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundEffects => 'Sound effects';
-
-  @override
-  String get startChallenge => 'ACCEPT THE CHALLENGE';
 
   @override
   String get startMatch => 'START MATCH';
@@ -1358,10 +1349,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tableRules => 'Rules';
 
   @override
-  String get tableTheme => 'Table';
+  String get tableTaglineMaiolica => 'Mediterranean ceramic, cobalt and sun';
 
   @override
-  String get tableTurnTimer => 'Time';
+  String get tableTaglineNapoli => 'Antique gold over the sleeping gulf';
+
+  @override
+  String get tableTaglineVesuvio => 'Warm ash and terracotta glow';
+
+  @override
+  String get tableTheme => 'Table';
 
   @override
   String get takePenalty => 'Take';

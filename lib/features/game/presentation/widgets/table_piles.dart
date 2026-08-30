@@ -11,6 +11,7 @@ import '../../domain/game_card.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/widgets/cards/playing_card.dart';
+import '../../../../core/widgets/cards/card_names.dart';
 import '../../../../core/widgets/cards/suit_art.dart';
 
 /// The stock. Shows a little depth for the cards left in it and invites a
@@ -44,7 +45,7 @@ class DrawPileView extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
           width: cardWidth + 12,
-          height: cardWidth * 1.55 + 26,
+          height: cardWidth * CardMetrics.aspect + 26,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -52,7 +53,7 @@ class DrawPileView extends StatelessWidget {
                 AnimatedContainer(
                   duration: Motion.scale(AppDurations.quick),
                   width: cardWidth + 16,
-                  height: cardWidth * 1.55 + 16,
+                  height: cardWidth * CardMetrics.aspect + 16,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppRadii.md),
                     boxShadow: [
@@ -101,7 +102,7 @@ class DrawPileView extends StatelessWidget {
 
   Widget _emptySlot(double cw) => Container(
     width: cw,
-    height: cw * 1.55,
+    height: cw * CardMetrics.aspect,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(cw * AppRadii.cardCornerRatio),
       border: Border.all(
@@ -132,37 +133,45 @@ class DiscardPileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: cardWidth + 26,
-      height: cardWidth * 1.55 + 26,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          for (var i = 0; i < beneath.length; i++)
-            Transform.rotate(
-              // Deterministic per card, so the pile never reshuffles itself
-              // when the widget rebuilds.
-              angle: _angleFor(beneath[i], i),
-              child: PlayingCard(
-                width: cardWidth,
-                card: beneath[i],
-                elevation: 0.25,
-                highContrast: highContrast,
+    final s = Strings.s;
+    return Semantics(
+      label: top == null ? s.discardPile : s.discardTop(cardDisplayName(top!)),
+      excludeSemantics: true,
+      child: SizedBox(
+        width: cardWidth + 26,
+        height: cardWidth * CardMetrics.aspect + 26,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            for (var i = 0; i < beneath.length; i++)
+              Transform.rotate(
+                // Deterministic per card, so the pile never reshuffles itself
+                // when the widget rebuilds.
+                angle: _angleFor(beneath[i], i),
+                child: PlayingCard(
+                  width: cardWidth,
+                  card: beneath[i],
+                  elevation: 0.25,
+                  highContrast: highContrast,
+                ),
               ),
-            ),
-          if (top != null)
-            Transform.rotate(
-              angle: _angleFor(top!, beneath.length),
-              child: PlayingCard(
+            if (top != null)
+              Transform.rotate(
+                angle: _angleFor(top!, beneath.length),
+                child: PlayingCard(
+                  width: cardWidth,
+                  card: top,
+                  elevation: 1.0,
+                  highContrast: highContrast,
+                ),
+              )
+            else
+              SizedBox(
                 width: cardWidth,
-                card: top,
-                elevation: 1.0,
-                highContrast: highContrast,
+                height: cardWidth * CardMetrics.aspect,
               ),
-            )
-          else
-            SizedBox(width: cardWidth, height: cardWidth * 1.55),
-        ],
+          ],
+        ),
       ),
     );
   }

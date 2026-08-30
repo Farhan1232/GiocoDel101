@@ -43,7 +43,16 @@ class XpBar extends StatelessWidget {
                 children: [
                   if (label != null)
                     Expanded(child: Text(label!, style: AppText.label)),
-                  if (caption != null) Text(caption!, style: AppText.caption),
+                  if (caption != null)
+                    Flexible(
+                      child: Text(
+                        caption!,
+                        style: AppText.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
                 ],
               ),
             ),

@@ -57,7 +57,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Row(
                     children: [
-                      IconPill(icon: AppIcon.back, onTap: Get.back<void>),
+                      IconPill(
+                        icon: AppIcon.back,
+                        tooltip: Strings.s.commonBack,
+                        onTap: Get.back<void>,
+                      ),
                       Expanded(
                         child: Text(
                           _tab == 0 ? s.settings : s.statistics,

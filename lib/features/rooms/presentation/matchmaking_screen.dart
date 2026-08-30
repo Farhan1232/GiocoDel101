@@ -162,7 +162,11 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
     final entry = await queue.heartbeat();
     if (!mounted || !_searching) return;
     if (entry == null) {
-      // Our row is gone: matched and swept, or expired. Re-enqueue.
+      // Our row is gone: matched and swept, or expired. Re-enqueue — after
+      // leaving the searching state, or `_search` would refuse to run.
+      _heartbeat?.cancel();
+      _tick?.cancel();
+      if (mounted) setState(() => _searching = false);
       unawaited(_search());
       return;
     }

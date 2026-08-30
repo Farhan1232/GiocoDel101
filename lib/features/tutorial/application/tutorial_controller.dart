@@ -24,6 +24,7 @@ import '../../game/domain/game_state.dart';
 import '../../game/domain/round_result.dart';
 import '../../game/domain/table_session_status.dart';
 import '../domain/tutorial_lessons.dart';
+import '../../../core/utils/log.dart';
 
 /// Where the tutorial is between two taps.
 enum TutorialPhase {
@@ -445,7 +446,7 @@ class TutorialController extends TableController {
     } on TimeoutException {
       // Never block the lesson on a stalled view.
     } catch (error) {
-      debugPrint('tutorial cue failed: $error');
+      Log.d('tutorial cue failed: $error');
     }
   }
 

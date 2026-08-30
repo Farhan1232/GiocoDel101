@@ -4,6 +4,9 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '../../../core/utils/log.dart';
+import '../../game/domain/engine/game_failure.dart';
+
 import '../../../app/localization/app_strings.dart';
 import '../../../app/router/app_router.dart';
 import '../../../core/constants/app_durations.dart';
@@ -174,19 +177,23 @@ class OnlineMatchController extends TableController
   @override
   void onInit() {
     super.onInit();
-    debugPrint('online-match: onInit $matchId v$_version');
+    Log.d('online-match: onInit $matchId v$_version');
     WidgetsBinding.instance.addObserver(this);
     _subscribe();
-    debugPrint('online-match: subscribed');
+    Log.d('online-match: subscribed');
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
     _heartbeat = Timer.periodic(
       const Duration(seconds: 10),
       (_) => repository.heartbeat(matchId),
     );
-    // A slow poll under the Realtime feed: a missed event costs at most this.
+    // A slow poll under the Realtime feed: a missed row-change event costs
+    // at most this. Six seconds is deliberate — a 15 s turn timer leaves no
+    // room for a lazier poll when a Realtime UPDATE goes missing (it does,
+    // occasionally, on the free tier), and the headless-Chrome driver lost
+    // its seat to three timeouts the one time this was stretched to 18 s.
     _poll = Timer.periodic(const Duration(seconds: 6), (_) => resync());
     unawaited(repository.heartbeat(matchId));
-    debugPrint('online-match: timers armed');
+    Log.d('online-match: timers armed');
   }
 
   @override
@@ -227,30 +234,45 @@ class OnlineMatchController extends TableController
 
   // ---------------------------------------------------------------- realtime
 
+  /// Which subscription is current. Closing a channel reports `closed`
+  /// through the same callback as a real drop; without the generation the
+  /// old channel's farewell would re-arm the reconnect and tear down the
+  /// healthy new one, forever.
+  int _subscriptionGeneration = 0;
+
   void _subscribe() {
+    final generation = ++_subscriptionGeneration;
     _subscription = repository.subscribe(
       matchId,
       onStateChanged: (v) {
+        if (generation != _subscriptionGeneration) return;
         if (v < 0 || v > _version) unawaited(resync());
       },
-      onReaction: _onReaction,
-      onStatus: _onChannelStatus,
+      onReaction: (m) {
+        if (generation == _subscriptionGeneration) _onReaction(m);
+      },
+      onStatus: (s) {
+        if (generation == _subscriptionGeneration) _onChannelStatus(s);
+      },
     );
   }
 
   void _resubscribe() {
     final old = _subscription;
     _subscription = null;
+    _subscriptionGeneration++; // the old channel's callbacks fall silent
     unawaited(old?.close());
     if (!_disposed) _subscribe();
   }
 
   void _onChannelStatus(MatchChannelStatus status) {
-    debugPrint('online-match: channel $status');
+    Log.d('online-match: channel $status');
     if (_disposed) return;
     switch (status) {
       case MatchChannelStatus.connected:
         _reconnectDelayMs = 1500;
+        _reconnect?.cancel();
+        _reconnect = null;
         _setConnection(NetworkStatus.online);
         unawaited(resync());
       case MatchChannelStatus.connecting:
@@ -383,6 +405,13 @@ class OnlineMatchController extends TableController
   bool _navigatedToResult = false;
 
   void _maybeFinish() {
+    if (_state.isFinished) {
+      // Nothing left to time or to poll; the result screen asks for the
+      // rematch votes itself.
+      _clockTimer?.cancel();
+      _poll?.cancel();
+      _heartbeat?.cancel();
+    }
     if (!_state.isFinished || _navigatedToResult) return;
     if (_state.lastRoundResult != null) {
       return; // the round-result sheet carries the player to the result
@@ -561,7 +590,7 @@ class OnlineMatchController extends TableController
   void _tick() {
     if (_disposed) return;
     if (_ticks++ % 60 == 0) {
-      debugPrint(
+      Log.d(
         'online-match: tick $_ticks v$_version deadline=${_snapshot.turnDeadlineAt}',
       );
     }
@@ -616,7 +645,7 @@ class OnlineMatchController extends TableController
     CardSuit? chosenSuit,
     CardSuit? suit,
   }) async {
-    debugPrint('online-match: send $type v$_version');
+    Log.d('online-match: send $type v$_version');
     if (_disposed) return false;
     busy.value = true;
     revision.value++;
@@ -657,7 +686,11 @@ class OnlineMatchController extends TableController
         return false;
       }
       _queue.add(InvalidCue(card ?? _state.topCard));
-      _showBanner(Strings.s.onlineMoveRefused);
+      _showBanner(
+        outcome.failure == GameFailure.notPlayersTurn.key
+            ? Strings.s.onlineNotYourTurn
+            : Strings.s.onlineMoveRefused,
+      );
       unawaited(_drain());
       // The server knows better than our view: re-read it.
       await resync();
@@ -665,7 +698,7 @@ class OnlineMatchController extends TableController
     } on OnlineException catch (e) {
       if (e.error == OnlineError.network) {
         _setConnection(NetworkStatus.connecting);
-        _showBanner(Strings.s.onlineReconnecting);
+        _showBanner(Strings.s.onlineDisconnected);
       } else {
         _showBanner(Strings.s.onlineMoveRefused);
       }
@@ -744,7 +777,7 @@ class OnlineMatchController extends TableController
 
   @override
   Future<void> drawCard() async {
-    debugPrint(
+    Log.d(
       'online-match: drawCard tap canInteract=$canInteract canDraw=$canDraw '
       'busy=${busy.value} turn=$isHumanTurn status=${_state.status.key} '
       'v$_version',

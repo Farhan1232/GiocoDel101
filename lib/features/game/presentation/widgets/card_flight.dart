@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/game_card.dart';
 import '../../../../core/widgets/cards/playing_card.dart';
+import '../../../../core/constants/app_spacing.dart';
 
 /// One card travelling between two places on the table.
 class CardFlight {
@@ -104,7 +105,7 @@ class CardFlightLayer extends StatelessWidget {
         ? 0.0
         : (t > 0.5 ? t * math.pi - math.pi : t * math.pi);
 
-    final height = flight.width * 1.55;
+    final height = flight.width * CardMetrics.aspect;
 
     return Positioned(
       left: position.dx - flight.width / 2,
@@ -122,7 +123,10 @@ class CardFlightLayer extends StatelessWidget {
             card: flight.card,
             faceUp: faceUp,
             backId: flight.backId,
-            elevation: 1.6 + math.sin(t * math.pi) * 0.9,
+            // Constant while airborne: a per-frame elevation changes the
+            // shadow blur, which invalidates the card's raster every frame
+            // for up to 28 cards during a deal. The transform above moves.
+            elevation: 2.0,
             highContrast: flight.highContrast,
           ),
         ),
