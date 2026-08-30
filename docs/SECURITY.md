@@ -29,6 +29,9 @@ its own valid JWT. It must not be able to:
 | Version | function (`expectedVersion`) + `srv_commit_action` (`FOR UPDATE`, `stale_version`) | two racers: one commit, one refusal |
 | Idempotency | `match_action_receipts (match_id, action_id)` | a repeat returns the receipt; nothing is re-applied |
 | Results, stats, rating, XP | `app_private.settle_match` → `record_match_result` | no client grant on any of those columns; `profiles_protect_columns` trigger |
+| Achievements (Session 5) | `app_private.evaluate_achievements` at settlement, from `match_round_results` (written by `srv_commit_action` when a round ends) and the final engine state | `user_achievements` has no client write; there is no "unlock" RPC. Offline badges live in the phone's local record and never reach the server |
+| Daily missions (Session 5) | progress only via `app_private.track_mission` from `srv_commit_action` (the actor's own accepted `playCard`) and `evaluate_achievements`; claims via `claim_mission_reward` judged on `now()` Europe/Rome | `user_daily_missions` / `daily_missions` refuse client writes (`42501`); `mission_expired` / `not_completed` / `already_claimed`; the phone's clock is never read |
+| Leaderboard (Session 5) | `leaderboard(scope, limit, offset)` and `my_leaderboard_rank` are `security invoker` reads over `profiles` / `weekly_points` | paging is bounded (`limit ≤ 200`); rows are real `auth.users` only |
 | Rooms | `join_room` (`FOR UPDATE`, `room_full`), `srv_commit_match` (host / kind / seat-set / readiness checks under the room lock) | |
 | Queue | `enqueue_quick_match` under `pg_advisory_xact_lock`; RLS own row | no direct insert; one row per user |
 | Channel | `realtime.messages` policies: members may receive; insert = presence only | outsiders refused at join; no client broadcast |
@@ -76,6 +79,10 @@ independent authenticated users (results as of the run in
 | duplicate queue entry | one row |
 | client-side broadcast on the match channel | not delivered to members |
 | non-preset reaction; second reaction inside 2 s | `invalid_reaction`; `rate_limited` |
+| **Session 5** (`tool/progression_smoke.dart`): insert/update `user_daily_missions`, update `daily_missions` | `42501`, progress unchanged |
+| call `app_private.track_mission` / a public `track_mission` | `PGRST106` (schema not exposed) / `PGRST202` (no such function) |
+| claim a mission that is not complete / already claimed / not today's | `not_completed` / `already_claimed` / `mission_expired` |
+| outsider reads `match_round_results` of a match it is not in | `[]` |
 
 ## Known limits and next steps
 

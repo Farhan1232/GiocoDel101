@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
 import '../../features/auth/application/supabase_auth_gateway.dart';
 import '../../features/auth/domain/auth_gateway.dart';
 import '../../features/leaderboard/application/leaderboard_repository.dart';
+import '../../features/missions/application/missions_repository.dart';
 import '../../features/online/application/online_match_repository.dart';
 import '../../features/profile/application/profile_repository.dart';
 import '../../features/rewards/application/daily_reward_repository.dart';
@@ -22,6 +23,7 @@ class BackendServices {
     required this.rooms,
     required this.matches,
     required this.matchmaking,
+    this.missions = const NoBackendMissionsRepository(),
   });
 
   factory BackendServices.none() => BackendServices(
@@ -42,6 +44,7 @@ class BackendServices {
     rooms: SupabaseRoomsRepository(client),
     matches: SupabaseOnlineMatchRepository(client),
     matchmaking: SupabaseMatchmakingRepository(client),
+    missions: SupabaseMissionsRepository(client),
   );
 
   final AuthGateway auth;
@@ -53,4 +56,7 @@ class BackendServices {
   /// The authoritative match: requests in, snapshots and live signals out.
   final OnlineMatchRepository matches;
   final MatchmakingRepository matchmaking;
+
+  /// §V — today's online missions and their server-judged claims.
+  final MissionsRepository missions;
 }

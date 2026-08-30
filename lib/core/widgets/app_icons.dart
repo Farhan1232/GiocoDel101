@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 /// icons are not used anywhere in the interface.
 enum AppIcon {
   play,
+  pause,
   resume,
   settings,
   sound,
@@ -109,6 +110,21 @@ class AppIconPainter extends CustomPainter {
             ..lineTo(19, 12)
             ..lineTo(7.5, 19.2)
             ..close(),
+          fill,
+        );
+      case AppIcon.pause:
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            const Rect.fromLTWH(6, 5, 4.2, 14),
+            const Radius.circular(1.2),
+          ),
+          fill,
+        );
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            const Rect.fromLTWH(13.8, 5, 4.2, 14),
+            const Radius.circular(1.2),
+          ),
           fill,
         );
       case AppIcon.resume:

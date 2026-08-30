@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_durations.dart';
@@ -26,6 +28,7 @@ class OpponentSeat extends StatelessWidget {
     required this.targetScore,
     this.reaction,
     this.skipped = false,
+    this.thinking = false,
     this.compact = false,
     this.accent,
   });
@@ -35,6 +38,9 @@ class OpponentSeat extends StatelessWidget {
   final double cardWidth;
   final String backId;
   final int targetScore;
+
+  /// §53 — a bot is taking its deliberate pause before moving.
+  final bool thinking;
 
   /// §23 — a phrase floating over this seat, if any.
   final String? reaction;
@@ -105,6 +111,11 @@ class OpponentSeat extends StatelessWidget {
                 Positioned(
                   top: -26,
                   child: _floating(reaction!, AppColors.warmIvory),
+                ),
+              if (thinking && reaction == null && !skipped)
+                Positioned(
+                  top: -18,
+                  child: ThinkingDots(colour: accent ?? AppColors.antiqueGold),
                 ),
             ],
           ),
@@ -274,6 +285,83 @@ class PlayerBar extends StatelessWidget {
         ),
         ?trailing,
       ],
+    );
+  }
+}
+
+/// Three dots breathing in sequence: the bot's "thinking" pause made
+/// visible, so a wait never reads as a freeze. Static under Reduce Motion.
+class ThinkingDots extends StatefulWidget {
+  const ThinkingDots({super.key, required this.colour});
+
+  final Color colour;
+
+  @override
+  State<ThinkingDots> createState() => _ThinkingDotsState();
+}
+
+class _ThinkingDotsState extends State<ThinkingDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (Motion.allowAmbient) _c.repeat();
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: Strings.s.botThinking,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          color: AppColors.inkDeep.withValues(alpha: 0.8),
+          border: Border.all(color: widget.colour.withValues(alpha: 0.4)),
+        ),
+        child: AnimatedBuilder(
+          animation: _c,
+          builder: (context, _) => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < 3; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 1.5),
+                  child: Opacity(
+                    opacity: Motion.allowAmbient
+                        ? 0.35 +
+                              0.65 *
+                                  (0.5 +
+                                      0.5 *
+                                          math.sin(
+                                            (_c.value - i * 0.18) * math.pi * 2,
+                                          ))
+                        : 0.8,
+                    child: Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: widget.colour,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

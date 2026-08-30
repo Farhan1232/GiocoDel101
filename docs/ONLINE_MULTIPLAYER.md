@@ -166,7 +166,13 @@ online says plainly that leaving is a forfeit.
   losses / streaks / XP / weekly points / `online_matches` /
   `prima_vittoria`, all server-side. **Rating deltas are 0** —
   `app_private.rating_deltas()` is the single hook for the still-unconfirmed
-  formula (§12b); nothing was invented.
+  formula (§12b); nothing was invented. Session 5 added two more steps to
+  `settle_match`: `record_round_result` (the final round's facts, like every
+  earlier round's at its `roundOver` commit) and `evaluate_achievements`
+  (the badges and the match missions, judged from `match_round_results`
+  and the final state — see `docs/PROGRESSION.md`). `srv_commit_action`
+  itself now ticks the play missions (Asso, 2, Cavallo, Cavallo into a
+  chain) for the actor's own accepted actions.
 - Rematch: `match {op:"rematch"}` records a vote; when every seat still in
   the room has voted the last voter's call deals a fresh match (new seed) on
   the same room, `rooms.match_id` moves, and the result screen launches it.

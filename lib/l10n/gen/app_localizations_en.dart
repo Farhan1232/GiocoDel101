@@ -58,10 +58,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achManoPerfettaTitle => 'Perfect Hand';
 
   @override
+  String get achOffline => 'Unlocked offline';
+
+  @override
+  String get achOnline => 'Unlocked online';
+
+  @override
   String get achPrimaVittoriaBody => 'Win your first match';
 
   @override
   String get achPrimaVittoriaTitle => 'First Win';
+
+  @override
+  String get achServerHint =>
+      'Online achievements are validated by the server; offline ones stay on this device.';
 
   @override
   String get achSfidanteBody => 'Complete a Daily Challenge';
@@ -185,6 +195,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bestComeback => 'Best comeback';
 
   @override
+  String get botThinking => 'Thinking…';
+
+  @override
   String get cancel => 'Cancel';
 
   @override
@@ -195,6 +208,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardsPlayed => 'Cards played';
+
+  @override
+  String centounoBody(String name) {
+    return '$name is back to zero';
+  }
+
+  @override
+  String get centounoTitle => 'CENTOUNO!';
 
   @override
   String get chooseSuit => 'Choose the suit';
@@ -239,6 +260,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonNext => 'Next';
+
+  @override
+  String get commonOff => 'Off';
+
+  @override
+  String get commonOn => 'On';
 
   @override
   String get commonOptional => 'optional';
@@ -507,8 +534,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get leaderboardLoadFailed => 'Could not load the leaderboard.';
 
   @override
+  String get leaderboardLoadMore => 'Load more';
+
+  @override
   String get leaderboardNoScoresYet =>
       'No scores yet — play online matches to appear here.';
+
+  @override
+  String get leaderboardNotRanked =>
+      'You are not ranked yet: play online to get on the board.';
 
   @override
   String get leaderboardPoints => 'Points';
@@ -521,6 +555,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leaderboardWeekly => 'Weekly';
+
+  @override
+  String get leaderboardYourRank => 'Your rank';
 
   @override
   String get lobbyAway => 'Away';
@@ -618,6 +655,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matchmakingCancel => 'Cancel search';
 
   @override
+  String get matchmakingCpuHint =>
+      'No other players for now. You can play offline against the computer right away: it does not count for the leaderboard.';
+
+  @override
+  String get matchmakingCpuOffer => 'Continue against CPU';
+
+  @override
   String matchmakingElapsed(int seconds) {
     return 'Waiting ${seconds}s';
   }
@@ -646,6 +690,128 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get matchmakingTitle => 'Searching';
+
+  @override
+  String missionBlockTwo(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Block $n +2s with a Cavallo',
+      one: 'Block one +2 with a Cavallo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionOnlineMatch(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Complete $n online matches',
+      one: 'Complete one online match',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionPlayAces(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Play $n Aces',
+      one: 'Play one Ace',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionPlayMatches(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Play $n matches',
+      one: 'Play one match',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionPlayTwos(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Play $n 2s',
+      one: 'Play one 2',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionUseNine(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Use $n Cavalli (9)',
+      one: 'Use one Cavallo (9)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionWinMatch(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Win $n matches',
+      one: 'Win one match',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missionsClaim => 'CLAIM';
+
+  @override
+  String get missionsClaimFailed => 'Could not claim the reward.';
+
+  @override
+  String get missionsClaimed => 'Claimed';
+
+  @override
+  String get missionsCycleHint =>
+      'New missions every day, on a seven-day cycle.';
+
+  @override
+  String get missionsEmpty => 'No missions today.';
+
+  @override
+  String get missionsLoadFailed => 'Could not load the online missions.';
+
+  @override
+  String get missionsOffline => 'Offline (this device)';
+
+  @override
+  String get missionsOnline => 'Online missions';
+
+  @override
+  String get missionsOnlineOnly => 'Online only';
+
+  @override
+  String missionsProgress(int done, int total) {
+    return '$done/$total complete';
+  }
+
+  @override
+  String missionsReward(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String get missionsSignInHint =>
+      'Sign in for online missions: the experience goes on your profile.';
+
+  @override
+  String get missionsTitle => 'Today’s missions';
 
   @override
   String get mode => 'Mode';
@@ -788,6 +954,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get onlineUnavailableRetry =>
+      'The online service cannot be reached. Offline play is still available.';
+
+  @override
   String onlineWaitingFor(String name) {
     return '$name’s turn';
   }
@@ -805,6 +975,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passTurn => 'Pass';
+
+  @override
+  String get pauseHint => 'The match is on hold: your opponents are waiting.';
+
+  @override
+  String get pauseResume => 'Resume';
+
+  @override
+  String get pauseTitle => 'Paused';
 
   @override
   String get penalty => 'Penalty';
@@ -845,6 +1024,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileMatches => 'Matches';
 
   @override
+  String profileNextLevel(int level) {
+    return 'Next level: $level';
+  }
+
+  @override
   String get profileNicknameTaken => 'That nickname is already taken.';
 
   @override
@@ -865,6 +1049,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String profileXpProgress(int current, int target) {
     return '$current / $target XP';
+  }
+
+  @override
+  String profileXpToNext(int xp) {
+    return '$xp XP to go';
   }
 
   @override
@@ -950,7 +1139,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'All local progress will be erased. Continue?';
 
   @override
-  String get resumeMatch => 'Resume Match';
+  String get resumeMatch => 'Continue match';
 
   @override
   String get resumeMatchHint => 'Pick up where you left off';
@@ -992,6 +1181,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ruleExactResetHint => 'Exactly 101 resets your score';
 
   @override
+  String get ruleNineBlock => 'Cavallo versus the 2';
+
+  @override
+  String get ruleNineBlockCancel => 'Cancels the chain';
+
+  @override
+  String get ruleNineBlockDisabled => 'Not allowed';
+
+  @override
+  String get ruleNineBlockPassOn => 'Passes the chain on';
+
+  @override
   String get ruleStackTwos => 'Stacking 2s';
 
   @override
@@ -1010,6 +1211,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ruleWildNineHint => 'The 9 changes suit at any time';
 
   @override
+  String get rulesActiveHint => 'The house rules chosen for the table in play.';
+
+  @override
+  String get rulesActiveTitle => 'Rules for this match';
+
+  @override
   String get savedFrom101 => 'SAFE!';
 
   @override
@@ -1023,6 +1230,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAccount => 'ACCOUNT';
+
+  @override
+  String get settingsGuestLogoutBody =>
+      'You are a guest: signing out loses this account and its online progress for good.';
 
   @override
   String get settingsLanguage => 'Language';
@@ -1042,6 +1253,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsLogoutBody =>
       'You will be signed out on this device. Progress saved to your account stays.';
+
+  @override
+  String get settingsLogoutGuest => 'Sign out (guest account)';
 
   @override
   String get settingsPrivacy => 'Privacy policy';
@@ -1095,6 +1309,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statMatches => 'Matches played';
 
   @override
+  String get statOnlineMatches => 'Online matches';
+
+  @override
   String get statResets => 'Returns from 101';
 
   @override
@@ -1114,6 +1331,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statistics => 'Statistics';
+
+  @override
+  String get statsOfflineHeading => 'OFFLINE — THIS DEVICE';
+
+  @override
+  String get statsOfflineHint =>
+      'Matches against the computer never touch the online leaderboard.';
+
+  @override
+  String get statsOnlineHeading => 'ONLINE — PROFILE';
 
   @override
   String get suitBastoni => 'Clubs';
@@ -1143,6 +1370,110 @@ class AppLocalizationsEn extends AppLocalizations {
   String get turnSkipped => 'TURN SKIPPED';
 
   @override
+  String tutAceDone(String name) {
+    return '$name skipped a turn. With two players, the Ace hands the turn straight back to you.';
+  }
+
+  @override
+  String get tutAcePrompt =>
+      'Play the Ace of Cups: your opponent loses their turn.';
+
+  @override
+  String get tutAceTitle => 'Ace — skip';
+
+  @override
+  String get tutBlockDone =>
+      'The Cavallo is also your defence against 2s. Use it wisely: there are only four in the deck.';
+
+  @override
+  String get tutBlockPrompt =>
+      'A 2 is aimed at you and you have no 2 to answer. Play the Cavallo of Clubs to cancel the chain.';
+
+  @override
+  String get tutBlockSuit => 'Chain cancelled: nobody draws. Choose the suit.';
+
+  @override
+  String get tutBlockTitle => 'Cavallo versus the 2';
+
+  @override
+  String tutCavalloDone(String suit) {
+    return 'The active suit is now $suit. The Cavallo does not set its own suit: it sets the one you choose.';
+  }
+
+  @override
+  String get tutCavalloPrompt =>
+      'The Cavallo (the 9) can always be played, on anything. Play the Cavallo of Swords.';
+
+  @override
+  String get tutCavalloSuit =>
+      'Now name the new active suit: the one you hold most of is usually best.';
+
+  @override
+  String get tutCavalloTitle => 'Cavallo — change suit';
+
+  @override
+  String tutCentounoDone(String name) {
+    return '92 + 9 = exactly 101: $name goes back to zero. Anyone who goes over 101 is eliminated. The last player standing wins.';
+  }
+
+  @override
+  String get tutCentounoPrompt =>
+      'Last card! Your opponent has 92 points and a Cavallo (9) in hand. Play the 7 of Cups and end the round.';
+
+  @override
+  String get tutCentounoTitle => 'One hundred and one!';
+
+  @override
+  String tutChainDone(String name) {
+    return '+4! $name drew four cards. Chains go all the way up to +8.';
+  }
+
+  @override
+  String get tutChainPrompt =>
+      'Your opponent played a 2 against you: answer with the 2 of Swords and the penalty rises to +4.';
+
+  @override
+  String get tutChainTitle => 'Stacking 2s';
+
+  @override
+  String get tutDrawingDone =>
+      'Had the drawn card not been playable, the turn would have passed with Pass.';
+
+  @override
+  String get tutDrawingPlay =>
+      'You drew the 6 of Cups: it can be played at once. Play it.';
+
+  @override
+  String get tutDrawingPrompt =>
+      'No card in your hand can be played. Tap the stock (or Draw) to take a card.';
+
+  @override
+  String get tutDrawingTitle => 'Drawing';
+
+  @override
+  String get tutFirstCardDone =>
+      'Perfect. Every card played must follow the active suit or the value of the card on top of the discards.';
+
+  @override
+  String get tutFirstCardPrompt =>
+      'The 5 of Cups is on top of the discard pile. You may play a Cup or another 5: double-tap a highlighted card.';
+
+  @override
+  String get tutFirstCardTitle => 'Suit or value';
+
+  @override
+  String tutTwoDone(String name) {
+    return '$name had no 2: they drew two cards and lost their turn.';
+  }
+
+  @override
+  String get tutTwoPrompt =>
+      'Play the 2 of Cups: your opponent must draw two cards unless they answer with another 2.';
+
+  @override
+  String get tutTwoTitle => 'Two — draw two';
+
+  @override
   String get tutorial101 => 'Exactly 101';
 
   @override
@@ -1164,6 +1495,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The Knight (9) can be played at any moment and lets you choose the new active suit with the Suit Ritual.';
 
   @override
+  String get tutorialCompleteBody =>
+      'You know every special card and the 101. Now it’s your turn.';
+
+  @override
+  String get tutorialCompleteTitle => 'Tutorial complete!';
+
+  @override
   String get tutorialDraw => 'Drawing';
 
   @override
@@ -1171,11 +1509,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'With no playable card you draw from the deck. If the drawn card is legal you may play it at once, otherwise the turn passes.';
 
   @override
+  String get tutorialExitBody =>
+      'You can start it again from the beginning any time.';
+
+  @override
+  String get tutorialExitTitle => 'Leave the tutorial?';
+
+  @override
+  String get tutorialFinish => 'Finish';
+
+  @override
   String get tutorialGoal => 'Goal';
 
   @override
   String get tutorialGoalBody =>
       'Empty your hand before the others. The cards left in your opponents\' hands become penalty points: go over 101 and you are out, land on exactly 101 and you go back to zero.';
+
+  @override
+  String get tutorialHint => 'Learn by playing, one rule at a time';
+
+  @override
+  String get tutorialHintFollow =>
+      'Follow the hint: play the highlighted card.';
 
   @override
   String get tutorialMatch => 'Suit or value';
@@ -1192,11 +1547,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Going over 101 means leaving the match. Whoever manages the high cards best stays in.';
 
   @override
+  String get tutorialPlayNow => 'PLAY AGAINST THE COMPUTER';
+
+  @override
+  String get tutorialReplay => 'Replay the tutorial';
+
+  @override
   String get tutorialScoring => 'Scoring';
 
   @override
   String get tutorialScoringBody =>
       'At the end of a round every card left is worth its number: Ace 1, Jack 8, Knight 9, King 10. The points add to your total.';
+
+  @override
+  String get tutorialTitle => 'Interactive tutorial';
 
   @override
   String get tutorialTwo => 'Two — draw two';

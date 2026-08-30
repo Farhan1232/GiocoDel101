@@ -22,6 +22,7 @@ import '../../../core/widgets/app_panel.dart';
 import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/app_icons.dart';
+import 'widgets/centouno_flourish.dart';
 import 'widgets/fate_ring.dart';
 import 'last_hand_replay.dart';
 
@@ -100,7 +101,7 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
       setState(() => _resetting = row.playerId);
       AudioService.instance.play(Sfx.reset101);
       HapticService.instance.strong();
-      _timer = Timer(Motion.scale(const Duration(milliseconds: 2100)), () {
+      _timer = Timer(Motion.scale(const Duration(milliseconds: 2400)), () {
         if (mounted) setState(() => _resetting = null);
         _revealNext();
       });
@@ -229,6 +230,20 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
                 ),
               ),
             ),
+            if (_resetting != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: ColoredBox(
+                    color: AppColors.inkDeep.withValues(alpha: 0.55),
+                    child: Center(
+                      child: CentounoFlourish(
+                        playerName: c.state.playerById(_resetting!)?.name ?? '',
+                        accent: theme.accent,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             if (_replaying)
               Positioned.fill(
                 child: LastHandReplay(

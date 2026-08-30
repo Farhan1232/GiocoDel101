@@ -75,10 +75,7 @@ class ProfileSummary {
     SettingsModel settings,
     StatisticsModel stats,
   ) {
-    final position = LevelLadder.resolve(
-      stats.matchesPlayed * LevelLadder.xpPerMatch +
-          stats.matchesWon * LevelLadder.xpPerWin,
-    );
+    final position = LevelLadder.resolve(stats.xp);
     return ProfileSummary(
       nickname: settings.playerName,
       avatarId: settings.avatarId,

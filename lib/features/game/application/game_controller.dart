@@ -43,7 +43,9 @@ class GameController extends TableController {
     required this.stats,
     required this.humanIds,
     Random? random,
-  }) : _random = random ?? Random();
+    DateTime Function()? clock,
+  }) : _random = random ?? Random(),
+       _clock = clock ?? DateTime.now;
 
   final GameSession session;
   final GameStorageService storage;
@@ -55,6 +57,9 @@ class GameController extends TableController {
   final List<String> humanIds;
 
   final Random _random;
+
+  /// Wall clock for the reaction cooldown; injectable so tests can move it.
+  final DateTime Function() _clock;
 
   /// Bumped whenever the engine state changes, so `Obx` rebuilds cheaply
   /// without deep-copying the match on every card.
@@ -100,6 +105,13 @@ class GameController extends TableController {
     TableSessionStatus.offlineLocal,
   );
 
+  /// Set while the pause overlay is up: bots wait, input is refused.
+  @override
+  final RxBool paused = false.obs;
+
+  @override
+  bool get canPause => true;
+
   @override
   bool get isOnline => false;
 
@@ -123,6 +135,12 @@ class GameController extends TableController {
   bool _disposed = false;
   bool _running = false;
   String? _revealedSeat;
+  Completer<void>? _unpaused;
+  DateTime? _lastReactionAt;
+
+  /// §23 — one reaction every two seconds, the same gap the server applies
+  /// online, so the local table cannot be spammed either.
+  static const Duration reactionCooldown = Duration(seconds: 2);
 
   @override
   GameState get state => session.state;
@@ -156,6 +174,7 @@ class GameController extends TableController {
   @override
   bool get canInteract =>
       !busy.value &&
+      !paused.value &&
       handoverPlayerId.value == null &&
       isHumanTurn &&
       round.status == GameStatus.awaitingAction;
@@ -182,6 +201,12 @@ class GameController extends TableController {
         : humanIds.first;
     chainTotal.value = round.pendingDrawCount;
     chainLevel.value = round.chainLength;
+    // §49 — a snapshot taken while the Suit Ritual was open must reopen it:
+    // the Cavallo that asked for a suit is the top of the discard pile.
+    if (round.status == GameStatus.awaitingSuitChoice &&
+        isHumanSeat(currentPlayer.id)) {
+      pendingSuitChoice.value = round.topCard;
+    }
   }
 
   /// Called by the view once it is laid out and able to play cues.
@@ -189,7 +214,57 @@ class GameController extends TableController {
   void start() {
     if (_running) return;
     _running = true;
-    _resumeFlow();
+    unawaited(_startFlow());
+  }
+
+  Future<void> _startFlow() async {
+    // A brand-new match (no action applied yet) is dealt in front of the
+    // player; a resumed one simply appears where it was left.
+    if (state.version == 0 && round.status == GameStatus.awaitingAction) {
+      busy.value = true;
+      _queueDeal();
+      await _drain();
+      if (_disposed) return;
+    }
+    await _resumeFlow();
+  }
+
+  void _queueDeal() {
+    _queue.add(
+      DealCue(
+        state.players.where((p) => !p.eliminated).map((p) => p.id).toList(),
+        state.rules.startingHandSize,
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------- pausing
+
+  /// Freezes the table. A bot in the middle of "thinking" finishes its
+  /// pause and then waits here before acting; cues already queued finish.
+  @override
+  void pause() {
+    if (paused.value || state.isFinished) return;
+    paused.value = true;
+    _unpaused = Completer<void>();
+    revision.value++;
+    _persist();
+  }
+
+  @override
+  void resume() {
+    if (!paused.value) return;
+    paused.value = false;
+    final c = _unpaused;
+    _unpaused = null;
+    c?.complete();
+    revision.value++;
+  }
+
+  Future<void> _whilePaused() async {
+    while (paused.value && !_disposed) {
+      await (_unpaused?.future ?? Future<void>.value());
+    }
   }
 
   @override
@@ -208,49 +283,23 @@ class GameController extends TableController {
   // ------------------------------------------------------------- engine feed
 
   void _onEngineEvent(GameEvent event) {
+    final cue = TableCues.fromEvent(event, isHumanSeat: isHumanSeat);
+    if (cue != null) _queue.add(cue);
     switch (event) {
-      case CardPlayedEvent():
-        _queue.add(PlayCardCue(event.playerId, event.card));
-      case CardsDrawnEvent():
-        _queue.add(
-          DrawCue(event.playerId, event.cards, isPenalty: event.isPenalty),
-        );
-      case TurnSkippedEvent():
-        _queue.add(SkipCue(event.playerId));
-      case ChainGrewEvent():
-        _queue.add(ChainGrowCue(event.total, event.chainLength));
-      case ChainResolvedEvent():
-        _queue.add(
-          ChainBreakCue(event.playerId, event.total, event.chainLength),
-        );
-      case ChainBlockedEvent():
-        // §6a — a Cavallo stopped the chain. The table shows the chain
-        // collapsing; a passed-on chain keeps its level through ChainGrew.
-        if (event.cancelled) {
-          _queue.add(
-            ChainBreakCue(event.playerId, event.total, event.chainLength),
-          );
-        }
-      case RoundStartedEvent():
-        break;
-      case SuitChosenEvent():
-        _queue.add(SuitChosenCue(event.playerId, event.suit));
       case SuitChoiceRequestedEvent():
         pendingSuitChoice.value = event.card;
-      case DeckRecycledEvent():
-        _queue.add(RecycleCue(event.count));
-      case InvalidMoveEvent():
-        _queue.add(InvalidCue(event.card));
-      case TurnChangedEvent():
-        _queue.add(
-          TurnCue(event.playerId, isHuman: isHumanSeat(event.playerId)),
-        );
       case RoundEndedEvent():
         lastRoundResult.value = event.result;
-      case Exact101Event():
-      case PlayerEliminatedEvent():
-      case PlayerForfeitedEvent():
-      case MatchEndedEvent():
+      case CardPlayedEvent():
+        // §V — offline mission counters follow the person's own plays.
+        if (isHumanSeat(event.playerId)) {
+          unawaited(stats.noteCardPlayed(event.card));
+        }
+      case ChainBlockedEvent():
+        if (isHumanSeat(event.playerId)) {
+          unawaited(stats.noteChainBlocked());
+        }
+      default:
         break;
     }
   }
@@ -329,6 +378,13 @@ class GameController extends TableController {
   /// §23 — the player's own reaction.
   @override
   void sendReaction(String phrase) {
+    final now = _clock();
+    final last = _lastReactionAt;
+    if (last != null && now.difference(last) < reactionCooldown) {
+      _showBanner(Strings.s.reactionRateLimited);
+      return;
+    }
+    _lastReactionAt = now;
     _showReaction(viewingPlayer.id, phrase);
     HapticService.instance.light();
     AudioService.instance.play(Sfx.click, volume: 0.6);
@@ -366,6 +422,8 @@ class GameController extends TableController {
           return;
         }
         await _pauseForBot();
+        await _whilePaused();
+        if (_disposed) return;
         final bot = _bots[seat.id];
         final suit = bot == null
             ? CardSuit.values[_random.nextInt(4)]
@@ -396,6 +454,7 @@ class GameController extends TableController {
       busy.value = true;
       revision.value++;
       await _pauseForBot();
+      await _whilePaused();
       if (_disposed) return;
 
       final before = round.turnNumber;
@@ -538,6 +597,8 @@ class GameController extends TableController {
         AudioService.instance.play(Sfx.cardDrop);
       case RecycleCue():
         AudioService.instance.play(Sfx.shuffle);
+      case DealCue():
+        AudioService.instance.play(Sfx.cardSlide, volume: 0.8);
       case InvalidCue():
         AudioService.instance.play(Sfx.invalid);
         HapticService.instance.error();
@@ -641,6 +702,8 @@ class GameController extends TableController {
     _queue.clear();
     AudioService.instance.play(Sfx.shuffle);
     revision.value++;
+    _queueDeal();
+    await _drain();
     await _resumeFlow();
   }
 }

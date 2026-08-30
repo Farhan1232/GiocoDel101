@@ -87,6 +87,29 @@ abstract class TableController extends GetxController {
   /// Leaves the table for good. Offline this only saves; online it forfeits.
   Future<void> abandon();
 
+  // ------------------------------------------------------------- pausing
+
+  /// True while the match is frozen behind the pause overlay. Bots do not
+  /// act and input is refused until [resume]. Online tables cannot pause —
+  /// the server clock keeps running — so the default is a constant false.
+  RxBool get paused => _neverPaused;
+  static final RxBool _neverPaused = false.obs;
+
+  /// Whether this driver offers a pause menu at all.
+  bool get canPause => false;
+
+  void pause() {}
+  void resume() {}
+
+  // ------------------------------------------------------------ tutorial
+
+  /// True for the guided tutorial table: no statistics, no saves, no
+  /// coach marks, a lighter exit dialog.
+  bool get isTutorial => false;
+
+  /// §65 — whether the first-run coach marks may appear on this table.
+  bool get showsCoachMarks => !isTutorial;
+
   @protected
   bool isHumanSeat(String id) => humanIds.contains(id);
 }

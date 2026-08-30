@@ -23,8 +23,9 @@ import '../../../core/widgets/icon_pill.dart';
 import '../../../core/widgets/logo_101.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/xp_bar.dart';
-import '../../achievements/domain/achievements_catalog.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../missions/application/missions_controller.dart';
+import '../../tutorial/application/tutorial_launcher.dart';
 
 /// §25 Screen 2 — the identity screen.
 class HomeScreen extends StatefulWidget {
@@ -47,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen>
         );
   late final SettingsController _settings = Get.find<SettingsController>();
   late final StatsController _stats = Get.find<StatsController>();
+  late final MissionsController _missions = MissionsController.ensure();
 
   late final AnimationController _entrance;
 
@@ -65,7 +67,10 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  void _refresh() => _home.refreshSavedMatch();
+  void _refresh() {
+    _home.refreshSavedMatch();
+    _missions.reload();
+  }
 
   /// "Rientra nella partita": the server says a seat is waiting for us.
   Future<void> _rejoinOnline(String matchId) async {
@@ -189,6 +194,17 @@ class _HomeScreenState extends State<HomeScreen>
                             _stagger(0.28, _dailyCard(theme.accent)),
                             const SizedBox(height: AppSpacing.md),
                             _stagger(0.32, _missionsCard(theme.accent)),
+                            const SizedBox(height: AppSpacing.md),
+                            _stagger(
+                              0.34,
+                              _actionCard(
+                                icon: AppIcon.cards,
+                                title: s.tutorialTitle,
+                                subtitle: s.tutorialHint,
+                                accent: AppColors.mediterraneanTeal,
+                                onTap: TutorialLauncher.launch,
+                              ),
+                            ),
                             const SizedBox(height: AppSpacing.md),
                             _stagger(
                               0.36,
@@ -342,17 +358,16 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// Progress preview — how far the player is through the badge set.
+  /// §V — today's missions: how many are done, across online and offline.
   Widget _missionsCard(Color accent) {
     return Obx(() {
       final s = Strings.s;
-      final earned = AchievementsCatalog.all
-          .where((a) => _stats.hasAchievement(a.id))
-          .length;
-      final total = AchievementsCatalog.all.length;
+      final rows = _missions.visible;
+      final done = rows.where((m) => m.completed).length;
+      final total = rows.length;
       return AppPanel(
         accent: accent,
-        onTap: () => Get.toNamed<void>(AppRoutes.achievements),
+        onTap: () => Get.toNamed<void>(AppRoutes.missions),
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,14 +383,16 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                 ),
-                Text('$earned/$total', style: AppText.label),
+                Text(s.missionsProgress(done, total), style: AppText.label),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
             XpBar(
-              progress: total == 0 ? 0 : earned / total,
+              progress: total == 0 ? 0 : done / total,
               accent: accent,
-              caption: s.homeMissionsHint,
+              caption: _missions.claimableCount > 0
+                  ? s.missionsClaim
+                  : s.homeMissionsHint,
             ),
           ],
         ),

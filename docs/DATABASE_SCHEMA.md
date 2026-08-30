@@ -12,6 +12,8 @@ by a file in `supabase/migrations/` — there are **no dashboard-only changes**.
 | `20260829162239_fk_covering_indexes.sql` | covering indexes for every foreign key the performance advisor flagged |
 | `20260829202017_online_multiplayer.sql` | Session 4: `rooms.kind`, the turn clock on `matches`, `match_action_receipts`, `matchmaking_queue`, `reaction_presets`, Realtime publication + private-channel policies, `settle_match`, `rating_deltas`, the `srv_*` server API, queue/snapshot/heartbeat/reaction RPCs, `expire_stale_matches`, pg_cron |
 | `20260829204500_realtime_topic_helper.sql` | `public.match_topic_id()` — the channel policy helper the `authenticated` role can execute |
+| `20260830120000_progression_missions.sql` | Session 5: `leaderboard(scope, limit, offset)`, `my_leaderboard_rank`, `match_round_results`, `record_round_result`, `evaluate_achievements`, the daily-mission rotation + `track_mission` + `my_daily_missions()` + `claim_mission_reward()`, mission ticks inside `srv_commit_action`, achievements/missions inside `settle_match` |
+| `20260830123000_claim_mission_fix.sql` | `claim_mission_reward()` with qualified column references (`#variable_conflict use_column`) — the first version was ambiguous against its own `RETURNS TABLE` names |
 
 Two schemas:
 
@@ -185,9 +187,25 @@ PK `(user_id, claimed_on)`; `day_index` 1..7, `amount`. Client: `SELECT` own
 rows. Written only by `claim_daily_reward()`.
 
 ### `public.daily_missions` / `public.user_daily_missions`
-Definitions per date (`mission_key`, `target`, `reward_xp`, `reward_coins`)
-and per-user progress. Client: `SELECT` (own progress). Server-written. No
-missions are generated yet — the tables exist so the shape is fixed.
+Definitions per date (`mission_key`, `target`, `reward_xp`, `reward_coins`,
+`sort_order`) and per-user progress (`progress`, `completed_at`,
+`claimed_at`). Client: `SELECT` (own progress). **Server-written only**:
+rows for a day are materialised lazily by `app_private.ensure_daily_missions`
+from the seven-day rotation in `app_private.mission_rotation(isodow)` (the
+same table as `MissionCatalog` in Dart); progress moves only through
+`app_private.track_mission`, called from `srv_commit_action` (an Asso, a 2,
+a Cavallo, a Cavallo into a live chain — the actor's own accepted actions)
+and from `evaluate_achievements` at settlement (`play_matches`,
+`online_match`, `win_match`). Days are Europe/Rome on the database clock
+(`app_private.today_rome()`).
+
+### `public.match_round_results` (Session 5)
+PK `(match_id, round, user_id)`; `won_round`, `hit_exact_101`, `eliminated`,
+`perfect_hand`, `cards_left`, `penalty`, `new_score`. One row per seat per
+finished round, written by `srv_commit_action` from the engine's
+`lastRoundResult` the moment the state goes `roundOver`/`finished`. Client:
+`SELECT` where `is_match_member(match_id)`. This is the evidence the
+achievement judge reads — the phone reports nothing.
 
 ### `public.weekly_points`
 PK `(user_id, week_start)`; `points`, `wins`, `matches`. Fed by
@@ -198,7 +216,10 @@ PK `(user_id, week_start)`; `points`, `wins`, `matches`. Fed by
 |---|---|---|
 | `claim_daily_reward()` | definer, permanent users only | one claim per Europe/Rome day; day = previous+1 if yesterday was claimed, else 1; amount from `[10,15,20,30,40,60,120]`; credits `player_stats.coins`; per-user advisory lock. Errors: `guest_not_allowed`, `already_claimed` |
 | `my_daily_reward_status()` | invoker | `streak, claimed_today, can_claim, coins` |
-| `leaderboard(scope, limit)` | invoker | `all_time` = `profiles.rating` desc, wins desc; `weekly` = current ISO week's `weekly_points` |
+| `leaderboard(scope, limit, offset)` | invoker | `all_time` = `profiles.rating` desc, wins desc; `weekly` = current ISO week's `weekly_points`; `limit` ≤ 200, `offset` for paging (the two-argument call still works) |
+| `my_leaderboard_rank(scope)` | invoker | the caller's own row (rank, points) in that scope, or nothing when unranked |
+| `my_daily_missions()` | definer | today's missions (materialised on demand) with the caller's progress/claim state, in rotation order |
+| `claim_mission_reward(mission_id)` | definer | judged on the server clock: today's mission, `progress >= target`, not yet claimed; then `grant_xp` (+ coins). Errors: `mission_expired`, `not_completed`, `already_claimed`; per-user advisory lock |
 
 ### Server-only API (`app_private`, no client grant)
 | Function | Does |
@@ -207,6 +228,9 @@ PK `(user_id, week_start)`; `points`, `wins`, `matches`. Fed by
 | `grant_xp(user, amount)` | adds XP, recomputes level |
 | `unlock_achievement(user, id)` | idempotent |
 | `record_match_result(match_id, rating_deltas jsonb)` | per seat: matches/wins/losses/streaks, XP (20 + 45 on a win — **provisional**), weekly points, `online_matches`, `prima_vittoria`. Rating changes only by the deltas passed in — **no formula lives here** |
+| `record_round_result(match_id, state)` | Session 5 — the `lastRoundResult` rows into `match_round_results` (idempotent) |
+| `evaluate_achievements(match_id, state)` | Session 5 — after `record_match_result`: Prima Vittoria (winner), Centouno! (a round row with `hit_exact_101`), Vendetta (winner whose streak restarted at 1 with ≥ 2 matches), Maestro del Nove (winner with four `cavalloSuits` in the final state), Imbattibile (streak ≥ 5), Veterano (matches ≥ 25), Catena (`stats.longestChain` ≥ 3, every seat), Mano Perfetta (a round row with `perfect_hand`); plus the match missions |
+| `mission_rotation(isodow)`, `today_rome()`, `ensure_daily_missions(date)`, `track_mission(user, key, inc)` | Session 5 — the mission machinery described above |
 
 ---
 
@@ -271,6 +295,8 @@ every 10 minutes.
 ## What is deliberately not here
 
 - Storage buckets — avatars are built-in vector art; no upload exists.
-- Any rating formula or daily-mission generator — each waits on a client
-  decision (see `docs/SESSION_HANDOFF.md`). The turn-timer expiry rule is
-  implemented server-side under a documented provisional policy.
+- Any rating formula — it waits on a client decision (see
+  `docs/SESSION_HANDOFF.md`). The turn-timer expiry rule is implemented
+  server-side under a documented provisional policy. Daily missions now have
+  a generator (Session 5, the seven-day rotation); their XP amounts are as
+  provisional as the match XP.

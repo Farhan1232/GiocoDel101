@@ -111,7 +111,16 @@ class SectionHeading extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Row(
         children: [
-          Text(title, style: AppText.sectionTitle),
+          // A long heading (or a big text scale) ellipsises; it never pushes
+          // the rule or the trailing widget off the panel.
+          Flexible(
+            child: Text(
+              title,
+              style: AppText.sectionTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Container(

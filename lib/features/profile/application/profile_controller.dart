@@ -20,6 +20,14 @@ class ProfileController extends GetxController {
 
   final Rx<RemoteProfile?> profile = Rx<RemoteProfile?>(null);
   final Rx<RemotePlayerStats?> stats = Rx<RemotePlayerStats?>(null);
+
+  /// Badges the SERVER unlocked (online play). Disjoint from the local
+  /// offline list in [StatsController]; screens show the union.
+  final RxSet<String> achievements = <String>{}.obs;
+
+  /// Server badges that appeared since the previous load — what an online
+  /// result screen celebrates.
+  final RxList<String> newAchievements = <String>[].obs;
   final RxBool loading = false.obs;
   final Rx<ProfileError?> lastError = Rx<ProfileError?>(null);
 
@@ -38,6 +46,8 @@ class ProfileController extends GetxController {
     if (session == null) {
       profile.value = null;
       stats.value = null;
+      achievements.clear();
+      newAchievements.clear();
       return;
     }
     unawaited(reload());
@@ -59,6 +69,14 @@ class ProfileController extends GetxController {
       if (_session.current?.userId != session.userId) return;
       profile.value = remote;
       stats.value = await _repository.fetchStats(session.userId);
+      final badges = await _repository.fetchAchievements(session.userId);
+      final fresh = badges.where((id) => !achievements.contains(id)).toList();
+      if (achievements.isNotEmpty || newAchievements.isNotEmpty) {
+        newAchievements.addAll(fresh);
+      }
+      achievements
+        ..clear()
+        ..addAll(badges);
       lastError.value = null;
       unawaited(_repository.touchPresence());
     } on ProfileException catch (error) {
@@ -66,6 +84,14 @@ class ProfileController extends GetxController {
     } finally {
       loading.value = false;
     }
+  }
+
+  bool hasAchievement(String id) => achievements.contains(id);
+
+  List<String> drainNewAchievements() {
+    final list = List<String>.of(newAchievements);
+    newAchievements.clear();
+    return list;
   }
 
   /// Saves nickname + avatar to the server. Throws [ProfileException].

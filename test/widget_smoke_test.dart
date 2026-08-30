@@ -243,7 +243,9 @@ void main() {
       await settings.setLargeCards(true);
       await settings.setHighContrast(true);
       _match();
-      await _render(tester, const GameScreen(), sizes.first);
+      // Session 5: a fresh table deals itself first, then the bot thinks —
+      // give both time to run out before the test ends.
+      await _render(tester, const GameScreen(), sizes.first, frames: 45);
       expect(tester.takeException(), isNull);
     });
 
@@ -252,7 +254,7 @@ void main() {
       Motion.reduceMotion = false;
       Motion.speedFactor = AnimationSpeed.fast.factor;
       _match();
-      await _render(tester, const GameScreen(), sizes.first);
+      await _render(tester, const GameScreen(), sizes.first, frames: 45);
       expect(tester.takeException(), isNull);
       Motion.speedFactor = 1.0;
     });
@@ -264,7 +266,7 @@ void main() {
         await settings.unlock(themeId: theme.id, cardBackId: theme.cardBackId);
         await settings.setTheme(theme.id);
         _match();
-        await _render(tester, const GameScreen(), sizes.first, frames: 10);
+        await _render(tester, const GameScreen(), sizes.first, frames: 45);
         expect(
           tester.takeException(),
           isNull,

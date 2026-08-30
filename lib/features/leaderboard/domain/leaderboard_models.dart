@@ -25,6 +25,7 @@ class LeaderboardBoard {
     required this.scope,
     this.entries = const [],
     this.isAvailable = false,
+    this.hasMore = false,
   });
 
   final LeaderboardScope scope;
@@ -33,5 +34,15 @@ class LeaderboardBoard {
   /// False while there is no backend to rank anyone.
   final bool isAvailable;
 
+  /// True when the page was full, so another page may follow.
+  final bool hasMore;
+
   bool get isEmpty => entries.isEmpty;
+
+  LeaderboardBoard append(LeaderboardBoard next) => LeaderboardBoard(
+    scope: scope,
+    entries: [...entries, ...next.entries],
+    isAvailable: isAvailable || next.isAvailable,
+    hasMore: next.hasMore,
+  );
 }

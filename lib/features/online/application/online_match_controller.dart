@@ -539,6 +539,8 @@ class OnlineMatchController extends TableController
         AudioService.instance.play(Sfx.cardDrop);
       case RecycleCue():
         AudioService.instance.play(Sfx.shuffle);
+      case DealCue():
+        AudioService.instance.play(Sfx.cardSlide, volume: 0.8);
       case InvalidCue():
         AudioService.instance.play(Sfx.invalid);
         HapticService.instance.error();

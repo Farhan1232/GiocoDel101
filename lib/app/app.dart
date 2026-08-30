@@ -48,7 +48,10 @@ class _GiocoDel101AppState extends State<GiocoDel101App>
         // §49/§50 — flush the match immediately; a backgrounded app may not
         // get another chance to write.
         if (Get.isRegistered<GameController>()) {
-          Get.find<GameController>().persistNow();
+          final game = Get.find<GameController>();
+          game.persistNow();
+          // §W — the bots must not play on while nobody is watching.
+          game.pause();
         }
       case AppLifecycleState.resumed:
         AudioService.instance.resumeMusic();

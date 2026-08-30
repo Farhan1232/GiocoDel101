@@ -77,10 +77,17 @@ class ProfileScreen extends StatelessWidget {
                       profile.xpForLevel,
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    '${s.profileNextLevel(profile.level + 1)} · '
+                    '${s.profileXpToNext(profile.xpForLevel - profile.xpIntoLevel)}',
+                    style: AppText.caption,
+                  ),
                   if (profile.isPlaceholderProgression) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      s.commonComingSoon,
+                      s.statsOfflineHint,
+                      textAlign: TextAlign.center,
                       style: AppText.caption.copyWith(
                         color: AppColors.textMuted,
                       ),

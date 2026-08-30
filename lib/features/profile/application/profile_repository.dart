@@ -13,6 +13,10 @@ abstract class ProfileRepository {
 
   Future<RemotePlayerStats?> fetchStats(String userId);
 
+  /// Ids of the badges the server has unlocked for [userId]
+  /// (`user_achievements`). Server-written only.
+  Future<List<String>> fetchAchievements(String userId);
+
   /// Updates the two player-editable fields. Throws [ProfileException].
   Future<RemoteProfile> updateMine({
     required String userId,
@@ -33,6 +37,9 @@ class NoBackendProfileRepository implements ProfileRepository {
 
   @override
   Future<RemotePlayerStats?> fetchStats(String userId) async => null;
+
+  @override
+  Future<List<String>> fetchAchievements(String userId) async => const [];
 
   @override
   Future<RemoteProfile> updateMine({
@@ -68,6 +75,18 @@ class SupabaseProfileRepository implements ProfileRepository {
         .eq('user_id', userId)
         .maybeSingle();
     return row == null ? null : RemotePlayerStats.fromJson(row);
+  });
+
+  @override
+  Future<List<String>> fetchAchievements(String userId) => _guard(() async {
+    final rows = await _client
+        .from('user_achievements')
+        .select('achievement_id')
+        .eq('user_id', userId);
+    return [
+      for (final row in rows)
+        if (row['achievement_id'] is String) row['achievement_id'] as String,
+    ];
   });
 
   @override

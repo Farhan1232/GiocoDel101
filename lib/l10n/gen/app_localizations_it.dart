@@ -59,10 +59,20 @@ class AppLocalizationsIt extends AppLocalizations {
   String get achManoPerfettaTitle => 'Mano Perfetta';
 
   @override
+  String get achOffline => 'Sbloccato offline';
+
+  @override
+  String get achOnline => 'Sbloccato online';
+
+  @override
   String get achPrimaVittoriaBody => 'Vinci la tua prima partita';
 
   @override
   String get achPrimaVittoriaTitle => 'Prima Vittoria';
+
+  @override
+  String get achServerHint =>
+      'Gli obiettivi online sono convalidati dal server; quelli offline restano su questo dispositivo.';
 
   @override
   String get achSfidanteBody => 'Completa una Sfida del Giorno';
@@ -186,6 +196,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get bestComeback => 'Miglior rimonta';
 
   @override
+  String get botThinking => 'Sta pensando…';
+
+  @override
   String get cancel => 'Annulla';
 
   @override
@@ -196,6 +209,14 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get cardsPlayed => 'Carte giocate';
+
+  @override
+  String centounoBody(String name) {
+    return '$name torna a zero';
+  }
+
+  @override
+  String get centounoTitle => 'CENTOUNO!';
 
   @override
   String get chooseSuit => 'Scegli il seme';
@@ -241,6 +262,12 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get commonNext => 'Avanti';
+
+  @override
+  String get commonOff => 'Disattivata';
+
+  @override
+  String get commonOn => 'Attiva';
 
   @override
   String get commonOptional => 'facoltativo';
@@ -512,8 +539,15 @@ class AppLocalizationsIt extends AppLocalizations {
   String get leaderboardLoadFailed => 'Impossibile caricare la classifica.';
 
   @override
+  String get leaderboardLoadMore => 'Carica altri';
+
+  @override
   String get leaderboardNoScoresYet =>
       'Ancora nessun punteggio: gioca partite online per comparire qui.';
+
+  @override
+  String get leaderboardNotRanked =>
+      'Non sei ancora in classifica: gioca online per entrarci.';
 
   @override
   String get leaderboardPoints => 'Punti';
@@ -526,6 +560,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get leaderboardWeekly => 'Settimanale';
+
+  @override
+  String get leaderboardYourRank => 'La tua posizione';
 
   @override
   String get lobbyAway => 'Assente';
@@ -623,6 +660,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get matchmakingCancel => 'Annulla la ricerca';
 
   @override
+  String get matchmakingCpuHint =>
+      'Nessun altro giocatore per ora. Puoi giocare subito offline contro il computer: non vale per la classifica.';
+
+  @override
+  String get matchmakingCpuOffer => 'Continua contro CPU';
+
+  @override
   String matchmakingElapsed(int seconds) {
     return 'Tempo di attesa ${seconds}s';
   }
@@ -652,6 +696,128 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get matchmakingTitle => 'Ricerca in corso';
+
+  @override
+  String missionBlockTwo(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Blocca $n +2 con il Cavallo',
+      one: 'Blocca un +2 con il Cavallo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionOnlineMatch(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Completa $n partite online',
+      one: 'Completa una partita online',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionPlayAces(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Gioca $n Assi',
+      one: 'Gioca un Asso',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionPlayMatches(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Gioca $n partite',
+      one: 'Gioca una partita',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionPlayTwos(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Gioca $n carte 2',
+      one: 'Gioca un 2',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionUseNine(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Usa $n Cavalli (9)',
+      one: 'Usa un Cavallo (9)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missionWinMatch(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Vinci $n partite',
+      one: 'Vinci una partita',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missionsClaim => 'RISCUOTI';
+
+  @override
+  String get missionsClaimFailed => 'Impossibile riscuotere la ricompensa.';
+
+  @override
+  String get missionsClaimed => 'Riscossa';
+
+  @override
+  String get missionsCycleHint =>
+      'Nuove missioni ogni giorno, su un ciclo di sette giorni.';
+
+  @override
+  String get missionsEmpty => 'Nessuna missione oggi.';
+
+  @override
+  String get missionsLoadFailed => 'Impossibile caricare le missioni online.';
+
+  @override
+  String get missionsOffline => 'Offline (questo dispositivo)';
+
+  @override
+  String get missionsOnline => 'Missioni online';
+
+  @override
+  String get missionsOnlineOnly => 'Solo online';
+
+  @override
+  String missionsProgress(int done, int total) {
+    return '$done/$total completate';
+  }
+
+  @override
+  String missionsReward(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String get missionsSignInHint =>
+      'Accedi per le missioni online: l’esperienza va sul tuo profilo.';
+
+  @override
+  String get missionsTitle => 'Missioni del giorno';
 
   @override
   String get mode => 'Modalità';
@@ -794,6 +960,10 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get onlineUnavailableRetry =>
+      'Servizio online non raggiungibile. Il gioco offline resta disponibile.';
+
+  @override
   String onlineWaitingFor(String name) {
     return 'Tocca a $name';
   }
@@ -811,6 +981,15 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get passTurn => 'Passa';
+
+  @override
+  String get pauseHint => 'La partita è ferma: gli avversari aspettano.';
+
+  @override
+  String get pauseResume => 'Riprendi';
+
+  @override
+  String get pauseTitle => 'Pausa';
 
   @override
   String get penalty => 'Penalità';
@@ -851,6 +1030,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get profileMatches => 'Partite';
 
   @override
+  String profileNextLevel(int level) {
+    return 'Prossimo livello: $level';
+  }
+
+  @override
   String get profileNicknameTaken => 'Questo nickname è già in uso.';
 
   @override
@@ -871,6 +1055,11 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String profileXpProgress(int current, int target) {
     return '$current / $target XP';
+  }
+
+  @override
+  String profileXpToNext(int xp) {
+    return 'Mancano $xp XP';
   }
 
   @override
@@ -957,7 +1146,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'Tutti i progressi locali verranno cancellati. Vuoi continuare?';
 
   @override
-  String get resumeMatch => 'Riprendi Partita';
+  String get resumeMatch => 'Continua partita';
 
   @override
   String get resumeMatchHint => 'Continua da dove eri rimasto';
@@ -999,6 +1188,18 @@ class AppLocalizationsIt extends AppLocalizations {
   String get ruleExactResetHint => 'Esattamente 101 azzera il punteggio';
 
   @override
+  String get ruleNineBlock => 'Cavallo contro il 2';
+
+  @override
+  String get ruleNineBlockCancel => 'Annulla la catena';
+
+  @override
+  String get ruleNineBlockDisabled => 'Non consentito';
+
+  @override
+  String get ruleNineBlockPassOn => 'Passa la catena';
+
+  @override
   String get ruleStackTwos => 'Somma dei 2';
 
   @override
@@ -1017,6 +1218,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get ruleWildNineHint => 'Il 9 cambia seme in ogni momento';
 
   @override
+  String get rulesActiveHint =>
+      'Le regole della casa scelte per il tavolo in corso.';
+
+  @override
+  String get rulesActiveTitle => 'Regole di questa partita';
+
+  @override
   String get savedFrom101 => 'SALVO!';
 
   @override
@@ -1030,6 +1238,10 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get settingsAccount => 'ACCOUNT';
+
+  @override
+  String get settingsGuestLogoutBody =>
+      'Sei un ospite: uscendo perderai questo account e i suoi progressi online per sempre.';
 
   @override
   String get settingsLanguage => 'Lingua';
@@ -1050,6 +1262,9 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get settingsLogoutBody =>
       'Uscirai dall’account su questo dispositivo. I progressi salvati sull’account restano.';
+
+  @override
+  String get settingsLogoutGuest => 'Esci (account ospite)';
 
   @override
   String get settingsPrivacy => 'Informativa sulla privacy';
@@ -1103,6 +1318,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get statMatches => 'Partite giocate';
 
   @override
+  String get statOnlineMatches => 'Partite online';
+
+  @override
   String get statResets => 'Ritorni da 101';
 
   @override
@@ -1122,6 +1340,16 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get statistics => 'Statistiche';
+
+  @override
+  String get statsOfflineHeading => 'OFFLINE — QUESTO DISPOSITIVO';
+
+  @override
+  String get statsOfflineHint =>
+      'Le partite contro il computer non toccano la classifica online.';
+
+  @override
+  String get statsOnlineHeading => 'ONLINE — PROFILO';
 
   @override
   String get suitBastoni => 'Bastoni';
@@ -1151,6 +1379,110 @@ class AppLocalizationsIt extends AppLocalizations {
   String get turnSkipped => 'TURNO SALTATO';
 
   @override
+  String tutAceDone(String name) {
+    return '$name ha saltato il turno. In due, l’Asso ti riporta subito al tuo turno.';
+  }
+
+  @override
+  String get tutAcePrompt =>
+      'Gioca l’Asso di Coppe: l’avversario perde il turno.';
+
+  @override
+  String get tutAceTitle => 'Asso — salta il turno';
+
+  @override
+  String get tutBlockDone =>
+      'Il Cavallo è anche la tua difesa contro i 2. Usalo con giudizio: nel mazzo ce ne sono solo quattro.';
+
+  @override
+  String get tutBlockPrompt =>
+      'Un 2 ti minaccia e non hai 2 da rispondere. Gioca il Cavallo di Bastoni per annullare la catena.';
+
+  @override
+  String get tutBlockSuit => 'Catena annullata: nessuno pesca. Scegli il seme.';
+
+  @override
+  String get tutBlockTitle => 'Cavallo contro il 2';
+
+  @override
+  String tutCavalloDone(String suit) {
+    return 'Il seme attivo ora è $suit. Il Cavallo non impone il proprio seme: impone quello che scegli tu.';
+  }
+
+  @override
+  String get tutCavalloPrompt =>
+      'Il Cavallo (il 9) si gioca sempre, su qualsiasi carta. Gioca il Cavallo di Spade.';
+
+  @override
+  String get tutCavalloSuit =>
+      'Ora scegli il nuovo seme attivo: conviene quello di cui hai più carte.';
+
+  @override
+  String get tutCavalloTitle => 'Cavallo — cambia seme';
+
+  @override
+  String tutCentounoDone(String name) {
+    return '92 + 9 = 101 esatti: $name torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.';
+  }
+
+  @override
+  String get tutCentounoPrompt =>
+      'Ultima carta! L’avversario ha 92 punti e un Cavallo (9) in mano. Gioca il 7 di Coppe e chiudi il round.';
+
+  @override
+  String get tutCentounoTitle => 'Centouno!';
+
+  @override
+  String tutChainDone(String name) {
+    return '+4! $name ha pescato quattro carte. Le catene arrivano fino a +8.';
+  }
+
+  @override
+  String get tutChainPrompt =>
+      'L’avversario ha giocato un 2 contro di te: rispondi con il 2 di Spade e la penalità sale a +4.';
+
+  @override
+  String get tutChainTitle => 'La catena di 2';
+
+  @override
+  String get tutDrawingDone =>
+      'Se la carta pescata non fosse stata giocabile, il turno sarebbe passato con Passa.';
+
+  @override
+  String get tutDrawingPlay =>
+      'Hai pescato il 6 di Coppe: è giocabile subito. Giocalo.';
+
+  @override
+  String get tutDrawingPrompt =>
+      'Nessuna carta in mano è giocabile. Tocca il mazzo (o Pesca) per prendere una carta.';
+
+  @override
+  String get tutDrawingTitle => 'Pescare';
+
+  @override
+  String get tutFirstCardDone =>
+      'Perfetto. Ogni carta giocata deve seguire il seme attivo oppure il valore della carta in cima agli scarti.';
+
+  @override
+  String get tutFirstCardPrompt =>
+      'In cima agli scarti c’è il 5 di Coppe. Puoi giocare una carta di Coppe oppure un altro 5: tocca due volte una carta evidenziata.';
+
+  @override
+  String get tutFirstCardTitle => 'Seme o valore';
+
+  @override
+  String tutTwoDone(String name) {
+    return '$name non aveva un 2: ha pescato due carte e perso il turno.';
+  }
+
+  @override
+  String get tutTwoPrompt =>
+      'Gioca il 2 di Coppe: l’avversario dovrà pescare due carte, a meno che non risponda con un altro 2.';
+
+  @override
+  String get tutTwoTitle => 'Due — pesca due';
+
+  @override
   String get tutorial101 => '101 esatti';
 
   @override
@@ -1172,6 +1504,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Il Cavallo (9) si gioca in qualsiasi momento e ti lascia scegliere il nuovo seme attivo con il Rituale dei Semi.';
 
   @override
+  String get tutorialCompleteBody =>
+      'Conosci tutte le carte speciali e il 101. Ora tocca a te.';
+
+  @override
+  String get tutorialCompleteTitle => 'Tutorial completato!';
+
+  @override
   String get tutorialDraw => 'Pescare';
 
   @override
@@ -1179,11 +1518,27 @@ class AppLocalizationsIt extends AppLocalizations {
       'Senza carte giocabili peschi dal mazzo. Se la carta pescata è valida puoi giocarla subito, altrimenti il turno passa.';
 
   @override
+  String get tutorialExitBody => 'Potrai rifarlo dall’inizio quando vuoi.';
+
+  @override
+  String get tutorialExitTitle => 'Vuoi uscire dal tutorial?';
+
+  @override
+  String get tutorialFinish => 'Fine';
+
+  @override
   String get tutorialGoal => 'Obiettivo';
 
   @override
   String get tutorialGoalBody =>
       'Libera la mano prima degli altri. Le carte che restano agli avversari diventano punti di penalità: chi supera 101 esce, chi arriva a 101 esatti torna a zero.';
+
+  @override
+  String get tutorialHint => 'Impara giocando, una regola alla volta';
+
+  @override
+  String get tutorialHintFollow =>
+      'Segui il suggerimento: gioca la carta evidenziata.';
 
   @override
   String get tutorialMatch => 'Seme o valore';
@@ -1200,11 +1555,20 @@ class AppLocalizationsIt extends AppLocalizations {
       'Superare 101 significa uscire dalla partita. Resta in gioco chi gestisce meglio le carte alte.';
 
   @override
+  String get tutorialPlayNow => 'GIOCA CONTRO IL COMPUTER';
+
+  @override
+  String get tutorialReplay => 'Rifai il tutorial';
+
+  @override
   String get tutorialScoring => 'Punteggio';
 
   @override
   String get tutorialScoringBody =>
       'A fine round ogni carta rimasta vale il suo numero: Asso 1, Fante 8, Cavallo 9, Re 10. I punti si sommano al totale.';
+
+  @override
+  String get tutorialTitle => 'Tutorial interattivo';
 
   @override
   String get tutorialTwo => 'Due — pesca due';

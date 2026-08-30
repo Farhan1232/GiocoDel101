@@ -352,11 +352,11 @@ void main() {
     });
 
     test('local and remote ladders agree', () {
+      final xp = 10 * LevelLadder.xpPerMatch + 4 * LevelLadder.xpPerWin;
       final local = ProfileSummary.fromLocal(
         const SettingsModel(),
-        const StatisticsModel(matchesPlayed: 10, matchesWon: 4),
+        StatisticsModel(matchesPlayed: 10, matchesWon: 4, xp: xp),
       );
-      final xp = 10 * LevelLadder.xpPerMatch + 4 * LevelLadder.xpPerWin;
       final position = LevelLadder.resolve(xp);
       expect(local.level, position.level);
       expect(local.xpIntoLevel, position.xpIntoLevel);

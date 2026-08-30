@@ -11,6 +11,9 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/icon_pill.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../../core/widgets/app_panel.dart';
+import '../../tutorial/application/tutorial_launcher.dart';
+import '../domain/game_rules.dart';
 import 'tutorial_figures.dart';
 
 /// §38 Screen 7 — the rules, shown rather than written out.
@@ -28,6 +31,22 @@ class _HowToPlayScreenState extends State<HowToPlayScreen> {
   final PageController _pages = PageController();
   final SettingsController settings = Get.find<SettingsController>();
   int _index = 0;
+
+  /// The house rules of the table this screen was opened from, if any.
+  GameRules? get _activeRules {
+    final args = Get.arguments;
+    return args is Map && args['rules'] is GameRules
+        ? args['rules'] as GameRules
+        : null;
+  }
+
+  int get _activeTimer {
+    final args = Get.arguments;
+    return args is Map ? (args['turnTimer'] as int? ?? 0) : 0;
+  }
+
+  /// A table is on screen underneath: offer the tutorial only from Home.
+  bool get _fromTable => _activeRules != null;
 
   @override
   void dispose() {
@@ -119,7 +138,9 @@ class _HowToPlayScreenState extends State<HowToPlayScreen> {
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.gutter),
                 child: PremiumButton(
-                  label: _index == lessons.length - 1 ? 'Ho capito' : 'Avanti',
+                  label: _index == lessons.length - 1
+                      ? Strings.s.gotIt
+                      : Strings.s.commonNext,
                   accent: theme.accent,
                   size: ButtonSize.medium,
                   onPressed: () {
@@ -144,11 +165,35 @@ class _HowToPlayScreenState extends State<HowToPlayScreen> {
   }
 
   Widget _page(_Lesson lesson, int index) {
+    final rules = _activeRules;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          if (index == 0 && rules != null)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: _ActiveRulesPanel(
+                rules: rules,
+                turnTimer: _activeTimer,
+                accent: settings.theme.accent,
+              ),
+            )
+          else if (index == 0 && !_fromTable)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: PremiumButton(
+                label: Strings.s.tutorialTitle,
+                icon: AppIcon.cards,
+                variant: ButtonVariant.secondary,
+                size: ButtonSize.small,
+                onPressed: () {
+                  Get.back<void>();
+                  TutorialLauncher.launch();
+                },
+              ),
+            ),
           Expanded(flex: 5, child: Center(child: lesson.figure)),
           Expanded(
             flex: 4,
@@ -233,4 +278,86 @@ class _Lesson {
   final String title;
   final String body;
   final Widget figure;
+}
+
+/// §M — "which rules is this table playing by?", answered from the match's
+/// own [GameRules] rather than from whatever the setup screen last showed.
+class _ActiveRulesPanel extends StatelessWidget {
+  const _ActiveRulesPanel({
+    required this.rules,
+    required this.turnTimer,
+    required this.accent,
+  });
+
+  final GameRules rules;
+  final int turnTimer;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = Strings.s;
+    String onOff(bool v) => v ? s.commonOn : s.commonOff;
+    final rows = <(String, String)>[
+      (s.startingHand, '${rules.startingHandSize}'),
+      (s.ruleStackTwos, onOff(rules.stackDrawTwos)),
+      (s.ruleWildNine, onOff(rules.wildNineCanAlwaysPlay)),
+      (
+        s.ruleNineBlock,
+        switch (rules.nineBlockMode) {
+          NineBlockMode.cancel => s.ruleNineBlockCancel,
+          NineBlockMode.passOn => s.ruleNineBlockPassOn,
+          NineBlockMode.disabled => s.ruleNineBlockDisabled,
+        },
+      ),
+      (s.ruleVoluntaryDraw, onOff(rules.allowVoluntaryDraw)),
+      (s.ruleEliminate, onOff(rules.eliminateAbove101)),
+      (s.ruleExactReset, onOff(rules.exact101ResetsToZero)),
+      (
+        s.createRoomTimer,
+        turnTimer > 0
+            ? s.createRoomTimerSeconds(turnTimer)
+            : s.createRoomTimerOff,
+      ),
+    ];
+    return AppPanel(
+      accent: accent,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.rulesActiveTitle.toUpperCase(),
+            style: AppText.label.copyWith(color: accent),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          for (final row in rows)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 1.5),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      row.$1,
+                      style: AppText.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    row.$2,
+                    style: AppText.caption.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

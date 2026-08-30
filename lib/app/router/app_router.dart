@@ -25,6 +25,8 @@ import '../../features/rooms/presentation/join_room_screen.dart';
 import '../../features/rooms/presentation/matchmaking_screen.dart';
 import '../../features/rooms/presentation/room_lobby_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
+import '../../features/missions/presentation/missions_screen.dart';
+import '../../features/tutorial/presentation/tutorial_screen.dart';
 
 /// Every destination in the app, in one place.
 class AppRoutes {
@@ -60,6 +62,8 @@ class AppRoutes {
   static const String roundResult = '/round-result';
   static const String matchResult = '/match-result';
   static const String howToPlay = '/how-to-play';
+  static const String tutorial = '/tutorial';
+  static const String missions = '/missions';
   static const String settings = '/settings';
 }
 
@@ -153,6 +157,20 @@ class AppPages {
     GetPage(
       name: AppRoutes.howToPlay,
       page: () => const HowToPlayScreen(),
+      customTransition: _DepthTransition(from: 0.95, slide: 0.05),
+      transitionDuration: _d,
+    ),
+    GetPage(
+      // The guided table opens like a match.
+      name: AppRoutes.tutorial,
+      page: () => const TutorialScreen(),
+      customTransition: _DepthTransition(from: 0.86),
+      transitionDuration: _d,
+      opaque: true,
+    ),
+    GetPage(
+      name: AppRoutes.missions,
+      page: () => const MissionsScreen(),
       customTransition: _DepthTransition(from: 0.95, slide: 0.05),
       transitionDuration: _d,
     ),

@@ -77,6 +77,11 @@ Deeper documentation lives in `docs/`:
 | `docs/GAME_SPEC.md` | Every rule, and the open questions for the client |
 | `docs/ARCHITECTURE.md` | Layers, state management, the backend seam |
 | `docs/ASSET_INVENTORY.md` | Cards, fonts, audio, icons — what exists and why |
+| `docs/GAME_ENGINE.md` | The pure, deterministic rules engine |
+| `docs/ONLINE_MULTIPLAYER.md`, `docs/REALTIME.md`, `docs/SECURITY.md` | Server-authoritative online play |
+| `docs/OFFLINE_MODE.md` | Bots at the table, pause/resume, saves, the tutorial, animations |
+| `docs/BOTS.md` | Easy / Normal / Hard, what a bot may see, the simulation harness |
+| `docs/PROGRESSION.md` | XP, achievements, missions, leaderboard — offline vs online ledgers |
 | `docs/ROADMAP.md` | The six sessions |
 | `docs/SESSION_HANDOFF.md` | What the last session changed and what is next |
 

@@ -10,11 +10,14 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/motion.dart';
+import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/screen_scaffold.dart';
 import '../../../core/widgets/segmented_control.dart';
 import '../../auth/application/session_controller.dart';
+import '../../game/application/match_launcher.dart';
+import '../../game/domain/match_factory.dart';
 import '../../online/domain/online_match_models.dart';
 import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
@@ -28,6 +31,11 @@ import '../../settings/application/settings_controller.dart';
 /// `room_players`. Cancelling really leaves the queue.
 class MatchmakingScreen extends StatefulWidget {
   const MatchmakingScreen({super.key});
+
+  /// After this long with nobody else in the queue the screen offers an
+  /// OFFLINE match against bots instead. It is offered, never substituted:
+  /// the seats are labelled as the computer's and nothing is ranked.
+  static const int cpuOfferAfterSeconds = 30;
 
   @override
   State<MatchmakingScreen> createState() => _MatchmakingScreenState();
@@ -52,6 +60,37 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
   /// Quick matches all play with the same clock so any two waiting players
   /// are compatible; private rooms choose their own.
   static const int _quickMatchTimerSeconds = 30;
+
+  bool get _offersCpu =>
+      _searching &&
+      !_matched &&
+      _elapsed >= MatchmakingScreen.cpuOfferAfterSeconds;
+
+  /// Leaves the queue for real, then seats the same table size against bots.
+  Future<void> _continueAgainstCpu() async {
+    _tick?.cancel();
+    _heartbeat?.cancel();
+    final seats = _seats;
+    if (_searching && !_matched) {
+      try {
+        await Get.find<BackendServices>().matchmaking.cancel();
+      } catch (_) {
+        // Already out of the queue, or offline: either way we are leaving.
+      }
+    }
+    _searching = false;
+    if (!mounted) return;
+    final settings = _settings.settings;
+    MatchLauncher.launch(
+      MatchFactory.vsComputer(
+        playerName: settings.playerName,
+        avatarId: settings.avatarId,
+        playerCount: seats,
+        difficulty: settings.defaultDifficulty,
+      ),
+      replace: true,
+    );
+  }
 
   bool get _canSearch =>
       OnlineStatus.isConfigured && Get.find<SessionController>().isSignedIn;
@@ -103,11 +142,16 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
       _tick?.cancel();
       setState(() {
         _searching = false;
-        _error = e.error == OnlineError.conflict
-            ? Strings.s.matchmakingBusy
-            : e.error == OnlineError.notSignedIn
-            ? Strings.s.onlineSignInRequired
-            : Strings.s.authBackendPending;
+        _error = switch (e.error) {
+          OnlineError.conflict => Strings.s.matchmakingBusy,
+          OnlineError.notSignedIn => Strings.s.onlineSignInRequired,
+          // The service is configured but cannot be reached right now:
+          // say so, and leave the offline game one tap away.
+          OnlineError.network ||
+          OnlineError.unavailable ||
+          OnlineError.unknown => Strings.s.onlineUnavailableRetry,
+          _ => Strings.s.authBackendPending,
+        };
       });
     }
   }
@@ -245,6 +289,21 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
               ],
             ),
             const SizedBox(height: AppSpacing.xxxl),
+            if (_offersCpu) ...[
+              Text(
+                s.matchmakingCpuHint,
+                style: AppText.caption,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              PremiumButton(
+                label: s.matchmakingCpuOffer,
+                accent: accent,
+                icon: AppIcon.difficulty,
+                onPressed: _continueAgainstCpu,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
             if (!_searching)
               PremiumButton(
                 label: s.matchmakingSearch,

@@ -48,10 +48,16 @@ wrong, not the screen.
 Matchmaking, reconnection, disconnect handling, spectator-safe state,
 turn timers running for real, anti-cheat review.
 
-## Session 5 — Progression and polish
+## Session 5 — Offline game, bots, progression and player features ✅
 
-Real XP and levels, achievements synced, daily rewards with a real balance,
-sound and haptics pass, animation polish, accessibility audit on device.
+Delivered 2026-08-30: offline 1 + 1–3 bots on the same engine, pause/resume,
+"Continua partita", interactive tutorial on controlled engine states,
+server-validated achievements, seven-day missions with server-time claims,
+paged leaderboard with own rank, offline vs online statistics kept apart,
+deal / CENTOUNO! animations, reaction cooldown, CPU fallback from
+matchmaking. See `docs/OFFLINE_MODE.md`, `docs/BOTS.md`,
+`docs/PROGRESSION.md` and `docs/SESSION_HANDOFF.md`. The on-device
+accessibility audit still needs a device.
 
 ## Session 6 — Release readiness
 

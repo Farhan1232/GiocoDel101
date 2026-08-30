@@ -1,4 +1,5 @@
 import '../domain/card_suit.dart';
+import '../domain/engine/game_event.dart';
 import '../domain/game_card.dart';
 
 /// Something the table has to show before play may continue.
@@ -68,4 +69,62 @@ class ReactionCue extends TableCue {
   const ReactionCue(this.playerId, this.phrase);
   final String playerId;
   final String phrase;
+}
+
+/// A fresh hand being dealt: [seatIds] in deal order, [handSize] cards each.
+///
+/// The engine deals in one step; the table shows the cards leaving the
+/// stock one by one so a new round reads as a new round (§29).
+class DealCue extends TableCue {
+  const DealCue(this.seatIds, this.handSize);
+  final List<String> seatIds;
+  final int handSize;
+}
+
+/// The one mapping from engine facts to table cues, shared by every local
+/// driver (the bot table and the tutorial) so they cannot drift apart.
+class TableCues {
+  const TableCues._();
+
+  /// Returns the cue [event] should be shown as, or null when it is a pure
+  /// state fact the table reads directly (round ended, match ended, …).
+  static TableCue? fromEvent(
+    GameEvent event, {
+    required bool Function(String playerId) isHumanSeat,
+  }) {
+    switch (event) {
+      case CardPlayedEvent():
+        return PlayCardCue(event.playerId, event.card);
+      case CardsDrawnEvent():
+        return DrawCue(event.playerId, event.cards, isPenalty: event.isPenalty);
+      case TurnSkippedEvent():
+        return SkipCue(event.playerId);
+      case ChainGrewEvent():
+        return ChainGrowCue(event.total, event.chainLength);
+      case ChainResolvedEvent():
+        return ChainBreakCue(event.playerId, event.total, event.chainLength);
+      case ChainBlockedEvent():
+        // §6a — a Cavallo stopped the chain. The table shows the chain
+        // collapsing; a passed-on chain keeps its level through ChainGrew.
+        return event.cancelled
+            ? ChainBreakCue(event.playerId, event.total, event.chainLength)
+            : null;
+      case SuitChosenEvent():
+        return SuitChosenCue(event.playerId, event.suit);
+      case DeckRecycledEvent():
+        return RecycleCue(event.count);
+      case InvalidMoveEvent():
+        return InvalidCue(event.card);
+      case TurnChangedEvent():
+        return TurnCue(event.playerId, isHuman: isHumanSeat(event.playerId));
+      case SuitChoiceRequestedEvent():
+      case RoundStartedEvent():
+      case RoundEndedEvent():
+      case Exact101Event():
+      case PlayerEliminatedEvent():
+      case PlayerForfeitedEvent():
+      case MatchEndedEvent():
+        return null;
+    }
+  }
 }

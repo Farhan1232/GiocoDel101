@@ -22,8 +22,11 @@
   "achMaestroNoveTitle": "Maestro del Nove",
   "achManoPerfettaBody": "Vinci un round senza pescare nemmeno una carta",
   "achManoPerfettaTitle": "Mano Perfetta",
+  "achOffline": "Sbloccato offline",
+  "achOnline": "Sbloccato online",
   "achPrimaVittoriaBody": "Vinci la tua prima partita",
   "achPrimaVittoriaTitle": "Prima Vittoria",
+  "achServerHint": "Gli obiettivi online sono convalidati dal server; quelli offline restano su questo dispositivo.",
   "achSfidanteBody": "Completa una Sfida del Giorno",
   "achSfidanteTitle": "Sfidante",
   "achUnlocked": "Sbloccato",
@@ -69,10 +72,20 @@
   "authTitle": "Benvenuto",
   "backToZero": "RITORNO A ZERO",
   "bestComeback": "Miglior rimonta",
+  "botThinking": "Sta pensando…",
   "cancel": "Annulla",
   "cardBack": "Dorso delle carte",
   "cardsLeft": "carte",
   "cardsPlayed": "Carte giocate",
+  "centounoBody": "{name} torna a zero",
+  "@centounoBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "centounoTitle": "CENTOUNO!",
   "chooseSuit": "Scegli il seme",
   "coachDraw": "Nessuna carta valida? Tocca il mazzo per pescare.",
   "coachFateRing": "L’anello mostra quanto manca a 101. A 101 esatti torni a zero.",
@@ -87,6 +100,8 @@
   "commonErrorTitle": "Qualcosa è andato storto",
   "commonLoading": "Caricamento…",
   "commonNext": "Avanti",
+  "commonOff": "Disattivata",
+  "commonOn": "Attiva",
   "commonOptional": "facoltativo",
   "commonRetry": "Riprova",
   "commonSave": "Salva",
@@ -200,11 +215,14 @@
   "leaderboardAllTime": "Di sempre",
   "leaderboardEmpty": "La classifica sarà disponibile con il gioco online.",
   "leaderboardLoadFailed": "Impossibile caricare la classifica.",
+  "leaderboardLoadMore": "Carica altri",
   "leaderboardNoScoresYet": "Ancora nessun punteggio: gioca partite online per comparire qui.",
+  "leaderboardNotRanked": "Non sei ancora in classifica: gioca online per entrarci.",
   "leaderboardPoints": "Punti",
   "leaderboardRank": "Pos.",
   "leaderboardTitle": "Classifica",
   "leaderboardWeekly": "Settimanale",
+  "leaderboardYourRank": "La tua posizione",
   "lobbyAway": "Assente",
   "lobbyConnected": "Connesso",
   "lobbyCopied": "Codice copiato",
@@ -249,6 +267,8 @@
   "matchmakingBody": "Stiamo cercando altri giocatori…",
   "matchmakingBusy": "Hai già una partita in corso.",
   "matchmakingCancel": "Annulla la ricerca",
+  "matchmakingCpuHint": "Nessun altro giocatore per ora. Puoi giocare subito offline contro il computer: non vale per la classifica.",
+  "matchmakingCpuOffer": "Continua contro CPU",
   "matchmakingElapsed": "Tempo di attesa {seconds}s",
   "@matchmakingElapsed": {
     "placeholders": {
@@ -281,6 +301,92 @@
     }
   },
   "matchmakingTitle": "Ricerca in corso",
+  "missionBlockTwo": "{n, plural, =1{Blocca un +2 con il Cavallo} other{Blocca {n} +2 con il Cavallo}}",
+  "@missionBlockTwo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionOnlineMatch": "{n, plural, =1{Completa una partita online} other{Completa {n} partite online}}",
+  "@missionOnlineMatch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionPlayAces": "{n, plural, =1{Gioca un Asso} other{Gioca {n} Assi}}",
+  "@missionPlayAces": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionPlayMatches": "{n, plural, =1{Gioca una partita} other{Gioca {n} partite}}",
+  "@missionPlayMatches": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionPlayTwos": "{n, plural, =1{Gioca un 2} other{Gioca {n} carte 2}}",
+  "@missionPlayTwos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionUseNine": "{n, plural, =1{Usa un Cavallo (9)} other{Usa {n} Cavalli (9)}}",
+  "@missionUseNine": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionWinMatch": "{n, plural, =1{Vinci una partita} other{Vinci {n} partite}}",
+  "@missionWinMatch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsClaim": "RISCUOTI",
+  "missionsClaimFailed": "Impossibile riscuotere la ricompensa.",
+  "missionsClaimed": "Riscossa",
+  "missionsCycleHint": "Nuove missioni ogni giorno, su un ciclo di sette giorni.",
+  "missionsEmpty": "Nessuna missione oggi.",
+  "missionsLoadFailed": "Impossibile caricare le missioni online.",
+  "missionsOffline": "Offline (questo dispositivo)",
+  "missionsOnline": "Missioni online",
+  "missionsOnlineOnly": "Solo online",
+  "missionsProgress": "{done}/{total} completate",
+  "@missionsProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsReward": "+{xp} XP",
+  "@missionsReward": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsSignInHint": "Accedi per le missioni online: l’esperienza va sul tuo profilo.",
+  "missionsTitle": "Missioni del giorno",
   "mode": "Modalità",
   "modePassAndPlay": "Passa & Gioca",
   "modeVsComputer": "Vs Computer",
@@ -367,6 +473,7 @@
       }
     }
   },
+  "onlineUnavailableRetry": "Servizio online non raggiungibile. Il gioco offline resta disponibile.",
   "onlineWaitingFor": "Tocca a {name}",
   "@onlineWaitingFor": {
     "placeholders": {
@@ -386,6 +493,9 @@
     }
   },
   "passTurn": "Passa",
+  "pauseHint": "La partita è ferma: gli avversari aspettano.",
+  "pauseResume": "Riprendi",
+  "pauseTitle": "Pausa",
   "penalty": "Penalità",
   "play": "GIOCA",
   "playDrawn": "Gioca la carta pescata",
@@ -405,6 +515,14 @@
   },
   "profileLosses": "Sconfitte",
   "profileMatches": "Partite",
+  "profileNextLevel": "Prossimo livello: {level}",
+  "@profileNextLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "profileNicknameTaken": "Questo nickname è già in uso.",
   "profileRating": "Punteggio",
   "profileSaveFailed": "Impossibile salvare il profilo. Riprova.",
@@ -418,6 +536,14 @@
         "type": "int"
       },
       "target": {
+        "type": "int"
+      }
+    }
+  },
+  "profileXpToNext": "Mancano {xp} XP",
+  "@profileXpToNext": {
+    "placeholders": {
+      "xp": {
         "type": "int"
       }
     }
@@ -449,7 +575,7 @@
   "replayLastHand": "Rivedi ultima mano",
   "resetStatistics": "Azzera statistiche",
   "resetStatisticsBody": "Tutti i progressi locali verranno cancellati. Vuoi continuare?",
-  "resumeMatch": "Riprendi Partita",
+  "resumeMatch": "Continua partita",
   "resumeMatchHint": "Continua da dove eri rimasto",
   "roomCreateFailed": "Impossibile aprire la stanza. Riprova.",
   "roomFull": "La stanza è piena.",
@@ -463,23 +589,31 @@
   "ruleEliminateHint": "Chi supera 101 esce dalla partita",
   "ruleExactReset": "Ritorno a zero a 101",
   "ruleExactResetHint": "Esattamente 101 azzera il punteggio",
+  "ruleNineBlock": "Cavallo contro il 2",
+  "ruleNineBlockCancel": "Annulla la catena",
+  "ruleNineBlockDisabled": "Non consentito",
+  "ruleNineBlockPassOn": "Passa la catena",
   "ruleStackTwos": "Somma dei 2",
   "ruleStackTwosHint": "I 2 si possono incatenare",
   "ruleVoluntaryDraw": "Pesca volontaria",
   "ruleVoluntaryDrawHint": "Puoi pescare anche se hai una carta",
   "ruleWildNine": "Cavallo sempre giocabile",
   "ruleWildNineHint": "Il 9 cambia seme in ogni momento",
+  "rulesActiveHint": "Le regole della casa scelte per il tavolo in corso.",
+  "rulesActiveTitle": "Regole di questa partita",
   "savedFrom101": "SALVO!",
   "sectionSettings": "IMPOSTAZIONI",
   "sectionStatistics": "STATISTICHE",
   "settings": "Impostazioni",
   "settingsAccount": "ACCOUNT",
+  "settingsGuestLogoutBody": "Sei un ospite: uscendo perderai questo account e i suoi progressi online per sempre.",
   "settingsLanguage": "Lingua",
   "settingsLanguageEnglish": "Inglese",
   "settingsLanguageItalian": "Italiano",
   "settingsLinkPending": "Il link sarà disponibile alla pubblicazione.",
   "settingsLogout": "Esci dall’account",
   "settingsLogoutBody": "Uscirai dall’account su questo dispositivo. I progressi salvati sull’account restano.",
+  "settingsLogoutGuest": "Esci (account ospite)",
   "settingsPrivacy": "Informativa sulla privacy",
   "settingsTerms": "Termini di servizio",
   "showPassword": "Mostra la password",
@@ -497,6 +631,7 @@
   "statComeback": "Rimonta più grande",
   "statFavouriteSuit": "Seme preferito",
   "statMatches": "Partite giocate",
+  "statOnlineMatches": "Partite online",
   "statResets": "Ritorni da 101",
   "statRoundsWon": "Round vinti",
   "statStreak": "Serie attuale",
@@ -504,6 +639,9 @@
   "statWinRate": "Percentuale vittorie",
   "statWins": "Partite vinte",
   "statistics": "Statistiche",
+  "statsOfflineHeading": "OFFLINE — QUESTO DISPOSITIVO",
+  "statsOfflineHint": "Le partite contro il computer non toccano la classifica online.",
+  "statsOnlineHeading": "ONLINE — PROFILO",
   "suitBastoni": "Bastoni",
   "suitCoppe": "Coppe",
   "suitDenari": "Denari",
@@ -513,22 +651,94 @@
   "tableTurnTimer": "Tempo",
   "takePenalty": "Prendi",
   "turnSkipped": "TURNO SALTATO",
+  "tutAceDone": "{name} ha saltato il turno. In due, l’Asso ti riporta subito al tuo turno.",
+  "@tutAceDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutAcePrompt": "Gioca l’Asso di Coppe: l’avversario perde il turno.",
+  "tutAceTitle": "Asso — salta il turno",
+  "tutBlockDone": "Il Cavallo è anche la tua difesa contro i 2. Usalo con giudizio: nel mazzo ce ne sono solo quattro.",
+  "tutBlockPrompt": "Un 2 ti minaccia e non hai 2 da rispondere. Gioca il Cavallo di Bastoni per annullare la catena.",
+  "tutBlockSuit": "Catena annullata: nessuno pesca. Scegli il seme.",
+  "tutBlockTitle": "Cavallo contro il 2",
+  "tutCavalloDone": "Il seme attivo ora è {suit}. Il Cavallo non impone il proprio seme: impone quello che scegli tu.",
+  "@tutCavalloDone": {
+    "placeholders": {
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "tutCavalloPrompt": "Il Cavallo (il 9) si gioca sempre, su qualsiasi carta. Gioca il Cavallo di Spade.",
+  "tutCavalloSuit": "Ora scegli il nuovo seme attivo: conviene quello di cui hai più carte.",
+  "tutCavalloTitle": "Cavallo — cambia seme",
+  "tutCentounoDone": "92 + 9 = 101 esatti: {name} torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.",
+  "@tutCentounoDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutCentounoPrompt": "Ultima carta! L’avversario ha 92 punti e un Cavallo (9) in mano. Gioca il 7 di Coppe e chiudi il round.",
+  "tutCentounoTitle": "Centouno!",
+  "tutChainDone": "+4! {name} ha pescato quattro carte. Le catene arrivano fino a +8.",
+  "@tutChainDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutChainPrompt": "L’avversario ha giocato un 2 contro di te: rispondi con il 2 di Spade e la penalità sale a +4.",
+  "tutChainTitle": "La catena di 2",
+  "tutDrawingDone": "Se la carta pescata non fosse stata giocabile, il turno sarebbe passato con Passa.",
+  "tutDrawingPlay": "Hai pescato il 6 di Coppe: è giocabile subito. Giocalo.",
+  "tutDrawingPrompt": "Nessuna carta in mano è giocabile. Tocca il mazzo (o Pesca) per prendere una carta.",
+  "tutDrawingTitle": "Pescare",
+  "tutFirstCardDone": "Perfetto. Ogni carta giocata deve seguire il seme attivo oppure il valore della carta in cima agli scarti.",
+  "tutFirstCardPrompt": "In cima agli scarti c’è il 5 di Coppe. Puoi giocare una carta di Coppe oppure un altro 5: tocca due volte una carta evidenziata.",
+  "tutFirstCardTitle": "Seme o valore",
+  "tutTwoDone": "{name} non aveva un 2: ha pescato due carte e perso il turno.",
+  "@tutTwoDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutTwoPrompt": "Gioca il 2 di Coppe: l’avversario dovrà pescare due carte, a meno che non risponda con un altro 2.",
+  "tutTwoTitle": "Due — pesca due",
   "tutorial101": "101 esatti",
   "tutorial101Body": "Arrivare esattamente a 101 azzera il punteggio. È il colpo di scena che può ribaltare una partita.",
   "tutorialAce": "Asso — salta il turno",
   "tutorialAceBody": "L’Asso fa saltare il turno al giocatore successivo. In due, il turno torna subito a te.",
   "tutorialCavallo": "Cavallo — cambia seme",
   "tutorialCavalloBody": "Il Cavallo (9) si gioca in qualsiasi momento e ti lascia scegliere il nuovo seme attivo con il Rituale dei Semi.",
+  "tutorialCompleteBody": "Conosci tutte le carte speciali e il 101. Ora tocca a te.",
+  "tutorialCompleteTitle": "Tutorial completato!",
   "tutorialDraw": "Pescare",
   "tutorialDrawBody": "Senza carte giocabili peschi dal mazzo. Se la carta pescata è valida puoi giocarla subito, altrimenti il turno passa.",
+  "tutorialExitBody": "Potrai rifarlo dall’inizio quando vuoi.",
+  "tutorialExitTitle": "Vuoi uscire dal tutorial?",
+  "tutorialFinish": "Fine",
   "tutorialGoal": "Obiettivo",
   "tutorialGoalBody": "Libera la mano prima degli altri. Le carte che restano agli avversari diventano punti di penalità: chi supera 101 esce, chi arriva a 101 esatti torna a zero.",
+  "tutorialHint": "Impara giocando, una regola alla volta",
+  "tutorialHintFollow": "Segui il suggerimento: gioca la carta evidenziata.",
   "tutorialMatch": "Seme o valore",
   "tutorialMatchBody": "Puoi giocare una carta dello stesso seme attivo oppure dello stesso valore della carta in cima agli scarti.",
   "tutorialOver101": "Oltre 101",
   "tutorialOver101Body": "Superare 101 significa uscire dalla partita. Resta in gioco chi gestisce meglio le carte alte.",
+  "tutorialPlayNow": "GIOCA CONTRO IL COMPUTER",
+  "tutorialReplay": "Rifai il tutorial",
   "tutorialScoring": "Punteggio",
   "tutorialScoringBody": "A fine round ogni carta rimasta vale il suo numero: Asso 1, Fante 8, Cavallo 9, Re 10. I punti si sommano al totale.",
+  "tutorialTitle": "Tutorial interattivo",
   "tutorialTwo": "Due — pesca due",
   "tutorialTwoBody": "Il 2 obbliga il prossimo a pescare due carte. Se ha un altro 2 può rilanciare: +4, +6, +8. Chi si ferma pesca tutto e perde il turno.",
   "tutorialWin": "Vincere la partita",

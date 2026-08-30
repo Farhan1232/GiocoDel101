@@ -1,6 +1,7 @@
 import '../../achievements/domain/achievements_catalog.dart';
 import '../../game/domain/game_state.dart';
 import '../../game/domain/round_result.dart';
+import '../domain/level_ladder.dart';
 import '../domain/statistics_model.dart';
 
 /// The result of folding one finished match into the lifetime record.
@@ -104,6 +105,12 @@ class StatisticsService {
         bestStreak: streak > stats.bestStreak ? streak : stats.bestStreak,
         suitCounts: suits,
         unlockedAchievements: unlocked,
+        // Offline progression: the same placeholder amounts the server uses
+        // (LevelLadder), credited to the local counter only.
+        xp:
+            stats.xp +
+            LevelLadder.xpPerMatch +
+            (won ? LevelLadder.xpPerWin : 0),
       ),
       unlocked.where((id) => !stats.unlockedAchievements.contains(id)).toList(),
     );

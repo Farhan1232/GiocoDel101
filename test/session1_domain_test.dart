@@ -10,6 +10,7 @@ import 'package:gioco_del_101/features/auth/domain/auth_validators.dart';
 import 'package:gioco_del_101/features/game/domain/table_session_status.dart';
 import 'package:gioco_del_101/features/leaderboard/domain/leaderboard_models.dart';
 import 'package:gioco_del_101/features/online/domain/online_status.dart';
+import 'package:gioco_del_101/features/profile/domain/level_ladder.dart';
 import 'package:gioco_del_101/features/profile/domain/profile_summary.dart';
 import 'package:gioco_del_101/features/profile/domain/statistics_model.dart';
 import 'package:gioco_del_101/features/rewards/domain/daily_reward.dart';
@@ -138,9 +139,14 @@ void main() {
 
     test('levels rise and progress always stays in range', () {
       for (final played in const [0, 1, 5, 25, 100, 1000]) {
+        // Session 5: offline XP is an explicit counter on the record.
         final profile = ProfileSummary.fromLocal(
           const SettingsModel(),
-          StatisticsModel(matchesPlayed: played, matchesWon: played ~/ 2),
+          StatisticsModel(
+            matchesPlayed: played,
+            matchesWon: played ~/ 2,
+            xp: played * LevelLadder.xpPerMatch,
+          ),
         );
         expect(profile.level, greaterThanOrEqualTo(1));
         expect(profile.levelProgress, inInclusiveRange(0.0, 1.0));
@@ -148,11 +154,14 @@ void main() {
       }
       final novice = ProfileSummary.fromLocal(
         const SettingsModel(),
-        const StatisticsModel(matchesPlayed: 1),
+        const StatisticsModel(matchesPlayed: 1, xp: LevelLadder.xpPerMatch),
       );
       final veteran = ProfileSummary.fromLocal(
         const SettingsModel(),
-        const StatisticsModel(matchesPlayed: 200),
+        const StatisticsModel(
+          matchesPlayed: 200,
+          xp: 200 * LevelLadder.xpPerMatch,
+        ),
       );
       expect(veteran.level, greaterThan(novice.level));
     });
@@ -331,6 +340,9 @@ void main() {
         'home',
         'modeVsComputer',
         'round',
+        // Session 5 — the signature word and a unit string.
+        'centounoTitle',
+        'missionsReward',
       };
       final suspicious = <String>[];
       for (final key in it.keys.where((k) => !k.startsWith('@'))) {

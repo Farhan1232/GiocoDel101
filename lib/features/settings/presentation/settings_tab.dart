@@ -478,12 +478,33 @@ class _SettingsTabState extends State<SettingsTab> {
             const SizedBox(height: AppSpacing.md),
             Obx(() {
               final current = session.session.value;
-              if (current == null || current.isGuest) {
+              if (current == null) {
                 return PremiumButton(
-                  label: current == null ? s.authSignIn : s.authRegister,
+                  label: s.authSignIn,
                   variant: ButtonVariant.secondary,
                   size: ButtonSize.small,
                   onPressed: () => Get.toNamed<void>(AppRoutes.authLanding),
+                );
+              }
+              if (current.isGuest) {
+                // A guest can leave, but must be told what that costs.
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    PremiumButton(
+                      label: s.authRegister,
+                      variant: ButtonVariant.secondary,
+                      size: ButtonSize.small,
+                      onPressed: () => Get.toNamed<void>(AppRoutes.authLanding),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    PremiumButton(
+                      label: s.settingsLogoutGuest,
+                      variant: ButtonVariant.ghost,
+                      size: ButtonSize.small,
+                      onPressed: () => _signOut(session, guest: true),
+                    ),
+                  ],
                 );
               }
               return PremiumButton(
@@ -499,11 +520,11 @@ class _SettingsTabState extends State<SettingsTab> {
     );
   }
 
-  Future<void> _signOut(SessionController session) async {
+  Future<void> _signOut(SessionController session, {bool guest = false}) async {
     final s = Strings.s;
     final ok = await AppDialog.confirm(
       title: s.settingsLogout,
-      body: s.settingsLogoutBody,
+      body: guest ? s.settingsGuestLogoutBody : s.settingsLogoutBody,
       confirmLabel: s.settingsLogout,
       cancelLabel: s.cancel,
       destructive: true,

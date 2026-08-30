@@ -8,6 +8,7 @@ import 'dart:async';
 import '../application/table_controller.dart';
 import '../../online/application/online_match_controller.dart';
 import '../../online/application/online_match_launcher.dart';
+import '../../profile/application/profile_controller.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../app/localization/app_strings.dart';
@@ -42,8 +43,12 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
     super.initState();
     AudioService.instance.play(Sfx.victory);
     HapticService.instance.strong();
-    // §49 — a finished match must never reappear as "Riprendi Partita".
+    // §49 — a finished match must never reappear as "Continua partita".
     c.persistNow();
+    // Online: the server has settled XP, streaks and badges by now.
+    if (c.isOnline && Get.isRegistered<ProfileController>()) {
+      unawaited(Get.find<ProfileController>().reload());
+    }
   }
 
   GamePlayer? get _winner =>

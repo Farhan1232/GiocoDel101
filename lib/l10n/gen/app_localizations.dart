@@ -188,6 +188,18 @@ abstract class AppLocalizations {
   /// **'Mano Perfetta'**
   String get achManoPerfettaTitle;
 
+  /// No description provided for @achOffline.
+  ///
+  /// In it, this message translates to:
+  /// **'Sbloccato offline'**
+  String get achOffline;
+
+  /// No description provided for @achOnline.
+  ///
+  /// In it, this message translates to:
+  /// **'Sbloccato online'**
+  String get achOnline;
+
   /// No description provided for @achPrimaVittoriaBody.
   ///
   /// In it, this message translates to:
@@ -199,6 +211,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Prima Vittoria'**
   String get achPrimaVittoriaTitle;
+
+  /// No description provided for @achServerHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Gli obiettivi online sono convalidati dal server; quelli offline restano su questo dispositivo.'**
+  String get achServerHint;
 
   /// No description provided for @achSfidanteBody.
   ///
@@ -428,6 +446,12 @@ abstract class AppLocalizations {
   /// **'Miglior rimonta'**
   String get bestComeback;
 
+  /// No description provided for @botThinking.
+  ///
+  /// In it, this message translates to:
+  /// **'Sta pensando…'**
+  String get botThinking;
+
   /// No description provided for @cancel.
   ///
   /// In it, this message translates to:
@@ -451,6 +475,18 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Carte giocate'**
   String get cardsPlayed;
+
+  /// No description provided for @centounoBody.
+  ///
+  /// In it, this message translates to:
+  /// **'{name} torna a zero'**
+  String centounoBody(String name);
+
+  /// No description provided for @centounoTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'CENTOUNO!'**
+  String get centounoTitle;
 
   /// No description provided for @chooseSuit.
   ///
@@ -535,6 +571,18 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Avanti'**
   String get commonNext;
+
+  /// No description provided for @commonOff.
+  ///
+  /// In it, this message translates to:
+  /// **'Disattivata'**
+  String get commonOff;
+
+  /// No description provided for @commonOn.
+  ///
+  /// In it, this message translates to:
+  /// **'Attiva'**
+  String get commonOn;
 
   /// No description provided for @commonOptional.
   ///
@@ -1046,11 +1094,23 @@ abstract class AppLocalizations {
   /// **'Impossibile caricare la classifica.'**
   String get leaderboardLoadFailed;
 
+  /// No description provided for @leaderboardLoadMore.
+  ///
+  /// In it, this message translates to:
+  /// **'Carica altri'**
+  String get leaderboardLoadMore;
+
   /// No description provided for @leaderboardNoScoresYet.
   ///
   /// In it, this message translates to:
   /// **'Ancora nessun punteggio: gioca partite online per comparire qui.'**
   String get leaderboardNoScoresYet;
+
+  /// No description provided for @leaderboardNotRanked.
+  ///
+  /// In it, this message translates to:
+  /// **'Non sei ancora in classifica: gioca online per entrarci.'**
+  String get leaderboardNotRanked;
 
   /// No description provided for @leaderboardPoints.
   ///
@@ -1075,6 +1135,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Settimanale'**
   String get leaderboardWeekly;
+
+  /// No description provided for @leaderboardYourRank.
+  ///
+  /// In it, this message translates to:
+  /// **'La tua posizione'**
+  String get leaderboardYourRank;
 
   /// No description provided for @lobbyAway.
   ///
@@ -1256,6 +1322,18 @@ abstract class AppLocalizations {
   /// **'Annulla la ricerca'**
   String get matchmakingCancel;
 
+  /// No description provided for @matchmakingCpuHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessun altro giocatore per ora. Puoi giocare subito offline contro il computer: non vale per la classifica.'**
+  String get matchmakingCpuHint;
+
+  /// No description provided for @matchmakingCpuOffer.
+  ///
+  /// In it, this message translates to:
+  /// **'Continua contro CPU'**
+  String get matchmakingCpuOffer;
+
   /// No description provided for @matchmakingElapsed.
   ///
   /// In it, this message translates to:
@@ -1303,6 +1381,126 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Ricerca in corso'**
   String get matchmakingTitle;
+
+  /// No description provided for @missionBlockTwo.
+  ///
+  /// In it, this message translates to:
+  /// **'{n, plural, =1{Blocca un +2 con il Cavallo} other{Blocca {n} +2 con il Cavallo}}'**
+  String missionBlockTwo(int n);
+
+  /// No description provided for @missionOnlineMatch.
+  ///
+  /// In it, this message translates to:
+  /// **'{n, plural, =1{Completa una partita online} other{Completa {n} partite online}}'**
+  String missionOnlineMatch(int n);
+
+  /// No description provided for @missionPlayAces.
+  ///
+  /// In it, this message translates to:
+  /// **'{n, plural, =1{Gioca un Asso} other{Gioca {n} Assi}}'**
+  String missionPlayAces(int n);
+
+  /// No description provided for @missionPlayMatches.
+  ///
+  /// In it, this message translates to:
+  /// **'{n, plural, =1{Gioca una partita} other{Gioca {n} partite}}'**
+  String missionPlayMatches(int n);
+
+  /// No description provided for @missionPlayTwos.
+  ///
+  /// In it, this message translates to:
+  /// **'{n, plural, =1{Gioca un 2} other{Gioca {n} carte 2}}'**
+  String missionPlayTwos(int n);
+
+  /// No description provided for @missionUseNine.
+  ///
+  /// In it, this message translates to:
+  /// **'{n, plural, =1{Usa un Cavallo (9)} other{Usa {n} Cavalli (9)}}'**
+  String missionUseNine(int n);
+
+  /// No description provided for @missionWinMatch.
+  ///
+  /// In it, this message translates to:
+  /// **'{n, plural, =1{Vinci una partita} other{Vinci {n} partite}}'**
+  String missionWinMatch(int n);
+
+  /// No description provided for @missionsClaim.
+  ///
+  /// In it, this message translates to:
+  /// **'RISCUOTI'**
+  String get missionsClaim;
+
+  /// No description provided for @missionsClaimFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile riscuotere la ricompensa.'**
+  String get missionsClaimFailed;
+
+  /// No description provided for @missionsClaimed.
+  ///
+  /// In it, this message translates to:
+  /// **'Riscossa'**
+  String get missionsClaimed;
+
+  /// No description provided for @missionsCycleHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Nuove missioni ogni giorno, su un ciclo di sette giorni.'**
+  String get missionsCycleHint;
+
+  /// No description provided for @missionsEmpty.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuna missione oggi.'**
+  String get missionsEmpty;
+
+  /// No description provided for @missionsLoadFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile caricare le missioni online.'**
+  String get missionsLoadFailed;
+
+  /// No description provided for @missionsOffline.
+  ///
+  /// In it, this message translates to:
+  /// **'Offline (questo dispositivo)'**
+  String get missionsOffline;
+
+  /// No description provided for @missionsOnline.
+  ///
+  /// In it, this message translates to:
+  /// **'Missioni online'**
+  String get missionsOnline;
+
+  /// No description provided for @missionsOnlineOnly.
+  ///
+  /// In it, this message translates to:
+  /// **'Solo online'**
+  String get missionsOnlineOnly;
+
+  /// No description provided for @missionsProgress.
+  ///
+  /// In it, this message translates to:
+  /// **'{done}/{total} completate'**
+  String missionsProgress(int done, int total);
+
+  /// No description provided for @missionsReward.
+  ///
+  /// In it, this message translates to:
+  /// **'+{xp} XP'**
+  String missionsReward(int xp);
+
+  /// No description provided for @missionsSignInHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Accedi per le missioni online: l’esperienza va sul tuo profilo.'**
+  String get missionsSignInHint;
+
+  /// No description provided for @missionsTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Missioni del giorno'**
+  String get missionsTitle;
 
   /// No description provided for @mode.
   ///
@@ -1550,6 +1748,12 @@ abstract class AppLocalizations {
   /// **'{seconds}s'**
   String onlineTurnSeconds(int seconds);
 
+  /// No description provided for @onlineUnavailableRetry.
+  ///
+  /// In it, this message translates to:
+  /// **'Servizio online non raggiungibile. Il gioco offline resta disponibile.'**
+  String get onlineUnavailableRetry;
+
   /// No description provided for @onlineWaitingFor.
   ///
   /// In it, this message translates to:
@@ -1579,6 +1783,24 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Passa'**
   String get passTurn;
+
+  /// No description provided for @pauseHint.
+  ///
+  /// In it, this message translates to:
+  /// **'La partita è ferma: gli avversari aspettano.'**
+  String get pauseHint;
+
+  /// No description provided for @pauseResume.
+  ///
+  /// In it, this message translates to:
+  /// **'Riprendi'**
+  String get pauseResume;
+
+  /// No description provided for @pauseTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Pausa'**
+  String get pauseTitle;
 
   /// No description provided for @penalty.
   ///
@@ -1652,6 +1874,12 @@ abstract class AppLocalizations {
   /// **'Partite'**
   String get profileMatches;
 
+  /// No description provided for @profileNextLevel.
+  ///
+  /// In it, this message translates to:
+  /// **'Prossimo livello: {level}'**
+  String profileNextLevel(int level);
+
   /// No description provided for @profileNicknameTaken.
   ///
   /// In it, this message translates to:
@@ -1693,6 +1921,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'{current} / {target} XP'**
   String profileXpProgress(int current, int target);
+
+  /// No description provided for @profileXpToNext.
+  ///
+  /// In it, this message translates to:
+  /// **'Mancano {xp} XP'**
+  String profileXpToNext(int xp);
 
   /// No description provided for @rankAce.
   ///
@@ -1859,7 +2093,7 @@ abstract class AppLocalizations {
   /// No description provided for @resumeMatch.
   ///
   /// In it, this message translates to:
-  /// **'Riprendi Partita'**
+  /// **'Continua partita'**
   String get resumeMatch;
 
   /// No description provided for @resumeMatchHint.
@@ -1940,6 +2174,30 @@ abstract class AppLocalizations {
   /// **'Esattamente 101 azzera il punteggio'**
   String get ruleExactResetHint;
 
+  /// No description provided for @ruleNineBlock.
+  ///
+  /// In it, this message translates to:
+  /// **'Cavallo contro il 2'**
+  String get ruleNineBlock;
+
+  /// No description provided for @ruleNineBlockCancel.
+  ///
+  /// In it, this message translates to:
+  /// **'Annulla la catena'**
+  String get ruleNineBlockCancel;
+
+  /// No description provided for @ruleNineBlockDisabled.
+  ///
+  /// In it, this message translates to:
+  /// **'Non consentito'**
+  String get ruleNineBlockDisabled;
+
+  /// No description provided for @ruleNineBlockPassOn.
+  ///
+  /// In it, this message translates to:
+  /// **'Passa la catena'**
+  String get ruleNineBlockPassOn;
+
   /// No description provided for @ruleStackTwos.
   ///
   /// In it, this message translates to:
@@ -1976,6 +2234,18 @@ abstract class AppLocalizations {
   /// **'Il 9 cambia seme in ogni momento'**
   String get ruleWildNineHint;
 
+  /// No description provided for @rulesActiveHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Le regole della casa scelte per il tavolo in corso.'**
+  String get rulesActiveHint;
+
+  /// No description provided for @rulesActiveTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Regole di questa partita'**
+  String get rulesActiveTitle;
+
   /// No description provided for @savedFrom101.
   ///
   /// In it, this message translates to:
@@ -2005,6 +2275,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'ACCOUNT'**
   String get settingsAccount;
+
+  /// No description provided for @settingsGuestLogoutBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Sei un ospite: uscendo perderai questo account e i suoi progressi online per sempre.'**
+  String get settingsGuestLogoutBody;
 
   /// No description provided for @settingsLanguage.
   ///
@@ -2041,6 +2317,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Uscirai dall’account su questo dispositivo. I progressi salvati sull’account restano.'**
   String get settingsLogoutBody;
+
+  /// No description provided for @settingsLogoutGuest.
+  ///
+  /// In it, this message translates to:
+  /// **'Esci (account ospite)'**
+  String get settingsLogoutGuest;
 
   /// No description provided for @settingsPrivacy.
   ///
@@ -2144,6 +2426,12 @@ abstract class AppLocalizations {
   /// **'Partite giocate'**
   String get statMatches;
 
+  /// No description provided for @statOnlineMatches.
+  ///
+  /// In it, this message translates to:
+  /// **'Partite online'**
+  String get statOnlineMatches;
+
   /// No description provided for @statResets.
   ///
   /// In it, this message translates to:
@@ -2185,6 +2473,24 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Statistiche'**
   String get statistics;
+
+  /// No description provided for @statsOfflineHeading.
+  ///
+  /// In it, this message translates to:
+  /// **'OFFLINE — QUESTO DISPOSITIVO'**
+  String get statsOfflineHeading;
+
+  /// No description provided for @statsOfflineHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Le partite contro il computer non toccano la classifica online.'**
+  String get statsOfflineHint;
+
+  /// No description provided for @statsOnlineHeading.
+  ///
+  /// In it, this message translates to:
+  /// **'ONLINE — PROFILO'**
+  String get statsOnlineHeading;
 
   /// No description provided for @suitBastoni.
   ///
@@ -2240,6 +2546,168 @@ abstract class AppLocalizations {
   /// **'TURNO SALTATO'**
   String get turnSkipped;
 
+  /// No description provided for @tutAceDone.
+  ///
+  /// In it, this message translates to:
+  /// **'{name} ha saltato il turno. In due, l’Asso ti riporta subito al tuo turno.'**
+  String tutAceDone(String name);
+
+  /// No description provided for @tutAcePrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'Gioca l’Asso di Coppe: l’avversario perde il turno.'**
+  String get tutAcePrompt;
+
+  /// No description provided for @tutAceTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Asso — salta il turno'**
+  String get tutAceTitle;
+
+  /// No description provided for @tutBlockDone.
+  ///
+  /// In it, this message translates to:
+  /// **'Il Cavallo è anche la tua difesa contro i 2. Usalo con giudizio: nel mazzo ce ne sono solo quattro.'**
+  String get tutBlockDone;
+
+  /// No description provided for @tutBlockPrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'Un 2 ti minaccia e non hai 2 da rispondere. Gioca il Cavallo di Bastoni per annullare la catena.'**
+  String get tutBlockPrompt;
+
+  /// No description provided for @tutBlockSuit.
+  ///
+  /// In it, this message translates to:
+  /// **'Catena annullata: nessuno pesca. Scegli il seme.'**
+  String get tutBlockSuit;
+
+  /// No description provided for @tutBlockTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Cavallo contro il 2'**
+  String get tutBlockTitle;
+
+  /// No description provided for @tutCavalloDone.
+  ///
+  /// In it, this message translates to:
+  /// **'Il seme attivo ora è {suit}. Il Cavallo non impone il proprio seme: impone quello che scegli tu.'**
+  String tutCavalloDone(String suit);
+
+  /// No description provided for @tutCavalloPrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'Il Cavallo (il 9) si gioca sempre, su qualsiasi carta. Gioca il Cavallo di Spade.'**
+  String get tutCavalloPrompt;
+
+  /// No description provided for @tutCavalloSuit.
+  ///
+  /// In it, this message translates to:
+  /// **'Ora scegli il nuovo seme attivo: conviene quello di cui hai più carte.'**
+  String get tutCavalloSuit;
+
+  /// No description provided for @tutCavalloTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Cavallo — cambia seme'**
+  String get tutCavalloTitle;
+
+  /// No description provided for @tutCentounoDone.
+  ///
+  /// In it, this message translates to:
+  /// **'92 + 9 = 101 esatti: {name} torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.'**
+  String tutCentounoDone(String name);
+
+  /// No description provided for @tutCentounoPrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'Ultima carta! L’avversario ha 92 punti e un Cavallo (9) in mano. Gioca il 7 di Coppe e chiudi il round.'**
+  String get tutCentounoPrompt;
+
+  /// No description provided for @tutCentounoTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Centouno!'**
+  String get tutCentounoTitle;
+
+  /// No description provided for @tutChainDone.
+  ///
+  /// In it, this message translates to:
+  /// **'+4! {name} ha pescato quattro carte. Le catene arrivano fino a +8.'**
+  String tutChainDone(String name);
+
+  /// No description provided for @tutChainPrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'L’avversario ha giocato un 2 contro di te: rispondi con il 2 di Spade e la penalità sale a +4.'**
+  String get tutChainPrompt;
+
+  /// No description provided for @tutChainTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'La catena di 2'**
+  String get tutChainTitle;
+
+  /// No description provided for @tutDrawingDone.
+  ///
+  /// In it, this message translates to:
+  /// **'Se la carta pescata non fosse stata giocabile, il turno sarebbe passato con Passa.'**
+  String get tutDrawingDone;
+
+  /// No description provided for @tutDrawingPlay.
+  ///
+  /// In it, this message translates to:
+  /// **'Hai pescato il 6 di Coppe: è giocabile subito. Giocalo.'**
+  String get tutDrawingPlay;
+
+  /// No description provided for @tutDrawingPrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessuna carta in mano è giocabile. Tocca il mazzo (o Pesca) per prendere una carta.'**
+  String get tutDrawingPrompt;
+
+  /// No description provided for @tutDrawingTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Pescare'**
+  String get tutDrawingTitle;
+
+  /// No description provided for @tutFirstCardDone.
+  ///
+  /// In it, this message translates to:
+  /// **'Perfetto. Ogni carta giocata deve seguire il seme attivo oppure il valore della carta in cima agli scarti.'**
+  String get tutFirstCardDone;
+
+  /// No description provided for @tutFirstCardPrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'In cima agli scarti c’è il 5 di Coppe. Puoi giocare una carta di Coppe oppure un altro 5: tocca due volte una carta evidenziata.'**
+  String get tutFirstCardPrompt;
+
+  /// No description provided for @tutFirstCardTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Seme o valore'**
+  String get tutFirstCardTitle;
+
+  /// No description provided for @tutTwoDone.
+  ///
+  /// In it, this message translates to:
+  /// **'{name} non aveva un 2: ha pescato due carte e perso il turno.'**
+  String tutTwoDone(String name);
+
+  /// No description provided for @tutTwoPrompt.
+  ///
+  /// In it, this message translates to:
+  /// **'Gioca il 2 di Coppe: l’avversario dovrà pescare due carte, a meno che non risponda con un altro 2.'**
+  String get tutTwoPrompt;
+
+  /// No description provided for @tutTwoTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Due — pesca due'**
+  String get tutTwoTitle;
+
   /// No description provided for @tutorial101.
   ///
   /// In it, this message translates to:
@@ -2276,6 +2744,18 @@ abstract class AppLocalizations {
   /// **'Il Cavallo (9) si gioca in qualsiasi momento e ti lascia scegliere il nuovo seme attivo con il Rituale dei Semi.'**
   String get tutorialCavalloBody;
 
+  /// No description provided for @tutorialCompleteBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Conosci tutte le carte speciali e il 101. Ora tocca a te.'**
+  String get tutorialCompleteBody;
+
+  /// No description provided for @tutorialCompleteTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Tutorial completato!'**
+  String get tutorialCompleteTitle;
+
   /// No description provided for @tutorialDraw.
   ///
   /// In it, this message translates to:
@@ -2288,6 +2768,24 @@ abstract class AppLocalizations {
   /// **'Senza carte giocabili peschi dal mazzo. Se la carta pescata è valida puoi giocarla subito, altrimenti il turno passa.'**
   String get tutorialDrawBody;
 
+  /// No description provided for @tutorialExitBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Potrai rifarlo dall’inizio quando vuoi.'**
+  String get tutorialExitBody;
+
+  /// No description provided for @tutorialExitTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Vuoi uscire dal tutorial?'**
+  String get tutorialExitTitle;
+
+  /// No description provided for @tutorialFinish.
+  ///
+  /// In it, this message translates to:
+  /// **'Fine'**
+  String get tutorialFinish;
+
   /// No description provided for @tutorialGoal.
   ///
   /// In it, this message translates to:
@@ -2299,6 +2797,18 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Libera la mano prima degli altri. Le carte che restano agli avversari diventano punti di penalità: chi supera 101 esce, chi arriva a 101 esatti torna a zero.'**
   String get tutorialGoalBody;
+
+  /// No description provided for @tutorialHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Impara giocando, una regola alla volta'**
+  String get tutorialHint;
+
+  /// No description provided for @tutorialHintFollow.
+  ///
+  /// In it, this message translates to:
+  /// **'Segui il suggerimento: gioca la carta evidenziata.'**
+  String get tutorialHintFollow;
 
   /// No description provided for @tutorialMatch.
   ///
@@ -2324,6 +2834,18 @@ abstract class AppLocalizations {
   /// **'Superare 101 significa uscire dalla partita. Resta in gioco chi gestisce meglio le carte alte.'**
   String get tutorialOver101Body;
 
+  /// No description provided for @tutorialPlayNow.
+  ///
+  /// In it, this message translates to:
+  /// **'GIOCA CONTRO IL COMPUTER'**
+  String get tutorialPlayNow;
+
+  /// No description provided for @tutorialReplay.
+  ///
+  /// In it, this message translates to:
+  /// **'Rifai il tutorial'**
+  String get tutorialReplay;
+
   /// No description provided for @tutorialScoring.
   ///
   /// In it, this message translates to:
@@ -2335,6 +2857,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'A fine round ogni carta rimasta vale il suo numero: Asso 1, Fante 8, Cavallo 9, Re 10. I punti si sommano al totale.'**
   String get tutorialScoringBody;
+
+  /// No description provided for @tutorialTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Tutorial interattivo'**
+  String get tutorialTitle;
 
   /// No description provided for @tutorialTwo.
   ///

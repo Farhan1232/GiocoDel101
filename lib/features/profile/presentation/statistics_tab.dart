@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+
+import '../application/profile_controller.dart';
 import '../application/stats_controller.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../achievements/domain/achievements_catalog.dart';
@@ -44,6 +47,12 @@ class StatisticsTab extends StatelessWidget {
               ],
             ),
           ),
+        _onlineSummary(s),
+        SectionHeading(s.statsOfflineHeading),
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Text(s.statsOfflineHint, style: AppText.caption),
+        ),
         if (!empty) ...[
           _headline(v.winPercentage, v.matchesWon, v.matchesPlayed),
           const SizedBox(height: AppSpacing.md),
@@ -114,6 +123,43 @@ class StatisticsTab extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  /// The server's numbers, when there is a signed-in profile. Read-only:
+  /// nothing on this device can change them (docs/SECURITY.md).
+  Widget _onlineSummary(AppLocalizations s) {
+    if (!Get.isRegistered<ProfileController>()) return const SizedBox.shrink();
+    final remote = Get.find<ProfileController>();
+    return Obx(() {
+      final p = remote.profile.value;
+      if (p == null) return const SizedBox.shrink();
+      final ps = remote.stats.value;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeading(s.statsOnlineHeading),
+          AppPanel(
+            accent: accent,
+            child: Column(
+              children: [
+                _row(AppIcon.players, s.profileMatches, '${p.matches}'),
+                _row(AppIcon.trophy, s.profileWins, '${p.wins}'),
+                _row(AppIcon.stats, s.profileLosses, '${p.losses}'),
+                _row(AppIcon.ring, s.profileRating, '${p.rating}'),
+                _row(AppIcon.difficulty, s.statStreak, '${p.currentStreak}'),
+                if (ps != null)
+                  _row(
+                    AppIcon.play,
+                    s.statOnlineMatches,
+                    '${ps.onlineMatches}',
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
+      );
+    });
   }
 
   Widget _headline(int percent, int won, int played) {

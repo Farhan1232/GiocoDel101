@@ -1,6 +1,11 @@
 import '../../game/domain/card_suit.dart';
+import 'level_ladder.dart';
 
 /// §39 — lifetime counters, all local, all anonymous.
+///
+/// Everything here is the OFFLINE record: matches against bots and pass &
+/// play on this device. It never feeds the online rating, and the online
+/// profile (`profiles`, server-owned) never feeds it.
 class StatisticsModel {
   const StatisticsModel({
     this.matchesPlayed = 0,
@@ -19,6 +24,10 @@ class StatisticsModel {
     this.unlockedAchievements = const [],
     this.dailyChallengesCompleted = 0,
     this.lastDailyChallenge = 0,
+    this.xp = 0,
+    this.missionDateKey = 0,
+    this.missionProgress = const {},
+    this.claimedMissions = const [],
   });
 
   final int matchesPlayed;
@@ -42,6 +51,19 @@ class StatisticsModel {
 
   /// §40 — `yyyyMMdd` of the last completed daily challenge, 0 if never.
   final int lastDailyChallenge;
+
+  /// Offline experience: match/win awards plus claimed offline missions.
+  /// Separate from the server's `profiles.xp` by design.
+  final int xp;
+
+  /// §V — the day the offline mission counters belong to (`yyyyMMdd`).
+  final int missionDateKey;
+
+  /// Mission key → progress for [missionDateKey].
+  final Map<String, int> missionProgress;
+
+  /// Mission keys whose offline reward was already taken today.
+  final List<String> claimedMissions;
 
   int get winPercentage =>
       matchesPlayed == 0 ? 0 : ((matchesWon / matchesPlayed) * 100).round();
@@ -81,6 +103,10 @@ class StatisticsModel {
     List<String>? unlockedAchievements,
     int? dailyChallengesCompleted,
     int? lastDailyChallenge,
+    int? xp,
+    int? missionDateKey,
+    Map<String, int>? missionProgress,
+    List<String>? claimedMissions,
   }) => StatisticsModel(
     matchesPlayed: matchesPlayed ?? this.matchesPlayed,
     matchesWon: matchesWon ?? this.matchesWon,
@@ -99,6 +125,10 @@ class StatisticsModel {
     dailyChallengesCompleted:
         dailyChallengesCompleted ?? this.dailyChallengesCompleted,
     lastDailyChallenge: lastDailyChallenge ?? this.lastDailyChallenge,
+    xp: xp ?? this.xp,
+    missionDateKey: missionDateKey ?? this.missionDateKey,
+    missionProgress: missionProgress ?? this.missionProgress,
+    claimedMissions: claimedMissions ?? this.claimedMissions,
   );
 
   Map<String, dynamic> toJson() => {
@@ -118,6 +148,10 @@ class StatisticsModel {
     'unlockedAchievements': unlockedAchievements,
     'dailyChallengesCompleted': dailyChallengesCompleted,
     'lastDailyChallenge': lastDailyChallenge,
+    'xp': xp,
+    'missionDateKey': missionDateKey,
+    'missionProgress': missionProgress,
+    'claimedMissions': claimedMissions,
   };
 
   factory StatisticsModel.fromJson(Map<String, dynamic> json) {
@@ -145,6 +179,19 @@ class StatisticsModel {
           const [],
       dailyChallengesCompleted: i('dailyChallengesCompleted'),
       lastDailyChallenge: i('lastDailyChallenge'),
+      // A record written before offline XP existed is credited the same
+      // amount the profile used to derive, so nobody's level drops.
+      xp: json.containsKey('xp')
+          ? i('xp')
+          : i('matchesPlayed') * LevelLadder.xpPerMatch +
+                i('matchesWon') * LevelLadder.xpPerWin,
+      missionDateKey: i('missionDateKey'),
+      missionProgress: ((json['missionProgress'] as Map?) ?? const {}).map(
+        (k, v) => MapEntry(k as String, (v as num).toInt()),
+      ),
+      claimedMissions:
+          (json['claimedMissions'] as List?)?.whereType<String>().toList() ??
+          const [],
     );
   }
 }

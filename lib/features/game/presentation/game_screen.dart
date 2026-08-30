@@ -30,6 +30,7 @@ import 'widgets/chain_storm.dart';
 import 'widgets/coach_mark.dart';
 import 'widgets/hand_fan.dart';
 import 'widgets/handover_overlay.dart';
+import 'widgets/pause_overlay.dart';
 import 'widgets/reaction_bar.dart';
 import 'widgets/seat_view.dart';
 import 'widgets/suit_ritual.dart';
@@ -77,7 +78,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _queueCoachMarks();
+      if (c.showsCoachMarks) _queueCoachMarks();
       c.start();
     });
     _resultWorker = ever<dynamic>(c.lastRoundResult, (result) {
@@ -180,6 +181,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         await Future<void>.delayed(Motion.scale(AppDurations.quick));
       case RecycleCue():
         await _animateRecycle(cue.count);
+      case DealCue():
+        await _animateDeal(cue.seatIds, cue.handSize);
       case InvalidCue():
         await Future<void>.delayed(Motion.scale(AppDurations.micro));
       case SuitChosenCue():
@@ -255,6 +258,55 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (mounted) {
       setState(() => _hidden.removeAll(animated.map((e) => e.id)));
     }
+  }
+
+  /// §29 — the deal. Cards leave the stock one at a time, round-robin
+  /// around the table, exactly as a dealer would; the viewer's own cards
+  /// turn face up as they land. Hidden until then so the fan fills in.
+  Future<void> _animateDeal(List<String> seatIds, int handSize) async {
+    final from = _centreOf(_drawKey);
+    if (from == null || seatIds.isEmpty) return;
+    final viewer = c.viewingPlayer;
+    final own = List<GameCard>.of(viewer.hand);
+    setState(() => _hidden.addAll(own.map((e) => e.id)));
+    final futures = <Future<void>>[];
+    var ownIndex = 0;
+    var dealt = 0;
+    for (var round = 0; round < handSize; round++) {
+      for (final seatId in seatIds) {
+        if (!mounted) break;
+        if (dealt > 0) {
+          await Future<void>.delayed(
+            Motion.scale(const Duration(milliseconds: 70)),
+          );
+        }
+        dealt++;
+        final isViewer = seatId == viewer.id;
+        final GameCard card;
+        if (isViewer && ownIndex < own.length) {
+          card = own[ownIndex++];
+        } else {
+          card = c.state.topCard; // a face-down stand-in; never shown
+        }
+        futures.add(
+          _fly(
+            card: card,
+            from: from,
+            to: _seatCentre(seatId),
+            width: isViewer ? _handCardWidth * 0.92 : _opponentCardWidth * 1.6,
+            startFaceUp: false,
+            endFaceUp: isViewer,
+            startAngle: 0,
+            endAngle: isViewer ? 0 : 0.1,
+            duration: AppDurations.cardDraw,
+          ).then((_) {
+            if (isViewer && mounted) setState(() => _hidden.remove(card.id));
+          }),
+        );
+      }
+    }
+    await Future.wait(futures);
+    if (mounted) setState(() => _hidden.removeAll(own.map((e) => e.id)));
   }
 
   /// §18 — the discard sweeping back under the stock. A handful of cards
@@ -333,7 +385,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   Future<void> _confirmExit() async {
     final bool leave;
-    if (c.isOnline) {
+    if (c.isTutorial) {
+      final s = Strings.s;
+      leave = await AppDialog.confirm(
+        title: s.tutorialExitTitle,
+        body: s.tutorialExitBody,
+        confirmLabel: s.exit,
+        cancelLabel: s.continueGame,
+      );
+    } else if (c.isOnline) {
       // Online, walking away is a forfeit: say so plainly.
       final s = Strings.s;
       leave = await AppDialog.confirm(
@@ -437,7 +497,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     onReady: c.confirmHandover,
                   ),
                 ),
-              if (_coach != null && c.handoverPlayerId.value == null)
+              if (c.paused.value)
+                Positioned.fill(
+                  child: PauseOverlay(
+                    settings: settings,
+                    accent: theme.accent,
+                    onResume: c.resume,
+                    onRules: _openRules,
+                    onExit: _confirmExit,
+                  ),
+                ),
+              if (_coach != null &&
+                  c.handoverPlayerId.value == null &&
+                  !c.paused.value)
                 Positioned.fill(
                   child: CoachMark(
                     icon: _coach!.$2,
@@ -455,6 +527,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       }),
     );
   }
+
+  /// The rules screen, told which house rules this table is playing by.
+  void _openRules() => Get.toNamed<void>(
+    AppRoutes.howToPlay,
+    arguments: {
+      'rules': c.state.rules,
+      'turnTimer': _session.hasTimer ? c.state.rules.turnTimeLimitSeconds : 0,
+    },
+  );
 
   /// §M — timer and connection come from the driver: a local match reports
   /// neither; an online one reports the server's deadline and the socket.
@@ -477,8 +558,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             icon: AppIcon.rules,
             size: 38,
             tooltip: Strings.s.tableRules,
-            onTap: () => Get.toNamed<void>(AppRoutes.howToPlay),
+            onTap: _openRules,
           ),
+          if (c.canPause) ...[
+            const SizedBox(width: AppSpacing.xs),
+            IconPill(
+              icon: AppIcon.pause,
+              size: 38,
+              tooltip: Strings.s.pauseTitle,
+              onTap: c.pause,
+            ),
+          ],
           const Spacer(),
           Column(
             children: [
@@ -556,6 +646,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     accent: accent,
                     compact: opponents.length > 2,
                     skipped: _skippedSeat == opponents[i].id,
+                    thinking:
+                        !c.isOnline &&
+                        opponents[i].isBot &&
+                        c.busy.value &&
+                        c.currentPlayer.id == opponents[i].id,
                     reaction: c.reactions[opponents[i].id],
                   ),
                 ),
