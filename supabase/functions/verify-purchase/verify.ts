@@ -62,15 +62,29 @@ export function parseVerifyRequest(
 }
 
 /**
- * The products this backend will ever grant. Anything else is refused before
- * any store call — a client cannot probe with arbitrary ids.
+ * The products this backend will ever grant, each mapped to the entitlement
+ * it buys. Anything else is refused before any store call — a client cannot
+ * probe with arbitrary ids, and the entitlement key is ALWAYS the server's
+ * choice, never the client's.
+ *
+ * These five are the canonical cosmetic non-consumables
+ * (docs/FINAL_IAP_PRODUCT_IDS.md); the same ids must exist in Google Play
+ * Console and App Store Connect. One product = one permanent entitlement;
+ * there is no global premium flag.
  */
-export function allowedProducts(env: string | undefined): Set<string> {
-  const raw = env?.trim();
-  if (!raw) return new Set(["gioco101_premium"]);
-  return new Set(
-    raw.split(",").map((s) => s.trim()).filter((s) => PRODUCT_ID.test(s)),
-  );
+export const PRODUCT_ENTITLEMENTS: Readonly<Record<string, string>> = {
+  gioco101_table_gold: "table.gold",
+  gioco101_table_classic: "table.classic",
+  gioco101_deck_special: "deck.special",
+  gioco101_cardback_gold: "cardback.gold",
+  gioco101_gadget_01: "gadget.01",
+};
+
+/** The entitlement a product grants, or undefined for anything unknown. */
+export function entitlementFor(productId: string): string | undefined {
+  return Object.hasOwn(PRODUCT_ENTITLEMENTS, productId)
+    ? PRODUCT_ENTITLEMENTS[productId]
+    : undefined;
 }
 
 /** The idempotency key a verdict settles on, with a safe fallback. */

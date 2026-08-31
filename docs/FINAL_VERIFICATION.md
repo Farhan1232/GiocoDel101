@@ -115,3 +115,31 @@ in the real 2/3/4-player games (numbers in the handoff).
   packaging, and the client's still-open rule and economy decisions (rating
   formula, XP amounts). The APK/AAB built here are debug-signed until a
   keystore is supplied.
+
+---
+
+# Session 8 addendum (2026-09-01) — the five cosmetic products, legal, delivery
+
+| Feature | Implemented | Automated test | Real Supabase | Device |
+|---|---|---|---|---|
+| Five non-consumable products, one entitlement each (`ShopCatalog`) | yes | `session7_iap_test.dart` catalog + per-product grant cases | migration 13 + `verify-purchase` v2 on dev | — |
+| No cross-grant / no global premium | yes | "owning one item does not own the others" | drill: two entitlements coexist per user | — |
+| Store-metadata prices only, no hard-coded price | yes | shop widget test: fake-store string rendered, `€` absent | — | pending consoles |
+| Purchase → server verify → complete ordering; failed verify leaves txn open | yes | retry cases (unchanged from S7, re-run) | function answers `verification_unconfigured` until credentials exist | pending sandbox |
+| Restore none/one/multiple/all, duplicate callback, never charges | yes | restore group, `buys == 0` asserts | idempotent grant re-run in drill | pending sandbox |
+| Entitlement-gated cosmetics; revoke falls back to free defaults | yes | `session8_shop_legal_test.dart` gating group | scoped `srv_revoke_entitlement` drill | — |
+| Paid cosmetics render (gold/classic tables, gold back, gilded deck, sigillo) | yes | deck preview + shop previews render clean | n/a | visual check on device pending |
+| Client cannot INSERT/UPDATE entitlements or call `srv_*` | yes (RLS + revoked EXECUTE) | — | drill 2026-09-01: 42501 on all four attempts | — |
+| Replay another user's transaction refused | yes | fake-server case | drill: `transaction_owned_elsewhere` | — |
+| Terms & Privacy screens, IT + EN, placeholders honest | yes | legal group renders both locales at 360px, placeholder assert | n/a | — |
+| Hostable legal HTML generated from the same text | yes | `dart run tool/generate_legal_html.dart` reproducible | n/a | — |
+| Crash-fix regressions (S7) still hold | yes | `session7_stability_test.dart` + `long_session_performance_test.dart` in the 737 | — | client re-test still pending |
+
+- Full suite after Session 8: **737 Flutter tests, 68 + 6 Deno tests, 0
+  failures**; `flutter analyze` clean; bot simulation 270 matches / 72 488
+  actions / 0 violations / 0 hangs.
+- **Not verified** (unchanged in kind): physical-device behaviour, iOS
+  compilation, and REAL store purchases — the five products do not exist in
+  any console yet, so the honest status is CODE + SERVER ARCHITECTURE
+  COMPLETE, STORE PRODUCT CONFIGURATION PENDING, SANDBOX PURCHASE TEST
+  PENDING.

@@ -19,7 +19,9 @@ import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/online/presentation/online_mode_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
-import '../../features/purchases/presentation/premium_screen.dart';
+import '../../features/legal/presentation/privacy_screen.dart';
+import '../../features/legal/presentation/terms_screen.dart';
+import '../../features/purchases/presentation/shop_screen.dart';
 import '../../features/rewards/presentation/daily_reward_screen.dart';
 import '../../features/rooms/presentation/create_room_screen.dart';
 import '../../features/rooms/presentation/join_room_screen.dart';
@@ -66,7 +68,9 @@ class AppRoutes {
   static const String tutorial = '/tutorial';
   static const String missions = '/missions';
   static const String settings = '/settings';
-  static const String premium = '/premium';
+  static const String shop = '/shop';
+  static const String terms = '/legal/terms';
+  static const String privacy = '/legal/privacy';
 }
 
 /// §59 — every transition is authored; none of them is the platform default.
@@ -281,9 +285,21 @@ class AppPages {
       transitionDuration: _d,
     ),
     GetPage(
-      name: AppRoutes.premium,
-      page: () => const PremiumScreen(),
+      name: AppRoutes.shop,
+      page: () => const ShopScreen(),
       customTransition: _DepthTransition(from: 0.94, slide: 0.05),
+      transitionDuration: _d,
+    ),
+    GetPage(
+      name: AppRoutes.terms,
+      page: () => const TermsScreen(),
+      customTransition: _DepthTransition(from: 0.95, slide: 0.05),
+      transitionDuration: _d,
+    ),
+    GetPage(
+      name: AppRoutes.privacy,
+      page: () => const PrivacyScreen(),
+      customTransition: _DepthTransition(from: 0.95, slide: 0.05),
       transitionDuration: _d,
     ),
   ];

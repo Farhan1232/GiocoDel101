@@ -400,12 +400,6 @@ class _SettingsTabState extends State<SettingsTab> {
   /// offers sign-in when a backend exists and nobody is, and sign-out when a
   /// real session exists. The legal links always show.
   Widget _accountPanel(AppLocalizations s, Color accent) {
-    void pending(String title) => AppDialog.notice(
-      title: title,
-      body: s.settingsLinkPending,
-      dismissLabel: s.gotIt,
-    );
-
     final session = Get.find<SessionController>();
     final profile = Get.find<ProfileController>();
 
@@ -458,14 +452,14 @@ class _SettingsTabState extends State<SettingsTab> {
             onTap: () => Get.toNamed<void>(AppRoutes.profile),
           ),
           SettingRow(
-            title: s.premiumTitle,
+            title: s.shopTitle,
             icon: AppIcon.trophy,
             trailing: const AppIconView(
               AppIcon.chevronDown,
               size: 14,
               color: AppColors.textMuted,
             ),
-            onTap: () => Get.toNamed<void>(AppRoutes.premium),
+            onTap: () => Get.toNamed<void>(AppRoutes.shop),
           ),
           SettingRow(
             title: s.settingsPrivacy,
@@ -475,7 +469,7 @@ class _SettingsTabState extends State<SettingsTab> {
               size: 14,
               color: AppColors.textMuted,
             ),
-            onTap: () => pending(s.settingsPrivacy),
+            onTap: () => Get.toNamed<void>(AppRoutes.privacy),
           ),
           SettingRow(
             title: s.settingsTerms,
@@ -485,7 +479,7 @@ class _SettingsTabState extends State<SettingsTab> {
               size: 14,
               color: AppColors.textMuted,
             ),
-            onTap: () => pending(s.settingsTerms),
+            onTap: () => Get.toNamed<void>(AppRoutes.terms),
           ),
           if (OnlineStatus.isConfigured) ...[
             const SizedBox(height: AppSpacing.md),

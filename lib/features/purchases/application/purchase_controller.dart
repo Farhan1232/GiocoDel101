@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../core/utils/log.dart';
 import '../domain/entitlement.dart';
-import '../domain/purchase_config.dart';
+import '../domain/shop_catalog.dart';
 import 'entitlement_repository.dart';
 import 'purchase_store.dart';
 
@@ -14,7 +14,6 @@ enum PurchasePhase {
   idle,
   loading,
   storeUnavailable,
-  productMissing,
   ready,
   purchasing,
   verifying,
@@ -28,13 +27,18 @@ enum PurchasePhase {
 /// Registered permanently at boot so the purchase stream has exactly one
 /// subscriber for the app's whole life (§: a purchase can arrive at ANY
 /// time — a pending card payment clearing, an unfinished transaction
-/// redelivered on launch — not just while the premium screen is open).
+/// redelivered on launch — not just while the shop is open). Navigation,
+/// login/logout and app resume never add a second listener because nothing
+/// else ever subscribes.
 ///
-/// Trust model: a store event is only ever a *claim*. Premium is granted by
+/// Trust model: a store event is only ever a *claim*. An item is granted by
 /// the server after verifying the purchase with Google/Apple; this class
 /// forwards the claim, adopts the server's answer, and only then completes
 /// the transaction with the store. A verification failure leaves the
 /// transaction open so the store redelivers it later.
+///
+/// Ownership is per item: five products, five independent entitlements
+/// (ShopCatalog). A player may own none, one, several or all.
 class PurchaseController extends GetxController {
   PurchaseController({
     required this.store,
@@ -51,10 +55,23 @@ class PurchaseController extends GetxController {
   /// UI settled. Injectable so tests need not wait the real eight seconds.
   final Duration restoreFallbackDelay;
 
-  final Rxn<PremiumEntitlement> entitlement = Rxn<PremiumEntitlement>();
-  final Rxn<StoreProduct> product = Rxn<StoreProduct>();
+  /// The server's rows, one per owned item (any status).
+  final RxList<OwnedEntitlement> owned = RxList<OwnedEntitlement>();
+
+  /// Store metadata by product id — the ONLY source of displayed prices.
+  final RxMap<String, StoreProduct> products = RxMap<String, StoreProduct>();
+
+  /// Product ids the store did not return (not yet created in the console, or
+  /// not available in this territory). The shop shows these as unavailable —
+  /// never with an invented price.
+  final RxSet<String> unavailableProducts = RxSet<String>();
+
   final Rx<PurchasePhase> phase = PurchasePhase.idle.obs;
   final Rxn<PurchaseError> lastError = Rxn<PurchaseError>();
+
+  /// Product id of the purchase currently in flight, so the shop can spin
+  /// exactly one card. Null when idle or restoring.
+  final RxnString busyProductId = RxnString();
 
   StreamSubscription<List<StorePurchase>>? _sub;
   Timer? _restoreFallback;
@@ -63,26 +80,35 @@ class PurchaseController extends GetxController {
   /// update cannot trigger a second grant round-trip.
   final Set<String> _handled = <String>{};
 
-  /// The server's word, evaluated now. False while offline with no cached
-  /// read — premium is never assumed.
-  bool get isPremium => entitlement.value?.isActiveAt(_clock()) ?? false;
+  /// Whether the player owns [entitlement] (e.g. `table.gold`) right now,
+  /// on the server's word. False while signed out or offline with no cached
+  /// read — ownership is never assumed.
+  bool owns(String entitlement) {
+    final now = _clock();
+    for (final e in owned) {
+      if (e.entitlement == entitlement && e.isActiveAt(now)) return true;
+    }
+    return false;
+  }
+
+  /// Whether the product with [productId] is owned.
+  bool ownsProduct(String productId) {
+    final p = ShopCatalog.byId(productId);
+    return p != null && owns(p.entitlement);
+  }
 
   String get platformName => GetPlatform.isIOS ? 'ios' : 'android';
-
-  String get premiumProductId => GetPlatform.isIOS
-      ? PurchaseConfig.iosPremiumId
-      : PurchaseConfig.androidPremiumId;
 
   @override
   void onInit() {
     super.onInit();
-    // The single subscription (§20). Errors are logged, never thrown: a
+    // The single subscription (§16). Errors are logged, never thrown: a
     // store hiccup must not take the app down.
     _sub = store.purchases.listen(
       _onUpdates,
       onError: (Object e) => Log.d('purchase stream: $e'),
     );
-    unawaited(refreshEntitlement());
+    unawaited(refreshEntitlements());
   }
 
   @override
@@ -93,25 +119,23 @@ class PurchaseController extends GetxController {
     super.onClose();
   }
 
-  /// Loads the store product for the premium screen. Ends in exactly one of
-  /// ready / storeUnavailable / productMissing — never a forever-spinner.
+  /// Loads store metadata for all five products. Ends in exactly one of
+  /// ready / storeUnavailable — never a forever-spinner. Products the store
+  /// does not know land in [unavailableProducts] rather than failing the
+  /// whole shop.
   Future<void> load() async {
     if (phase.value == PurchasePhase.loading) return;
     phase.value = PurchasePhase.loading;
     lastError.value = null;
-    unawaited(refreshEntitlement());
+    unawaited(refreshEntitlements());
     try {
       if (!await store.isAvailable()) {
         phase.value = PurchasePhase.storeUnavailable;
         return;
       }
-      final result = await store.queryProducts({premiumProductId});
-      if (result.found.isEmpty) {
-        product.value = null;
-        phase.value = PurchasePhase.productMissing;
-        return;
-      }
-      product.value = result.found.first;
+      final result = await store.queryProducts(ShopCatalog.productIds);
+      products.assignAll({for (final p in result.found) p.id: p});
+      unavailableProducts.assignAll(result.notFound.toSet());
       phase.value = PurchasePhase.ready;
     } catch (e) {
       Log.d('purchase load: $e');
@@ -119,11 +143,16 @@ class PurchaseController extends GetxController {
     }
   }
 
-  /// Starts the store's own payment sheet. The outcome arrives on the
-  /// purchase stream, not here.
-  Future<void> buy() async {
-    final p = product.value;
-    if (p == null || phase.value == PurchasePhase.purchasing) return;
+  /// Starts the store's own payment sheet for one product. The outcome
+  /// arrives on the purchase stream, not here.
+  Future<void> buy(String productId) async {
+    final p = products[productId];
+    if (p == null ||
+        phase.value == PurchasePhase.purchasing ||
+        phase.value == PurchasePhase.verifying) {
+      return;
+    }
+    busyProductId.value = productId;
     phase.value = PurchasePhase.purchasing;
     lastError.value = null;
     try {
@@ -134,11 +163,15 @@ class PurchaseController extends GetxController {
     }
   }
 
-  /// "Ripristina acquisti". Restorations arrive on the purchase stream; if
-  /// none does, the fallback re-reads the server and settles the UI either
-  /// way. Restoring never charges.
+  /// "Ripristina acquisti". Restorations arrive on the purchase stream (one
+  /// event per owned non-consumable); if none does, the fallback re-reads the
+  /// server and settles the UI either way. Restoring never charges.
   Future<void> restore() async {
-    if (phase.value == PurchasePhase.purchasing) return;
+    if (phase.value == PurchasePhase.purchasing ||
+        phase.value == PurchasePhase.verifying) {
+      return;
+    }
+    busyProductId.value = null;
     phase.value = PurchasePhase.purchasing;
     lastError.value = null;
     try {
@@ -151,8 +184,9 @@ class PurchaseController extends GetxController {
     _restoreFallback?.cancel();
     _restoreFallback = Timer(restoreFallbackDelay, () async {
       if (phase.value != PurchasePhase.purchasing) return;
-      await refreshEntitlement();
-      if (isPremium) {
+      await refreshEntitlements();
+      if (owned.any((e) => e.isActiveAt(_clock()))) {
+        busyProductId.value = null;
         phase.value = PurchasePhase.restored;
       } else {
         _fail(PurchaseError.nothingToRestore);
@@ -160,9 +194,9 @@ class PurchaseController extends GetxController {
     });
   }
 
-  Future<void> refreshEntitlement() async {
+  Future<void> refreshEntitlements() async {
     try {
-      entitlement.value = await entitlements.status();
+      owned.assignAll(await entitlements.status());
     } on PurchaseException catch (e) {
       // Offline: keep whatever was last read; never invent an answer.
       Log.d('entitlement status: ${e.error.name}');
@@ -175,6 +209,7 @@ class PurchaseController extends GetxController {
     for (final update in updates) {
       switch (update.status) {
         case StorePurchaseStatus.pending:
+          busyProductId.value = update.productId;
           phase.value = PurchasePhase.purchasing;
         case StorePurchaseStatus.cancelled:
           await _complete(update);
@@ -204,16 +239,19 @@ class PurchaseController extends GetxController {
       return;
     }
     _handled.add(key);
+    busyProductId.value = update.productId;
     phase.value = PurchasePhase.verifying;
     try {
-      entitlement.value = await entitlements.verify(
+      final granted = await entitlements.verify(
         platform: platformName,
         productId: update.productId,
         verificationData: update.verificationData,
         transactionId: update.transactionId,
       );
+      _adopt(granted);
       // Only a verified, granted purchase is completed with the store.
       await _complete(update);
+      busyProductId.value = null;
       phase.value = update.status == StorePurchaseStatus.restored
           ? PurchasePhase.restored
           : PurchasePhase.success;
@@ -230,6 +268,17 @@ class PurchaseController extends GetxController {
     }
   }
 
+  /// Merges one server-granted row into [owned] without waiting for a full
+  /// re-read (which still happens on the next load()).
+  void _adopt(OwnedEntitlement granted) {
+    final next = [
+      for (final e in owned)
+        if (e.entitlement != granted.entitlement) e,
+      granted,
+    ];
+    owned.assignAll(next);
+  }
+
   Future<void> _complete(StorePurchase update) async {
     if (!update.pendingComplete) return;
     try {
@@ -240,6 +289,7 @@ class PurchaseController extends GetxController {
   }
 
   void _fail(PurchaseError error) {
+    busyProductId.value = null;
     lastError.value = error;
     phase.value = PurchasePhase.error;
   }

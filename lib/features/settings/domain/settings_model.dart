@@ -30,6 +30,8 @@ class SettingsModel {
     this.largeCardMode = false,
     this.themeId = 'napoli_notte',
     this.cardBackId = 'oro',
+    this.deckStyleId = 'napoletane',
+    this.gadgetId = '',
     this.defaultDifficulty = BotDifficulty.normal,
     this.playerName = 'Giocatore',
     this.avatarId = 'lucia',
@@ -49,6 +51,12 @@ class SettingsModel {
   final bool largeCardMode;
   final String themeId;
   final String cardBackId;
+
+  /// §shop — how the card faces are printed ('napoletane' is free/default).
+  final String deckStyleId;
+
+  /// §shop — the active table gadget; empty = none.
+  final String gadgetId;
   final BotDifficulty defaultDifficulty;
   final String playerName;
   final String avatarId;
@@ -76,6 +84,8 @@ class SettingsModel {
     bool? largeCardMode,
     String? themeId,
     String? cardBackId,
+    String? deckStyleId,
+    String? gadgetId,
     BotDifficulty? defaultDifficulty,
     String? playerName,
     String? avatarId,
@@ -94,6 +104,8 @@ class SettingsModel {
     largeCardMode: largeCardMode ?? this.largeCardMode,
     themeId: themeId ?? this.themeId,
     cardBackId: cardBackId ?? this.cardBackId,
+    deckStyleId: deckStyleId ?? this.deckStyleId,
+    gadgetId: gadgetId ?? this.gadgetId,
     defaultDifficulty: defaultDifficulty ?? this.defaultDifficulty,
     playerName: playerName ?? this.playerName,
     avatarId: avatarId ?? this.avatarId,
@@ -114,6 +126,8 @@ class SettingsModel {
     'largeCardMode': largeCardMode,
     'themeId': themeId,
     'cardBackId': cardBackId,
+    'deckStyleId': deckStyleId,
+    'gadgetId': gadgetId,
     'defaultDifficulty': defaultDifficulty.key,
     'playerName': playerName,
     'avatarId': avatarId,
@@ -145,6 +159,8 @@ class SettingsModel {
       largeCardMode: json['largeCardMode'] as bool? ?? fallback.largeCardMode,
       themeId: json['themeId'] as String? ?? fallback.themeId,
       cardBackId: json['cardBackId'] as String? ?? fallback.cardBackId,
+      deckStyleId: json['deckStyleId'] as String? ?? fallback.deckStyleId,
+      gadgetId: json['gadgetId'] as String? ?? fallback.gadgetId,
       defaultDifficulty: BotDifficulty.fromKey(
         json['defaultDifficulty'] as String? ?? 'normal',
       ),

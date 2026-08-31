@@ -22,10 +22,16 @@ class TableSurface extends StatefulWidget {
     required this.theme,
     required this.activeSuit,
     this.intensity = 1.0,
+    this.showSigil = false,
   });
 
   final TableTheme theme;
   final CardSuit activeSuit;
+
+  /// §shop — "Sigillo del 101" (`gadget.01`): a gold laurel seal struck into
+  /// the felt. Pure ornament in the static felt layer — it costs nothing per
+  /// frame and touches no rule, score or card.
+  final bool showSigil;
 
   /// Scaled down while overlays are open so effects never fight the UI.
   final double intensity;
@@ -74,7 +80,12 @@ class _TableSurfaceState extends State<TableSurface>
       children: [
         Positioned.fill(
           child: RepaintBoundary(
-            child: CustomPaint(painter: _FeltBasePainter(theme: widget.theme)),
+            child: CustomPaint(
+              painter: _FeltBasePainter(
+                theme: widget.theme,
+                sigil: widget.showSigil,
+              ),
+            ),
           ),
         ),
         Positioned.fill(
@@ -118,9 +129,10 @@ Rect _feltRect(Size size) {
 }
 
 class _FeltBasePainter extends CustomPainter {
-  const _FeltBasePainter({required this.theme});
+  const _FeltBasePainter({required this.theme, this.sigil = false});
 
   final TableTheme theme;
+  final bool sigil;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -180,10 +192,71 @@ class _FeltBasePainter extends CustomPainter {
           const [0.72, 1.0],
         ),
     );
+
+    if (sigil) _paintSigil(canvas, size, felt);
+  }
+
+  /// The Sigillo del 101: a double gold ring, two laurel sprigs and the 101
+  /// numeral — the same medallion motif the card backs carry, embossed low
+  /// on the felt where no card ever lands.
+  void _paintSigil(Canvas canvas, Size size, Rect felt) {
+    final r = size.width * 0.052;
+    final at = Offset(felt.center.dx, felt.center.dy + felt.height * 0.355);
+    final gold = Color.lerp(theme.feltRim, const Color(0xFFF2CF7A), 0.5)!;
+
+    final ring = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(1.0, r * 0.07)
+      ..color = gold.withValues(alpha: 0.34);
+    canvas.drawCircle(at, r, ring);
+    canvas.drawCircle(
+      at,
+      r * 0.82,
+      ring
+        ..strokeWidth = math.max(0.7, r * 0.04)
+        ..color = gold.withValues(alpha: 0.22),
+    );
+
+    // Laurel sprigs: leaves along the lower arc, mirrored.
+    final leaf = Paint()..color = gold.withValues(alpha: 0.26);
+    for (var side = -1; side <= 1; side += 2) {
+      for (var i = 0; i < 5; i++) {
+        final a = math.pi / 2 + side * (0.28 + i * 0.30);
+        final tip = at + Offset(math.cos(a), math.sin(a)) * (r * 1.06);
+        canvas.save();
+        canvas.translate(tip.dx, tip.dy);
+        canvas.rotate(a + side * 0.9);
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: r * 0.34,
+            height: r * 0.14,
+          ),
+          leaf,
+        );
+        canvas.restore();
+      }
+    }
+
+    final label = TextPainter(
+      text: TextSpan(
+        text: '101',
+        style: TextStyle(
+          fontSize: r * 0.72,
+          fontWeight: FontWeight.w700,
+          letterSpacing: r * 0.06,
+          color: gold.withValues(alpha: 0.42),
+          fontFamily: 'Cinzel',
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    label.paint(canvas, at - Offset(label.width / 2, label.height / 2));
   }
 
   @override
-  bool shouldRepaint(_FeltBasePainter old) => old.theme.id != theme.id;
+  bool shouldRepaint(_FeltBasePainter old) =>
+      old.theme.id != theme.id || old.sigil != sigil;
 }
 
 /// §35 — the living light. One wash per suit, each with its own character.

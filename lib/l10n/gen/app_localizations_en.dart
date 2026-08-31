@@ -407,6 +407,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dealerBadge => 'DEALER';
 
   @override
+  String get deckTaglineIncisoOro => 'The house engraving, finished in gold.';
+
+  @override
+  String get deckTaglineNapoletane => 'The authentic Neapolitan cards.';
+
+  @override
   String get defaultDifficulty => 'Default difficulty';
 
   @override
@@ -491,6 +497,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgotTitle => 'Reset your password';
+
+  @override
+  String get gadgetTaglineSigillo => 'A golden seal pressed into the felt.';
 
   @override
   String get gotIt => 'Got it';
@@ -609,6 +618,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leaderboardYourRank => 'Your rank';
+
+  @override
+  String legalLastUpdated(String date) {
+    return 'Last updated: $date';
+  }
 
   @override
   String get lobbyAway => 'Away';
@@ -1000,13 +1014,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playersCount => 'Players';
 
   @override
-  String get premiumActive => 'Premium active';
-
-  @override
-  String get premiumActiveBody =>
-      'Thank you! The purchase is tied to this account and to your device’s store.';
-
-  @override
   String premiumBuyFor(String price) {
     return 'Buy · $price';
   }
@@ -1055,18 +1062,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumSuccess => 'Purchase complete. Thank you!';
 
   @override
-  String get premiumTitle => 'Premium';
-
-  @override
   String get premiumVerificationUnavailable =>
       'Purchase verification is not live yet. No payment is lost: please try again later.';
 
   @override
-  String get premiumVerifying => 'Verifying the purchase…';
-
-  @override
   String get premiumVerifyFailed =>
       'The purchase could not be verified right now. It is not lost: please try again.';
+
+  @override
+  String get premiumVerifying => 'Verifying the purchase…';
 
   @override
   String get profile => 'Profile';
@@ -1317,9 +1321,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageItalian => 'Italian';
 
   @override
-  String get settingsLinkPending => 'The link becomes available at release.';
-
-  @override
   String get settingsLogout => 'Sign out';
 
   @override
@@ -1345,6 +1346,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupResetRules => 'Reset rules';
+
+  @override
+  String get shopFootnote =>
+      'One-time, permanent, cosmetic-only purchases. The full game stays free. Prices are managed by your device’s store.';
+
+  @override
+  String get shopInUse => 'In use';
+
+  @override
+  String get shopIntro =>
+      'Optional cosmetics. No gameplay advantage: tables, deck, back and ornaments are beauty only.';
+
+  @override
+  String get shopItemCardBackGold => 'Gold Card Back';
+
+  @override
+  String get shopItemCardBackGoldBody =>
+      'A struck-gold back for your cards. The faces stay the authentic Neapolitan ones.';
+
+  @override
+  String get shopItemDeckSpecial => 'Special Deck';
+
+  @override
+  String get shopItemDeckSpecialBody =>
+      'The house engraved deck, finished in gold. The classic Neapolitan deck always stays available.';
+
+  @override
+  String get shopItemGadget => '101 Seal';
+
+  @override
+  String get shopItemGadgetBody =>
+      'A gilded laurel seal pressed into the table felt.';
+
+  @override
+  String get shopItemTableClassic => 'Classic Table';
+
+  @override
+  String get shopItemTableClassicBody =>
+      'The old circolo: green baize on dark walnut.';
+
+  @override
+  String get shopItemTableGold => 'Gold Table';
+
+  @override
+  String get shopItemTableGoldBody =>
+      'A grand-salon table: struck-gold felt under warm light.';
+
+  @override
+  String get shopItemUnavailable =>
+      'Not available in the store yet. Try again later.';
+
+  @override
+  String get shopOwned => 'Unlocked';
+
+  @override
+  String get shopRemove => 'Remove';
+
+  @override
+  String get shopTitle => 'Shop';
+
+  @override
+  String get shopUse => 'Use';
 
   @override
   String get showPassword => 'Show password';
@@ -1438,10 +1501,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tableRules => 'Rules';
 
   @override
+  String get tableTaglineClassico => 'Green baize, dark walnut, quiet.';
+
+  @override
   String get tableTaglineMaiolica => 'Mediterranean ceramic, cobalt and sun';
 
   @override
   String get tableTaglineNapoli => 'Antique gold over the sleeping gulf';
+
+  @override
+  String get tableTaglineOro => 'Struck gold under chandelier light.';
 
   @override
   String get tableTaglineVesuvio => 'Warm ash and terracotta glow';

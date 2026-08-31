@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../constants/app_spacing.dart';
 import '../../../features/game/domain/game_card.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/deck_styles.dart';
 import 'card_face_painter.dart';
 
 /// The printed face of one card: the traditional Carte Napoletane artwork
@@ -66,8 +67,47 @@ class CardFaceImage extends StatelessWidget {
     ),
   );
 
+  /// §shop — "Mazzo Inciso Oro" (`deck.special`): the app's own engraved
+  /// vector deck, finished warm gold. It reuses [CardFacePainter] — original
+  /// in-house art, already shipped as the fallback — so the paid style adds
+  /// no bitmap, no asset and no new decode to the image cache at all. The
+  /// default printed Napoletane deck below is untouched and stays free.
+  Widget _gilded() {
+    final radius = BorderRadius.circular(width * AppRadii.cardCornerRatio);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColorFiltered(
+          // A warm gold cast: lifts red, holds green, dims blue. Gentle
+          // enough that every suit stays instantly recognisable.
+          colorFilter: const ColorFilter.matrix(<double>[
+            1.06, 0.04, 0, 0, 8, //
+            0.03, 0.98, 0, 0, 2, //
+            0, 0.02, 0.84, 0, -6, //
+            0, 0, 0, 1, 0,
+          ]),
+          child: _fallback(),
+        ),
+        // The gilt frame that marks the special finish.
+        IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              border: Border.all(
+                color: AppColors.goldDeep.withValues(alpha: 0.55),
+                width: 1.2,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (CardStyle.gilded) return _gilded();
+
     final ratio = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
     final cacheWidth = decodeWidth(width, ratio);
 

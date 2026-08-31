@@ -11,6 +11,7 @@ class CardBackDesign {
     required this.ink,
     required this.medallion,
     required this.unlockAchievementId,
+    this.entitlementId,
   });
 
   final String id;
@@ -25,6 +26,10 @@ class CardBackDesign {
   final Color medallion;
 
   final String? unlockAchievementId;
+
+  /// Server entitlement that unlocks this back (a paid cosmetic), or null
+  /// for free/achievement backs. The card FACES never change with a back.
+  final String? entitlementId;
 }
 
 class CardBacks {
@@ -70,7 +75,28 @@ class CardBacks {
     unlockAchievementId: 'sfida_giorno',
   );
 
-  static const List<CardBackDesign> all = [oro, cobalto, brace, notturno];
+  /// Shop cosmetic — `gioco101_cardback_gold`. A back of solid struck gold:
+  /// gilded ground, deep-ink line work, ivory medallion. Unlocked by the
+  /// `cardback.gold` entitlement (server-verified purchase). Backs only —
+  /// the card faces are untouched.
+  static const CardBackDesign oroReale = CardBackDesign(
+    id: 'oro_reale',
+    name: 'Dorso Oro',
+    baseTop: Color(0xFFB8902F),
+    baseBottom: Color(0xFF6E4F12),
+    ink: Color(0xFF2C1F08),
+    medallion: Color(0xFFFFF3D0),
+    unlockAchievementId: null,
+    entitlementId: 'cardback.gold',
+  );
+
+  static const List<CardBackDesign> all = [
+    oro,
+    cobalto,
+    brace,
+    notturno,
+    oroReale,
+  ];
 
   static CardBackDesign byId(String id) =>
       all.firstWhere((b) => b.id == id, orElse: () => oro);

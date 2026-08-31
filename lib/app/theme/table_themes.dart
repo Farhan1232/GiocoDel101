@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../localization/app_strings.dart';
 
-/// §33 — the three table dressings. A theme changes the felt, the ambient
+/// §33 — the table dressings. A theme changes the felt, the ambient
 /// accent, the button tint, the particle colour and the card-back variation.
 /// It never changes how readable a card face is.
 class TableTheme {
@@ -21,6 +21,7 @@ class TableTheme {
     required this.cardBackId,
     required this.isLight,
     required this.unlockAchievementId,
+    this.entitlementId,
   });
 
   final String id;
@@ -30,6 +31,8 @@ class TableTheme {
   String get tagline => switch (id) {
     'maiolica' => Strings.s.tableTaglineMaiolica,
     'vesuvio' => Strings.s.tableTaglineVesuvio,
+    'tavolo_oro' => Strings.s.tableTaglineOro,
+    'tavolo_classico' => Strings.s.tableTaglineClassico,
     _ => Strings.s.tableTaglineNapoli,
   };
 
@@ -56,6 +59,10 @@ class TableTheme {
 
   /// null for the theme that is available from the first launch.
   final String? unlockAchievementId;
+
+  /// Server entitlement that unlocks this theme (a paid cosmetic —
+  /// docs/IAP_ARCHITECTURE.md), or null for free/achievement themes.
+  final String? entitlementId;
 
   Color get onFelt =>
       isLight ? const Color(0xFF25324A) : const Color(0xFFF3E9D8);
@@ -121,7 +128,55 @@ class TableThemes {
     unlockAchievementId: 'catena',
   );
 
-  static const List<TableTheme> all = [napoliNotte, maiolica, vesuvio];
+  /// Shop cosmetic — `gioco101_table_gold`. Champagne-and-bronze opulence:
+  /// a struck-gold felt under warm light. Unlocked by the `table.gold`
+  /// entitlement (server-verified purchase), never by an achievement.
+  static const TableTheme tavoloOro = TableTheme(
+    id: 'tavolo_oro',
+    name: 'Tavolo Oro',
+    backdropTop: Color(0xFF1A1207),
+    backdropBottom: Color(0xFF241505),
+    feltInner: Color(0xFF8A6B25),
+    feltOuter: Color(0xFF4A350F),
+    feltRim: Color(0xFFF2CF7A),
+    accent: Color(0xFFF2CF7A),
+    accentSoft: Color(0xFFD9A441),
+    particle: Color(0xFFFFE9B3),
+    pattern: TablePattern.bokeh,
+    cardBackId: 'oro_reale',
+    isLight: false,
+    unlockAchievementId: null,
+    entitlementId: 'table.gold',
+  );
+
+  /// Shop cosmetic — `gioco101_table_classic`. The traditional circolo:
+  /// deep green baize on dark walnut, nothing else. Unlocked by the
+  /// `table.classic` entitlement.
+  static const TableTheme tavoloClassico = TableTheme(
+    id: 'tavolo_classico',
+    name: 'Tavolo Classico',
+    backdropTop: Color(0xFF221510),
+    backdropBottom: Color(0xFF160D09),
+    feltInner: Color(0xFF1F6B43),
+    feltOuter: Color(0xFF0D3A22),
+    feltRim: Color(0xFFB08D57),
+    accent: Color(0xFFC9A25E),
+    accentSoft: Color(0xFF2AA89B),
+    particle: Color(0xFFDCC69A),
+    pattern: TablePattern.bokeh,
+    cardBackId: 'oro',
+    isLight: false,
+    unlockAchievementId: null,
+    entitlementId: 'table.classic',
+  );
+
+  static const List<TableTheme> all = [
+    napoliNotte,
+    maiolica,
+    vesuvio,
+    tavoloOro,
+    tavoloClassico,
+  ];
 
   static TableTheme byId(String id) =>
       all.firstWhere((t) => t.id == id, orElse: () => napoliNotte);

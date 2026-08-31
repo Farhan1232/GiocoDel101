@@ -190,6 +190,8 @@
   "@dealerBadge": {
     "description": "Badge on the seat that dealt the current round (§12a)."
   },
+  "deckTaglineIncisoOro": "L’incisione della casa, rifinita in oro.",
+  "deckTaglineNapoletane": "Le autentiche carte napoletane.",
   "defaultDifficulty": "Difficoltà predefinita",
   "difficulty": "Difficoltà",
   "difficultyEasy": "Facile",
@@ -231,6 +233,7 @@
   },
   "forgotSentTitle": "Email inviata",
   "forgotTitle": "Recupera la password",
+  "gadgetTaglineSigillo": "Un sigillo dorato impresso nel panno.",
   "gotIt": "Ho capito",
   "haptics": "Vibrazione",
   "hidePassword": "Nascondi la password",
@@ -289,6 +292,14 @@
   "leaderboardTitle": "Classifica",
   "leaderboardWeekly": "Settimanale",
   "leaderboardYourRank": "La tua posizione",
+  "legalLastUpdated": "Ultimo aggiornamento: {date}",
+  "@legalLastUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "lobbyAway": "Assente",
   "lobbyCopied": "Codice copiato",
   "lobbyEmptySlot": "In attesa di un giocatore",
@@ -518,8 +529,6 @@
   "play": "GIOCA",
   "playerName": "Il tuo nome",
   "playersCount": "Giocatori",
-  "premiumActive": "Premium attivo",
-  "premiumActiveBody": "Grazie! L’acquisto è legato a questo account e allo store del tuo dispositivo.",
   "premiumBuyFor": "Acquista · {price}",
   "@premiumBuyFor": {
     "placeholders": {
@@ -540,10 +549,9 @@
   "premiumSignInRequired": "Accedi con un account per completare l’acquisto.",
   "premiumStoreUnavailable": "Lo store non è disponibile su questo dispositivo.",
   "premiumSuccess": "Acquisto completato. Grazie!",
-  "premiumTitle": "Premium",
   "premiumVerificationUnavailable": "La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.",
-  "premiumVerifying": "Verifica dell’acquisto…",
   "premiumVerifyFailed": "Impossibile verificare l’acquisto in questo momento. L’acquisto non va perso: riprova.",
+  "premiumVerifying": "Verifica dell’acquisto…",
   "profile": "Profilo",
   "profileBestStreak": "Serie migliore",
   "profileEdit": "Modifica profilo",
@@ -654,7 +662,6 @@
   "settingsLanguage": "Lingua",
   "settingsLanguageEnglish": "Inglese",
   "settingsLanguageItalian": "Italiano",
-  "settingsLinkPending": "Il link sarà disponibile alla pubblicazione.",
   "settingsLogout": "Esci dall’account",
   "settingsLogoutBody": "Uscirai dall’account su questo dispositivo. I progressi salvati sull’account restano.",
   "settingsLogoutGuest": "Esci (account ospite)",
@@ -670,6 +677,24 @@
     }
   },
   "setupResetRules": "Ripristina regole",
+  "shopFootnote": "Acquisti una tantum, permanenti e solo estetici. Il gioco completo resta gratuito. I prezzi sono gestiti dallo store del dispositivo.",
+  "shopInUse": "In uso",
+  "shopIntro": "Contenuti estetici opzionali. Nessun vantaggio di gioco: tavoli, mazzo, dorso e ornamenti sono solo bellezza.",
+  "shopItemCardBackGold": "Dorso Oro",
+  "shopItemCardBackGoldBody": "Un dorso in oro zecchino per le tue carte. Le figure restano le autentiche napoletane.",
+  "shopItemDeckSpecial": "Mazzo Speciale",
+  "shopItemDeckSpecialBody": "Il mazzo inciso della casa, rifinito in oro. Il mazzo napoletano classico resta sempre disponibile.",
+  "shopItemGadget": "Sigillo del 101",
+  "shopItemGadgetBody": "Un sigillo d’alloro dorato impresso nel panno del tavolo.",
+  "shopItemTableClassic": "Tavolo Classico",
+  "shopItemTableClassicBody": "Il circolo di una volta: panno verde su noce scuro.",
+  "shopItemTableGold": "Tavolo Oro",
+  "shopItemTableGoldBody": "Un tavolo da gran salone: panno d’oro battuto sotto luce calda.",
+  "shopItemUnavailable": "Non ancora disponibile nello store. Riprova più tardi.",
+  "shopOwned": "Sbloccato",
+  "shopRemove": "Rimuovi",
+  "shopTitle": "Negozio",
+  "shopUse": "Usa",
   "showPassword": "Mostra la password",
   "signupCta": "REGISTRATI",
   "signupHaveAccount": "Hai già un account?",
@@ -700,8 +725,10 @@
   "suitDenari": "Denari",
   "suitSpade": "Spade",
   "tableRules": "Regole",
+  "tableTaglineClassico": "Panno verde, noce scuro, silenzio.",
   "tableTaglineMaiolica": "Ceramica mediterranea, cobalto e sole",
   "tableTaglineNapoli": "Oro antico sul golfo che dorme",
+  "tableTaglineOro": "Oro battuto sotto luce di lampadario.",
   "tableTaglineVesuvio": "Cenere calda e bagliori di terracotta",
   "tableTheme": "Tavolo",
   "takePenalty": "Prendi",

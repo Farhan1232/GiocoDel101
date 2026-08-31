@@ -7,19 +7,33 @@ verifies it with Google/Apple and grants the entitlement with the service
 role. A modified APK can *ask*, it cannot *grant* — the same trust model as
 the online match (docs/SECURITY.md).
 
-## Provisional business model
+## Final business model (Session 8, 2026-09-01)
 
-The brief said only "integration of the purchase system" — no product, no
-price, no subscription period. What is built: a single **one-time
-(non-consumable) "Premium" unlock**, product id configurable
-(`PurchaseConfig`, default placeholder `gioco101_premium`). The schema and
-the verifiers already carry `expires_at` and environment, so a subscription
-is a data/config change, not a schema change. **Open decisions for the
-client** (docs/IAP_STORE_SETUP.md): real product ids, price points,
-one-time vs subscription, and **what premium actually unlocks** — no
-existing feature was put behind a paywall; the entitlement is plumbed,
-displayed on the Premium screen, and readable anywhere via
-`Get.find<PurchaseController>().isPremium`.
+The client chose **optional cosmetic one-time purchases** — no
+subscription, no consumable currency, no pay-to-win. Five products
+(`ShopCatalog`, canonical ids in docs/FINAL_IAP_PRODUCT_IDS.md), each a
+**permanent non-consumable** granting one independent server entitlement:
+
+| Product | Entitlement | Unlocks |
+|---|---|---|
+| `gioco101_table_gold` | `table.gold` | "Tavolo Oro" table theme |
+| `gioco101_table_classic` | `table.classic` | "Tavolo Classico" table theme |
+| `gioco101_deck_special` | `deck.special` | "Mazzo Inciso Oro" card-face finish (the app's own engraved vector deck, gilded; the free Napoletane deck is never replaced) |
+| `gioco101_cardback_gold` | `cardback.gold` | "Oro Reale" card back (backs only, faces untouched) |
+| `gioco101_gadget_01` | `gadget.01` | "Sigillo del 101" felt ornament |
+
+There is **no global premium flag**: a player may own none, one, several
+or all five (`PurchaseController.owns('table.gold')` etc.). The session-7
+placeholder `gioco101_premium` is retired and refused by the server. The
+default game — every rule and mode, online and offline — stays free; the
+paid items are gated in `SettingsController` selection only
+(`entitlementCheck` → `PurchaseController.owns`, wired in
+`InitialBinding`), and a revoked entitlement drops the app back to the
+free defaults. **No price is ever hard-coded**: the shop shows
+`ProductDetails.price` (the store's localized string) or an honest
+"unavailable" line; the client re-prices in the consoles with no app
+update. The schema still carries `expires_at`, so a future subscription
+remains a data change, not a schema change.
 
 ## The pieces
 
@@ -29,9 +43,9 @@ displayed on the Premium screen, and readable anywhere via
 |---|---|
 | `PurchaseStore` (application/purchase_store.dart) | The seam over the official `in_app_purchase` plugin (flutter.dev, v3.3.0). `InAppPurchaseStore` on Android/iOS; `UnavailablePurchaseStore` on web/desktop/tests — nothing else ever touches `InAppPurchase.instance`. |
 | `PurchaseController` (application/purchase_controller.dart) | Registered **permanent** at boot (`InitialBinding`), so the purchase stream has exactly one subscriber for the app's life — a pending payment can clear, or an unfinished transaction be redelivered, while any screen is up. Owns the whole flow: load → buy/restore → verify → complete → entitlement. One `PurchasePhase` at a time; every async path settles. |
-| `EntitlementRepository` (application/entitlement_repository.dart) | Reads the player's own `user_entitlements` row (RLS-scoped select); sends purchases to the `verify-purchase` Edge Function. `NoBackend` variant for the offline build. |
-| `PremiumScreen` (presentation/premium_screen.dart) | Route `/premium`, reached from Settings. Title/description/**price** come from `ProductDetails` — no hard-coded price anywhere. Buttons: buy, "Ripristina acquisti". Italian primary copy, English localized. |
-| `PurchaseConfig` (domain/purchase_config.dart) | Product ids, overridable with `--dart-define=PREMIUM_PRODUCT_ID_ANDROID/IOS`. |
+| `EntitlementRepository` (application/entitlement_repository.dart) | Reads the player's own `user_entitlements` rows (RLS-scoped select, one per owned item); sends purchases to the `verify-purchase` Edge Function. `NoBackend` variant for the offline build. |
+| `ShopScreen` (presentation/shop_screen.dart) | Route `/shop` ("Negozio"), reached from Settings. Five item cards: preview, name, description, **store-returned price**, buy / "Sbloccato" + select. "Ripristina acquisti" and the legal links at the bottom. Italian primary copy, English localized. |
+| `ShopCatalog` (domain/shop_catalog.dart) | The five canonical products: id ↔ entitlement ↔ cosmetic. Fixed by contract with the consoles — not build-time configurable. |
 
 ### Purchase flow
 
@@ -72,9 +86,22 @@ acquisto da ripristinare" when there is nothing).
     `EXECUTE` revoked from everyone but `service_role`. Grant is idempotent
     per store transaction; a transaction already recorded for another
     account answers `transaction_owned_elsewhere`.
-- **Edge Function `verify-purchase`** (v1 on GiocoDel101-Dev,
-  `verify_jwt: true`): authenticate → validate shape → product allow-list
-  (`PREMIUM_PRODUCT_IDS` env) → store verification → grant → reply.
+- **Migration 13** `20260831201759_cosmetic_entitlements.sql`:
+  `srv_grant_entitlement` now takes the **entitlement key** (derived
+  server-side from the product map — a client names a product, never an
+  entitlement); `srv_revoke_entitlement` can revoke one entitlement or the
+  whole account; the `'premium'` column default is dropped. The Session 8
+  attack drill re-ran live on dev (2026-09-01): client INSERT/UPDATE
+  refused (42501), `srv_*` refused for `authenticated`, same-user replay
+  idempotent, cross-user replay `transaction_owned_elsewhere`, second
+  entitlement coexists, scoped revoke touches only its row, RLS shows 0
+  foreign rows / exactly the owner's own; drill rows cleaned up; advisors
+  show nothing new.
+- **Edge Function `verify-purchase`** (v2 on GiocoDel101-Dev,
+  `verify_jwt: true`): authenticate → validate shape → **five-product
+  allow-list + entitlement map** (`PRODUCT_ENTITLEMENTS` in verify.ts —
+  code, not env; `PREMIUM_PRODUCT_IDS` is no longer read) → store
+  verification → grant → reply.
   - **Android**: Google Play Developer API
     (`purchases.products.get`), service-account JWT signed in-function
     (WebCrypto RS256). Needs `GOOGLE_SERVICE_ACCOUNT_JSON` +

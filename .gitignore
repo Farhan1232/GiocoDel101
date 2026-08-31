@@ -61,3 +61,6 @@ supabase/.env.*
 *.jks
 *.keystore
 **/key.properties
+
+# Client delivery packages (binaries + ZIPs are handed over, never committed)
+delivery/

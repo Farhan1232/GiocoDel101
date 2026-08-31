@@ -824,6 +824,18 @@ abstract class AppLocalizations {
   /// **'MAZZIERE'**
   String get dealerBadge;
 
+  /// No description provided for @deckTaglineIncisoOro.
+  ///
+  /// In it, this message translates to:
+  /// **'L’incisione della casa, rifinita in oro.'**
+  String get deckTaglineIncisoOro;
+
+  /// No description provided for @deckTaglineNapoletane.
+  ///
+  /// In it, this message translates to:
+  /// **'Le autentiche carte napoletane.'**
+  String get deckTaglineNapoletane;
+
   /// No description provided for @defaultDifficulty.
   ///
   /// In it, this message translates to:
@@ -985,6 +997,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Recupera la password'**
   String get forgotTitle;
+
+  /// No description provided for @gadgetTaglineSigillo.
+  ///
+  /// In it, this message translates to:
+  /// **'Un sigillo dorato impresso nel panno.'**
+  String get gadgetTaglineSigillo;
 
   /// No description provided for @gotIt.
   ///
@@ -1213,6 +1231,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'La tua posizione'**
   String get leaderboardYourRank;
+
+  /// No description provided for @legalLastUpdated.
+  ///
+  /// In it, this message translates to:
+  /// **'Ultimo aggiornamento: {date}'**
+  String legalLastUpdated(String date);
 
   /// No description provided for @lobbyAway.
   ///
@@ -1820,18 +1844,6 @@ abstract class AppLocalizations {
   /// **'Giocatori'**
   String get playersCount;
 
-  /// No description provided for @premiumActive.
-  ///
-  /// In it, this message translates to:
-  /// **'Premium attivo'**
-  String get premiumActive;
-
-  /// No description provided for @premiumActiveBody.
-  ///
-  /// In it, this message translates to:
-  /// **'Grazie! L’acquisto è legato a questo account e allo store del tuo dispositivo.'**
-  String get premiumActiveBody;
-
   /// No description provided for @premiumBuyFor.
   ///
   /// In it, this message translates to:
@@ -1910,29 +1922,23 @@ abstract class AppLocalizations {
   /// **'Acquisto completato. Grazie!'**
   String get premiumSuccess;
 
-  /// No description provided for @premiumTitle.
-  ///
-  /// In it, this message translates to:
-  /// **'Premium'**
-  String get premiumTitle;
-
   /// No description provided for @premiumVerificationUnavailable.
   ///
   /// In it, this message translates to:
   /// **'La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.'**
   String get premiumVerificationUnavailable;
 
-  /// No description provided for @premiumVerifying.
-  ///
-  /// In it, this message translates to:
-  /// **'Verifica dell’acquisto…'**
-  String get premiumVerifying;
-
   /// No description provided for @premiumVerifyFailed.
   ///
   /// In it, this message translates to:
   /// **'Impossibile verificare l’acquisto in questo momento. L’acquisto non va perso: riprova.'**
   String get premiumVerifyFailed;
+
+  /// No description provided for @premiumVerifying.
+  ///
+  /// In it, this message translates to:
+  /// **'Verifica dell’acquisto…'**
+  String get premiumVerifying;
 
   /// No description provided for @profile.
   ///
@@ -2408,12 +2414,6 @@ abstract class AppLocalizations {
   /// **'Italiano'**
   String get settingsLanguageItalian;
 
-  /// No description provided for @settingsLinkPending.
-  ///
-  /// In it, this message translates to:
-  /// **'Il link sarà disponibile alla pubblicazione.'**
-  String get settingsLinkPending;
-
   /// No description provided for @settingsLogout.
   ///
   /// In it, this message translates to:
@@ -2461,6 +2461,114 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Ripristina regole'**
   String get setupResetRules;
+
+  /// No description provided for @shopFootnote.
+  ///
+  /// In it, this message translates to:
+  /// **'Acquisti una tantum, permanenti e solo estetici. Il gioco completo resta gratuito. I prezzi sono gestiti dallo store del dispositivo.'**
+  String get shopFootnote;
+
+  /// No description provided for @shopInUse.
+  ///
+  /// In it, this message translates to:
+  /// **'In uso'**
+  String get shopInUse;
+
+  /// No description provided for @shopIntro.
+  ///
+  /// In it, this message translates to:
+  /// **'Contenuti estetici opzionali. Nessun vantaggio di gioco: tavoli, mazzo, dorso e ornamenti sono solo bellezza.'**
+  String get shopIntro;
+
+  /// No description provided for @shopItemCardBackGold.
+  ///
+  /// In it, this message translates to:
+  /// **'Dorso Oro'**
+  String get shopItemCardBackGold;
+
+  /// No description provided for @shopItemCardBackGoldBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Un dorso in oro zecchino per le tue carte. Le figure restano le autentiche napoletane.'**
+  String get shopItemCardBackGoldBody;
+
+  /// No description provided for @shopItemDeckSpecial.
+  ///
+  /// In it, this message translates to:
+  /// **'Mazzo Speciale'**
+  String get shopItemDeckSpecial;
+
+  /// No description provided for @shopItemDeckSpecialBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Il mazzo inciso della casa, rifinito in oro. Il mazzo napoletano classico resta sempre disponibile.'**
+  String get shopItemDeckSpecialBody;
+
+  /// No description provided for @shopItemGadget.
+  ///
+  /// In it, this message translates to:
+  /// **'Sigillo del 101'**
+  String get shopItemGadget;
+
+  /// No description provided for @shopItemGadgetBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Un sigillo d’alloro dorato impresso nel panno del tavolo.'**
+  String get shopItemGadgetBody;
+
+  /// No description provided for @shopItemTableClassic.
+  ///
+  /// In it, this message translates to:
+  /// **'Tavolo Classico'**
+  String get shopItemTableClassic;
+
+  /// No description provided for @shopItemTableClassicBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Il circolo di una volta: panno verde su noce scuro.'**
+  String get shopItemTableClassicBody;
+
+  /// No description provided for @shopItemTableGold.
+  ///
+  /// In it, this message translates to:
+  /// **'Tavolo Oro'**
+  String get shopItemTableGold;
+
+  /// No description provided for @shopItemTableGoldBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Un tavolo da gran salone: panno d’oro battuto sotto luce calda.'**
+  String get shopItemTableGoldBody;
+
+  /// No description provided for @shopItemUnavailable.
+  ///
+  /// In it, this message translates to:
+  /// **'Non ancora disponibile nello store. Riprova più tardi.'**
+  String get shopItemUnavailable;
+
+  /// No description provided for @shopOwned.
+  ///
+  /// In it, this message translates to:
+  /// **'Sbloccato'**
+  String get shopOwned;
+
+  /// No description provided for @shopRemove.
+  ///
+  /// In it, this message translates to:
+  /// **'Rimuovi'**
+  String get shopRemove;
+
+  /// No description provided for @shopTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Negozio'**
+  String get shopTitle;
+
+  /// No description provided for @shopUse.
+  ///
+  /// In it, this message translates to:
+  /// **'Usa'**
+  String get shopUse;
 
   /// No description provided for @showPassword.
   ///
@@ -2642,6 +2750,12 @@ abstract class AppLocalizations {
   /// **'Regole'**
   String get tableRules;
 
+  /// No description provided for @tableTaglineClassico.
+  ///
+  /// In it, this message translates to:
+  /// **'Panno verde, noce scuro, silenzio.'**
+  String get tableTaglineClassico;
+
   /// No description provided for @tableTaglineMaiolica.
   ///
   /// In it, this message translates to:
@@ -2653,6 +2767,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Oro antico sul golfo che dorme'**
   String get tableTaglineNapoli;
+
+  /// No description provided for @tableTaglineOro.
+  ///
+  /// In it, this message translates to:
+  /// **'Oro battuto sotto luce di lampadario.'**
+  String get tableTaglineOro;
 
   /// No description provided for @tableTaglineVesuvio.
   ///

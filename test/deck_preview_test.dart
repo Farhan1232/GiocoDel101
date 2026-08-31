@@ -114,7 +114,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.byType(PlayingCard), findsNWidgets(45));
+    // 40 faces + one back per CardBacks design + the enlarged sample.
+    expect(find.byType(PlayingCard), findsNWidgets(41 + CardBacks.all.length));
 
     if (Platform.environment['RENDER_PREVIEWS'] == '1') {
       final boundary =

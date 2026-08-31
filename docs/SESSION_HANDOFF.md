@@ -1,7 +1,76 @@
-# Session Handoff — Session 7 → store publishing
+# Session Handoff — Session 8 → store consoles
 
-Date: 2026-08-31 (Session 7), on top of everything below. Branch:
+Date: 2026-09-01 (Session 8), on top of everything below. Branch:
 `feature/session-1-ui-foundation` (continued).
+
+---
+
+## 0y. Session 8 — five cosmetic products, legal screens, delivery. READ FIRST.
+
+The finalization session. The client's business model is settled: **five
+optional COSMETIC one-time purchases**, no subscription, no pay-to-win, the
+full game stays free. Everything delivered:
+
+1. **Five products** (`ShopCatalog`, docs/FINAL_IAP_PRODUCT_IDS.md):
+   `gioco101_table_gold`→`table.gold`, `gioco101_table_classic`→
+   `table.classic`, `gioco101_deck_special`→`deck.special`,
+   `gioco101_cardback_gold`→`cardback.gold`, `gioco101_gadget_01`→
+   `gadget.01`. All **permanent non-consumables**, one independent
+   entitlement each — `isPremium` is gone, `PurchaseController.owns(key)`
+   is the question. The placeholder `gioco101_premium` is retired
+   everywhere and refused by the server.
+2. **Real cosmetics**: two new `TableTheme`s (Tavolo Oro, Tavolo
+   Classico), the `oro_reale` gold card BACK, the "Mazzo Inciso Oro" deck
+   FINISH (the app's own engraved vector deck gilded via a color filter in
+   `CardFaceImage` — `CardStyle.deckStyleId`, pushed by
+   `SettingsController._apply` like Motion; the free Napoletane faces are
+   untouched), and the "Sigillo del 101" felt ornament (static layer in
+   `_FeltBasePainter`, zero per-frame cost). Selection lives in
+   `SettingsModel.deckStyleId/gadgetId`; paid gating is
+   `SettingsController.entitlementCheck` → `PurchaseController.owns`,
+   wired in `InitialBinding`; a revoked entitlement falls back to the free
+   defaults (guarded getters).
+3. **The Shop** (`/shop`, "Negozio", replaces `/premium`): five cards with
+   preview, store-metadata price ONLY (an absent product shows an honest
+   unavailable line — never an invented price), owned = "Sbloccato" +
+   Usa/In uso, "Ripristina acquisti", legal links.
+4. **Server**: migration 13 (`20260831201759_cosmetic_entitlements`, dev
+   13 = 13) — `srv_grant_entitlement(p_user, p_entitlement, …)`,
+   entitlement chosen by the FUNCTION from `PRODUCT_ENTITLEMENTS` in
+   verify.ts (code, not env; `PREMIUM_PRODUCT_IDS` no longer read);
+   scoped `srv_revoke_entitlement`; `'premium'` default dropped.
+   `verify-purchase` **v2** deployed to GiocoDel101-Dev. Attack drill
+   re-run live: client writes refused, `srv_*` refused, replay idempotent
+   same-user / refused cross-user, two entitlements coexist, scoped
+   revoke, RLS 0 foreign rows; drill rows cleaned; advisors unchanged.
+5. **Legal**: `TermsScreen` + `PrivacyScreen` (`/legal/terms`,
+   `/legal/privacy`), Italian + English, written for THIS app after
+   auditing what it does (no ads, no analytics — the policy says so).
+   Owner identity/contact/law are `LegalConfig` dart-defines rendering as
+   honest "to be designated" lines until provided. Hostable copies are
+   GENERATED from the same Dart text: `dart run
+   tool/generate_legal_html.dart` → `docs/legal/*.html`. Settings rows now
+   navigate (the "pending" dialogs are gone); the shop links them too.
+6. **Tests**: `test/session7_iap_test.dart` rewritten for the catalog
+   (per-product grant, no cross-grant, restore none/one/multiple/all,
+   duplicate callbacks, unknown product refused, listener stays 1 through
+   load/buy/restore cycles); `test/session8_shop_legal_test.dart` new
+   (entitlement gating, revoke fallback, CardStyle push, shop widget tests
+   proving the price string is the store's, legal screens IT/EN at 360px).
+   `deck_preview_test` count now derives from `CardBacks.all`.
+
+Numbers after Session 8: **737 Flutter tests**, **68 + 6 Deno tests**,
+`deno check` clean, bot simulation 270 matches / 72 488 actions /
+0 violations / 0 hangs, `flutter analyze` clean. ARB: premiumTitle/
+premiumActive*/settingsLinkPending removed, shop*/legal* keys added, both
+files sorted, IT==EN allow-list updated.
+
+**Still external** (docs/IAP_STORE_SETUP.md is the client checklist): the
+five products in both consoles (~€4.99 each), Google service-account JSON +
+package name and Apple bundle id secrets on the function, upload keystore
+(`android/key.properties` — still debug-signed without it), owner legal
+details + hosted privacy URL, and real sandbox purchases on physical
+devices. **Do not report REAL IAP PASS until those exist.**
 
 ---
 

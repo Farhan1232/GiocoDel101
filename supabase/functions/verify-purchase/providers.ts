@@ -8,7 +8,9 @@
 //   ANDROID_PACKAGE_NAME         e.g. com.example.giocodel101
 //   APPLE_BUNDLE_ID              the iOS bundle id
 //   APPLE_SHARED_SECRET          App Store shared secret (subscriptions)
-//   PREMIUM_PRODUCT_IDS          comma-separated allow-list (optional)
+//
+// The product allow-list is code, not configuration: the five cosmetic ids
+// and their entitlements live in verify.ts (PRODUCT_ENTITLEMENTS).
 
 import type { StoreVerdict, VerifyRequest } from "./verify.ts";
 

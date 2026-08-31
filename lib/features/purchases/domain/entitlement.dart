@@ -1,17 +1,22 @@
 /// What the server says the player owns.
 ///
-/// The authoritative record lives in `public.user_entitlements`, written only
-/// by the `verify-purchase` Edge Function after a store-side verification
-/// (docs/IAP_ARCHITECTURE.md). The client can read its own row and nothing
-/// else; nothing in the app ever *decides* premium locally.
-class PremiumEntitlement {
-  const PremiumEntitlement({
+/// The authoritative record lives in `public.user_entitlements` — one row per
+/// owned item, keyed `(user_id, entitlement)` — written only by the
+/// `verify-purchase` Edge Function after a store-side verification
+/// (docs/IAP_ARCHITECTURE.md). The client can read its own rows and nothing
+/// else; nothing in the app ever *decides* ownership locally.
+class OwnedEntitlement {
+  const OwnedEntitlement({
+    required this.entitlement,
     required this.status,
     required this.productId,
     required this.platform,
     this.purchasedAt,
     this.expiresAt,
   });
+
+  /// The entitlement key, e.g. `table.gold` (ShopCatalog maps product ↔ key).
+  final String entitlement;
 
   final EntitlementStatus status;
   final String productId;
@@ -20,10 +25,12 @@ class PremiumEntitlement {
   final String platform;
   final DateTime? purchasedAt;
 
-  /// Null for a lifetime (non-consumable) product; set for subscriptions.
+  /// Null for a lifetime (non-consumable) product. All five shop cosmetics
+  /// are non-consumable, so this stays null for them; the column exists so a
+  /// future subscription would be a data change, not a schema change.
   final DateTime? expiresAt;
 
-  /// Whether the entitlement grants premium at [now]. A revoked or expired
+  /// Whether the entitlement grants its item at [now]. A revoked or expired
   /// row never does; an active row with an expiry only until that instant.
   bool isActiveAt(DateTime now) {
     if (status != EntitlementStatus.active) return false;
@@ -31,9 +38,10 @@ class PremiumEntitlement {
     return until == null || until.isAfter(now);
   }
 
-  static PremiumEntitlement? fromRow(Map<String, dynamic>? row) {
+  static OwnedEntitlement? fromRow(Map<String, dynamic>? row) {
     if (row == null) return null;
-    return PremiumEntitlement(
+    return OwnedEntitlement(
+      entitlement: row['entitlement'] as String? ?? '',
       status: EntitlementStatus.parse(row['status'] as String?),
       productId: row['product_id'] as String? ?? '',
       platform: row['platform'] as String? ?? '',

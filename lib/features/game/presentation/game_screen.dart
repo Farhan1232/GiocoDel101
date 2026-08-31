@@ -706,6 +706,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 theme: settings.theme,
                 activeSuit: c.state.activeSuit,
                 intensity: c.busy.value ? 0.75 : 1.0,
+                showSigil: settings.gadget != null,
               ),
             ),
             Positioned.fill(

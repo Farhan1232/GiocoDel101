@@ -155,6 +155,8 @@
   "@dealerBadge": {
     "description": "Badge on the seat that dealt the current round (§12a)."
   },
+  "deckTaglineIncisoOro": "The house engraving, finished in gold.",
+  "deckTaglineNapoletane": "The authentic Neapolitan cards.",
   "defaultDifficulty": "Default difficulty",
   "difficulty": "Difficulty",
   "difficultyEasy": "Easy",
@@ -189,6 +191,7 @@
   "forgotSentBody": "If an account exists for {email}, a reset link is on its way.",
   "forgotSentTitle": "Email sent",
   "forgotTitle": "Reset your password",
+  "gadgetTaglineSigillo": "A golden seal pressed into the felt.",
   "gotIt": "Got it",
   "haptics": "Vibration",
   "hidePassword": "Hide password",
@@ -227,6 +230,14 @@
   "leaderboardTitle": "Leaderboard",
   "leaderboardWeekly": "Weekly",
   "leaderboardYourRank": "Your rank",
+  "legalLastUpdated": "Last updated: {date}",
+  "@legalLastUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "lobbyAway": "Away",
   "lobbyCopied": "Code copied",
   "lobbyEmptySlot": "Waiting for a player",
@@ -432,8 +443,6 @@
   "play": "PLAY",
   "playerName": "Your name",
   "playersCount": "Players",
-  "premiumActive": "Premium active",
-  "premiumActiveBody": "Thank you! The purchase is tied to this account and to your device’s store.",
   "premiumBuyFor": "Buy · {price}",
   "@premiumBuyFor": {
     "placeholders": {
@@ -454,10 +463,9 @@
   "premiumSignInRequired": "Sign in with an account to complete the purchase.",
   "premiumStoreUnavailable": "The store is not available on this device.",
   "premiumSuccess": "Purchase complete. Thank you!",
-  "premiumTitle": "Premium",
   "premiumVerificationUnavailable": "Purchase verification is not live yet. No payment is lost: please try again later.",
-  "premiumVerifying": "Verifying the purchase…",
   "premiumVerifyFailed": "The purchase could not be verified right now. It is not lost: please try again.",
+  "premiumVerifying": "Verifying the purchase…",
   "profile": "Profile",
   "profileBestStreak": "Best streak",
   "profileEdit": "Edit profile",
@@ -551,7 +559,6 @@
   "settingsLanguage": "Language",
   "settingsLanguageEnglish": "English",
   "settingsLanguageItalian": "Italian",
-  "settingsLinkPending": "The link becomes available at release.",
   "settingsLogout": "Sign out",
   "settingsLogoutBody": "You will be signed out on this device. Progress saved to your account stays.",
   "settingsLogoutGuest": "Sign out (guest account)",
@@ -567,6 +574,24 @@
     }
   },
   "setupResetRules": "Reset rules",
+  "shopFootnote": "One-time, permanent, cosmetic-only purchases. The full game stays free. Prices are managed by your device’s store.",
+  "shopInUse": "In use",
+  "shopIntro": "Optional cosmetics. No gameplay advantage: tables, deck, back and ornaments are beauty only.",
+  "shopItemCardBackGold": "Gold Card Back",
+  "shopItemCardBackGoldBody": "A struck-gold back for your cards. The faces stay the authentic Neapolitan ones.",
+  "shopItemDeckSpecial": "Special Deck",
+  "shopItemDeckSpecialBody": "The house engraved deck, finished in gold. The classic Neapolitan deck always stays available.",
+  "shopItemGadget": "101 Seal",
+  "shopItemGadgetBody": "A gilded laurel seal pressed into the table felt.",
+  "shopItemTableClassic": "Classic Table",
+  "shopItemTableClassicBody": "The old circolo: green baize on dark walnut.",
+  "shopItemTableGold": "Gold Table",
+  "shopItemTableGoldBody": "A grand-salon table: struck-gold felt under warm light.",
+  "shopItemUnavailable": "Not available in the store yet. Try again later.",
+  "shopOwned": "Unlocked",
+  "shopRemove": "Remove",
+  "shopTitle": "Shop",
+  "shopUse": "Use",
   "showPassword": "Show password",
   "signupCta": "SIGN UP",
   "signupHaveAccount": "Already have an account?",
@@ -597,8 +622,10 @@
   "suitDenari": "Coins",
   "suitSpade": "Swords",
   "tableRules": "Rules",
+  "tableTaglineClassico": "Green baize, dark walnut, quiet.",
   "tableTaglineMaiolica": "Mediterranean ceramic, cobalt and sun",
   "tableTaglineNapoli": "Antique gold over the sleeping gulf",
+  "tableTaglineOro": "Struck gold under chandelier light.",
   "tableTaglineVesuvio": "Warm ash and terracotta glow",
   "tableTheme": "Table",
   "takePenalty": "Take",

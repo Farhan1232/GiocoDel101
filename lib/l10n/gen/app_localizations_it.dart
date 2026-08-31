@@ -410,6 +410,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dealerBadge => 'MAZZIERE';
 
   @override
+  String get deckTaglineIncisoOro => 'L’incisione della casa, rifinita in oro.';
+
+  @override
+  String get deckTaglineNapoletane => 'Le autentiche carte napoletane.';
+
+  @override
   String get defaultDifficulty => 'Difficoltà predefinita';
 
   @override
@@ -494,6 +500,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get forgotTitle => 'Recupera la password';
+
+  @override
+  String get gadgetTaglineSigillo => 'Un sigillo dorato impresso nel panno.';
 
   @override
   String get gotIt => 'Ho capito';
@@ -614,6 +623,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get leaderboardYourRank => 'La tua posizione';
+
+  @override
+  String legalLastUpdated(String date) {
+    return 'Ultimo aggiornamento: $date';
+  }
 
   @override
   String get lobbyAway => 'Assente';
@@ -1006,13 +1020,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get playersCount => 'Giocatori';
 
   @override
-  String get premiumActive => 'Premium attivo';
-
-  @override
-  String get premiumActiveBody =>
-      'Grazie! L’acquisto è legato a questo account e allo store del tuo dispositivo.';
-
-  @override
   String premiumBuyFor(String price) {
     return 'Acquista · $price';
   }
@@ -1060,18 +1067,15 @@ class AppLocalizationsIt extends AppLocalizations {
   String get premiumSuccess => 'Acquisto completato. Grazie!';
 
   @override
-  String get premiumTitle => 'Premium';
-
-  @override
   String get premiumVerificationUnavailable =>
       'La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.';
 
   @override
-  String get premiumVerifying => 'Verifica dell’acquisto…';
-
-  @override
   String get premiumVerifyFailed =>
       'Impossibile verificare l’acquisto in questo momento. L’acquisto non va perso: riprova.';
+
+  @override
+  String get premiumVerifying => 'Verifica dell’acquisto…';
 
   @override
   String get profile => 'Profilo';
@@ -1323,10 +1327,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsLanguageItalian => 'Italiano';
 
   @override
-  String get settingsLinkPending =>
-      'Il link sarà disponibile alla pubblicazione.';
-
-  @override
   String get settingsLogout => 'Esci dall’account';
 
   @override
@@ -1352,6 +1352,68 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get setupResetRules => 'Ripristina regole';
+
+  @override
+  String get shopFootnote =>
+      'Acquisti una tantum, permanenti e solo estetici. Il gioco completo resta gratuito. I prezzi sono gestiti dallo store del dispositivo.';
+
+  @override
+  String get shopInUse => 'In uso';
+
+  @override
+  String get shopIntro =>
+      'Contenuti estetici opzionali. Nessun vantaggio di gioco: tavoli, mazzo, dorso e ornamenti sono solo bellezza.';
+
+  @override
+  String get shopItemCardBackGold => 'Dorso Oro';
+
+  @override
+  String get shopItemCardBackGoldBody =>
+      'Un dorso in oro zecchino per le tue carte. Le figure restano le autentiche napoletane.';
+
+  @override
+  String get shopItemDeckSpecial => 'Mazzo Speciale';
+
+  @override
+  String get shopItemDeckSpecialBody =>
+      'Il mazzo inciso della casa, rifinito in oro. Il mazzo napoletano classico resta sempre disponibile.';
+
+  @override
+  String get shopItemGadget => 'Sigillo del 101';
+
+  @override
+  String get shopItemGadgetBody =>
+      'Un sigillo d’alloro dorato impresso nel panno del tavolo.';
+
+  @override
+  String get shopItemTableClassic => 'Tavolo Classico';
+
+  @override
+  String get shopItemTableClassicBody =>
+      'Il circolo di una volta: panno verde su noce scuro.';
+
+  @override
+  String get shopItemTableGold => 'Tavolo Oro';
+
+  @override
+  String get shopItemTableGoldBody =>
+      'Un tavolo da gran salone: panno d’oro battuto sotto luce calda.';
+
+  @override
+  String get shopItemUnavailable =>
+      'Non ancora disponibile nello store. Riprova più tardi.';
+
+  @override
+  String get shopOwned => 'Sbloccato';
+
+  @override
+  String get shopRemove => 'Rimuovi';
+
+  @override
+  String get shopTitle => 'Negozio';
+
+  @override
+  String get shopUse => 'Usa';
 
   @override
   String get showPassword => 'Mostra la password';
@@ -1445,10 +1507,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tableRules => 'Regole';
 
   @override
+  String get tableTaglineClassico => 'Panno verde, noce scuro, silenzio.';
+
+  @override
   String get tableTaglineMaiolica => 'Ceramica mediterranea, cobalto e sole';
 
   @override
   String get tableTaglineNapoli => 'Oro antico sul golfo che dorme';
+
+  @override
+  String get tableTaglineOro => 'Oro battuto sotto luce di lampadario.';
 
   @override
   String get tableTaglineVesuvio => 'Cenere calda e bagliori di terracotta';

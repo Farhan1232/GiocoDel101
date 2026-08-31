@@ -10,6 +10,8 @@ import '../../../core/services/audio_service.dart';
 import '../../../core/services/haptic_service.dart';
 import '../../../core/storage/settings_storage.dart';
 import '../../../app/theme/card_backs.dart';
+import '../../../app/theme/deck_styles.dart';
+import '../../../app/theme/table_gadgets.dart';
 import '../../../app/theme/table_themes.dart';
 
 /// Owns the player's preferences and keeps the services that depend on them
@@ -18,6 +20,12 @@ class SettingsController extends GetxController {
   SettingsController(this._storage);
 
   final SettingsStorage _storage;
+
+  /// Answers "does this account own that entitlement?" for the paid
+  /// cosmetics. Wired by InitialBinding to PurchaseController.owns — the
+  /// server's word, never local storage. Left null (everything paid stays
+  /// locked) in tests and builds without a purchase stack.
+  bool Function(String entitlement)? entitlementCheck;
 
   final Rx<SettingsModel> _settings = const SettingsModel().obs;
 
@@ -36,8 +44,26 @@ class SettingsController extends GetxController {
 
   bool get onboardingComplete => settings.onboardingComplete;
 
-  TableTheme get theme => TableThemes.byId(settings.themeId);
-  CardBackDesign get cardBack => CardBacks.byId(settings.cardBackId);
+  /// The active theme — falling back to the default if the selected one is
+  /// no longer unlocked (a revoked purchase, another account signing in).
+  TableTheme get theme => isThemeUnlocked(settings.themeId)
+      ? TableThemes.byId(settings.themeId)
+      : TableThemes.napoliNotte;
+
+  CardBackDesign get cardBack => isCardBackUnlocked(settings.cardBackId)
+      ? CardBacks.byId(settings.cardBackId)
+      : CardBacks.oro;
+
+  DeckStyle get deckStyle => isDeckStyleUnlocked(settings.deckStyleId)
+      ? DeckStyles.byId(settings.deckStyleId)
+      : DeckStyles.napoletane;
+
+  /// The active gadget, or null when none is selected or owned.
+  TableGadget? get gadget {
+    final g = TableGadgets.byId(settings.gadgetId);
+    if (g == null || !isGadgetUnlocked(g.id)) return null;
+    return g;
+  }
 
   @override
   void onInit() {
@@ -59,6 +85,9 @@ class SettingsController extends GetxController {
     // Rx dedupes, so this only notifies when the language actually changed.
     _localeCode.value = s.localeCode;
     Motion.speedFactor = s.animationSpeed.factor;
+    CardStyle.deckStyleId = isDeckStyleUnlocked(s.deckStyleId)
+        ? s.deckStyleId
+        : DeckStyles.napoletane.id;
     Motion.reduceMotion = s.reduceMotion;
     HapticService.instance.configure(enabled: s.hapticsEnabled);
     AudioService.instance.configure(
@@ -116,6 +145,17 @@ class SettingsController extends GetxController {
     await _update(settings.copyWith(cardBackId: id));
   }
 
+  Future<void> setDeckStyle(String id) async {
+    if (!isDeckStyleUnlocked(id)) return;
+    await _update(settings.copyWith(deckStyleId: id));
+  }
+
+  /// Selects a gadget, or clears it with ''.
+  Future<void> setGadget(String id) async {
+    if (id.isNotEmpty && !isGadgetUnlocked(id)) return;
+    await _update(settings.copyWith(gadgetId: id));
+  }
+
   Future<void> setDefaultDifficulty(BotDifficulty value) =>
       _update(settings.copyWith(defaultDifficulty: value));
 
@@ -138,13 +178,38 @@ class SettingsController extends GetxController {
   Future<void> completeOnboarding() =>
       _update(settings.copyWith(onboardingComplete: true));
 
-  bool isThemeUnlocked(String id) =>
-      TableThemes.byId(id).unlockAchievementId == null ||
-      settings.unlockedThemes.contains(id);
+  /// A paid cosmetic is unlocked by its server entitlement alone; a free
+  /// one by its achievement (or from the start). Ownership never comes from
+  /// local storage — [entitlementCheck] asks the purchase stack, which asks
+  /// the server.
+  bool _ownsEntitlement(String? entitlementId) =>
+      entitlementId == null || (entitlementCheck?.call(entitlementId) ?? false);
 
-  bool isCardBackUnlocked(String id) =>
-      CardBacks.byId(id).unlockAchievementId == null ||
-      settings.unlockedCardBacks.contains(id);
+  bool isThemeUnlocked(String id) {
+    final t = TableThemes.byId(id);
+    if (t.entitlementId != null) return _ownsEntitlement(t.entitlementId);
+    return t.unlockAchievementId == null ||
+        settings.unlockedThemes.contains(id);
+  }
+
+  bool isCardBackUnlocked(String id) {
+    final b = CardBacks.byId(id);
+    if (b.entitlementId != null) return _ownsEntitlement(b.entitlementId);
+    return b.unlockAchievementId == null ||
+        settings.unlockedCardBacks.contains(id);
+  }
+
+  bool isDeckStyleUnlocked(String id) =>
+      _ownsEntitlement(DeckStyles.byId(id).entitlementId);
+
+  bool isGadgetUnlocked(String id) {
+    final g = TableGadgets.byId(id);
+    return g != null && _ownsEntitlement(g.entitlementId);
+  }
+
+  /// Re-applies derived state (the deck style push) after the purchase
+  /// stack learns about new ownership.
+  void refreshCosmetics() => _apply();
 
   /// §33/§41 — called when an achievement is earned.
   Future<void> unlock({String? themeId, String? cardBackId}) async {

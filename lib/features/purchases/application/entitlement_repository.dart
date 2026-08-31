@@ -2,22 +2,24 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../domain/entitlement.dart';
 
-/// The server-held truth about premium.
+/// The server-held truth about owned cosmetics.
 ///
 /// Reads come straight off `public.user_entitlements` (RLS lets a player see
-/// only their own row). Writes NEVER happen from here: a purchase is sent to
-/// the `verify-purchase` Edge Function, which checks it with the store and
-/// grants the entitlement with the service role. A modified APK talking to
-/// this API can therefore ask, but not grant (docs/SECURITY.md).
+/// only their own rows — one per owned item). Writes NEVER happen from here:
+/// a purchase is sent to the `verify-purchase` Edge Function, which checks it
+/// with the store and grants the entitlement with the service role. A
+/// modified APK talking to this API can therefore ask, but not grant
+/// (docs/SECURITY.md).
 abstract class EntitlementRepository {
-  /// The player's entitlement, or null when they never bought anything.
-  Future<PremiumEntitlement?> status();
+  /// Every entitlement row the player has (any status); empty when they
+  /// never bought anything.
+  Future<List<OwnedEntitlement>> status();
 
   /// Hands one store purchase to the server for verification. Returns the
   /// resulting entitlement on success; throws [PurchaseException].
   /// Idempotent: re-sending the same store transaction re-answers the same
   /// grant instead of failing or granting twice.
-  Future<PremiumEntitlement> verify({
+  Future<OwnedEntitlement> verify({
     required String platform,
     required String productId,
     required String verificationData,
@@ -29,10 +31,10 @@ class NoBackendEntitlementRepository implements EntitlementRepository {
   const NoBackendEntitlementRepository();
 
   @override
-  Future<PremiumEntitlement?> status() async => null;
+  Future<List<OwnedEntitlement>> status() async => const [];
 
   @override
-  Future<PremiumEntitlement> verify({
+  Future<OwnedEntitlement> verify({
     required String platform,
     required String productId,
     required String verificationData,
@@ -47,21 +49,18 @@ class SupabaseEntitlementRepository implements EntitlementRepository {
   final sb.SupabaseClient _client;
 
   @override
-  Future<PremiumEntitlement?> status() async {
-    if (_client.auth.currentUser == null) return null;
+  Future<List<OwnedEntitlement>> status() async {
+    if (_client.auth.currentUser == null) return const [];
     try {
-      final row = await _client
-          .from('user_entitlements')
-          .select()
-          .maybeSingle();
-      return PremiumEntitlement.fromRow(row);
+      final rows = await _client.from('user_entitlements').select();
+      return [for (final row in rows) ?OwnedEntitlement.fromRow(row)];
     } on sb.PostgrestException catch (e) {
       throw PurchaseException(PurchaseError.network, e.message);
     }
   }
 
   @override
-  Future<PremiumEntitlement> verify({
+  Future<OwnedEntitlement> verify({
     required String platform,
     required String productId,
     required String verificationData,
@@ -82,7 +81,7 @@ class SupabaseEntitlementRepository implements EntitlementRepository {
       );
       final data = res.data;
       if (data is Map && data['ok'] == true) {
-        final entitlement = PremiumEntitlement.fromRow(
+        final entitlement = OwnedEntitlement.fromRow(
           (data['entitlement'] as Map?)?.cast<String, dynamic>(),
         );
         if (entitlement != null) return entitlement;

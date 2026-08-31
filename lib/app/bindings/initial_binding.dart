@@ -54,12 +54,16 @@ class InitialBinding extends Bindings {
     );
     // Permanent so the store's purchase stream has one subscriber for the
     // app's whole life — a pending payment can clear while any screen is up.
-    Get.put<PurchaseController>(
+    final purchases = Get.put<PurchaseController>(
       PurchaseController(
         store: purchaseStore,
         entitlements: backend.entitlements,
       ),
       permanent: true,
     );
+    // Paid cosmetics unlock on the server's word: settings asks the purchase
+    // stack, and a change in ownership re-derives what is selectable.
+    settings.entitlementCheck = purchases.owns;
+    ever(purchases.owned, (_) => settings.refreshCosmetics());
   }
 }

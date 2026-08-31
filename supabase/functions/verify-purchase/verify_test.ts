@@ -6,8 +6,9 @@ import {
   assert,
 } from "jsr:@std/assert@1";
 import {
-  allowedProducts,
+  entitlementFor,
   parseVerifyRequest,
+  PRODUCT_ENTITLEMENTS,
   storeTransactionId,
   type StoreVerdict,
   type VerifyRequest,
@@ -45,28 +46,47 @@ Deno.test("request validation refuses every malformed shape", () => {
 Deno.test("request validation accepts the two real shapes", () => {
   const android = parseVerifyRequest({
     platform: "android",
-    productId: "gioco101_premium",
+    productId: "gioco101_table_gold",
     verificationData: "purchase-token",
     transactionId: "GPA.1234-5678",
   });
   assert("request" in android);
   const ios = parseVerifyRequest({
     platform: "ios",
-    productId: "gioco101_premium",
+    productId: "gioco101_table_gold",
     verificationData: "base64receipt",
   });
   assert("request" in ios);
 });
 
-Deno.test("product allow-list: default, custom, and junk filtering", () => {
-  assertEquals(allowedProducts(undefined), new Set(["gioco101_premium"]));
-  assertEquals(allowedProducts(""), new Set(["gioco101_premium"]));
+Deno.test("the allow-list is exactly the five cosmetics, each with its own entitlement", () => {
+  assertEquals(PRODUCT_ENTITLEMENTS, {
+    gioco101_table_gold: "table.gold",
+    gioco101_table_classic: "table.classic",
+    gioco101_deck_special: "deck.special",
+    gioco101_cardback_gold: "cardback.gold",
+    gioco101_gadget_01: "gadget.01",
+  });
+  // Five products, five DISTINCT entitlements — no shared premium flag.
   assertEquals(
-    allowedProducts("premium_a, premium_b"),
-    new Set(["premium_a", "premium_b"]),
+    new Set(Object.values(PRODUCT_ENTITLEMENTS)).size,
+    5,
   );
-  // Ids that fail the pattern are dropped, never silently allowed.
-  assertEquals(allowedProducts("ok_id, bad id!"), new Set(["ok_id"]));
+  for (const [product, entitlement] of Object.entries(PRODUCT_ENTITLEMENTS)) {
+    assertEquals(entitlementFor(product), entitlement);
+  }
+});
+
+Deno.test("anything off the allow-list maps to no entitlement at all", () => {
+  for (const id of [
+    "gioco101_premium", // the retired session-7 placeholder
+    "gioco101_table_gold2",
+    "toString",
+    "hasOwnProperty", // prototype probing must not leak a value
+    "",
+  ]) {
+    assertEquals(entitlementFor(id), undefined, id);
+  }
 });
 
 Deno.test("the store's transaction id outranks the client's", () => {

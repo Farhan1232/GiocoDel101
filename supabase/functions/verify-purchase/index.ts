@@ -15,7 +15,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 import {
-  allowedProducts,
+  entitlementFor,
   parseVerifyRequest,
   storeTransactionId,
 } from "./verify.ts";
@@ -68,7 +68,11 @@ Deno.serve(async (req: Request) => {
   if ("error" in parsed) return reply(400, { error: parsed.error });
   const request = parsed.request;
 
-  if (!allowedProducts(Deno.env.get("PREMIUM_PRODUCT_IDS")).has(request.productId)) {
+  // The five-product allow-list AND the entitlement decision, both the
+  // server's (verify.ts). An unknown product is refused before any store
+  // call; a known one maps to exactly one entitlement key.
+  const entitlement = entitlementFor(request.productId);
+  if (!entitlement) {
     return reply(400, { error: "invalid_product" });
   }
 
@@ -89,6 +93,7 @@ Deno.serve(async (req: Request) => {
 
     const { data, error } = await admin.rpc("srv_grant_entitlement", {
       p_user: userId,
+      p_entitlement: entitlement,
       p_platform: request.platform,
       p_product: request.productId,
       p_store_txn: txn,
