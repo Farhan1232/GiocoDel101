@@ -1,7 +1,7 @@
 {
   "name": "due_draw_resolves_four",
-  "description": "Drawing under a +4 takes four cards, clears the chain and passes the turn.",
-  "rulesNote": "GAME_SPEC §6",
+  "description": "Drawing under a +4 takes four cards and clears the chain; the seat that paid it keeps the turn for its continuation.",
+  "rulesNote": "GAME_SPEC §6, §6b",
   "actor": "p1",
   "action": {
     "type": "drawCard",
@@ -75,6 +75,7 @@
     ],
     "round": 1,
     "currentSeat": 1,
+    "dealerSeat": 0,
     "direction": "clockwise",
     "drawPile": [
       "denari_asso",
@@ -126,6 +127,7 @@
     "roundWinnerId": null,
     "turnNumber": 0,
     "hasDrawnThisTurn": false,
+    "penaltyResolvedThisTurn": false,
     "drawnCard": null,
     "lastAction": null,
     "version": 0,
@@ -222,7 +224,8 @@
       }
     ],
     "round": 1,
-    "currentSeat": 0,
+    "currentSeat": 1,
+    "dealerSeat": 0,
     "direction": "clockwise",
     "drawPile": [
       "denari_asso",
@@ -268,8 +271,9 @@
     "status": "awaitingAction",
     "winnerId": null,
     "roundWinnerId": null,
-    "turnNumber": 1,
-    "hasDrawnThisTurn": false,
+    "turnNumber": 0,
+    "hasDrawnThisTurn": true,
+    "penaltyResolvedThisTurn": true,
     "drawnCard": null,
     "lastAction": {
       "type": "drawCard",
@@ -307,11 +311,10 @@
   },
   "expectedEvents": [
     "CardsDrawnEvent",
-    "ChainResolvedEvent",
-    "TurnChangedEvent"
+    "ChainResolvedEvent"
   ],
   "assertions": {
-    "currentPlayerId": "p0",
+    "currentPlayerId": "p1",
     "pendingDrawCount": 0,
     "chainLength": 0,
     "handSize.p1": 5

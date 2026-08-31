@@ -32,13 +32,23 @@ Deno.test("no draw yet: draw, and pass only if the turn stayed", async () => {
   assertEquals(s.players[s.currentSeat].id !== "p0", true);
 });
 
-Deno.test("pending +4: the timed-out seat takes the penalty", async () => {
+Deno.test("pending +4: the timed-out seat takes the penalty, then passes", async () => {
   const state = await load("due_draw_resolves_four");
+  const seat = state.players[state.currentSeat].id;
   const plan = planTimeout(state, 1, (s, a) => engine.applyAction(s, a, null));
-  assertEquals(plan.actions.map((a) => a.type), ["drawCard"]);
-  const r = engine.applyAction(state, plan.actions[0], null);
-  assert(r.ok);
-  assertEquals(r.state.pendingDrawCount, 0);
+  // §6b — paying the chain keeps the turn, so the plan must also hand it on:
+  // a seat that has stopped answering must never hold the table open.
+  assertEquals(plan.actions.map((a) => a.type), ["drawCard", "pass"]);
+
+  let s = state;
+  for (const a of plan.actions) {
+    const r = engine.applyAction(s, a, null);
+    assert(r.ok, `rejected ${a.type}`);
+    s = r.state;
+  }
+  assertEquals(s.pendingDrawCount, 0);
+  assertEquals(s.penaltyResolvedThisTurn, false);
+  assertEquals(s.players[s.currentSeat].id !== seat, true);
 });
 
 Deno.test("suit pending: the server names a suit", async () => {

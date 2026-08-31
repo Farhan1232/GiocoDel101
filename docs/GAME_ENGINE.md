@@ -66,6 +66,7 @@ The single serialisation root. Field list:
 | `players` | seat order; hands and scores live on each player |
 | `round` | 1-based |
 | `currentSeat` / `currentPlayerId` | whose turn |
+| `dealerSeat` | §12a — the seat that dealt this round; +1 live seat clockwise at every deal, independent of `currentSeat` |
 | `direction` | `clockwise` / `counterClockwise` |
 | `drawPile` | face-down stock; **last element is the next card dealt** |
 | `discardPile` | face-up; **last element is the visible top card** |
@@ -75,6 +76,7 @@ The single serialisation root. Field list:
 | `winnerId` / `roundWinnerId` | match winner (finished) / last round winner |
 | `turnNumber` | turns this round |
 | `hasDrawnThisTurn` / `drawnCard` | §8 draw discipline |
+| `penaltyResolvedThisTurn` | §6b — the seat to act has paid a chain and still holds its one legal continuation |
 | `lastAction` | the last accepted `GameAction` |
 | `version` | +1 per accepted action; actions may pin `baseVersion` |
 | `turnStartedAt` / `turnDeadlineAt` | epoch ms, set only when a caller supplies `now` |
@@ -115,7 +117,7 @@ here with a **provisional** default, so nothing is assumed inside a class.
 | `drawTwoPenalty` | 2 | confirmed |
 | `pendingPenaltyAppliesAfterWin` | false | provisional (§10a) |
 | `starterCardPolicy` | `avoidActionCards` | **provisional** — what if the first discard is an action card? |
-| `roundStarterPolicy` | `previousRoundWinner` | **provisional** — `seatAfterPreviousWinner` also supported |
+| `roundStarterPolicy` | `previousRoundWinner` | **CONFIRMED 2026-08-31** — the seat that closed the previous round leads. `seatAfterPreviousWinner` is still implemented but unused |
 | `initialDirection` | `clockwise` | no reversing card exists; carried for completeness |
 | `turnTimeLimitSeconds` | null | **undefined** — the engine stamps deadlines, never enforces them |
 | `scoreValues` | Asso 1 … Re 10 | confirmed |
@@ -195,8 +197,9 @@ Every accepted action goes through the same pipeline, in this order:
    (`ScorePolicy`), eliminations applied, the match winner resolved, and the
    state goes `roundOver` or `finished`. Nothing else happens on that action.
 5. **Next player** — `_advanceTurn` by 1 (or 2 after an Asso), skipping
-   eliminated seats in the current `direction`; resets the draw flag;
-   `turnNumber++`.
+   eliminated seats in the current `direction`; resets the draw flag and
+   `penaltyResolvedThisTurn`; `turnNumber++`. Paying a +2 chain is the one
+   action that deliberately does **not** reach this step (§6b).
 6. **Stamp** — `version++`, `lastAction`, and the turn clock if `now` was
    given.
 7. **Invariants** — asserted (see §9).
@@ -212,8 +215,34 @@ that empties the hand ends the round and skips nobody.
 **Due (+2 chain).** Adds `drawTwoPenalty` to `pendingDrawCount`,
 `chainLength++`. While a chain is pending only a 2 (if `stackDrawTwos`) or a
 Cavallo (if `nineBlockMode != disabled`) is legal; `PassAction` fails with
-`drawRequired`; `DrawCardAction` takes the whole total, clears the chain and
-ends the turn. Four 2s in the deck → +2 / +4 / +6 / +8.
+`drawRequired`; `DrawCardAction` takes the whole total and clears the chain.
+Four 2s in the deck → +2 / +4 / +6 / +8.
+
+**Paying a chain does not end the turn (§6b, confirmed 2026-08-31).** The
+draw sets `pendingDrawCount = 0`, `chainLength = 0`, `hasDrawnThisTurn = true`
+and `penaltyResolvedThisTurn = true`, and returns *without* calling
+`_advanceTurn` — so the same seat is still to act and may play one ordinary
+legal card, whatever the chain was worth. Consequences, all deliberate:
+
+- `getPlayableCards` / `canPlay` / `validateAction` answer normally, so the
+  continuation is neither wider nor narrower than any other turn;
+- a second `DrawCardAction` is refused (`hasDrawnThisTurn`), and `PassAction`
+  is allowed (`mustDrawBeforePassing` is satisfied), so a seat with nothing
+  legal always has a way out and the table cannot stall;
+- `restrictPlayToDrawnCard` does **not** apply — see
+  `GameState.restrictsPlayToDrawnCard`. That rule is a consequence of choosing
+  to draw; penalty cards are taken under duress;
+- no `TurnChangedEvent` is emitted. A listener therefore reads
+  `ChainResolvedEvent` without a following turn change as "penalty resolved",
+  distinct from "turn completed";
+- `turnNumber` does not move, so a paid chain plus its continuation is counted
+  as the single turn it is;
+- `_stampClock` treats the resolution as a new action window and re-stamps
+  `turnStartedAt` / `turnDeadlineAt` (§6b, §14.4).
+
+Blocking with a Cavallo is unaffected: it settles the chain and passes the
+turn on exactly as before. Only a seat that actually *paid* gets the
+continuation.
 
 **Cavallo / "9" (change suit).** Playable on anything (`wildNineCanAlwaysPlay`).
 Playing it without `chosenSuit` sets `status = awaitingSuitChoice` and keeps
@@ -244,9 +273,19 @@ turn still moves on. Total cards never change.
 `createGame` validates (2–4 seats, unique non-empty ids, hand size fits the
 deck, sane rules, starting seat exists), deals `startingHandSize` to every
 live seat round-robin, turns up the opener per `starterCardPolicy`, and the
-rest is the stock. `StartNextRoundAction` clears hands, picks the leader per
-`roundStarterPolicy` (never an eliminated seat), `round++`, and deals again.
-Eliminated seats receive no cards and are skipped in turn order.
+rest is the stock. `dealerSeat` starts at the opening seat.
+
+`StartNextRoundAction` answers two independent questions:
+
+- **who leads** — the seat that closed the previous round
+  (`roundStarterPolicy = previousRoundWinner`), never an eliminated one;
+- **who deals** — `dealerSeat` moves one live seat clockwise
+  (`_seatAfter(s, s.dealerSeat, 1)`), wrapping at the end of the table and
+  passing over eliminated seats.
+
+Then `round++`, hands are cleared and the deck is dealt again. The two seats
+are computed separately and coincide only by chance. Eliminated seats receive
+no cards and are skipped in turn order.
 
 ---
 

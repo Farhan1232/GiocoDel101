@@ -124,14 +124,27 @@ corrects local skew).
 **Policy (documented here because the client has not chosen one — see
 `docs/GAME_SPEC.md` §14.4):**
 
+Note the one deliberate exception to "the deadline is stamped when the turn
+changes": paying a +2 chain keeps the turn but opens a **new action window**
+(GAME_SPEC §6b). `GameEngine._stampClock` re-stamps `turn_started_at` and
+`turn_deadline_at` on that transition, so the continuation the client asked
+for is not inherited with an already-expired clock. Nothing else about the
+timeout or forfeit policy changed; a seat that stops responding still draws
+and passes on the same strike.
+
 1. When the deadline passes, any participant's app calls
    `match {op:"timeout"}`. The function checks the **database** clock and
    `turn_deadline_at`; a claim before the deadline is `deadlineNotReached`.
 2. The server then moves for the idle seat, choosing the least harmful legal
    move (`supabase/functions/match/timeout.ts`): a pending suit → the suit
-   it holds most of; a pending +2 chain → draw the penalty; otherwise draw
-   and, if the turn is still theirs, pass. Between rounds it deals the next
-   round. Every move is validated by the engine like any other.
+   it holds most of; a pending +2 chain → draw the penalty **and then pass**,
+   because since §6b paying a chain keeps the turn; otherwise draw and, if the
+   turn is still theirs, pass. Between rounds it deals the next round. Every
+   move is validated by the engine like any other. `planTimeout` already asked
+   "is it still our turn?" after drawing, so this fell out of the rule change
+   rather than being special-cased — but it is now pinned down by a test
+   (`supabase/functions/match/timeout_test.ts`), because a seat that has
+   stopped answering must never be able to hold the table open.
 3. The seat's `consecutive_timeouts` grows; any accepted action of its own
    resets it. On the **third** consecutive timeout the server forfeits the
    seat instead (below) and removes it from the room, exactly as a
@@ -227,6 +240,27 @@ policy = presence only). There is no free-text chat.
 - `OnlineMatchRepository` / `MatchmakingRepository` wrap the RPCs, the Edge
   Function and the channels; `NoBackend…` versions keep the widget tests
   offline and honest.
+
+### The 2026-08-31 rule change over the wire
+
+Both new state fields — `dealerSeat` (§12a) and `penaltyResolvedThisTurn`
+(§6b) — are **public information**, and `app_private.redact_game_state` is a
+blacklist (`state - 'seed' - 'drawPile' - 'drawnCard' - 'history'`), so both
+travel in the public snapshot with **no migration and no change to the
+security model**. Nothing was added to `match_private_state`, no policy was
+touched and no RLS was relaxed.
+
+The rules themselves live where they always did: in the Dart engine compiled
+to `supabase/functions/match/engine.js`. The server stayed authoritative and
+gained no rule logic of its own — after a penalty draw it is the *engine* that
+reports the same seat as current, and the Edge Function simply publishes what
+it is given. VM/JS agreement on all of it is proven by the shared conformance
+fixtures (`penalty_draw_keeps_the_turn`, `penalty_continuation_*`,
+`next_round_closer_leads_dealer_rotates`, `next_round_dealer_wraps_round_the_table`,
+`next_round_dealer_skips_an_eliminated_seat`), which
+`test/engine/conformance_fixture_test.dart` replays on the Dart VM and
+`supabase/functions/match/engine_conformance_test.ts` replays on the compiled
+JavaScript.
 - `OnlineMatchLauncher` registers the driver **`permanent: true`** and
   tears it down explicitly (`dismiss()`) when the player leaves the table.
   The launch replaces the lobby route, and a route-scoped GetX controller

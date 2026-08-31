@@ -818,6 +818,12 @@ abstract class AppLocalizations {
   /// **'Torna domani'**
   String get dailyRewardTomorrow;
 
+  /// Badge on the seat that dealt the current round (§12a).
+  ///
+  /// In it, this message translates to:
+  /// **'MAZZIERE'**
+  String get dealerBadge;
+
   /// No description provided for @defaultDifficulty.
   ///
   /// In it, this message translates to:

@@ -186,6 +186,10 @@
   "dailyRewardGuestHint": "Crea un account per riscuotere i premi giornalieri.",
   "dailyRewardTitle": "Ricompensa giornaliera",
   "dailyRewardTomorrow": "Torna domani",
+  "dealerBadge": "MAZZIERE",
+  "@dealerBadge": {
+    "description": "Badge on the seat that dealt the current round (§12a)."
+  },
   "defaultDifficulty": "Difficoltà predefinita",
   "difficulty": "Difficoltà",
   "difficultyEasy": "Facile",

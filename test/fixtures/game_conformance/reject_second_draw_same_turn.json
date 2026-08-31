@@ -76,6 +76,7 @@
     ],
     "round": 1,
     "currentSeat": 0,
+    "dealerSeat": 0,
     "direction": "clockwise",
     "drawPile": [
       "denari_asso",
@@ -126,6 +127,7 @@
     "roundWinnerId": null,
     "turnNumber": 0,
     "hasDrawnThisTurn": true,
+    "penaltyResolvedThisTurn": false,
     "drawnCard": "coppe_re",
     "lastAction": null,
     "version": 0,
@@ -220,6 +222,7 @@
     ],
     "round": 1,
     "currentSeat": 0,
+    "dealerSeat": 0,
     "direction": "clockwise",
     "drawPile": [
       "denari_asso",
@@ -270,6 +273,7 @@
     "roundWinnerId": null,
     "turnNumber": 0,
     "hasDrawnThisTurn": true,
+    "penaltyResolvedThisTurn": false,
     "drawnCard": "coppe_re",
     "lastAction": null,
     "version": 0,

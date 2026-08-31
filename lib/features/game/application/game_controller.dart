@@ -232,9 +232,12 @@ class GameController extends TableController {
 
   void _queueDeal() {
     _queue.add(
+      // §12a — dealt from the dealer's left, so the deal reads as travelling
+      // round the table as the dealer rotates.
       DealCue(
-        state.players.where((p) => !p.eliminated).map((p) => p.id).toList(),
+        dealingOrder(state),
         state.rules.startingHandSize,
+        dealerId: state.players[state.dealerSeat].id,
       ),
     );
   }
@@ -458,12 +461,15 @@ class GameController extends TableController {
       await _whilePaused();
       if (_disposed) return;
 
-      final before = round.turnNumber;
+      // §52 — "did the bot actually move?" is a question about the engine
+      // advancing, not about the turn changing: since §6b a bot may pay a
+      // chain and legitimately still be on turn.
+      final before = round.version;
       await _takeBotTurn(seat);
       await _drain();
 
       // A bot that somehow failed to move must not spin the loop (§52).
-      if (round.turnNumber == before &&
+      if (round.version == before &&
           round.status == GameStatus.awaitingAction) {
         if (session.canDraw) {
           session.drawCard();
@@ -511,8 +517,10 @@ class GameController extends TableController {
         _maybeBotReaction(seat, decision);
       case BotAction.draw:
         session.drawCard();
-        if (round.drawnCard != null) {
-          // §8 — a bot that draws something playable uses it straight away.
+        // §8 — a bot that draws something playable uses it straight away.
+        // §6b — and one that has just paid a chain still holds the turn, so
+        // it asks the engine again rather than handing the turn over.
+        if (round.drawnCard != null || round.penaltyResolvedThisTurn) {
           await _drain();
           await _pauseForBot(short: true);
           final next = bot.decide(
@@ -528,7 +536,21 @@ class GameController extends TableController {
         if (session.canEndTurn) {
           session.endTurn();
         } else if (session.canDraw) {
+          // The only reason a turn cannot be ended is an unpaid chain. Paying
+          // it does not end the turn either (§6b), so come straight back and
+          // let the bot use the continuation it just earned.
           session.drawCard();
+          if (round.penaltyResolvedThisTurn) {
+            await _drain();
+            final next = bot.decide(
+              BotViewFactory.forCurrentPlayer(session.state),
+            );
+            if (next.action == BotAction.play && next.card != null) {
+              session.playCard(next.card!, chosenSuit: next.suit);
+            } else if (session.canEndTurn) {
+              session.endTurn();
+            }
+          }
         }
     }
   }

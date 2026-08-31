@@ -1,7 +1,62 @@
 # Session Handoff — Session 6 → next phase (monetisation & stores)
 
-Date: 2026-08-30. Branch: `feature/session-1-ui-foundation` (continued; the
-Session 6 commit sits on top of Session 5's `64388e3`).
+Date: 2026-08-30, plus the client change of **2026-08-31** (below). Branch:
+`feature/session-1-ui-foundation` (continued; the Session 6 commit sits on top
+of Session 5's `64388e3`).
+
+---
+
+## 0a. Client change request, 2026-08-31 — READ THIS FIRST
+
+A scoped change on top of Session 6. Full account, with evidence, in
+**`docs/CLIENT_CHANGE_2026_08_31.md`**. Five requests, all delivered:
+
+1. **The previous round's closer leads the next round** (GAME_SPEC §12). Was
+   already the active preset (`roundStarterPolicy = previousRoundWinner`);
+   now confirmed rather than provisional, and proven for 2/3/4 players
+   including "not the clockwise successor". **No production code changed.**
+2. **Paying a +2 chain no longer ends the turn** (GAME_SPEC §6b — the
+   substantial change). The seat that draws the penalty keeps the turn and
+   plays one ordinary legal card; then the turn advances. Holds for +2/+4/+6/+8.
+   `GameState.penaltyResolvedThisTurn` is new. Engine, compiled server engine,
+   bots and table all follow it; the turn clock re-stamps so the continuation
+   has real time.
+3. **Performance** — audited, and a repeatable long-session harness added
+   (`test/long_session_performance_test.dart`). The one real fix is stepped,
+   layout-sized image decoding for the new card artwork. **The reported
+   slowdown was not reproduced here**; see the doc for what is and is not
+   verified.
+4. **The cards are now real Carte Napoletane** — 40 public-domain faces in
+   `assets/cards/`, licence in `assets/cards/LICENSE.txt`. The engraved
+   painters stay as the fallback.
+5. **The deal rotates clockwise every round** (GAME_SPEC §12a).
+   `GameState.dealerSeat` is new, independent of who leads; the table deals
+   from the dealer's left and badges the dealing seat.
+
+**No Supabase migration was needed** — both new state fields are public and the
+redaction is a blacklist. RLS, private hands and the security model are
+untouched.
+
+Numbers after the change: **571 Flutter tests**, **58 Deno tests**, 51
+conformance fixtures (5 new for §6b, 3 for §12a) replayed on both the Dart VM
+and the compiled JavaScript, bot simulation **270 matches / 0 violations /
+0 hangs**, both APKs building.
+
+The updated `match` Edge Function **was deployed** to `GiocoDel101-Dev`
+(v5 → **v6**). Only the function changed — no migration, no schema or policy
+change, no database reset; rolling back is a redeploy from the previous commit.
+
+Against that deployment, `tool/online_rule_check.dart` (new — a focused driver
+that costs one request per action instead of a full snapshot fan-out) proves
+all three rules live with independent authenticated users: **2 players 20/20,
+3 players 20/20, 4 players 21/21 — 61 checks, 0 failures**, including a stacked
+**+4** and the pass-when-nothing-legal branch.
+
+`tool/online_matrix.dart` also gained §6b/§12/§12a assertions, but **did not
+finish a full match here**: four attempts each died partway through the game
+drive on a transport error on `rest/v1/rpc/match_snapshot`. Everything it
+reached passed (37–39 checks: setup, private room, private hands, RLS,
+concurrency, idempotency, receipts). Re-run it from a normal network.
 
 Session 6 added **no feature**. It audited, broke, fixed, verified and
 polished what Sessions 1–5 built. The feature-by-feature evidence table is
@@ -82,7 +137,10 @@ in the code first**, then fixed, then re-verified.
 | `flutter test` | **515/515** (505 before Session 6 + 10 in `test/session6_release_test.dart`) |
 | `deno test --allow-read supabase/functions/match/` | **50/50** (43 conformance fixtures incl. two wide-seed ones + 7 timeout tests) |
 | `deno check supabase/functions/match/index.ts` | clean (added to the routine after a missed `seed31` reference reached the dev deployment for eight minutes — see below) |
-| `dart run tool/bot_simulation.dart` | **270 matches, 90 796 actions, 0 invariant violations, 0 hangs, 0 illegal proposals** |
+| `dart run tool/bot_simulation.dart
+RULE_CHECK_SEATS=4 dart run tool/online_rule_check.dart   # §6b/§12/§12a, live
+RENDER_PREVIEWS=1 flutter test test/napoletane_deck_test.dart --timeout none
+GENERATE_FIXTURES=1 flutter test test/tools/generate_conformance_fixtures.dart` | **270 matches, 90 796 actions, 0 invariant violations, 0 hangs, 0 illegal proposals** |
 | `flutter build apk --debug --dart-define-from-file=env/supabase.dev.json` | ok — `build/app/outputs/flutter-apk/app-debug.apk` (178 MB), rebuilt from the final tree |
 | `flutter build apk --release …` | ok — `build/app/outputs/flutter-apk/app-release.apk` (59.7 MB), **debug-signed** (no `key.properties`) |
 | `flutter build appbundle --release …` | ok — `build/app/outputs/bundle/release/app-release.aab` (57.6 MB), debug-signed |
@@ -169,6 +227,8 @@ redeployed, re-run. Nothing was persisted by the failing calls.
 
 ## 3. Files the next phase must read
 
+0. `docs/CLIENT_CHANGE_2026_08_31.md` — the most recent change, and the one
+   thing still outstanding (deploy + online matrix).
 1. `docs/FINAL_VERIFICATION.md` — the evidence table.
 2. `docs/SECURITY.md` §"Session 6 findings" and §"Known limits".
 3. `supabase/migrations/20260830100111_release_hardening.sql` and
@@ -176,6 +236,9 @@ redeployed, re-run. Nothing was persisted by the failing calls.
 4. `lib/features/online/application/online_match_controller.dart`
    (subscription generations, poll cadence, finish).
 5. `README.md` — rewritten: setup, env, migrations, run/test/build.
+6. `test/client_change_2026_08_31_test.dart`,
+   `test/long_session_performance_test.dart` and
+   `test/napoletane_deck_test.dart` — the 2026-08-31 guards.
 
 ---
 
@@ -232,6 +295,8 @@ dart format lib test tool
 flutter gen-l10n                                  # after editing an ARB
 
 dart run tool/bot_simulation.dart
+RENDER_PREVIEWS=1 flutter test test/napoletane_deck_test.dart --timeout none
+GENERATE_FIXTURES=1 flutter test test/tools/generate_conformance_fixtures.dart
 tool/build_engine_js.sh && deno test --allow-read supabase/functions/match/ && deno check supabase/functions/match/index.ts
 supabase functions deploy match --use-api
 supabase migration list                           # 11 = 11

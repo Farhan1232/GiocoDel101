@@ -41,7 +41,8 @@ class ConformanceScenario {
   /// `pendingDrawCount`, `chainLength`, `activeSuit`, `topCard`, `version`,
   /// `winnerId`, `roundWinnerId`, `round`, `drawPileSize`,
   /// `discardPileSize`, `handSize.<id>`, `score.<id>`, `eliminated.<id>`,
-  /// `hasDrawnThisTurn`, `drawnCard`.
+  /// `hasDrawnThisTurn`, `drawnCard`, `penaltyResolvedThisTurn`,
+  /// `dealerSeat`, `dealerId`, `currentSeat`.
   final Map<String, Object?> assertions;
 
   /// Event type names, in order, when the action is accepted.
@@ -348,9 +349,9 @@ List<ConformanceScenario> conformanceScenarios() => [
   ConformanceScenario(
     name: 'due_draw_resolves_four',
     description:
-        'Drawing under a +4 takes four cards, clears the chain and '
-        'passes the turn.',
-    rulesNote: 'GAME_SPEC §6',
+        'Drawing under a +4 takes four cards and clears the chain; the '
+        'seat that paid it keeps the turn for its continuation.',
+    rulesNote: 'GAME_SPEC §6, §6b',
     state: buildState(
       hands: [
         [_c(_co, CardRank.re)],
@@ -370,16 +371,13 @@ List<ConformanceScenario> conformanceScenarios() => [
     ),
     action: const DrawCardAction(playerId: 'p1'),
     assertions: {
-      'currentPlayerId': 'p0',
+      'currentPlayerId': 'p1',
       'pendingDrawCount': 0,
       'chainLength': 0,
       'handSize.p1': 5,
     },
-    expectedEvents: const [
-      'CardsDrawnEvent',
-      'ChainResolvedEvent',
-      'TurnChangedEvent',
-    ],
+    // No TurnChangedEvent: the penalty resolved, the turn did not end.
+    expectedEvents: const ['CardsDrawnEvent', 'ChainResolvedEvent'],
   ),
   ConformanceScenario(
     name: 'due_reject_pass_under_chain',
@@ -980,5 +978,216 @@ List<ConformanceScenario> conformanceScenarios() => [
     ),
     action: const ForfeitAction(playerId: 'p2'),
     expectedFailure: GameFailure.invalidPlayer,
+  ),
+  // ---------------------------------------------------------------- §6b
+  // A paid chain settles the penalty, not the turn. These pin the client's
+  // 2026-08-31 rule change down for the compiled server engine as well.
+  ConformanceScenario(
+    name: 'penalty_draw_keeps_the_turn',
+    description:
+        'Paying a +2 leaves the same seat to act, with no TurnChangedEvent.',
+    rulesNote: 'GAME_SPEC §6b',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [_c(_sp, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.due),
+      drawPile: [_c(_ba, CardRank.quattro), _c(_co, CardRank.sei)],
+      currentIndex: 1,
+      pendingPenalty: 2,
+      chainLength: 1,
+    ),
+    action: const DrawCardAction(playerId: 'p1'),
+    assertions: {
+      'currentPlayerId': 'p1',
+      'status': 'awaitingAction',
+      'pendingDrawCount': 0,
+      'chainLength': 0,
+      'penaltyResolvedThisTurn': true,
+      'hasDrawnThisTurn': true,
+      'handSize.p1': 3,
+    },
+    expectedEvents: const ['CardsDrawnEvent', 'ChainResolvedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'penalty_continuation_plays_a_legal_card',
+    description:
+        'The seat that paid the chain plays one ordinary legal card, and '
+        'only then does the turn advance.',
+    rulesNote: 'GAME_SPEC §6b',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [_c(_sp, CardRank.tre), _c(_co, CardRank.sei)],
+      ],
+      top: _c(_co, CardRank.due),
+      currentIndex: 1,
+      hasDrawnThisTurn: true,
+    ).copyWith(penaltyResolvedThisTurn: true),
+    action: PlayCardAction(playerId: 'p1', card: _c(_co, CardRank.sei)),
+    assertions: {
+      'currentPlayerId': 'p0',
+      'topCard': 'coppe_sei',
+      'penaltyResolvedThisTurn': false,
+      'handSize.p1': 1,
+    },
+    expectedEvents: const ['CardPlayedEvent', 'TurnChangedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'penalty_continuation_rejects_an_illegal_card',
+    description:
+        'The continuation is an ordinary legal play — an off-suit card is '
+        'still refused.',
+    rulesNote: 'GAME_SPEC §6b',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [_c(_sp, CardRank.tre), _c(_co, CardRank.sei)],
+      ],
+      top: _c(_co, CardRank.due),
+      currentIndex: 1,
+      hasDrawnThisTurn: true,
+    ).copyWith(penaltyResolvedThisTurn: true),
+    action: PlayCardAction(playerId: 'p1', card: _c(_sp, CardRank.tre)),
+    expectedFailure: GameFailure.illegalCard,
+  ),
+  ConformanceScenario(
+    name: 'penalty_continuation_cannot_draw_again',
+    description: 'Having taken the chain, the seat may not also draw.',
+    rulesNote: 'GAME_SPEC §6b, §8',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [_c(_sp, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.due),
+      currentIndex: 1,
+      hasDrawnThisTurn: true,
+    ).copyWith(penaltyResolvedThisTurn: true),
+    action: const DrawCardAction(playerId: 'p1'),
+    expectedFailure: GameFailure.drawNotAllowed,
+  ),
+  ConformanceScenario(
+    name: 'penalty_continuation_may_pass_with_nothing_legal',
+    description:
+        'With no legal continuation the seat passes out of the turn, so a '
+        'paid chain can never stall the table.',
+    rulesNote: 'GAME_SPEC §6b, §8',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [_c(_sp, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.due),
+      currentIndex: 1,
+      hasDrawnThisTurn: true,
+    ).copyWith(penaltyResolvedThisTurn: true),
+    action: const PassAction(playerId: 'p1'),
+    assertions: {
+      'currentPlayerId': 'p0',
+      'penaltyResolvedThisTurn': false,
+      'hasDrawnThisTurn': false,
+    },
+    expectedEvents: const ['TurnChangedEvent'],
+  ),
+
+  // --------------------------------------------------------------- §12a
+  // The deal moves one seat clockwise each round, independently of the
+  // closer who leads.
+  ConformanceScenario(
+    name: 'next_round_closer_leads_dealer_rotates',
+    description:
+        'Four seats: p2 closed the round so p2 leads, while the deal passes '
+        'from p0 to p1. Neither is the clockwise successor of the other.',
+    rulesNote: 'GAME_SPEC §12, §12a',
+    state: buildState(
+      hands: [
+        [_c(_de, CardRank.re)],
+        [_c(_ba, CardRank.sette)],
+        [],
+        [_c(_sp, CardRank.quattro)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      status: GameStatus.roundOver,
+      scores: [8, 11, 0, 5],
+      currentIndex: 2,
+      dealerIndex: 0,
+      version: 30,
+      seed: 909090,
+    ).copyWith(roundWinnerId: 'p2'),
+    action: const StartNextRoundAction(playerId: 'system'),
+    assertions: {
+      'status': 'awaitingAction',
+      'currentPlayerId': 'p2',
+      'dealerId': 'p1',
+      'dealerSeat': 1,
+      'round': 2,
+      'penaltyResolvedThisTurn': false,
+      'handSize.p0': 5,
+      'handSize.p3': 5,
+      'version': 31,
+    },
+    expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'next_round_dealer_wraps_round_the_table',
+    description:
+        'The deal wraps from the last seat back to seat 0, and the closer '
+        'still leads.',
+    rulesNote: 'GAME_SPEC §12a',
+    state: buildState(
+      hands: [
+        [_c(_de, CardRank.re)],
+        [],
+        [_c(_ba, CardRank.sette)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      status: GameStatus.roundOver,
+      scores: [12, 0, 9],
+      currentIndex: 1,
+      dealerIndex: 2,
+      version: 44,
+      seed: 31337,
+    ).copyWith(roundWinnerId: 'p1'),
+    action: const StartNextRoundAction(playerId: 'system'),
+    assertions: {
+      'currentPlayerId': 'p1',
+      'dealerId': 'p0',
+      'dealerSeat': 0,
+      'round': 2,
+    },
+    expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'next_round_dealer_skips_an_eliminated_seat',
+    description:
+        'A knocked-out seat never deals: the deal passes over it to the next '
+        'live seat.',
+    rulesNote: 'GAME_SPEC §12a',
+    state: buildState(
+      hands: [
+        [_c(_de, CardRank.re)],
+        [],
+        [],
+        [_c(_ba, CardRank.sette)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      status: GameStatus.roundOver,
+      scores: [14, 0, 130, 6],
+      eliminated: [false, false, true, false],
+      currentIndex: 1,
+      dealerIndex: 1,
+      version: 51,
+      seed: 5150,
+    ).copyWith(roundWinnerId: 'p1'),
+    action: const StartNextRoundAction(playerId: 'system'),
+    assertions: {
+      'currentPlayerId': 'p1',
+      'dealerId': 'p3',
+      'dealerSeat': 3,
+      'round': 2,
+    },
+    expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
   ),
 ];

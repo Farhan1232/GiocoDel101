@@ -80,6 +80,21 @@ behind the handover card and waits for `confirmHandover()` (§67).
 `GameController.pause()` sets `paused`, opens a completer and saves.
 Bots check `_whilePaused()` after their thinking delay and before acting,
 so a bot never moves while the overlay is up; cues already queued finish.
+
+## Bots and the post-penalty continuation — §6b
+
+A bot must not draw a chain and then hand the turn away while the engine still
+says it has a move. `GameController._takeBotTurn` therefore asks the bot to
+decide **again** after a penalty draw (`round.penaltyResolvedThisTurn`), on the
+same `BotViewFactory.forCurrentPlayer` view every other decision comes from —
+so a bot's continuation is chosen by the same legality the engine gives a
+person, never by a rule written into the driver.
+
+The loop's anti-stall guard changed with it: "did the bot actually move?" is
+now `round.version`, not `round.turnNumber`, because since §6b a bot can move
+legitimately without the turn number changing. `tool/bot_simulation.dart`
+re-runs 270 matches across every difficulty and seat count as the guard on
+all of it.
 `resume()` completes the completer. `PauseOverlay`
 (`presentation/widgets/pause_overlay.dart`) offers Riprendi, Regole (the
 rules screen with this table's house rules), toggles for sound, music and
@@ -105,7 +120,17 @@ resumable. The same happens from the round-result sheet.
 `GameStorageService` (`lib/core/storage/game_storage_service.dart`) writes
 `GameState.toJson()` under `StorageKeys.savedMatch`: the whole state,
 including hands, stock order, seed, history, `playedCards`, `voidSuits`,
-`drawsByPlayer` and `stats`.
+`drawsByPlayer`, `stats`, and — since 2026-08-31 — `dealerSeat` (§12a) and
+`penaltyResolvedThisTurn` (§6b).
+
+Both are written and read back, so a match saved with the dealer three seats
+round, or in the middle of the continuation a player earned by paying a +2
+chain, resumes exactly where it was. **Older saves still load**: a missing
+`dealerSeat` reads back as seat 0, which is what dealt round 1 of every match,
+and an out-of-range one is treated the same way rather than throwing, so a
+corrupt dealer can never cost somebody their saved match. A missing
+`penaltyResolvedThisTurn` reads back false, the state any pre-existing save was
+actually in.
 
 | When | How |
 |---|---|

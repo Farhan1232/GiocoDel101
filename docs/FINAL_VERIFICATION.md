@@ -1,5 +1,11 @@
 # Final Verification — Session 6 (2026-08-30)
 
+> **Superseded in part on 2026-08-31.** The client's change request of that
+> date altered three rules (GAME_SPEC §6b, §12, §12a) and replaced the card
+> artwork. Rows below that touch the +2 chain, the start of a round or the
+> cards still describe Session 6's behaviour. The current evidence for those
+> is **`docs/CLIENT_CHANGE_2026_08_31.md`**; everything else here stands.
+
 What exists, how it was verified, and what was **not** verified. Every row
 names the evidence; nothing here is a claim without one. Read with
 `docs/SESSION_HANDOFF.md` (the run logs and numbers) and `docs/SECURITY.md`

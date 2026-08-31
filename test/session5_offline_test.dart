@@ -117,7 +117,10 @@ void main() {
       fresh.start();
       await tester.pump(const Duration(milliseconds: 20));
       expect(cues.first, isA<DealCue>());
-      expect((cues.first as DealCue).seatIds, ['p0', 'b1']);
+      // §12a — round 1 is dealt by seat 0, and a dealer deals to their left
+      // first, so the cue starts at b1 and comes back round to the dealer.
+      expect((cues.first as DealCue).dealerId, 'p0');
+      expect((cues.first as DealCue).seatIds, ['b1', 'p0']);
       expect((cues.first as DealCue).handSize, 5);
       for (var i = 0; i < 30; i++) {
         await tester.pump(const Duration(milliseconds: 100));

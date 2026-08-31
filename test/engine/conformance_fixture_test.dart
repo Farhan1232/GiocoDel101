@@ -44,6 +44,14 @@ Object? readAssertion(GameState s, String key) {
       return s.discardPile.length;
     case 'hasDrawnThisTurn':
       return s.hasDrawnThisTurn;
+    case 'penaltyResolvedThisTurn':
+      return s.penaltyResolvedThisTurn;
+    case 'dealerSeat':
+      return s.dealerSeat;
+    case 'dealerId':
+      return s.players[s.dealerSeat].id;
+    case 'currentSeat':
+      return s.currentSeat;
     case 'drawnCard':
       return s.drawnCard?.id;
     case 'handSize':

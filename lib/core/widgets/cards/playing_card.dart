@@ -7,6 +7,7 @@ import '../../../features/game/domain/game_card.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/card_backs.dart';
 import 'card_back_painter.dart';
+import 'card_face_image.dart';
 import 'card_face_painter.dart';
 import 'card_names.dart';
 import '../../../app/localization/app_strings.dart';
@@ -79,16 +80,32 @@ class PlayingCard extends StatelessWidget {
         SizedBox(
           width: width,
           height: height,
-          child: CustomPaint(
-            painter: showFace
-                ? CardFacePainter(
-                    card: card!,
-                    highContrast: highContrast,
-                    dimmed: dimmed,
-                    glow: glow,
-                  )
-                : CardBackPainter(design: CardBacks.byId(backId), shine: shine),
-          ),
+          child: showFace
+              // The printed Carte Napoletane face, clipped to the card's own
+              // corner radius; the gold "playable" hairline (§28) is drawn
+              // over it exactly as the painter drew it.
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ClipRRect(
+                      borderRadius: radius,
+                      child: CardFaceImage(
+                        card: card!,
+                        width: width,
+                        highContrast: highContrast,
+                        dimmed: dimmed,
+                      ),
+                    ),
+                    if (glow > 0.01)
+                      CustomPaint(painter: _CardGlowPainter(glow: glow)),
+                  ],
+                )
+              : CustomPaint(
+                  painter: CardBackPainter(
+                    design: CardBacks.byId(backId),
+                    shine: shine,
+                  ),
+                ),
         ),
       ],
     );
@@ -130,4 +147,32 @@ class PlayingCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// §28 — a hairline of warm light along a playable card's own edge. Lifted
+/// out of [CardFacePainter] unchanged so the printed face and the engraved
+/// fallback glow identically.
+class _CardGlowPainter extends CustomPainter {
+  const _CardGlowPainter({required this.glow});
+
+  final double glow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final radius = size.width * AppRadii.cardCornerRatio;
+    final rrect = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      Radius.circular(radius),
+    );
+    canvas.drawRRect(
+      rrect.deflate(0.6),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..color = AppColors.goldLight.withValues(alpha: 0.55 * glow),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_CardGlowPainter old) => old.glow != glow;
 }

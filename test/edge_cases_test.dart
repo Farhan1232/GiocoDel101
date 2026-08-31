@@ -77,6 +77,14 @@ void main() {
       // Only one card was recyclable, so only one could be handed over.
       expect(e.state.playerById('p1')!.hand, hasLength(2));
       expect(e.state.pendingDrawCount, 0);
+      // §6b — even a chain the table could not fully pay keeps the turn with
+      // p1. What matters is that the table never stalls: with nothing legal
+      // to continue with, p1 can still pass out of the turn.
+      expect(e.currentPlayer.id, 'p1');
+      expect(e.playableCardsFor(e.currentPlayer), isEmpty);
+      expect(e.canDraw, isFalse);
+      expect(e.canEndTurn, isTrue);
+      e.endTurn();
       expect(e.currentPlayer.id, 'p0');
     });
   });

@@ -5,9 +5,9 @@ import 'card_suit.dart';
 ///
 /// Identity is `(suit, rank)`; [id] is the stable string form of that pair
 /// (`denari_asso`, `spade_cavallo`, …). Nothing — not persistence, not the
-/// network, not a widget key — identifies a card by an image filename: the
-/// faces are painted at runtime, and [asset] is a *mapping* from identity to
-/// what the painters need, never the other way round.
+/// network, not a widget key — identifies a card by an image filename:
+/// [asset] is a *mapping* from identity to what the renderer needs, never the
+/// other way round.
 class GameCard {
   const GameCard(this.suit, this.rank);
 
@@ -81,10 +81,10 @@ class GameCard {
 
 /// Identity → rendering mapping for one card.
 ///
-/// The deck has no image files (see `docs/ASSET_INVENTORY.md`): the face
-/// painters take a suit key, a rank key and whether the card is a court
-/// figure. If image assets are ever introduced, [imagePath] is the single
-/// place to derive their path from — the card's identity does not change.
+/// [imagePath] is the single place a card's identity is turned into an asset
+/// path; the identity itself never changes. The engraved painters are kept as
+/// the fallback face and still take a suit key, a rank key and whether the
+/// card is a court figure (see `docs/ASSET_INVENTORY.md`).
 class CardAsset {
   const CardAsset(this.card);
 
@@ -98,8 +98,10 @@ class CardAsset {
   bool get isFigure => card.rank.isFigure;
   int get pipCount => card.rank.isFigure ? 0 : card.rank.value;
 
-  /// Conventional path an image-backed deck would live at.
-  String get imagePath => 'assets/cards/${card.id}.png';
+  /// Where this card's printed face lives. The traditional Carte Napoletane
+  /// deck ships as one WebP per card, named by [GameCard.id] — see
+  /// `assets/cards/LICENSE.txt` and `docs/ASSET_INVENTORY.md`.
+  String get imagePath => 'assets/cards/${card.id}.webp';
 }
 
 /// The complete 40-card deck, in a fixed, deterministic order.

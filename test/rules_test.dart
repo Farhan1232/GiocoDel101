@@ -154,7 +154,14 @@ void main() {
       expect(e.state.playerById('p3')!.hand, hasLength(1 + 6));
       expect(e.state.pendingDrawCount, 0);
       expect(e.state.chainLength, 0);
-      expect(e.currentPlayer.id, 'p0', reason: 'p3 also loses the turn');
+      expect(
+        e.currentPlayer.id,
+        'p3',
+        reason: '§6b — p3 pays the +6 but keeps the turn',
+      );
+      // p3 drew six cards from a Bastoni deck onto a Coppe 5, so it now has
+      // a legal continuation and the engine offers it.
+      expect(e.playableCardsFor(e.currentPlayer), isNotEmpty);
     });
 
     test('a player may decline to stack and take the cards instead', () {
@@ -175,7 +182,9 @@ void main() {
       e.drawCard();
       expect(e.state.playerById('p1')!.hand, hasLength(4));
       expect(e.state.pendingDrawCount, 0);
-      expect(e.currentPlayer.id, 'p0');
+      // §6b — declining to stack costs the cards, not the turn.
+      expect(e.currentPlayer.id, 'p1');
+      expect(e.state.penaltyResolvedThisTurn, isTrue);
     });
 
     test('stacking off by config forces the penalty immediately', () {

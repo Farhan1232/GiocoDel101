@@ -29,7 +29,7 @@ for await (const e of Deno.readDir(fixtureDir)) {
   if (e.name.endsWith(".json")) names.push(e.name);
 }
 names.sort();
-if (names.length < 37) throw new Error(`only ${names.length} fixtures found`);
+if (names.length < 51) throw new Error(`only ${names.length} fixtures found`);
 
 for (const name of names) {
   Deno.test(`conformance ${name}`, async () => {
@@ -61,6 +61,8 @@ function readAssertion(st: any, key: string): unknown {
   if (key.startsWith("eliminated.")) return byId(key.slice(11)).eliminated;
   switch (key) {
     case "currentPlayerId": return players[st.currentSeat].id;
+    // §12a — who dealt this round, as a seat and as an id.
+    case "dealerId": return players[st.dealerSeat ?? 0].id;
     case "topCard": return st.discardPile[st.discardPile.length - 1];
     case "drawPileSize": return st.drawPile.length;
     case "discardPileSize": return st.discardPile.length;

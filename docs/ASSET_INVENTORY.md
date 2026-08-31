@@ -1,34 +1,121 @@
 # Asset Inventory
 
-Audited 2026-08-29, Session 1.
+Audited 2026-08-29 (Session 1); card faces replaced 2026-08-31 at the client's
+request — see `docs/CLIENT_CHANGE_2026_08_31.md`.
 
-## The headline: there are no card image files
+## Card faces — 40/40 traditional Carte Napoletane
 
-The 40-card Neapolitan deck is **vector art drawn at runtime by
-`CustomPainter`**, not a folder of PNGs. This is deliberate and predates this
-session: it keeps the APK small, renders crisply at every size the fan and the
-table need, and lets a suit or a court figure be restyled in one place.
+The deck ships as **forty image files**, one per card:
 
-Because of that, several questions the brief asks — "are all 40 cards present",
-"is the naming consistent" — resolve differently than they would for an image
-deck. They are answered below in terms of the painters.
+```
+assets/cards/<suit>_<rank>.webp        360 x 558 px, WebP q92
+```
 
-### Card faces — complete, 40/40
+The name is `GameCard.id` exactly, derived through `CardAsset.imagePath` — the
+one place a card's identity becomes a path. The identity never goes the other
+way: nothing in persistence, on the wire, or in a widget key looks a card up by
+filename.
 
-| Piece | Where | Notes |
-|---|---|---|
-| Card frame, stock, edge, corner radius | `lib/core/widgets/cards/playing_card.dart` | Ratio and radius come from `CardMetrics` / `AppRadii` |
-| Pip layouts (Asso–7) | `lib/core/widgets/cards/card_face_painter.dart` | Numeric ranks |
-| Court figures (Fante, Cavallo, Re) | `lib/core/widgets/cards/figure_art.dart` | Woodcut style, 879 lines |
-| Suit emblems | `lib/core/widgets/cards/suit_art.dart` | Authored in a unit square, scaled |
+| | |
+|---|---|
+| Files | **40** (verified: no missing card, no unexpected file) |
+| Dimensions | **360 × 558** for all forty — ratio **1.55**, matching `CardMetrics.aspect` |
+| Total size | **1282 KB** (~32 KB per card) |
+| Format | WebP, quality 92 |
+| Licence | **Public domain** — `assets/cards/LICENSE.txt` |
 
-Coverage is enforced by tests rather than by a file listing:
-`test/deck_test.dart` asserts the deck holds exactly 40 cards with 40 distinct
-ids, and `test/deck_preview_test.dart` paints every one of them.
+### Source and licence
 
-- **Suits (4/4):** Denari, Coppe, Spade, Bastoni — `CardSuit`
-- **Ranks (10/10):** Asso, 2, 3, 4, 5, 6, 7, Fante, Cavallo, Re — `CardRank`
-- 4 × 10 = **40 cards, all renderable.**
+Wikimedia Commons, [`Carte napoletane al completo.jpg`](https://commons.wikimedia.org/wiki/File:Carte_napoletane_al_completo.jpg)
+— a 3507 × 2398 scan holding the whole deck in a 10 × 4 grid, released as
+`{{PD-old}}`. Commons reports `License = pd`, `Copyrighted = False`,
+`AttributionRequired = false`, `Restrictions = (none)`.
+
+The artwork is the traditional Neapolitan pattern, an anonymous
+nineteenth-century design long out of copyright; a faithful photographic
+reproduction of a two-dimensional public-domain work attracts no new copyright
+of its own. **No attribution requirement, no share-alike, free to use in this
+commercial application.** Full record in `assets/cards/LICENSE.txt`.
+
+Rejected alternative: `Carte_da_gioco_napoletane_{denari,coppe,spade,bastoni}.jpg`
+on Commons is also a complete deck, but **GFDL / CC BY-SA** — copyleft, and a
+poor fit for a commercial deliverable.
+
+### How the forty files were made
+
+Programmatically, from the one source image:
+
+1. Each grid cell's printed artwork was isolated by connected-component
+   analysis, keyed on **stroke bulk** — a component surviving a 7 × 7 erosion is
+   artwork, a 2–4 px card-edge line is not. That drops neighbouring cards'
+   edges and scanner speckle without touching the woodcut detail.
+2. Each card's artwork was composited **at one common scale** onto a white card
+   of identical size (400 × 620, ratio 1.55). Uniform scale matters: a coin on
+   the Sette is the same size as a coin on the Due.
+3. Resampled to 360 × 558 and encoded WebP q92 — chosen after comparing against
+   the master and a 32-colour PNG at real display size (the PNG banded the Re's
+   robe; lossless WebP cost 4.1 MB for no visible gain).
+
+No artwork was redrawn, recoloured or restyled.
+
+### Coverage — verified card by card
+
+4 suits × 10 ranks = 40. Every file was rendered and inspected for correct
+rank, correct suit, correct orientation, no duplicate and no bleed from a
+neighbouring card.
+
+| Suit | Asso | Due | Tre | Quattro | Cinque | Sei | Sette | Fante | Cavallo | Re |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Denari** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| **Coppe** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| **Bastoni** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| **Spade** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+Enforced in code as well as by eye. `test/napoletane_deck_test.dart` is the
+one that checks the artwork itself: every file is bundled and decodes, the
+whole deck is one size at ratio 1.55, the licence ships with it, and — after
+precaching — all forty cards draw their **printed face** rather than the
+fallback painter. Run it with `RENDER_PREVIEWS=1` and it writes
+`preview/napoletane_deck.png`, the deck exactly as the app draws it; that
+image is the visual record of the 40/40 check above.
+
+Alongside it: `test/deck_test.dart` asserts 40 cards with 40 distinct ids,
+`test/engine/card_model_test.dart` pins the identity → path mapping, and
+`test/deck_preview_test.dart` renders every face and every back.
+
+> Note: `preview/deck_gallery.png` predates this change and still shows the
+> engraved deck. `test/deck_preview_test.dart` and the `render_previews`
+> tool capture a first frame, on which `Image.asset` has not decoded yet, so
+> they legitimately show the fallback. Use `preview/napoletane_deck.png` for
+> the printed deck.
+
+### How they are drawn
+
+`CardFaceImage` (`lib/core/widgets/cards/card_face_image.dart`) renders the
+face inside the existing `PlayingCard` frame, so the printed edge, contact
+shadow, corner radius, tilt, `dimmed` treatment and the gold "playable"
+hairline (§28) are unchanged.
+
+- `BoxFit.fill` — the assets are authored at exactly 1.55, so nothing stretches.
+- **Decode is sized to the card's layout width, not the file's own
+  resolution**, and rounded up to a 64-px step so a card animating through many
+  intermediate widths shares one cache entry instead of decoding per frame.
+  This is what keeps a long session from accumulating bitmaps.
+- High contrast (§48) is a gentle contrast lift on the artwork, not a recolour.
+
+### The engraved painters are kept as the fallback
+
+`card_face_painter.dart`, `figure_art.dart` and `suit_art.dart` remain, and
+`CardFaceImage` falls back to them if an asset is missing or has not decoded
+yet — so a card is never a blank rectangle. They are no longer the primary
+face. Card **backs** are still painted and were not part of this change.
+
+### Client-supplied reference images — still reference only
+
+`~/Downloads/game/` holds three images the client provided earlier
+(`1000078229.jpg`, `1000078318.png`, `1000078330.png`), 146 × 251 and smaller.
+Far too low-resolution to ship; untouched, still the client's originals, and
+still the style reference the engraved court figures were drawn from.
 
 ### Card backs — 4
 

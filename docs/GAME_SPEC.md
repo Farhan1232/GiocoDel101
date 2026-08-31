@@ -103,8 +103,8 @@ The next player may answer with another **2** if `stackDrawTwos` is on
 (default: on), which adds another 2 to the total and passes it on again:
 +2 → +4 → +6 → +8. There is no cap other than the four 2s in the deck.
 
-A player who cannot or will not answer **draws the whole pending total** and
-loses their turn. The penalty then resets to zero.
+A player who cannot or will not answer **draws the whole pending total**. The
+penalty then resets to zero — but the turn does not pass. See §6b.
 
 ### 6a. Can a Cavallo block a pending +2? — `NEEDS_FINAL_RULE_CONFIRMATION`
 
@@ -134,6 +134,63 @@ Still to confirm with the client:
 `CardRuleResolver.canPlay` and `GameEngine._play` are the only places this
 lives. Tests cover all three modes (`test/engine/nove_test.dart`,
 conformance fixtures `nove_blocks_chain_*`).
+
+### 6b. After paying a chain, the same player plays on — **CONFIRMED 2026-08-31**
+
+Client instruction, 2026-08-31:
+
+> "When a player is forced to draw two cards because of a Due/+2 penalty,
+> drawing the required two cards must NOT automatically end their turn. After
+> receiving the required penalty cards, that SAME player must still be allowed
+> to play ONE legal card during that turn."
+
+So the sequence is:
+
+```
+A plays Due  ->  +2 to B
+B cannot (or will not) block or stack
+B draws the whole pending total
+    the penalty is settled           pendingDrawCount -> 0, chainLength -> 0
+    the TURN is not                  B is still the player to act
+B may now play ONE ordinary legal card
+    ...then, and only then, the turn advances
+```
+
+This applies to **whatever the chain was worth** — +2, +4, +6, +8. Nothing is
+special-cased to two cards.
+
+What the continuation is *allowed* to be is decided by the engine, not by the
+table: `GameEngine.getPlayableCards` and `validateAction` answer exactly as
+they would on any other turn. In particular:
+
+- an illegal card is still refused (`GameFailure.illegalCard`);
+- the player may **not** draw again — paying the chain sets `hasDrawnThisTurn`,
+  so a second draw is refused (`GameFailure.drawNotAllowed`);
+- with nothing legal to play, the player **passes** out of the turn, exactly as
+  §8 already allows after any draw. A paid chain can therefore never stall the
+  table;
+- a Cavallo **block** is unaffected (§6a). Blocking is not drawing: it settles
+  the chain and passes the turn on as it always did. The continuation is only
+  granted to a player who actually *paid*.
+
+State: `GameState.penaltyResolvedThisTurn` is set while the player holds this
+continuation, and cleared by the next turn change and by every deal. It is
+public information and travels in the online snapshot.
+
+Turn clock (§14.4): resolving a chain opens a **new action window** — the
+continuation gets a fresh `turnStartedAt` / `turnDeadlineAt`. Without that, a
+player who was attacked late in their turn would inherit a deadline with
+nothing left on it. The global timeout and forfeit policy is otherwise
+unchanged; a seat that has stopped responding still draws and then passes
+(`planTimeout`, `supabase/functions/match/timeout.ts`), so the extra window
+costs a live table nothing.
+
+Accounting: the penalty draw is **not** a turn of its own. `turnNumber` moves
+once for the whole play, `drawsByPlayer` counts the penalty cards once, and
+the 2 that opened the chain is still credited once to whoever played it. In the
+event stream a paid chain emits `CardsDrawnEvent(isPenalty: true)` and
+`ChainResolvedEvent` and **no** `TurnChangedEvent` — the absence of the turn
+change is what distinguishes "penalty resolved" from "turn completed".
 
 ## 7. Cavallo — change the suit
 
@@ -203,26 +260,76 @@ overshoots, and the **lowest** score wins.
 
 Rounds continue until **one player remains**. That player wins.
 
-The previous round's winner leads the next round
-(`roundStarterPolicy = previousRoundWinner`, provisional;
-`seatAfterPreviousWinner` is also implemented). Eliminated seats are not
-dealt in and are skipped in turn order.
+**The player who closed the previous round leads the next one** — CONFIRMED
+2026-08-31:
 
-### 12a. What happens if everyone would be eliminated at once
+> "The player who starts by playing the first card should not be chosen
+> clockwise; it should be the player who finished/closed the previous round."
+
+A round can only be closed by emptying a hand, so the closer *is* the round
+winner: `roundStarterPolicy = previousRoundWinner`, which is the active preset
+in the default `GameRules` every mode is built from. The lead is explicitly
+**not** the clockwise successor of anybody, not the dealer, not seat 0 and not
+the host. (`seatAfterPreviousWinner` remains implemented as an alternative but
+is not used.) If the closer has since been eliminated, the lead falls to the
+next live seat. Eliminated seats are not dealt in and are skipped in turn
+order.
+
+### 12a. The dealer rotates clockwise — **CONFIRMED 2026-08-31**
+
+Client instruction, 2026-08-31:
+
+> "The player who deals the cards should rotate clockwise, so a different
+> player deals each round."
+
+`GameState.dealerSeat` names the seat that dealt the current round. Seat 0 (the
+opening seat) deals round 1; at every new deal the dealer moves **one live seat
+clockwise**, wrapping at the end of the table and passing over anyone who has
+been eliminated:
+
+| seats | rotation |
+|---|---|
+| 2 | 0 → 1 → 0 |
+| 3 | 0 → 1 → 2 → 0 |
+| 4 | 0 → 1 → 2 → 3 → 0 |
+
+**The dealer is independent of who leads.** They answer two different
+questions and usually differ:
+
+```
+Round 1:  dealer A     closer C
+Round 2:  dealer B     first to act C
+Round 3:  dealer C     first to act = whoever closed round 2
+```
+
+`dealerSeat` is part of the canonical state: it is serialised, it survives
+save/resume, it is present in the online public snapshot (the redaction is a
+blacklist, so no migration was needed), and it is asserted in the conformance
+fixtures shared by the Dart VM and the compiled server engine. A save written
+before dealers existed loads with `dealerSeat = 0`, which is what dealt round 1
+of every match anyway; an out-of-range value is treated the same way rather
+than refused, so a corrupt dealer can never cost a player their saved match.
+
+At the table the deal is shown starting from the seat to the dealer's left and
+running round to the dealer last — the order a dealer actually deals in — and
+the dealing seat carries a small `MAZZIERE` / `DEALER` badge. Which cards a
+seat receives is fixed by the engine and does not depend on that order.
+
+### 12b. What happens if everyone would be eliminated at once
 — `NEEDS_FINAL_RULE_CONFIRMATION`
 
 Not specified by the client. The engine keeps the last surviving player list
 non-empty rather than ending with no winner; the exact tie-break has not been
 agreed. Covered defensively in `test/edge_cases_test.dart`.
 
-### 12b. Online scoring — `NEEDS_FINAL_RULE_CONFIRMATION`
+### 12c. Online scoring — `NEEDS_FINAL_RULE_CONFIRMATION`
 
 Whether an online match awards ranking points, and how many, is undefined. The
 leaderboard model exists (`LeaderboardEntry.points`) but **no points formula
 has been invented**. Session 3 must get this from the client before the
 leaderboard can show anything.
 
-## 12c. Forfeit — leaving a match for good (Session 4)
+## 12d. Forfeit — leaving a match for good (Session 4)
 
 A seat may **forfeit** at any moment of a live match (`ForfeitAction`): on
 or off turn, between rounds, while a suit is pending. Online this is what
@@ -263,7 +370,7 @@ All in `GameRules`, all with the defaults above:
 | `drawTwoPenalty` | 2 | yes |
 | `pendingPenaltyAppliesAfterWin` | false | provisional (§10a) |
 | `starterCardPolicy` | `avoidActionCards` | **provisional** (§3a) |
-| `roundStarterPolicy` | `previousRoundWinner` | **provisional** (§12) |
+| `roundStarterPolicy` | `previousRoundWinner` | **CONFIRMED 2026-08-31** (§12) |
 | `initialDirection` | `clockwise` | n/a — no reversing card |
 | `turnTimeLimitSeconds` | null | **undefined** (§14.4) |
 | `scoreValues` | Asso 1 … Re 10 | yes |
@@ -276,13 +383,23 @@ host picks travel with the match rather than living in the UI.
 1. **§6a** — the exact behaviour of the Cavallo against a pending +2. *No
    longer blocking: all candidates are implemented behind `nineBlockMode`;
    the client only has to pick one.*
-2. **§12b** — the online points formula. *Blocks the leaderboard in Session 3.*
-3. **§12a** — simultaneous elimination tie-break.
+2. **§12c** — the online points formula. *Blocks the leaderboard in Session 3.*
+3. **§12b** — simultaneous elimination tie-break.
 4. Whether the turn timer (`RoomConfig.turnTimer`) auto-plays, auto-draws or
    forfeits when it expires. The UI reserves the ring and the engine stamps
    `turnDeadlineAt`; the behaviour on expiry is undefined and not implemented.
 5. **§3a** — what to do when the opening discard is an action card.
-6. **§12** — who leads a new round (previous winner is the provisional
-   answer).
-7. **§8** — after drawing a playable card, may the player play a *different*
+6. **§8** — after drawing a playable card, may the player play a *different*
    legal card instead? (provisional: yes)
+7. **§12a** — who deals round 1. The deal rotates clockwise from there, as
+   asked; the client did not say where it starts, so seat 0 (the opening seat,
+   which is the host online) deals the first round. If the intent was the
+   traditional "dealer deals, the player to their left leads", that is a
+   one-line change in `GameEngine.createGame`.
+8. **§18 / cards** — the printed Napoletane faces carry no corner indices,
+   because a traditional Neapolitan deck has none. The engraved deck the app
+   shipped with did have them. Confirm this is wanted; if a rank index is
+   preferred for readability it can be overlaid without touching the artwork.
+
+Answered on 2026-08-31 (was: who leads a new round): **§12** — the player who
+closed the previous round leads the next one.

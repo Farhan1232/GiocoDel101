@@ -183,6 +183,25 @@ class DriveStats {
   int maxChain = 0, penaltyDraws = 0;
   int rejectedByServer = 0;
   bool assoSkipVerified = false;
+
+  /// §6b — chains paid on the server, and how the server answered.
+  int penaltyDrawsResolved = 0;
+
+  /// Times the seat that paid a chain was still the seat to act afterwards.
+  int penaltyKeptTheTurn = 0;
+
+  /// Times it then made its continuation play before the turn moved on.
+  int penaltyContinuationPlayed = 0;
+
+  /// Any occasion the server handed the turn away after a penalty draw —
+  /// must stay 0.
+  int penaltyLostTheTurn = 0;
+
+  /// §12a — dealer values seen at the start of each round, in order.
+  final List<int> dealerByRound = [];
+
+  /// §12 — (closer of round N, first seat to act in round N+1) pairs.
+  final List<(String, String)> closerThenLeader = [];
   bool finished = false;
   String? winner;
 }
@@ -205,6 +224,10 @@ Future<DriveStats> drive(
   var probed = false;
   int pendingBefore = 0;
   int? assoBySeat;
+  // §6b/§12/§12a bookkeeping across the drive.
+  String? penaltyPayer;
+  String? lastRoundCloser;
+  var lastRound = 0;
 
   while (stats.actions < maxActions) {
     // Whose turn, per the freshest public state any client holds.
@@ -294,7 +317,11 @@ Future<DriveStats> drive(
           }
         }
       } else if (engine.canDraw(v)) {
-        if (v.isPenaltyPending) stats.penaltyDraws++;
+        if (v.isPenaltyPending) {
+          stats.penaltyDraws++;
+          // §6b — remember who paid, so the next state can be checked.
+          penaltyPayer = pid;
+        }
         r = await actor.call(act({'type': 'drawCard'}));
         if (r['accepted'] == true) stats.draws++;
       } else if (engine.canPass(v)) {
@@ -311,6 +338,55 @@ Future<DriveStats> drive(
       if (events.contains('DeckRecycledEvent')) stats.recycles++;
       final st = actor.view!;
       if (st.chainLength > stats.maxChain) stats.maxChain = st.chainLength;
+
+      // §6b — the server's own answer to "whose turn is it now?" after a
+      // chain was paid. This is the client's rule checked against the
+      // authoritative state, not against the local engine.
+      if (penaltyPayer != null) {
+        stats.penaltyDrawsResolved++;
+        final stillOurs = !st.isRoundOver && st.currentPlayerId == penaltyPayer;
+        if (stillOurs) {
+          stats.penaltyKeptTheTurn++;
+          // The continuation itself: play a legal card if the server offers
+          // one, otherwise pass — and prove the turn only moves afterwards.
+          final legal = engine.getPlayableCards(st, penaltyPayer);
+          final follow = legal.isNotEmpty
+              ? act({'type': 'playCard', 'card': legal.first.id})
+              : act({'type': 'pass'});
+          final fr = await actor.call(follow);
+          if (fr['accepted'] == true) {
+            actor.adoptResponse(fr, penaltyPayer);
+            if (legal.isNotEmpty) stats.penaltyContinuationPlayed++;
+            for (final p in players) {
+              if (p.id != actor.id) await p.snapshot(matchId);
+            }
+          } else {
+            stats.rejectedByServer++;
+            stdout.writeln(
+              '   server refused the §6b continuation: ${fr['failure'] ?? fr}',
+            );
+          }
+          stats.actions++;
+        } else if (!st.isRoundOver) {
+          stats.penaltyLostTheTurn++;
+        }
+        penaltyPayer = null;
+      }
+
+      // §12a / §12 — record the dealer at each new round, and the pair
+      // (who closed round N, who led round N+1).
+      final now = actor.view!;
+      if (now.round != lastRound) {
+        lastRound = now.round;
+        stats.dealerByRound.add(now.dealerSeat);
+        if (lastRoundCloser != null && !now.isRoundOver) {
+          stats.closerThenLeader.add((lastRoundCloser, now.currentPlayerId));
+          lastRoundCloser = null;
+        }
+      }
+      if (now.isRoundOver && now.roundWinnerId != null) {
+        lastRoundCloser = now.roundWinnerId;
+      }
       // Asso: the seat after the player is skipped (§5), eliminated seats aside.
       final assoSeat = assoBySeat;
       if (assoSeat != null && events.contains('TurnSkippedEvent')) {
@@ -1716,6 +1792,48 @@ Future<void> playFull(
   stdout.writeln(
     '${stats.due > 0 && stats.penaltyDraws > 0 ? 'PASS' : 'FAIL'}  +2 played ${stats.due}×, penalty draws ${stats.penaltyDraws}',
   );
+  // §6b — the client change of 2026-08-31, checked against the SERVER'S
+  // authoritative answer, for whatever chain sizes this game happened to
+  // produce (+2, +4, +6 …).
+  if (stats.penaltyDrawsResolved > 0) {
+    final kept =
+        stats.penaltyLostTheTurn == 0 &&
+        stats.penaltyKeptTheTurn == stats.penaltyDrawsResolved;
+    _areas.putIfAbsent('+2 KEEPS THE TURN (§6b)', () => []).add(kept);
+    stdout.writeln(
+      '${kept ? 'PASS' : 'FAIL'}  §6b: ${stats.penaltyDrawsResolved} chains paid, '
+      'the payer was still to act ${stats.penaltyKeptTheTurn}× '
+      '(lost the turn ${stats.penaltyLostTheTurn}×), '
+      'continuation played ${stats.penaltyContinuationPlayed}×',
+    );
+    if (!kept) _failures++;
+  } else {
+    stdout.writeln('   §6b: no chain was paid in this game, nothing to check');
+  }
+
+  // §12a — the deal must move one seat every round, never stand still.
+  if (stats.dealerByRound.length >= 2) {
+    var rotates = true;
+    for (var i = 1; i < stats.dealerByRound.length; i++) {
+      if (stats.dealerByRound[i] == stats.dealerByRound[i - 1]) rotates = false;
+    }
+    _areas.putIfAbsent('DEALER ROTATES (§12a)', () => []).add(rotates);
+    stdout.writeln(
+      '${rotates ? 'PASS' : 'FAIL'}  §12a: dealer by round ${stats.dealerByRound}',
+    );
+    if (!rotates) _failures++;
+  }
+
+  // §12 — the seat that closed a round must lead the next one.
+  if (stats.closerThenLeader.isNotEmpty) {
+    final ok = stats.closerThenLeader.every((e) => e.$1 == e.$2);
+    _areas.putIfAbsent('CLOSER LEADS (§12)', () => []).add(ok);
+    stdout.writeln(
+      '${ok ? 'PASS' : 'FAIL'}  §12: closer → leader ${stats.closerThenLeader}',
+    );
+    if (!ok) _failures++;
+  }
+
   _areas.putIfAbsent('STACKING', () => []).add(stats.maxChain >= 2);
   stdout.writeln(
     '${stats.maxChain >= 2 ? 'PASS' : 'FAIL'}  STACKING: longest chain ${stats.maxChain} (+${stats.maxChain * 2})',

@@ -75,6 +75,7 @@
     ],
     "round": 1,
     "currentSeat": 0,
+    "dealerSeat": 0,
     "direction": "clockwise",
     "drawPile": [],
     "discardPile": [
@@ -91,6 +92,7 @@
     "roundWinnerId": null,
     "turnNumber": 0,
     "hasDrawnThisTurn": false,
+    "penaltyResolvedThisTurn": false,
     "drawnCard": null,
     "lastAction": null,
     "version": 0,
@@ -185,6 +187,7 @@
     ],
     "round": 1,
     "currentSeat": 1,
+    "dealerSeat": 0,
     "direction": "clockwise",
     "drawPile": [
       "bastoni_tre",
@@ -201,6 +204,7 @@
     "roundWinnerId": null,
     "turnNumber": 1,
     "hasDrawnThisTurn": false,
+    "penaltyResolvedThisTurn": false,
     "drawnCard": null,
     "lastAction": {
       "type": "drawCard",

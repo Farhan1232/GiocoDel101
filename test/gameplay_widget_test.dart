@@ -21,6 +21,8 @@ import 'package:gioco_del_101/features/game/presentation/game_screen.dart';
 import 'package:gioco_del_101/core/storage/game_storage_service.dart';
 import 'package:gioco_del_101/core/storage/local_storage.dart';
 import 'package:gioco_del_101/app/theme/app_theme.dart';
+import 'package:gioco_del_101/features/game/presentation/widgets/hand_fan.dart';
+import 'package:gioco_del_101/features/game/presentation/widgets/seat_view.dart';
 import 'package:gioco_del_101/features/game/presentation/widgets/suit_ritual.dart';
 
 /// §66/§73 — drives the real table through the real widgets: taps a card and
@@ -35,6 +37,7 @@ GameController _seat({
   bool fillDeck = true,
   int pendingPenalty = 0,
   int chainLength = 0,
+  int dealerIndex = 0,
 }) {
   final players = [
     for (var i = 0; i < hands.length; i++)
@@ -67,6 +70,7 @@ GameController _seat({
       discardPile: [...discardBelowTop, top],
       activeSuit: activeSuit ?? top.suit,
       currentSeat: 0,
+      dealerSeat: dealerIndex,
       pendingDrawCount: pendingPenalty,
       chainLength: chainLength,
     ),
@@ -310,6 +314,130 @@ void main() {
     // One card held plus the full four-card penalty.
     expect(c.state.playerById('p0')!.hand.length, 5);
     expect(c.state.pendingDrawCount, 0);
+    // §6b — the penalty animation finished and the turn stayed put: p0 is
+    // still to act and the table still shows it as p0's turn.
+    expect(c.state.currentPlayerId, 'p0');
+    expect(c.state.penaltyResolvedThisTurn, isTrue);
+    expect(c.currentPlayer.id, 'p0');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('§6b — after the penalty the hand is live again and playing '
+      'it hands the turn on', (tester) async {
+    final c = _seat(
+      hands: [
+        // A Coppe 6 is unplayable into the chain and legal the moment it is
+        // paid, so the same card proves both halves of the rule.
+        [
+          const GameCard(CardSuit.coppe, CardRank.sei),
+          const GameCard(CardSuit.spade, CardRank.tre),
+        ],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
+      ],
+      top: const GameCard(CardSuit.coppe, CardRank.due),
+      pendingPenalty: 2,
+      chainLength: 1,
+      drawPile: const [
+        GameCard(CardSuit.bastoni, CardRank.quattro),
+        GameCard(CardSuit.spade, CardRank.quattro),
+      ],
+    );
+    await _pumpTable(tester);
+
+    // Under the chain nothing in hand is playable — only "Prendi" is offered.
+    expect(c.playableForViewer, isEmpty);
+
+    await tester.tap(find.textContaining('Prendi').first);
+    await _settle(tester);
+
+    // The same seat is still active and the table now offers a real move.
+    expect(c.currentPlayer.id, 'p0');
+    expect(c.canInteract, isTrue);
+    expect(
+      c.playableForViewer,
+      contains(const GameCard(CardSuit.coppe, CardRank.sei)),
+      reason: 'the continuation must be offered through the normal path',
+    );
+
+    final turnsBefore = c.state.turnNumber;
+
+    // Select, then commit — the same two taps a player makes.
+    await tester.tap(find.byKey(const ValueKey('hand_coppe_sei')));
+    await _settle(tester, slices: 6);
+    await tester.tap(find.byKey(const ValueKey('hand_coppe_sei')));
+    await _settle(tester);
+
+    // The continuation was played, and only then did the turn move on. (The
+    // seat after p0 is a bot, which will already have answered by now, so
+    // assert the facts that distinguish the rule rather than whose turn it
+    // happens to be once the table has settled.)
+    expect(
+      c.state.playerById('p0')!.hand,
+      isNot(contains(const GameCard(CardSuit.coppe, CardRank.sei))),
+    );
+    expect(
+      c.state.playedCards,
+      contains(const GameCard(CardSuit.coppe, CardRank.sei)),
+    );
+    expect(c.state.penaltyResolvedThisTurn, isFalse);
+    expect(
+      c.state.turnNumber,
+      greaterThan(turnsBefore),
+      reason: 'the turn advanced only after the continuation was played',
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('§12a — the dealer badge marks the dealing seat', (tester) async {
+    // The rotation itself is engine behaviour and is covered by
+    // test/client_change_2026_08_31_test.dart and the conformance fixtures.
+    // What a widget test can add is that the table reads `dealerSeat` and
+    // badges the right medallion — so seat the dealer somewhere it is
+    // visible and check exactly one badge lands on it.
+    final c = _seat(
+      hands: [
+        [const GameCard(CardSuit.coppe, CardRank.re)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
+        [const GameCard(CardSuit.spade, CardRank.sei)],
+      ],
+      top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      dealerIndex: 1,
+    );
+    await _pumpTable(tester);
+
+    expect(c.state.dealerSeat, 1);
+    expect(find.byType(DealerChip), findsOneWidget);
+
+    // It is p1's medallion that carries it, not p2's.
+    final badgedSeat = tester.widget<OpponentSeat>(
+      find.ancestor(
+        of: find.byType(DealerChip),
+        matching: find.byType(OpponentSeat),
+      ),
+    );
+    expect(badgedSeat.player.id, 'p1');
+    expect(badgedSeat.isDealer, isTrue);
+
+    // The dealer is not the player to act — the two are independent (§12a).
+    expect(c.state.currentPlayerId, 'p0');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('§12a — with the deal on the viewer\'s own seat no opponent is '
+      'badged', (tester) async {
+    final c = _seat(
+      hands: [
+        [const GameCard(CardSuit.coppe, CardRank.re)],
+        [const GameCard(CardSuit.denari, CardRank.tre)],
+        [const GameCard(CardSuit.spade, CardRank.sei)],
+      ],
+      top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      dealerIndex: 0,
+    );
+    await _pumpTable(tester);
+
+    expect(c.state.dealerSeat, 0);
+    expect(find.byType(DealerChip), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

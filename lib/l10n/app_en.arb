@@ -151,6 +151,10 @@
   "dailyRewardGuestHint": "Create an account to claim daily rewards.",
   "dailyRewardTitle": "Daily reward",
   "dailyRewardTomorrow": "Come back tomorrow",
+  "dealerBadge": "DEALER",
+  "@dealerBadge": {
+    "description": "Badge on the seat that dealt the current round (§12a)."
+  },
   "defaultDifficulty": "Default difficulty",
   "difficulty": "Difficulty",
   "difficultyEasy": "Easy",

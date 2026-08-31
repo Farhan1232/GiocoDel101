@@ -404,6 +404,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyRewardTomorrow => 'Come back tomorrow';
 
   @override
+  String get dealerBadge => 'DEALER';
+
+  @override
   String get defaultDifficulty => 'Default difficulty';
 
   @override

@@ -28,6 +28,7 @@ flutter:
   generate: true
   assets:
     - assets/audio/
+    - assets/cards/
     - assets/fonts/OFL.txt
     - assets/fonts/OFL-Cinzel.txt
     - assets/fonts/OFL-Manrope.txt

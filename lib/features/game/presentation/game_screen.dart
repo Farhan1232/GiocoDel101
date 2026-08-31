@@ -673,6 +673,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     accent: accent,
                     compact: opponents.length > 2,
                     skipped: _skippedSeat == opponents[i].id,
+                    isDealer:
+                        c.state.players[c.state.dealerSeat].id ==
+                        opponents[i].id,
                     thinking:
                         !c.isOnline &&
                         opponents[i].isBot &&

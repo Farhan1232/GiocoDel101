@@ -113,6 +113,9 @@ class GameEngine {
       discardPile: [Deck.standard.first], // placeholder, replaced by _deal
       activeSuit: CardSuit.denari,
       currentSeat: startingSeat,
+      // §12a — the opening seat deals the opening round; from the next round
+      // on the deal moves one seat clockwise, so everybody deals in turn.
+      dealerSeat: startingSeat,
       direction: rules.initialDirection,
       seed: seed,
       isDailyChallenge: isDailyChallenge,
@@ -136,7 +139,7 @@ class GameEngine {
     final player = state.playerById(playerId);
     if (player == null || player.eliminated) return const [];
     final resolver = resolverFor(state);
-    final hand = state.rules.restrictPlayToDrawnCard && state.hasDrawnThisTurn
+    final hand = state.restrictsPlayToDrawnCard
         ? (state.drawnCard == null ? const <GameCard>[] : [state.drawnCard!])
         : player.hand;
     return resolver.playableCards(hand, state);
@@ -147,9 +150,7 @@ class GameEngine {
   bool canPlay(GameState state, GameCard card) =>
       state.status == GameStatus.awaitingAction &&
       resolverFor(state).canPlay(card, state) &&
-      (!state.rules.restrictPlayToDrawnCard ||
-          !state.hasDrawnThisTurn ||
-          state.drawnCard == card);
+      (!state.restrictsPlayToDrawnCard || state.drawnCard == card);
 
   bool canDraw(GameState state) =>
       validateAction(state, DrawCardAction(playerId: state.currentPlayerId)) ==
@@ -210,9 +211,7 @@ class GameEngine {
         if (awaitingSuit) return GameFailure.suitSelectionRequired;
         if (!actor.hand.contains(card)) return GameFailure.cardNotOwned;
         if (!resolver.canPlay(card, state)) return GameFailure.illegalCard;
-        if (rules.restrictPlayToDrawnCard &&
-            state.hasDrawnThisTurn &&
-            state.drawnCard != card) {
+        if (state.restrictsPlayToDrawnCard && state.drawnCard != card) {
           return GameFailure.illegalCard;
         }
         return null;
@@ -220,6 +219,8 @@ class GameEngine {
       case DrawCardAction():
         if (awaitingSuit) return GameFailure.suitSelectionRequired;
         if (state.isPenaltyPending) return null;
+        // §6b — a paid chain leaves `hasDrawnThisTurn` set, so the seat that
+        // stayed on cannot keep drawing; its continuation is a play or a pass.
         if (state.hasDrawnThisTurn) return GameFailure.drawNotAllowed;
         if (!rules.allowVoluntaryDraw &&
             resolver.hasPlayable(actor.hand, state)) {
@@ -421,11 +422,25 @@ class GameEngine {
     final rules = s.rules;
 
     if (s.isPenaltyPending) {
+      // §6b — paying the chain settles the penalty, not the turn. Whatever
+      // the chain was worth (+2, +4, +6, …), the seat that took it stays on
+      // and may still make one ordinary legal play; only then does the turn
+      // advance. No TurnChangedEvent is emitted here, which is exactly what
+      // tells a listener a penalty was *resolved* rather than a turn ended.
       final owed = s.pendingDrawCount;
       final chain = s.chainLength;
       final (afterDraw, drawn) = _drawInto(s, player.id, owed, events);
       final next = afterDraw
-          .copyWith(pendingDrawCount: 0, chainLength: 0)
+          .copyWith(
+            pendingDrawCount: 0,
+            chainLength: 0,
+            // Bars a second draw and satisfies `mustDrawBeforePassing`, so a
+            // seat left with nothing playable can still pass out of the turn.
+            hasDrawnThisTurn: true,
+            penaltyResolvedThisTurn: true,
+            clearDrawnCard: true,
+            status: GameStatus.awaitingAction,
+          )
           .withHistory(
             HistoryEntry(
               type: HistoryEntryType.penaltyDraw,
@@ -435,7 +450,7 @@ class GameEngine {
           );
       events.add(CardsDrawnEvent(player.id, drawn, isPenalty: true));
       events.add(ChainResolvedEvent(player.id, owed, chain));
-      return _advanceTurn(next, 1, events);
+      return next;
     }
 
     var next = s;
@@ -543,6 +558,7 @@ class GameEngine {
     final next = s.copyWith(
       currentSeat: _seatAfter(s, s.currentSeat, steps),
       hasDrawnThisTurn: false,
+      penaltyResolvedThisTurn: false,
       clearDrawnCard: true,
       turnNumber: s.turnNumber + 1,
       status: GameStatus.awaitingAction,
@@ -708,6 +724,9 @@ class GameEngine {
   }
 
   GameState _startNextRound(GameState s, List<GameEvent> events) {
+    // §12 — who *leads* the new round. Under the confirmed rule that is the
+    // seat which closed the previous one, never the next seat round the
+    // table. §12a — who *deals* it is a separate question, answered below.
     final winnerSeat = s.roundWinnerId == null
         ? -1
         : s.seatOf(s.roundWinnerId!);
@@ -722,9 +741,16 @@ class GameEngine {
       starter = s.players.indexWhere((p) => !p.eliminated);
       if (starter < 0) starter = 0;
     }
+
+    // §12a — the deal passes one live seat clockwise every round, wrapping at
+    // the end of the table, whatever the closer did. Independent of
+    // [starter]: the two coincide only by chance.
+    final dealer = _seatAfter(s, s.dealerSeat, 1);
+
     final cleared = s.copyWith(
       players: [for (final p in s.players) p.copyWith(hand: const [])],
       round: s.round + 1,
+      dealerSeat: dealer,
       clearRoundWinner: true,
       clearLastRoundResult: true,
     );
@@ -830,6 +856,7 @@ class GameEngine {
       status: GameStatus.awaitingAction,
       turnNumber: 0,
       hasDrawnThisTurn: false,
+      penaltyResolvedThisTurn: false,
       clearDrawnCard: true,
       playedCards: const [],
       drawsByPlayer: const {},
@@ -848,7 +875,11 @@ class GameEngine {
         previous == null ||
         next.turnNumber != previous.turnNumber ||
         next.round != previous.round ||
-        next.currentSeat != previous.currentSeat;
+        next.currentSeat != previous.currentSeat ||
+        // §6b/§14.4 — paying a chain keeps the seat but opens a new action
+        // window. Without this the continuation the client asked for would
+        // inherit whatever was left of the clock, often nothing at all.
+        (next.penaltyResolvedThisTurn && !previous.penaltyResolvedThisTurn);
     if (!turnChanged) return next;
     if (now == null) return next.copyWith(clearTurnClock: true);
     final limit = next.rules.turnTimeLimitSeconds;

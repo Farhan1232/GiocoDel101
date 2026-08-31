@@ -73,7 +73,7 @@ void main() {
     test('ids are stable and not derived from any file name', () {
       const card = GameCard(CardSuit.spade, CardRank.cavallo);
       expect(card.id, 'spade_cavallo');
-      expect(card.asset.imagePath, 'assets/cards/spade_cavallo.png');
+      expect(card.asset.imagePath, 'assets/cards/spade_cavallo.webp');
       expect(card.asset.isFigure, isTrue);
       expect(card.asset.suitKey, 'spade');
       expect(card.asset.rankKey, 'cavallo');

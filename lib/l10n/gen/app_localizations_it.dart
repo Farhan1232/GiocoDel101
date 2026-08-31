@@ -407,6 +407,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dailyRewardTomorrow => 'Torna domani';
 
   @override
+  String get dealerBadge => 'MAZZIERE';
+
+  @override
   String get defaultDifficulty => 'Difficoltà predefinita';
 
   @override

@@ -29,6 +29,7 @@ class OpponentSeat extends StatelessWidget {
     this.reaction,
     this.skipped = false,
     this.thinking = false,
+    this.isDealer = false,
     this.compact = false,
     this.accent,
   });
@@ -47,6 +48,10 @@ class OpponentSeat extends StatelessWidget {
 
   /// §9 — this seat has just been skipped by an Ace.
   final bool skipped;
+
+  /// §12a — this seat dealt the current round. The deal moves one seat
+  /// clockwise each round, so the badge travels round the table with it.
+  final bool isDealer;
 
   final bool compact;
   final Color? accent;
@@ -102,6 +107,12 @@ class OpponentSeat extends StatelessWidget {
                   warn: player.cardCount == 1 && !player.eliminated,
                 ),
               ),
+              if (isDealer)
+                Positioned(
+                  left: -8,
+                  bottom: -4,
+                  child: DealerChip(accent: accent ?? AppColors.antiqueGold),
+                ),
               if (skipped)
                 Positioned(
                   top: -22,

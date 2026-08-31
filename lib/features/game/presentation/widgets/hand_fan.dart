@@ -351,3 +351,41 @@ class CardCountChip extends StatelessWidget {
     );
   }
 }
+
+/// §12a — the badge marking the seat that dealt the current round.
+///
+/// Deliberately quieter than [CardCountChip]: the dealer is a fact about the
+/// round, not something the player has to act on. It travels one seat
+/// clockwise at every new deal.
+class DealerChip extends StatelessWidget {
+  const DealerChip({super.key, this.accent = AppColors.antiqueGold});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: Strings.s.dealerBadge,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          color: AppColors.surfaceSunken.withValues(alpha: 0.9),
+          border: Border.all(color: accent.withValues(alpha: 0.45)),
+        ),
+        child: Text(
+          // The initial alone: a seat medallion has no room for "MAZZIERE",
+          // and the full word is on the badge's semantics label.
+          Strings.s.dealerBadge.characters.first,
+          style: TextStyle(
+            fontFamily: AppText.ui,
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+            color: accent.withValues(alpha: 0.95),
+          ),
+        ),
+      ),
+    );
+  }
+}

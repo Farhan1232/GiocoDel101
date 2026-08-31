@@ -63,6 +63,7 @@ class GameState {
     required List<GameCard> discardPile,
     required this.activeSuit,
     required this.currentSeat,
+    this.dealerSeat = 0,
     this.round = 1,
     this.direction = TurnDirection.clockwise,
     this.pendingDrawCount = 0,
@@ -72,6 +73,7 @@ class GameState {
     this.roundWinnerId,
     this.turnNumber = 0,
     this.hasDrawnThisTurn = false,
+    this.penaltyResolvedThisTurn = false,
     this.drawnCard,
     this.lastAction,
     this.version = 0,
@@ -118,6 +120,13 @@ class GameState {
   /// Index into [players] of the seat currently to act.
   final int currentSeat;
 
+  /// §12a — index into [players] of the seat that dealt this round. Rotates
+  /// one seat clockwise (skipping eliminated seats) at every new deal, so a
+  /// different player deals each round. Entirely independent of
+  /// [currentSeat]: who deals and who leads are two different questions, and
+  /// under [RoundStarterPolicy.previousRoundWinner] they usually differ.
+  final int dealerSeat;
+
   final TurnDirection direction;
 
   /// Face-down stock. The last element is the next card to be dealt.
@@ -149,6 +158,11 @@ class GameState {
 
   /// §8 — a turn may not end without playing or drawing.
   final bool hasDrawnThisTurn;
+
+  /// §6b — set when the seat to act has just paid a pending +2 chain and is
+  /// still on turn for its one legal continuation. Cleared by the next turn
+  /// change and by every deal.
+  final bool penaltyResolvedThisTurn;
 
   /// §8 — set when a freshly drawn card is legal and may be played at once.
   final GameCard? drawnCard;
@@ -214,6 +228,16 @@ class GameState {
   bool get isRedacted => concealedDrawPileCount != null;
 
   bool get isPenaltyPending => pendingDrawCount > 0;
+
+  /// §8 — whether a play this turn is confined to the card just drawn.
+  ///
+  /// The restriction is a consequence of choosing to draw. Penalty cards are
+  /// taken under duress, so the continuation §6b grants after a chain is paid
+  /// is an ordinary legal play, not a restricted one.
+  bool get restrictsPlayToDrawnCard =>
+      rules.restrictPlayToDrawnCard &&
+      hasDrawnThisTurn &&
+      !penaltyResolvedThisTurn;
   bool get isRoundOver =>
       status == GameStatus.roundOver || status == GameStatus.finished;
   bool get isFinished => status == GameStatus.finished;
@@ -246,6 +270,7 @@ class GameState {
     List<GamePlayer>? players,
     int? round,
     int? currentSeat,
+    int? dealerSeat,
     TurnDirection? direction,
     List<GameCard>? drawPile,
     List<GameCard>? discardPile,
@@ -258,6 +283,7 @@ class GameState {
     bool clearRoundWinner = false,
     int? turnNumber,
     bool? hasDrawnThisTurn,
+    bool? penaltyResolvedThisTurn,
     GameCard? drawnCard,
     bool clearDrawnCard = false,
     GameAction? lastAction,
@@ -279,6 +305,7 @@ class GameState {
     players: players ?? this.players,
     round: round ?? this.round,
     currentSeat: currentSeat ?? this.currentSeat,
+    dealerSeat: dealerSeat ?? this.dealerSeat,
     direction: direction ?? this.direction,
     drawPile: drawPile ?? this.drawPile,
     discardPile: discardPile ?? this.discardPile,
@@ -292,6 +319,8 @@ class GameState {
         : (roundWinnerId ?? this.roundWinnerId),
     turnNumber: turnNumber ?? this.turnNumber,
     hasDrawnThisTurn: hasDrawnThisTurn ?? this.hasDrawnThisTurn,
+    penaltyResolvedThisTurn:
+        penaltyResolvedThisTurn ?? this.penaltyResolvedThisTurn,
     drawnCard: clearDrawnCard ? null : (drawnCard ?? this.drawnCard),
     lastAction: lastAction ?? this.lastAction,
     version: version ?? this.version,
@@ -338,6 +367,7 @@ class GameState {
     'players': players.map((p) => p.toJson()).toList(),
     'round': round,
     'currentSeat': currentSeat,
+    'dealerSeat': dealerSeat,
     'direction': direction.key,
     'drawPile': drawPile.map((c) => c.id).toList(),
     'discardPile': discardPile.map((c) => c.id).toList(),
@@ -349,6 +379,7 @@ class GameState {
     'roundWinnerId': roundWinnerId,
     'turnNumber': turnNumber,
     'hasDrawnThisTurn': hasDrawnThisTurn,
+    'penaltyResolvedThisTurn': penaltyResolvedThisTurn,
     'drawnCard': drawnCard?.id,
     'lastAction': lastAction?.toJson(),
     'version': version,
@@ -389,6 +420,14 @@ class GameState {
     if (currentSeat < 0 || currentSeat >= players.length) {
       throw const FormatException('Turn cursor points outside the table');
     }
+    // Saves written before the dealer rotated (§12a) carry no dealer; seat 0
+    // dealt the first round of every match, so that is the safe stand-in. An
+    // out-of-range value is treated the same way rather than refused: a
+    // corrupt dealer must never cost a player their saved match.
+    final rawDealer = (json['dealerSeat'] as num?)?.toInt() ?? 0;
+    final dealerSeat = (rawDealer >= 0 && rawDealer < players.length)
+        ? rawDealer
+        : 0;
     final rawActiveSuit = json['activeSuit'];
     if (rawActiveSuit is! String) {
       throw const FormatException('Missing active suit');
@@ -405,6 +444,7 @@ class GameState {
       players: players,
       round: (json['round'] as num?)?.toInt() ?? 1,
       currentSeat: currentSeat,
+      dealerSeat: dealerSeat,
       direction: TurnDirection.fromKey(
         json['direction'] as String? ?? 'clockwise',
       ),
@@ -418,6 +458,8 @@ class GameState {
       roundWinnerId: json['roundWinnerId'] as String?,
       turnNumber: (json['turnNumber'] as num?)?.toInt() ?? 0,
       hasDrawnThisTurn: json['hasDrawnThisTurn'] as bool? ?? false,
+      penaltyResolvedThisTurn:
+          json['penaltyResolvedThisTurn'] as bool? ?? false,
       drawnCard: json['drawnCard'] == null
           ? null
           : GameCard.fromJson(json['drawnCard']),
@@ -458,5 +500,6 @@ class GameState {
   @override
   String toString() =>
       'GameState(v$version r$round ${status.key} seat=$currentSeat '
-      'top=$topCard suit=${activeSuit.key} pending=$pendingDrawCount)';
+      'dealer=$dealerSeat top=$topCard suit=${activeSuit.key} '
+      'pending=$pendingDrawCount)';
 }

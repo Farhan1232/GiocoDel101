@@ -46,7 +46,7 @@ lib/
 │   ├── services/                 Audio, haptics, Supabase bootstrap
 │   ├── storage/                  SharedPreferences wrappers, resumable snapshot
 │   ├── utils/                    Motion, glow, Log
-│   └── widgets/                  Buttons, panels, fields, icons, the vector deck
+│   └── widgets/                  Buttons, panels, fields, icons, the card deck
 ├── features/
 │   ├── game/                     domain/ (engine + AI), application/, presentation/
 │   ├── tutorial/                 Eight scripted lessons on the real table
@@ -239,11 +239,15 @@ handoff's client-questions table.
 
 ## 8. Cards, fonts, audio
 
-There are no card image files: all forty faces and the four backs are
-vector art painted at runtime (`lib/core/widgets/cards/`), crisp at every
-DPI and original work. Fonts are Cinzel and Manrope (SIL OFL, licences
-bundled and shown in the licence page). The seventeen audio assets are
-synthesised, not sampled. See `docs/ASSET_INVENTORY.md`.
+The forty card faces are **traditional Carte Napoletane** — public-domain
+artwork, one WebP per card in `assets/cards/`, named by `GameCard.id`, licence
+in `assets/cards/LICENSE.txt`. They are decoded at the size they are drawn, so
+a table full of cards stays cheap. The engraved vector painters
+(`lib/core/widgets/cards/`) remain as the fallback if an asset is missing or
+has not decoded yet; the four card **backs** are still vector art painted at
+runtime. Fonts are Cinzel and Manrope (SIL OFL, licences bundled and shown in
+the licence page). The seventeen audio assets are synthesised, not sampled.
+See `docs/ASSET_INVENTORY.md`.
 
 ## 9. Design notes
 

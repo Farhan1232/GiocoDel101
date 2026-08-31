@@ -75,11 +75,17 @@ void main() {
       expect(drawn.state.players.first.hand, hasLength(1 + 8));
       expect(drawn.state.pendingDrawCount, 0);
       expect(drawn.state.chainLength, 0);
-      expect(drawn.state.currentPlayerId, 'p1');
+      // §6b — +8 is paid and p0 keeps the turn, exactly as it would for +2.
+      expect(drawn.state.currentPlayerId, 'p0');
+      expect(drawn.state.penaltyResolvedThisTurn, isTrue);
       final resolved = drawn.events.whereType<ChainResolvedEvent>().single;
       expect(resolved.total, 8);
       expect(resolved.chainLength, 4);
       expect(drawn.state.totalCards, 40);
+      // …and only after p0's continuation does the turn move on.
+      final after = ok(drawn.state, const PassAction(playerId: 'p0'));
+      expect(after.state.currentPlayerId, 'p1');
+      expect(after.state.penaltyResolvedThisTurn, isFalse);
     });
 
     test('drawing resolves +2 and +6 exactly', () {
@@ -97,7 +103,12 @@ void main() {
         final r = ok(s, const DrawCardAction(playerId: 'p1'));
         expect(r.state.players[1].hand, hasLength(1 + pending));
         expect(r.state.pendingDrawCount, 0);
-        expect(r.state.currentPlayerId, 'p0');
+        // §6b — paying the chain settles the penalty, not the turn: p1 is
+        // still to act and may make one ordinary legal play.
+        expect(r.state.currentPlayerId, 'p1');
+        expect(r.state.penaltyResolvedThisTurn, isTrue);
+        expect(r.state.hasDrawnThisTurn, isTrue);
+        expect(r.events.whereType<TurnChangedEvent>(), isEmpty);
         expect(r.state.drawsByPlayer['p1'], pending);
         final e = r.events.whereType<CardsDrawnEvent>().single;
         expect(e.isPenalty, isTrue);
