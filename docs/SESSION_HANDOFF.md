@@ -140,6 +140,49 @@ form too; and the short form no longer reports RESHUFFLE / 9 BLOCK as
 
 ---
 
+## 0c. Client follow-up, 2026-09-01 — the clockwise sequential deal
+
+> "The sequential hand in clockwise order still doesn't work."
+
+**The dealer rotation added on 2026-08-31 was cosmetic.** `dealerSeat` moved,
+the badge moved and the deal animation travelled round the table — but
+`GameEngine._deal` dealt in plain seat order (0, 1, 2, 3) and never read
+`dealerSeat`, so who dealt had no effect on who received which card.
+`DealCue`'s own comment said as much: *"presentation only … does not depend on
+this order."*
+
+**Now:** `GameState.dealingSeatOrder` is the canonical lap — every live seat,
+one step clockwise, starting one place after `dealerSeat`, wrapping so the
+dealer is served last. `_deal` deals by it, one card per seat per lap; the
+animation's `dealingOrder(state)` is a one-line delegation to the same getter,
+so the card a player receives is the card they watch arrive. Eliminated seats
+are skipped with the clockwise order of the rest preserved.
+
+Turn order is untouched: §12 still gives the lead to the previous round's
+closer, §12a still rotates the dealer, and the deal answers neither question.
+
+The only production change is that loop plus the derived getters. No rule, no
+scoring, no §16, no layout, no security, no schema, no wire format — no
+migration; `dealerSeat` was already public and the order derives from it.
+What *does* change is which cards a seed deals to which seat, which is the
+fix; the 61 conformance fixtures were regenerated and every hand-written
+assertion still holds.
+
+Numbers: **684 Flutter tests**, **68 Deno tests**, 61 conformance fixtures on
+the Dart VM **and** the compiled JavaScript, bot simulation **540 matches /
+0 violations / 0 hangs / 0 illegal proposals**.
+
+The `match` Edge Function was redeployed to `GiocoDel101-Dev` (v7 → **v8**).
+`tool/online_rule_check.dart` gained a §3 check that recomputes the expected
+lap from the server's published `dealerSeat`: **2 seats 50/50, 3 seats 36/36,
+4 seats 46/46, 0 failures**, observing dealer 1 → `[0,1]`, dealer 2 →
+`[0,1,2]`, dealer 3 → `[0,1,2,3]` and dealer 0 → `[1,2,3,0]` — exactly the
+sequences the client specified.
+
+Full account in **`docs/CLIENT_FINAL_CHANGE.md`**.
+
+---
+
 ## 0. What Session 6 found and fixed
 
 Four parallel read-only audits (server security, client performance,

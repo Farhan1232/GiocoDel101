@@ -187,10 +187,10 @@ flutter run -d chrome --dart-define-from-file=env/supabase.dev.json
 
 ```bash
 flutter analyze
-flutter test                                         # 651 tests, ~60 s
+flutter test                                         # 684 tests, ~85 s
 dart run tool/bot_simulation.dart                    # bot matches, invariants (SIM_MATCHES=…)
-deno test --allow-read supabase/functions/match/     # 59 conformance fixtures + timeout policy
-RULE_CHECK_SEATS=4 dart run tool/online_rule_check.dart   # §6b/§12/§12a/§16, live
+deno test --allow-read supabase/functions/match/     # 61 conformance fixtures + timeout policy
+RULE_CHECK_SEATS=4 dart run tool/online_rule_check.dart   # §3/§6b/§12/§12a/§16, live
 
 # Against the real dev project (five / two independent users):
 MATRIX_QUICK=1 dart run tool/online_matrix.dart      # ~13 min; omit MATRIX_QUICK for 2/3/4-player games (~30 min)

@@ -14,6 +14,7 @@
 //        moves on — while an illegal card is still refused.
 //   §12  the seat that CLOSED a round is the first to act in the next one.
 //   §12a the dealer moves one seat every round, independently of §12.
+//   §3   the deal itself goes clockwise from the new dealer's left.
 //
 // Why this exists next to `tool/online_matrix.dart`: the matrix re-reads the
 // snapshot for every seat after every action, which is four or more HTTP
@@ -250,6 +251,7 @@ Future<void> main() async {
   var illegalRefusedProven = false;
   var roundsProven = 0;
   var dealerRotationProven = 0;
+  var dealOrdersProven = 0;
   final dealerByRound = <int, int>{};
   String? closer;
   var actions = 0;
@@ -313,6 +315,43 @@ Future<void> main() async {
         );
         dealerRotationProven++;
       }
+
+      // §3 — the deal itself, read off the SERVER's authoritative state:
+      // the lap starts one live seat clockwise of the dealer, wraps so the
+      // dealer is served last, and every live seat ends up with a full hand.
+      //
+      // The lap is recomputed here from the published `dealerSeat` rather
+      // than taken from the engine, so this is a check on the server and not
+      // a restatement of the client. Which *card* each seat received is not
+      // visible to any one player by design (hands are redacted); that half
+      // is pinned by the conformance fixtures, which the compiled server
+      // engine and the Dart VM both replay to byte-identical states.
+      final n = now.players.length;
+      final expectedLap = [
+        for (var k = 1; k <= n; k++)
+          if (!now.players[(now.dealerSeat + k) % n].eliminated)
+            (now.dealerSeat + k) % n,
+      ];
+      check(
+        '§3 — round ${now.round} deals clockwise from the dealer\'s left',
+        now.dealingSeatOrder.toString() == expectedLap.toString(),
+        '${now.dealingSeatOrder} (dealer ${now.dealerSeat})',
+      );
+      check(
+        '§3 — the dealer is served last',
+        now.dealingSeatOrder.isNotEmpty &&
+            now.dealingSeatOrder.last == now.dealerSeat,
+        now.dealingSeatOrder,
+      );
+      check(
+        '§3 — every live seat was dealt a full hand',
+        now.players
+            .where((p) => !p.eliminated)
+            .every((p) => p.cardCount == now.rules.startingHandSize),
+        now.players.map((p) => '${p.id}:${p.cardCount}').join(' '),
+      );
+      dealOrdersProven++;
+
       dealerByRound[now.round] = now.dealerSeat;
       roundsProven++;
       continue;
@@ -449,10 +488,16 @@ Future<void> main() async {
   stdout.writeln(
     '\n   $actions actions, $penaltiesProven paid chains proven, '
     '$roundsProven round changes proven, $dealerRotationProven dealer moves, '
+    '$dealOrdersProven clockwise deals, '
     '$lastCardsProven ultima carta declarations',
   );
   check('at least one +2 chain was paid and checked', penaltiesProven > 0);
   check('at least one round change was checked', roundsProven > 0);
+  check(
+    '§3 — at least one deal was checked against the server',
+    dealOrdersProven > 0,
+    '$dealOrdersProven deals',
+  );
   check(
     '§16 — at least one ULTIMA CARTA was declared and accepted',
     lastCardsProven > 0,

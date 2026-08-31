@@ -86,10 +86,11 @@ class ReactionCue extends TableCue {
 /// The engine deals in one step; the table shows the cards leaving the
 /// stock one by one so a new round reads as a new round (§29).
 ///
-/// §12a — [seatIds] starts one seat clockwise of the dealer and wraps, the
-/// order a dealer actually deals in, so the deal visibly travels round the
-/// table as [dealerId] moves. This is presentation only: which cards a seat
-/// receives is fixed by the engine and does not depend on this order.
+/// §3/§12a — [seatIds] starts one seat clockwise of the dealer and wraps,
+/// the order a dealer actually deals in, so the deal visibly travels round
+/// the table as [dealerId] moves. It is the engine's own
+/// [GameState.dealingSeatOrder]: the table animates the cards arriving in
+/// precisely the order the engine dealt them, one at a time, lap after lap.
 class DealCue extends TableCue {
   const DealCue(this.seatIds, this.handSize, {this.dealerId});
   final List<String> seatIds;
@@ -101,24 +102,11 @@ class DealCue extends TableCue {
 
 /// The live seats in dealing order for [state]: first the seat clockwise of
 /// the dealer, then on round the table, wrapping back to the dealer last.
-List<String> dealingOrder(GameState state) {
-  final live = <int>[
-    for (var i = 0; i < state.players.length; i++)
-      if (!state.players[i].eliminated) i,
-  ];
-  if (live.isEmpty) return const [];
-  final step = state.direction.step;
-  final n = state.players.length;
-  final order = <String>[];
-  var seat = state.dealerSeat;
-  for (var moved = 0; moved < live.length;) {
-    seat = (seat + step + n) % n;
-    if (state.players[seat].eliminated) continue;
-    order.add(state.players[seat].id);
-    moved++;
-  }
-  return order;
-}
+///
+/// Delegates to [GameState.dealingOrder], which is what `GameEngine._deal`
+/// itself hands the cards out by, so the animation cannot show one sequence
+/// while the engine uses another.
+List<String> dealingOrder(GameState state) => state.dealingOrder;
 
 /// The one mapping from engine facts to table cues, shared by every local
 /// driver (the bot table and the tutorial) so they cannot drift apart.

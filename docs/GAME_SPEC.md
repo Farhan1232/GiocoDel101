@@ -81,6 +81,36 @@ range applies (`RoomConfig.playerCount`).
 Each player is dealt **5** cards (`startingHandSize`). One card is turned up to
 start the discard pile; the rest form the draw pile.
 
+### The order the cards go out — **CONFIRMED 2026-09-01**
+
+Cards are dealt the way a person deals them: **one at a time, clockwise,
+starting with the seat to the dealer's left**, lap after lap until every live
+seat holds a full hand. The dealer is served **last** in every lap.
+
+    4 seats, dealer 0:  1, 2, 3, 0,  1, 2, 3, 0,  … five laps
+    4 seats, dealer 1:  2, 3, 0, 1,  2, 3, 0, 1,  …
+    3 seats, dealer 2:  0, 1, 2,     0, 1, 2,     …
+    2 seats, dealer 0:  1, 0,        1, 0,        …
+
+Eliminated seats are passed over; the clockwise order of the seats that remain
+is unchanged (4 seats, seat 2 out, dealer 0 → `1, 3, 0`).
+
+The sequence is `GameState.dealingSeatOrder`, and it is the **canonical**
+order: `GameEngine._deal` hands the cards out by it, and the table's deal
+animation follows the very same list, so the card a player receives is the
+card they watch arrive.
+
+> **What was wrong before 2026-09-01.** The dealer badge rotated and the
+> animation travelled round the table, but the engine dealt in plain seat
+> order (0, 1, 2, 3) whatever the dealer did — so who dealt had no effect on
+> who got which card. That is the "sequential hand in clockwise order still
+> doesn't work" the client reported. The badge was right; the deal was not.
+
+**Dealing order is not turn order.** Who deals (§12a) and who *leads* (§12 —
+the previous round's closer) are separate questions, and the deal answers
+neither. The lap always starts left of the dealer; play always starts with the
+closer, wherever they sit.
+
 ### 3a. If the opening card is an action card — `NEEDS_FINAL_RULE_CONFIRMATION`
 
 Not specified. Provisional (`starterCardPolicy = avoidActionCards`): the
@@ -322,6 +352,9 @@ Round 1:  dealer A     closer C
 Round 2:  dealer B     first to act C
 Round 3:  dealer C     first to act = whoever closed round 2
 ```
+
+Since 2026-09-01 the rotation also moves the **deal itself**: the cards go out
+one at a time clockwise from the new dealer's left (§3), not merely the badge.
 
 `dealerSeat` is part of the canonical state: it is serialised, it survives
 save/resume, it is present in the online public snapshot (the redaction is a

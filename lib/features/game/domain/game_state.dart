@@ -230,6 +230,48 @@ class GameState {
 
   List<String> get seatOrder => players.map((p) => p.id).toList();
 
+  /// §3/§12a — the seats in the order the dealer serves them, as *indices*
+  /// into [players].
+  ///
+  /// A dealer deals to their left first and themselves last, one card at a
+  /// time, round after round. So the sequence starts one place clockwise of
+  /// [dealerSeat], follows [direction], and wraps back so the dealer is
+  /// served last. Eliminated seats drop out; the clockwise order of the rest
+  /// is unchanged.
+  ///
+  ///     4 seats, dealer 0 -> [1, 2, 3, 0]
+  ///     4 seats, dealer 1 -> [2, 3, 0, 1]
+  ///     3 seats, dealer 2 -> [0, 1, 2]
+  ///     2 seats, dealer 0 -> [1, 0]
+  ///
+  /// This is the **canonical** order: `GameEngine._deal` hands the cards out
+  /// in exactly this sequence, and the table animates exactly this sequence.
+  /// It lives on the state rather than in either of them so the cards a
+  /// player receives and the cards they watch arrive can never disagree.
+  ///
+  /// Independent of who *leads* the round (§12): the previous round's closer
+  /// starts play wherever they sit, and that is [currentSeat], not this.
+  List<int> get dealingSeatOrder {
+    final n = players.length;
+    if (n == 0) return const [];
+    final step = direction.step;
+    final order = <int>[];
+    var seat = dealerSeat.clamp(0, n - 1);
+    // Exactly one lap: every seat is visited once, so a table of eliminated
+    // seats terminates instead of spinning.
+    for (var moved = 0; moved < n; moved++) {
+      seat = (seat + step + n) % n;
+      if (!players[seat].eliminated) order.add(seat);
+    }
+    return List.unmodifiable(order);
+  }
+
+  /// [dealingSeatOrder] as player ids — what the table's deal animation
+  /// follows.
+  List<String> get dealingOrder => [
+    for (final seat in dealingSeatOrder) players[seat].id,
+  ];
+
   Map<String, int> get scores => {for (final p in players) p.id: p.score};
 
   Map<String, List<GameCard>> get hands => {

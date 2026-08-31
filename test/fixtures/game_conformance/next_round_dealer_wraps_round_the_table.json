@@ -216,11 +216,11 @@
         "score": 12,
         "eliminated": false,
         "hand": [
-          "spade_fante",
-          "denari_fante",
-          "denari_re",
-          "bastoni_fante",
-          "spade_cinque"
+          "spade_sette",
+          "bastoni_asso",
+          "bastoni_re",
+          "spade_tre",
+          "coppe_sei"
         ]
       },
       {
@@ -233,11 +233,11 @@
         "score": 0,
         "eliminated": false,
         "hand": [
-          "coppe_asso",
-          "coppe_quattro",
-          "bastoni_tre",
-          "coppe_sette",
-          "spade_due"
+          "spade_fante",
+          "denari_fante",
+          "denari_re",
+          "bastoni_fante",
+          "spade_cinque"
         ]
       },
       {
@@ -250,11 +250,11 @@
         "score": 9,
         "eliminated": false,
         "hand": [
-          "spade_sette",
-          "bastoni_asso",
-          "bastoni_re",
-          "spade_tre",
-          "coppe_sei"
+          "coppe_asso",
+          "coppe_quattro",
+          "bastoni_tre",
+          "coppe_sette",
+          "spade_due"
         ]
       }
     ],

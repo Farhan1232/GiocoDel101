@@ -87,7 +87,8 @@ The single serialisation root. Field list:
 
 Derived: `topCard`, `scores` (id → score), `hands`, `seatOrder`,
 `isPenaltyPending`, `isRoundOver`, `isFinished`, `totalCards`, `handOf(id)`,
-`playerById(id)`, `hasDeclaredLastCard(id)`.
+`playerById(id)`, `hasDeclaredLastCard(id)`, `dealingSeatOrder` /
+`dealingOrder` (§3 — the clockwise lap the dealer serves, seats and ids).
 
 All collections are unmodifiable. `copyWith` / `withPlayer` / `withHistory`
 are the only ways to derive a new state.
@@ -281,8 +282,17 @@ turn still moves on. Total cards never change.
 
 `createGame` validates (2–4 seats, unique non-empty ids, hand size fits the
 deck, sane rules, starting seat exists), deals `startingHandSize` to every
-live seat round-robin, turns up the opener per `starterCardPolicy`, and the
-rest is the stock. `dealerSeat` starts at the opening seat.
+live seat, turns up the opener per `starterCardPolicy`, and the rest is the
+stock. `dealerSeat` starts at the opening seat.
+
+**The deal order (§3).** `_deal` walks `GameState.dealingSeatOrder` —
+one card to each live seat in turn, starting one place clockwise of
+`dealerSeat` and wrapping so the dealer is served last — and repeats that lap
+`startingHandSize` times. It is not a round-robin from seat 0: who deals
+decides who is served first, which is the whole point of rotating the dealer.
+The list lives on `GameState` rather than inside `_deal` because the table's
+deal animation walks the same list, so the card a player receives and the card
+they watch arrive cannot disagree.
 
 `StartNextRoundAction` answers two independent questions:
 
@@ -290,7 +300,8 @@ rest is the stock. `dealerSeat` starts at the opening seat.
   (`roundStarterPolicy = previousRoundWinner`), never an eliminated one;
 - **who deals** — `dealerSeat` moves one live seat clockwise
   (`_seatAfter(s, s.dealerSeat, 1)`), wrapping at the end of the table and
-  passing over eliminated seats.
+  passing over eliminated seats; the deal itself then starts from the new
+  dealer's left (§3), so the sequence moves with the badge.
 
 Then `round++`, hands are cleared and the deck is dealt again. The two seats
 are computed separately and coincide only by chance. Eliminated seats receive

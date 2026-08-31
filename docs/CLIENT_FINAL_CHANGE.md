@@ -411,3 +411,119 @@ Nothing new was invented, and these carry over unchanged:
 3. Carry-overs from the previous change: §6a (which Cavallo-block mode is
    canonical), §12c (the online points formula), §12b (simultaneous
    elimination), and what the turn timer should do on expiry.
+
+---
+
+# Follow-up — 2026-09-01: the clockwise sequential deal
+
+One remaining complaint after the three changes above:
+
+> "The sequential hand in clockwise order still doesn't work."
+
+## What was actually wrong
+
+`GameState.dealerSeat` rotated correctly, the dealer badge moved, and the
+table's deal animation travelled round the table from the dealer's left. But
+the engine underneath was dealing in **plain seat order**:
+
+```dart
+// lib/features/game/domain/engine/game_engine.dart — before
+final seated = base.players.where((p) => !p.eliminated).toList();
+for (var i = 0; i < rules.startingHandSize; i++) {
+  for (final p in seated) {           // 0, 1, 2, 3 — always
+    hands[p.id]!.add(deck.removeLast());
+  }
+}
+```
+
+`dealerSeat` was never read. Who dealt had **no effect whatsoever** on who got
+which card: with four seats the cards went 0, 1, 2, 3, 0, 1, 2, 3 … in every
+round of every match, whoever was dealing. The rotation the client had already
+paid for was cosmetic — a badge and an animation over a deal that ignored both.
+
+`DealCue`'s own doc comment admitted it: *"This is presentation only: which
+cards a seat receives is fixed by the engine and does not depend on this
+order."*
+
+## The fix
+
+The canonical sequence now lives on the state, as `GameState.dealingSeatOrder`:
+every live seat, one step clockwise at a time, starting one place after
+`dealerSeat` and wrapping so the dealer is served last.
+
+`GameEngine._deal` deals by that list, one card per seat per lap, and
+`dealingOrder(state)` in `table_cue.dart` — the list the animation walks — is
+now a one-line delegation to it. They cannot drift, because there is only one
+of them.
+
+```
+4 seats, dealer 0:  1, 2, 3, 0,  1, 2, 3, 0,  … five laps
+4 seats, dealer 1:  2, 3, 0, 1,  …
+3 seats, dealer 2:  0, 1, 2,     …
+2 seats, dealer 0:  1, 0,        …
+4 seats, seat 2 out, dealer 0:  1, 3, 0,  …
+```
+
+**Turn order is untouched.** §12 still gives the lead to the seat that closed
+the previous round, wherever they sit; §12a still rotates the dealer. The deal
+answers neither question — it only starts from the dealer's left.
+
+## Scope
+
+The only production change is `_deal`'s loop plus the new derived getters, and
+`dealingOrder` becoming a delegation. No rule, no scoring, no §16, no layout,
+no security, no schema and no wire format changed: `dealerSeat` was already
+public, and the order is derived from it, so there is **no migration** and the
+redaction, RLS and private hands are untouched.
+
+What *does* change is which cards a given seed deals to a given seat — that is
+the fix. The 61 conformance fixtures were regenerated for it; the hand-written
+assertions in the scenario catalogue all still hold.
+
+## Tests
+
+`test/engine/dealing_order_test.dart` (32 cases) asserts the **engine's** order,
+not the badge:
+
+- the exact laps the client specified, for 2, 3 and 4 seats and every dealer;
+- the cards themselves: the k-th card off the stock goes to the k-th seat of
+  the lap, five laps, no card dealt twice, every hand full;
+- the dealer is served last and their left is served first, at every size;
+- eliminated seats skipped with the clockwise order of the rest preserved,
+  including when the dealer itself is out;
+- counter-clockwise tables deal the other way;
+- multi-round rotation: dealer and deal order both advance every round, each
+  lap checked against an expectation computed independently of the engine;
+- the previous round's closer still leads while the deal starts elsewhere;
+- determinism, a different dealer dealing the same shuffle to different seats,
+  save/resume, and a pre-`dealerSeat` save falling back to seat 0;
+- the deal cue equals `GameState.dealingOrder`, and each seat's hand is in the
+  order that seat received its cards — which is what makes the animation
+  truthful.
+
+Two conformance fixtures pin it across runtimes, with the Deno side
+recomputing `dealingSeatOrder` from the raw JSON instead of asking the engine:
+`next_round_deal_goes_clockwise_from_the_dealers_left` and
+`next_round_deal_skips_an_eliminated_seat_in_order`.
+
+## Verified live
+
+`tool/online_rule_check.dart` gained a §3 check that recomputes the expected
+lap from the server's published `dealerSeat`. Against GiocoDel101-Dev, with
+independent authenticated users:
+
+| Seats | Result | Deals observed |
+|---|---|---|
+| 2 | **50 passed, 0 failed** | dealer 1 → `[0, 1]`, dealer 0 → `[1, 0]` |
+| 3 | **36 passed, 0 failed** | dealer 1 → `[2, 0, 1]`, dealer 2 → `[0, 1, 2]` |
+| 4 | **46 passed, 0 failed** | dealer 3 → `[0, 1, 2, 3]`, dealer 0 → `[1, 2, 3, 0]` |
+
+Every one of those matches the client's stated sequence. Each run also
+re-checks that the closer still leads and that every live seat was dealt a
+full hand.
+
+**What the live check cannot see, and why.** No single player can verify
+*which card* went to another seat: hands are redacted by design, and weakening
+that to prove the deal would be the wrong trade. That half is covered by the
+conformance fixtures, which the Dart VM and the compiled JavaScript the server
+runs both replay to byte-identical states.

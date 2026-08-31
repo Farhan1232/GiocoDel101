@@ -903,15 +903,25 @@ class GameEngine {
   /// Shuffles a fresh deck and deals it into [base], which must have empty
   /// hands. Randomness comes from [_random] applied to [base], so two calls
   /// with the same state deal identically.
+  ///
+  /// §3/§12a — the cards go out **one at a time, clockwise, starting from the
+  /// seat to the dealer's left**, lap after lap until every live seat holds
+  /// `startingHandSize`. The order comes from [GameState.dealingSeatOrder],
+  /// the same list the table's deal animation follows, so which card a player
+  /// receives is exactly the card they watch arrive.
+  ///
+  /// Who deals ([GameState.dealerSeat]) and who *leads* ([startingSeat], §12
+  /// — the previous round's closer) are separate questions; this method
+  /// answers both without letting either decide the other.
   GameState _deal(GameState base, {required int startingSeat}) {
     final rules = base.rules;
     final deck = DeckFactory.shuffled(_random(base));
     final hands = {for (final p in base.players) p.id: <GameCard>[]};
-    final seated = base.players.where((p) => !p.eliminated).toList();
+    final order = base.dealingSeatOrder;
     for (var i = 0; i < rules.startingHandSize; i++) {
-      for (final p in seated) {
+      for (final seat in order) {
         if (deck.isEmpty) break;
-        hands[p.id]!.add(deck.removeLast());
+        hands[base.players[seat].id]!.add(deck.removeLast());
       }
     }
 

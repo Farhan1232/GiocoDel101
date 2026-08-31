@@ -65,7 +65,11 @@ one mapping shared with the tutorial: `PlayCardCue`, `DrawCue`
 a cancelling Cavallo block), `LastCardCue` (§16), `SuitChosenCue`,
 `RecycleCue`, `InvalidCue`, `TurnCue`. `DealCue` is not an engine event: the engine deals in one step
 and the controller queues the cue itself so a round opens with cards
-leaving the stock. Cues drain in order; the view's `cuePlayer` animates
+leaving the stock. Its `seatIds` are `GameState.dealingOrder` — the engine's
+own clockwise lap from the dealer's left (§3) — and `_animateDeal` flies one
+card per seat per lap, so the player watches the cards arrive in exactly the
+order the engine dealt them. The viewer's own cards fly in hand order, which
+is the order they were received. Cues drain in order; the view's `cuePlayer` animates
 each one and reports back (3 s timeout so a stalled view never blocks the
 match). `busy` is true while cues play, so input is refused and bots wait.
 

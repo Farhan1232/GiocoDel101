@@ -42,7 +42,8 @@ class ConformanceScenario {
   /// `winnerId`, `roundWinnerId`, `round`, `drawPileSize`,
   /// `discardPileSize`, `handSize.<id>`, `score.<id>`, `eliminated.<id>`,
   /// `hasDrawnThisTurn`, `drawnCard`, `penaltyResolvedThisTurn`,
-  /// `lastCardDeclaredBy`, `dealerSeat`, `dealerId`, `currentSeat`.
+  /// `lastCardDeclaredBy`, `dealerSeat`, `dealerId`, `currentSeat`,
+  /// `dealingOrder`, `dealingSeatOrder`.
   final Map<String, Object?> assertions;
 
   /// Event type names, in order, when the action is accepted.
@@ -1389,6 +1390,78 @@ List<ConformanceScenario> conformanceScenarios() => [
       'status': 'roundOver',
       'roundWinnerId': 'p0',
       'handSize.p0': 0,
+    },
+  ),
+
+  // ------------------------------------------------- clockwise deal order
+  ConformanceScenario(
+    name: 'next_round_deal_goes_clockwise_from_the_dealers_left',
+    description:
+        'Four seats: the new deal starts one seat clockwise of the dealer '
+        'and wraps, while the seat that closed the round still leads.',
+    rulesNote: 'GAME_SPEC §3, §12, §12a',
+    state: buildState(
+      hands: [
+        [],
+        [_c(_de, CardRank.re)],
+        [_c(_sp, CardRank.re)],
+        [_c(_ba, CardRank.re)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      status: GameStatus.roundOver,
+      dealerIndex: 0,
+      currentIndex: 0,
+      version: 30,
+      seed: 90210,
+    ).copyWith(roundWinnerId: 'p0'),
+    action: const StartNextRoundAction(playerId: 'system'),
+    assertions: {
+      // §12a — the deal moved on one seat…
+      'dealerSeat': 1,
+      'dealerId': 'p1',
+      // …so the cards go out 2, 3, 0, 1 — the dealer served last.
+      'dealingSeatOrder': [2, 3, 0, 1],
+      'dealingOrder': ['p2', 'p3', 'p0', 'p1'],
+      // §12 — and the closer still leads, which is not the deal's business.
+      'currentPlayerId': 'p0',
+      'round': 2,
+      'handSize.p0': 5,
+      'handSize.p3': 5,
+    },
+    expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'next_round_deal_skips_an_eliminated_seat_in_order',
+    description:
+        'A knocked-out seat is passed over, and the clockwise order of the '
+        'seats that remain is unchanged.',
+    rulesNote: 'GAME_SPEC §3, §12a',
+    state: buildState(
+      hands: [
+        [_c(_de, CardRank.re)],
+        [],
+        [],
+        [_c(_ba, CardRank.re)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      status: GameStatus.roundOver,
+      scores: [10, 0, 140, 8],
+      eliminated: [false, false, true, false],
+      dealerIndex: 3,
+      currentIndex: 1,
+      version: 44,
+      seed: 4711,
+    ).copyWith(roundWinnerId: 'p1'),
+    action: const StartNextRoundAction(playerId: 'system'),
+    assertions: {
+      // Dealer 3 -> 0; the lap from 0 is 1, (2 is out), 3, 0.
+      'dealerSeat': 0,
+      'dealingSeatOrder': [1, 3, 0],
+      'dealingOrder': ['p1', 'p3', 'p0'],
+      'currentPlayerId': 'p1',
+      'handSize.p1': 5,
+      'handSize.p2': 0,
+      'handSize.p3': 5,
     },
   ),
 ];

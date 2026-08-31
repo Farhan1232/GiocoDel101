@@ -241,6 +241,27 @@ policy = presence only). There is no free-text chat.
   Function and the channels; `NoBackend…` versions keep the widget tests
   offline and honest.
 
+### The clockwise deal over the wire (§3) — 2026-09-01
+
+The deal is the engine's, so the server's deal changed the moment
+`engine.js` was rebuilt: `GameEngine._deal` walks
+`GameState.dealingSeatOrder`, one card per live seat per lap, starting one
+seat clockwise of `dealerSeat`. Nothing was added to the wire — `dealerSeat`
+was already in the public snapshot, and the order is derived from it.
+
+That makes the order verifiable **from the server's own state**, without
+seeing anybody's cards: `tool/online_rule_check.dart` recomputes the expected
+lap from the published `dealerSeat` and checks the snapshot agrees, that the
+dealer is served last, and that every live seat holds a full hand.
+
+Which *card* each seat received is deliberately not visible to any single
+player (hands are redacted). That half is pinned by the conformance fixtures
+— `next_round_deal_goes_clockwise_from_the_dealers_left` and
+`next_round_deal_skips_an_eliminated_seat_in_order` — which the Dart VM and
+the compiled JavaScript both replay to byte-identical states, and whose
+`dealingSeatOrder` assertion the Deno side recomputes from the raw JSON
+rather than asking the engine.
+
 ### ULTIMA CARTA over the wire (§16) — the final change, 2026-08-31
 
 The client asked for a button. Because a button on a client is not a rule, it

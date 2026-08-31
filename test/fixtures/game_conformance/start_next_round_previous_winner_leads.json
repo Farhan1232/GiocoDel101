@@ -216,11 +216,11 @@
         "score": 0,
         "eliminated": false,
         "hand": [
-          "denari_asso",
-          "bastoni_fante",
-          "spade_quattro",
-          "denari_cinque",
-          "spade_cinque"
+          "denari_fante",
+          "spade_due",
+          "bastoni_tre",
+          "denari_tre",
+          "spade_cavallo"
         ]
       },
       {
@@ -233,11 +233,11 @@
         "score": 10,
         "eliminated": false,
         "hand": [
-          "denari_fante",
-          "spade_due",
-          "bastoni_tre",
-          "denari_tre",
-          "spade_cavallo"
+          "bastoni_re",
+          "denari_due",
+          "coppe_quattro",
+          "coppe_due",
+          "denari_sette"
         ]
       },
       {
@@ -250,11 +250,11 @@
         "score": 7,
         "eliminated": false,
         "hand": [
-          "bastoni_re",
-          "denari_due",
-          "coppe_quattro",
-          "coppe_due",
-          "denari_sette"
+          "denari_asso",
+          "bastoni_fante",
+          "spade_quattro",
+          "denari_cinque",
+          "spade_cinque"
         ]
       }
     ],

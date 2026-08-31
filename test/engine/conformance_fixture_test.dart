@@ -48,6 +48,11 @@ Object? readAssertion(GameState s, String key) {
       return s.penaltyResolvedThisTurn;
     case 'lastCardDeclaredBy':
       return s.lastCardDeclaredBy;
+    // §3/§12a — the sequence the cards actually went out in.
+    case 'dealingOrder':
+      return s.dealingOrder;
+    case 'dealingSeatOrder':
+      return s.dealingSeatOrder;
     case 'dealerSeat':
       return s.dealerSeat;
     case 'dealerId':

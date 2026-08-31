@@ -63,6 +63,23 @@ function readAssertion(st: any, key: string): unknown {
     case "currentPlayerId": return players[st.currentSeat].id;
     // §12a — who dealt this round, as a seat and as an id.
     case "dealerId": return players[st.dealerSeat ?? 0].id;
+    // §3/§12a — the order the dealer serves the table: every live seat,
+    // one step clockwise at a time, starting to the dealer's left. Computed
+    // here from the raw state, so the compiled engine has to agree with the
+    // Dart VM about the sequence the cards went out in, not just about the
+    // hands it happened to produce.
+    case "dealingSeatOrder":
+    case "dealingOrder": {
+      const n = players.length;
+      const step = st.direction === "counterClockwise" ? -1 : 1;
+      const dealer = st.dealerSeat ?? 0;
+      const seats: number[] = [];
+      for (let k = 1; k <= n; k++) {
+        const seat = ((dealer + step * k) % n + n) % n;
+        if (!players[seat].eliminated) seats.push(seat);
+      }
+      return key === "dealingSeatOrder" ? seats : seats.map((i) => players[i].id);
+    }
     case "topCard": return st.discardPile[st.discardPile.length - 1];
     case "drawPileSize": return st.drawPile.length;
     case "discardPileSize": return st.discardPile.length;
