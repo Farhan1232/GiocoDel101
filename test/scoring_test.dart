@@ -12,7 +12,7 @@ void main() {
   const scorer = ScorePolicy(GameRules());
 
   group('Hand penalty values (§14)', () {
-    test('sums printed rank values', () {
+    test('sums the confirmed rank values', () {
       expect(
         scorer.handPenalty([
           const GameCard(CardSuit.denari, CardRank.asso),
@@ -20,8 +20,55 @@ void main() {
           const GameCard(CardSuit.spade, CardRank.cavallo),
           const GameCard(CardSuit.bastoni, CardRank.fante),
         ]),
-        1 + 10 + 9 + 8,
+        // §10 — pip cards by printed rank; Cavallo and Fante 25 each, the
+        // client's 2026-08-31 change.
+        1 + 10 + 25 + 25,
       );
+    });
+
+    test('the Fante and the Cavallo are the two 25-point cards', () {
+      expect(
+        scorer.handPenalty([const GameCard(CardSuit.spade, CardRank.fante)]),
+        25,
+      );
+      expect(
+        scorer.handPenalty([const GameCard(CardSuit.coppe, CardRank.cavallo)]),
+        25,
+      );
+      expect(
+        scorer.handPenalty([
+          const GameCard(CardSuit.spade, CardRank.fante),
+          const GameCard(CardSuit.coppe, CardRank.cavallo),
+        ]),
+        50,
+      );
+      // Several of each accumulate; nothing else moved.
+      expect(
+        scorer.handPenalty([
+          const GameCard(CardSuit.spade, CardRank.fante),
+          const GameCard(CardSuit.denari, CardRank.fante),
+          const GameCard(CardSuit.coppe, CardRank.cavallo),
+          const GameCard(CardSuit.bastoni, CardRank.cavallo),
+          const GameCard(CardSuit.coppe, CardRank.re),
+        ]),
+        4 * 25 + 10,
+      );
+      for (final rank in [
+        CardRank.asso,
+        CardRank.due,
+        CardRank.tre,
+        CardRank.quattro,
+        CardRank.cinque,
+        CardRank.sei,
+        CardRank.sette,
+        CardRank.re,
+      ]) {
+        expect(
+          scorer.handPenalty([GameCard(CardSuit.denari, rank)]),
+          rank.value,
+          reason: '${rank.key} keeps its printed value',
+        );
+      }
     });
 
     test('an empty hand is worth nothing', () {
@@ -31,11 +78,11 @@ void main() {
     test('honours a client-supplied value table', () {
       // Built at runtime: a const map literal cannot restate a key.
       final table = Map<CardRank, int>.of(GameRules.defaultScoreValues)
-        ..[CardRank.cavallo] = 25;
+        ..[CardRank.cavallo] = 40;
       final custom = ScorePolicy(GameRules(scoreValues: table));
       expect(
         custom.handPenalty([const GameCard(CardSuit.spade, CardRank.cavallo)]),
-        25,
+        40,
       );
     });
   });
@@ -101,7 +148,7 @@ void main() {
         top: c(CardSuit.coppe, CardRank.cinque),
         scores: [10, 20, 30],
       );
-      e.playCard(c(CardSuit.coppe, CardRank.re));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.re));
 
       expect(e.state.status, GameStatus.roundOver);
       final result = e.lastRoundResult!;
@@ -111,7 +158,8 @@ void main() {
         10,
         reason: 'winner adds nothing',
       );
-      expect(e.state.playerById('p1')!.score, 20 + 3 + 8);
+      // §10 — the Fante is 25, so p1 pays 3 + 25.
+      expect(e.state.playerById('p1')!.score, 20 + 3 + 25);
       expect(e.state.playerById('p2')!.score, 30 + 7);
       expect(result.rows, hasLength(3));
     });
@@ -124,7 +172,7 @@ void main() {
         ],
         top: c(CardSuit.coppe, CardRank.cinque),
       );
-      e.playCard(c(CardSuit.coppe, CardRank.asso));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.asso));
       expect(e.state.status, GameStatus.roundOver);
       expect(e.lastRoundResult!.winnerId, 'p0');
     });
@@ -141,7 +189,7 @@ void main() {
           c(CardSuit.bastoni, CardRank.sei),
         ],
       );
-      e.playCard(c(CardSuit.coppe, CardRank.due));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.due));
       expect(e.state.status, GameStatus.roundOver);
       expect(e.state.pendingDrawCount, 0);
       expect(e.state.playerById('p1')!.hand, hasLength(1));
@@ -161,7 +209,7 @@ void main() {
         ],
         rules: const GameRules(pendingPenaltyAppliesAfterWin: true),
       );
-      e.playCard(c(CardSuit.coppe, CardRank.due));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.due));
       expect(e.state.playerById('p1')!.hand, hasLength(3));
       expect(e.state.playerById('p1')!.score, 3 + 6 + 10);
     });
@@ -174,7 +222,7 @@ void main() {
         ],
         top: c(CardSuit.coppe, CardRank.cinque),
       );
-      e.playCard(c(CardSuit.spade, CardRank.cavallo));
+      e.autoPlayCard(c(CardSuit.spade, CardRank.cavallo));
       expect(e.state.status, GameStatus.roundOver);
       expect(e.lastRoundResult!.winnerId, 'p0');
     });
@@ -188,7 +236,7 @@ void main() {
         top: c(CardSuit.coppe, CardRank.cinque),
         scores: [0, 94],
       );
-      e.playCard(c(CardSuit.coppe, CardRank.re));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.re));
       expect(e.state.playerById('p1')!.score, 0);
       expect(e.lastRoundResult!.rows[1].hitExact101, isTrue);
       expect(e.state.stats.resets101, 1);
@@ -205,7 +253,7 @@ void main() {
         top: c(CardSuit.coppe, CardRank.cinque),
         scores: [20, 95],
       );
-      e.playCard(c(CardSuit.coppe, CardRank.re));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.re));
       expect(e.state.playerById('p1')!.eliminated, isTrue);
       expect(e.state.isFinished, isTrue);
       expect(e.state.winnerId, 'p0');
@@ -224,7 +272,7 @@ void main() {
         scores: [99, 95, 0],
       );
       // p2 wins the round; p0 and p1 both bust in the same tally.
-      expect(e.playCard(c(CardSuit.coppe, CardRank.tre)).accepted, isTrue);
+      expect(e.autoPlayCard(c(CardSuit.coppe, CardRank.tre)).accepted, isTrue);
       expect(e.state.playerById('p0')!.eliminated, isTrue);
       expect(e.state.playerById('p1')!.eliminated, isTrue);
       expect(e.state.isFinished, isTrue);
@@ -241,7 +289,7 @@ void main() {
         top: c(CardSuit.coppe, CardRank.cinque),
         scores: [0, 95, 0],
       );
-      e.playCard(c(CardSuit.coppe, CardRank.re));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.re));
       expect(e.state.playerById('p1')!.eliminated, isTrue);
       expect(e.state.isFinished, isFalse);
 
@@ -274,7 +322,7 @@ void main() {
           scores: [20, 95],
           rules: const GameRules(eliminateAbove101: false),
         );
-        e.playCard(c(CardSuit.coppe, CardRank.re));
+        e.autoPlayCard(c(CardSuit.coppe, CardRank.re));
         expect(e.state.playerById('p1')!.eliminated, isFalse);
         expect(e.state.isFinished, isTrue);
         expect(e.state.winnerId, 'p0');

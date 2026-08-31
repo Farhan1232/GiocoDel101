@@ -1118,6 +1118,36 @@ abstract class AppLocalizations {
   /// **'Carte grandi'**
   String get largeCards;
 
+  /// §16 — what the table shows when any seat announces.
+  ///
+  /// In it, this message translates to:
+  /// **'{name}: ULTIMA CARTA!'**
+  String lastCardAnnounced(String name);
+
+  /// §16 — the button a player presses before the play that leaves them one card.
+  ///
+  /// In it, this message translates to:
+  /// **'ULTIMA CARTA'**
+  String get lastCardButton;
+
+  /// §16 — success state on the button once the announcement is made.
+  ///
+  /// In it, this message translates to:
+  /// **'ULTIMA CARTA!'**
+  String get lastCardDeclared;
+
+  /// §16 — shown when a play is refused because no announcement was made.
+  ///
+  /// In it, this message translates to:
+  /// **'Dichiara ULTIMA CARTA prima di giocare.'**
+  String get lastCardPrompt;
+
+  /// §16 — accessibility label for the button.
+  ///
+  /// In it, this message translates to:
+  /// **'Dichiara ultima carta'**
+  String get lastCardSemantics;
+
   /// No description provided for @leaderboardAllTime.
   ///
   /// In it, this message translates to:
@@ -2603,13 +2633,13 @@ abstract class AppLocalizations {
   /// No description provided for @tutCentounoDone.
   ///
   /// In it, this message translates to:
-  /// **'92 + 9 = 101 esatti: {name} torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.'**
+  /// **'76 + 25 = 101 esatti: {name} torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.'**
   String tutCentounoDone(String name);
 
   /// No description provided for @tutCentounoPrompt.
   ///
   /// In it, this message translates to:
-  /// **'Ultima carta! L’avversario ha 92 punti e un Cavallo (9) in mano. Gioca il 7 di Coppe e chiudi il round.'**
+  /// **'Ultima carta! L’avversario ha 76 punti e un Cavallo in mano, che vale 25. Gioca il 7 di Coppe e chiudi il round.'**
   String get tutCentounoPrompt;
 
   /// No description provided for @tutCentounoTitle.

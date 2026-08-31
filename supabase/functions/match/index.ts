@@ -46,7 +46,7 @@ class ApiError extends Error {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CARD = /^(denari|coppe|spade|bastoni)_(asso|due|tre|quattro|cinque|sei|sette|fante|cavallo|re)$/;
 const SUIT = /^(denari|coppe|spade|bastoni)$/;
-const CLIENT_ACTIONS = new Set(["playCard", "drawCard", "chooseSuit", "pass", "startNextRound"]);
+const CLIENT_ACTIONS = new Set(["playCard", "drawCard", "chooseSuit", "pass", "startNextRound", "declareLastCard"]);
 
 function uuid(v: unknown, what: string): string {
   if (typeof v !== "string" || !UUID.test(v)) throw new ApiError(400, "bad_request", `${what} must be a uuid`);

@@ -82,6 +82,11 @@ class GameSession {
       engine.getPlayableCards(_state, player.id);
 
   bool canPlay(GameCard card) => engine.canPlay(_state, card);
+
+  /// §16 — whether the seat to act may announce "ULTIMA CARTA" right now.
+  bool get canDeclareLastCard =>
+      engine.canDeclareLastCard(_state, _state.currentPlayerId);
+
   bool get canDraw => engine.canDraw(_state);
   bool get canEndTurn => engine.canPass(_state);
   bool get mustTakePenalty => engine.mustTakePenalty(_state);
@@ -131,6 +136,23 @@ class GameSession {
 
   MoveResult chooseSuit(CardSuit suit) =>
       _move(ChooseSuitAction(playerId: _state.currentPlayerId, suit: suit));
+
+  /// §16 — announces "ULTIMA CARTA" for the seat to act.
+  MoveResult declareLastCard() =>
+      _move(DeclareLastCardAction(playerId: _state.currentPlayerId));
+
+  /// The move every *automated* seat makes: bots offline, bots in Pass &
+  /// Play, and the simulator. It announces "ULTIMA CARTA" first when the
+  /// engine says the announcement is due, then plays — through exactly the
+  /// same two actions a person's button and card tap produce, so there is
+  /// one implementation of §16 and no bypass for bots.
+  MoveResult autoPlayCard(GameCard card, {CardSuit? chosenSuit}) {
+    if (canDeclareLastCard) {
+      final declared = declareLastCard();
+      if (!declared.accepted) return declared;
+    }
+    return playCard(card, chosenSuit: chosenSuit);
+  }
 
   MoveResult startNextRound() =>
       _move(const StartNextRoundAction(playerId: GameEngine.systemActorId));

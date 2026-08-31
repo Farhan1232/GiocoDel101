@@ -24,7 +24,8 @@ class MatchActionRequest {
   final String actionId;
   final int expectedVersion;
 
-  /// `playCard` · `drawCard` · `chooseSuit` · `pass` · `startNextRound`.
+  /// `playCard` · `drawCard` · `chooseSuit` · `pass` · `startNextRound` ·
+  /// `declareLastCard` (§16).
   final String type;
   final GameCard? card;
   final CardSuit? chosenSuit;

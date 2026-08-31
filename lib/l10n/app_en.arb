@@ -211,6 +211,11 @@
   "joinRoomPaste": "Paste",
   "joinRoomTitle": "Join a room",
   "largeCards": "Large cards",
+  "lastCardAnnounced": "{name}: LAST CARD!",
+  "lastCardButton": "LAST CARD",
+  "lastCardDeclared": "LAST CARD!",
+  "lastCardPrompt": "Declare LAST CARD before you play.",
+  "lastCardSemantics": "Declare last card",
   "leaderboardAllTime": "All time",
   "leaderboardEmpty": "The leaderboard arrives with online play.",
   "leaderboardLoadFailed": "Could not load the leaderboard.",
@@ -597,7 +602,7 @@
   "tutCavalloPrompt": "The Cavallo (the 9) can always be played, on anything. Play the Cavallo of Swords.",
   "tutCavalloSuit": "Now name the new active suit: the one you hold most of is usually best.",
   "tutCavalloTitle": "Cavallo — change suit",
-  "tutCentounoDone": "92 + 9 = exactly 101: {name} goes back to zero. Anyone who goes over 101 is eliminated. The last player standing wins.",
+  "tutCentounoDone": "76 + 25 = exactly 101: {name} goes back to zero. Anyone who goes over 101 is eliminated. The last player standing wins.",
   "@tutCentounoDone": {
     "placeholders": {
       "name": {
@@ -605,7 +610,7 @@
       }
     }
   },
-  "tutCentounoPrompt": "Last card! Your opponent has 92 points and a Cavallo (9) in hand. Play the 7 of Cups and end the round.",
+  "tutCentounoPrompt": "Last card! Your opponent has 76 points and a Cavallo in hand, worth 25. Play the 7 of Cups and end the round.",
   "tutCentounoTitle": "One hundred and one!",
   "tutChainDone": "+4! {name} drew four cards. Chains go all the way up to +8.",
   "@tutChainDone": {

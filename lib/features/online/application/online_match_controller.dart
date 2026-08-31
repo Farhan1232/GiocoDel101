@@ -471,6 +471,8 @@ class OnlineMatchController extends TableController
         }
       case ChooseSuitAction(:final suit):
         _queue.add(SuitChosenCue(actorId, suit));
+      case DeclareLastCardAction():
+        _queue.add(LastCardCue(actorId, isViewer: actorId == _myPid));
       case PassAction():
       case StartNextRoundAction():
         break;
@@ -573,6 +575,12 @@ class OnlineMatchController extends TableController
       case InvalidCue():
         AudioService.instance.play(Sfx.invalid);
         HapticService.instance.error();
+      case LastCardCue():
+        // §16 — the declaration flag survives redaction, so every seat
+        // announces it the same way. Still no card identity anywhere.
+        AudioService.instance.play(Sfx.suitSelect);
+        final who = _state.playerById(cue.playerId);
+        if (who != null) _showBanner(Strings.s.lastCardAnnounced(who.name));
       case SuitChosenCue():
       case SkipCue():
       case TurnCue():
@@ -767,12 +775,33 @@ class OnlineMatchController extends TableController
     );
     if (failure != null) {
       rejectCard(card);
+      // §16 — say why, rather than shaking the card as if it were illegal.
+      if (failure == GameFailure.lastCardDeclarationRequired) {
+        _showBanner(Strings.s.lastCardPrompt);
+        return;
+      }
       _queue.add(InvalidCue(card));
       unawaited(_drain());
       return;
     }
     selectedCard.value = null;
     await _send('playCard', card: card);
+  }
+
+  /// §16 — the redacted state the server publishes carries the declaration
+  /// flag, so this is the same answer every seat at the table computes.
+  @override
+  bool get canDeclareLastCard =>
+      canInteract && engine.canDeclareLastCard(_state, _myPid);
+
+  @override
+  bool get hasDeclaredLastCard => _state.hasDeclaredLastCard(_myPid);
+
+  @override
+  Future<void> declareLastCard() async {
+    if (!canDeclareLastCard) return;
+    HapticService.instance.medium();
+    await _send('declareLastCard');
   }
 
   @override

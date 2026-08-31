@@ -329,6 +329,14 @@ Future<DriveStats> drive(
       pick ??= playable.firstOrNull;
       if (pick != null) {
         final pendingBefore = v.pendingDrawCount;
+        // §16 — the announcement the ULTIMA CARTA button sends, made through
+        // the server like every other move. Without it the server refuses the
+        // play that would leave this seat one card.
+        if (engine.canDeclareLastCard(v, pid)) {
+          final d = await actor.call(act({'type': 'declareLastCard'}));
+          stats.actions++;
+          if (d['accepted'] == true) actor.adoptResponse(d, pid);
+        }
         r = await actor.call(act({'type': 'playCard', 'card': pick.id}));
         if (r['accepted'] == true) {
           stats.plays++;

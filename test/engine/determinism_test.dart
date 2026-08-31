@@ -53,6 +53,23 @@ const engine = GameEngine();
         a = PassAction(playerId: me, baseVersion: s.version);
       }
     }
+    // §16 — the random driver announces exactly where a table would, so
+    // the log it produces is a log a real match could produce.
+    if (a is PlayCardAction && engine.canDeclareLastCard(s, a.playerId)) {
+      final declare = DeclareLastCardAction(
+        playerId: a.playerId,
+        baseVersion: s.version,
+      );
+      s = (engine.applyAction(s, declare) as ActionAccepted).state;
+      actions.add(declare);
+      snapshots.add(jsonEncode(s.toJson()));
+      a = PlayCardAction(
+        playerId: a.playerId,
+        card: a.card,
+        chosenSuit: a.chosenSuit,
+        baseVersion: s.version,
+      );
+    }
     final r = engine.applyAction(s, a);
     expect(r, isA<ActionAccepted>(), reason: '$a on $s → $r');
     s = (r as ActionAccepted).state;
@@ -68,7 +85,13 @@ void main() {
     test('the same state and action always produce the same state', () {
       final s = buildState(
         hands: [
-          [c(CardSuit.coppe, CardRank.re), c(CardSuit.spade, CardRank.re)],
+          // Three cards: purity is the point here, not §16, and a play from
+          // two would need the announcement applied first.
+          [
+            c(CardSuit.coppe, CardRank.re),
+            c(CardSuit.spade, CardRank.re),
+            c(CardSuit.bastoni, CardRank.sette),
+          ],
           [c(CardSuit.denari, CardRank.tre)],
         ],
         top: c(CardSuit.coppe, CardRank.cinque),
@@ -146,7 +169,13 @@ void main() {
     test('the engine holds no state of its own', () {
       final s = buildState(
         hands: [
-          [c(CardSuit.coppe, CardRank.re), c(CardSuit.spade, CardRank.re)],
+          // Three cards: purity is the point here, not §16, and a play from
+          // two would need the announcement applied first.
+          [
+            c(CardSuit.coppe, CardRank.re),
+            c(CardSuit.spade, CardRank.re),
+            c(CardSuit.bastoni, CardRank.sette),
+          ],
           [c(CardSuit.denari, CardRank.tre)],
         ],
         top: c(CardSuit.coppe, CardRank.cinque),

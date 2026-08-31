@@ -184,6 +184,9 @@ class DriveStats {
   int rejectedByServer = 0;
   bool assoSkipVerified = false;
 
+  /// §16 — "ULTIMA CARTA" announcements the server accepted.
+  int lastCards = 0;
+
   /// §6b — chains paid on the server, and how the server answered.
   int penaltyDrawsResolved = 0;
 
@@ -303,6 +306,27 @@ Future<DriveStats> drive(
       pick ??= playable.firstOrNull;
       if (pick != null) {
         pendingBefore = v.pendingDrawCount;
+        // §16 — the announcement the button sends, made through the server
+        // like every other move. Without it the server refuses the play,
+        // which is exactly what makes the rule authoritative.
+        if (engine.canDeclareLastCard(v, pid)) {
+          final d = await actor.call(act({'type': 'declareLastCard'}));
+          stats.actions++;
+          check(
+            'ULTIMA CARTA accepted for $pid (§16)',
+            d['accepted'] == true,
+            d['failure'] ?? 'v${d['version']}',
+          );
+          if (d['accepted'] == true) {
+            actor.adoptResponse(d, pid);
+            stats.lastCards++;
+            check(
+              'the declaration is public (§16)',
+              actor.view!.lastCardDeclaredBy == pid,
+              actor.view!.lastCardDeclaredBy,
+            );
+          }
+        }
         r = await actor.call(act({'type': 'playCard', 'card': pick.id}));
         if (r['accepted'] == true) {
           stats.plays++;
@@ -350,13 +374,22 @@ Future<DriveStats> drive(
           // The continuation itself: play a legal card if the server offers
           // one, otherwise pass — and prove the turn only moves afterwards.
           final legal = engine.getPlayableCards(st, penaltyPayer);
-          final follow = legal.isNotEmpty
-              ? act({'type': 'playCard', 'card': legal.first.id})
+          if (legal.isNotEmpty && engine.canDeclareLastCard(st, penaltyPayer)) {
+            final d = await actor.call(act({'type': 'declareLastCard'}));
+            stats.actions++;
+            if (d['accepted'] == true) {
+              actor.adoptResponse(d, penaltyPayer);
+              stats.lastCards++;
+            }
+          }
+          final legalNow = engine.getPlayableCards(actor.view!, penaltyPayer);
+          final follow = legalNow.isNotEmpty
+              ? act({'type': 'playCard', 'card': legalNow.first.id})
               : act({'type': 'pass'});
           final fr = await actor.call(follow);
           if (fr['accepted'] == true) {
             actor.adoptResponse(fr, penaltyPayer);
-            if (legal.isNotEmpty) stats.penaltyContinuationPlayed++;
+            if (legalNow.isNotEmpty) stats.penaltyContinuationPlayed++;
             for (final p in players) {
               if (p.id != actor.id) await p.snapshot(matchId);
             }
@@ -633,6 +666,11 @@ String? _lastMatch;
 String? _lastRoom;
 int _totalRecycles = 0;
 int _totalBlocks = 0;
+
+/// §16 — ULTIMA CARTA announcements the server accepted, across every game
+/// this run played. A global like the two above, so the check reports in the
+/// short form as well as the long one.
+int _totalLastCards = 0;
 
 Future<void> adversarialProbe(
   Player current,
@@ -1843,6 +1881,7 @@ Future<void> playFull(
     '${stats.cavalli > 0 ? 'PASS' : 'FAIL'}  9 (Cavallo) played ${stats.cavalli}× with server-side suit choice',
   );
   _totalBlocks += stats.blocks;
+  _totalLastCards += stats.lastCards;
   stdout.writeln('   Cavallo blocks this game: ${stats.blocks}');
   _totalRecycles += stats.recycles;
   stdout.writeln('   reshuffles this game: ${stats.recycles}');
@@ -1901,6 +1940,7 @@ Future<void> main() async {
   );
   _totalRecycles += stats2.recycles;
   _totalBlocks += stats2.blocks;
+  _totalLastCards += stats2.lastCards;
   await afterFinish(ps.sublist(0, 2), m2, stats2);
   final rematchId = await rematch(ps.sublist(0, 2), m2);
   if (rematchId != null) {
@@ -1939,6 +1979,13 @@ Future<void> main() async {
 
   if (Platform.environment['MATRIX_QUICK'] == '1') {
     stdout.writeln('\n   (MATRIX_QUICK=1: 3- and 4-player games skipped)');
+    // The two coverage checks below need a long round to run the stock dry
+    // and a Cavallo to meet a live chain. The 4-player game is what makes
+    // both certain (8-card hands), so in the short form they are not
+    // evidence of anything and are skipped rather than reported as failures.
+    stdout.writeln(
+      '   (MATRIX_QUICK=1: RESHUFFLE and 9 BLOCK coverage not attempted)',
+    );
   } else {
     await playFull(
       '3 PLAYER',
@@ -1954,18 +2001,32 @@ Future<void> main() async {
       rules: {'targetScore': 45, 'startingHandSize': 8},
     );
   }
+  // §16 — the client change of 2026-08-31: a seat cannot reach one card
+  // without announcing it first, and the SERVER is what enforces that. Every
+  // game this run played had to produce at least one announcement, in either
+  // form, or the rule was never exercised online.
+  _area = 'ULTIMA CARTA (§16)';
+  check(
+    'ULTIMA CARTA declared and accepted by the server across the games '
+    '($_totalLastCards×)',
+    _totalLastCards > 0,
+  );
+
   // The stock only runs dry when a round lasts long enough; across the
-  // 2/3/4-player games it must have happened at least once.
-  _area = 'RESHUFFLE';
-  check(
-    'draw pile recycled across the games ($_totalRecycles×)',
-    _totalRecycles > 0,
-  );
-  _area = '9 BLOCK';
-  check(
-    'a Cavallo blocked a pending chain across the games ($_totalBlocks×)',
-    _totalBlocks > 0,
-  );
+  // 2/3/4-player games it must have happened at least once. Only the full
+  // form plays those games, so only the full form can assert it.
+  if (Platform.environment['MATRIX_QUICK'] != '1') {
+    _area = 'RESHUFFLE';
+    check(
+      'draw pile recycled across the games ($_totalRecycles×)',
+      _totalRecycles > 0,
+    );
+    _area = '9 BLOCK';
+    check(
+      'a Cavallo blocked a pending chain across the games ($_totalBlocks×)',
+      _totalBlocks > 0,
+    );
+  }
 
   stdout.writeln(
     '\n================ SUMMARY (${total.elapsed.inSeconds}s) ================',

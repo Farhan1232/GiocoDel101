@@ -69,6 +69,17 @@ abstract class TableController extends GetxController {
   bool get canEndTurn;
   bool get mustTakePenalty;
 
+  /// §16 — whether the "ULTIMA CARTA" button should be offered right now:
+  /// the viewer is on turn, holds exactly two cards, has a legal play that
+  /// would leave one, and has not announced yet. Both drivers answer from
+  /// the same engine predicate, so the button behaves identically online
+  /// and off.
+  bool get canDeclareLastCard;
+
+  /// §16 — whether the seat the viewer is playing has already announced for
+  /// the turn in progress; the button shows its success state.
+  bool get hasDeclaredLastCard;
+
   /// Called by the view once it is laid out and able to play cues.
   void start();
 
@@ -79,6 +90,10 @@ abstract class TableController extends GetxController {
   Future<void> drawCard();
   Future<void> endTurn();
   Future<void> chooseSuit(CardSuit suit);
+
+  /// §16 — announces "ULTIMA CARTA". Offline it is an engine action;
+  /// online it is a request the server validates like any other.
+  Future<void> declareLastCard();
   void sendReaction(String phrase);
   void confirmHandover();
   Future<void> persistNow();

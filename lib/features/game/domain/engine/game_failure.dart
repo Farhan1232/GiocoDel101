@@ -46,6 +46,16 @@ enum GameFailure {
   /// states; guards deserialised or hand-built ones).
   invalidState,
 
+  /// §16 — the play would leave the actor holding one card and no "ULTIMA
+  /// CARTA" has been declared for this turn. Nothing has changed: declare,
+  /// then send the same play again.
+  lastCardDeclarationRequired,
+
+  /// §16 — "ULTIMA CARTA" was declared when it means nothing: the actor is
+  /// not down to two cards, has no legal play to make with them, or has
+  /// already declared for this turn.
+  lastCardDeclarationNotAllowed,
+
   // -- match creation --
 
   invalidPlayerCount,

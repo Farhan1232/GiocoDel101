@@ -54,7 +54,10 @@ Legend: ✅ yes · ⚠️ partial (see note) · — no · n/a not applicable
 | Missions | ✅ | ✅ `session5_offline_test` (rotation) | ✅ smoke: progress ticks, claim, double claim, expired | ✅ | — | |
 | Settings | ✅ | ✅ | n/a | n/a | — | Row tap toggles the switch (48 px target) |
 | Loading / error / success / empty / disabled states | ✅ | ✅ `state_views`, screens tests | ✅ error copy verified against the brief's Italian lines | n/a | — | No raw exception text reaches a widget |
-| Rule matrix (normal / invalid / wrong turn / ownership / Asso / Due / stacked Due / Nove / Nove block / draw / reshuffle / winner / 101 / rematch) | ✅ | ✅ 43 conformance fixtures (Dart VM **and** the JS engine), `rules_test`, `edge_cases_test`, `scoring_test` | ✅ same engine.js on the server; matrix "0 app-engine moves refused" | ✅ | — | Offline and online agree by construction |
+| Rule matrix (normal / invalid / wrong turn / ownership / Asso / Due / stacked Due / Nove / Nove block / draw / reshuffle / winner / 101 / rematch) | ✅ | ✅ 59 conformance fixtures (Dart VM **and** the JS engine), `rules_test`, `edge_cases_test`, `scoring_test` | ✅ same engine.js on the server; matrix "0 app-engine moves refused" | ✅ | — | Offline and online agree by construction |
+| Scoring: Fante 25 / Cavallo 25 (client final change, §1 §10) | ✅ | ✅ `scoring_test`, `engine/score_policy_test`, all 59 fixtures carry the new table | ✅ the live server's own reply shows `fante: 25, cavallo: 25` | ✅ | — | Penalty only — gameplay of both cards unchanged; schema 3 migrates old saves |
+| ULTIMA CARTA declaration (client final change, §16) | ✅ | ✅ `ultima_carta_test` (28), 8 `ultima_carta_*` fixtures on VM **and** JS, `gameplay_widget_test` (button), `session4_online_test` (2 tamper cases) | ✅ `online_rule_check` at 2/3/4 seats and the matrix, live: declarations accepted, undeclared plays refused by the SERVER | ✅ independent authenticated users | — | Enforced by the engine, not the button; `lastCardDeclaredBy` is public, hands are not |
+| Large hands remain visible and playable (client final change) | ✅ | ✅ `large_hand_layout_test` — 5/10/15/20/25 cards × 4 device sizes | n/a | n/a | — | Fixed two real defects: taps landed on the wrong card, and "selection lift" moved cards down |
 | Security: own wins / rating / XP / achievement / winner writes | ✅ refused | ✅ Deno tests (policy), SQL review | ✅ matrix RLS + hardening areas (`42501`) | ✅ | — | |
 | Security: play twice / opponent card / out of turn / stale / replay / duplicate id / after finish | ✅ refused | ✅ conformance | ✅ matrix CONCURRENCY & ATTACKS | ✅ | — | Receipts now per caller |
 | Security: join full / start other's / read opponent cards / read deck / unrelated channel / edit other profile | ✅ refused | ✅ | ✅ matrix PRIVATE HAND SECURITY, RLS, REALTIME | ✅ outsider client | — | Seed widened to 52 bits |
@@ -67,6 +70,7 @@ Legend: ✅ yes · ⚠️ partial (see note) · — no · n/a not applicable
 | Italian copy (incl. "Scegli il palo") and English locale | ✅ | ✅ `session1_domain_test` (IT≠EN), IT/EN screens | n/a | n/a | — | 20 hardcoded literals localised |
 | Accessibility: suits by shape + colour, tap targets, semantics, contrast, large cards, reduce motion, text scaling | ✅ | ✅ `session6_release_test` (card / discard semantics, OS reduce motion) | n/a | n/a | — | Contrast fixes: muted text, danger buttons |
 | Android APK (debug, release) and AAB | ✅ | — | n/a | n/a | — | Built on this machine; **not installed anywhere** — no device |
+| Large-hand layout on a real device | ⚠️ | ✅ widget tests at four sizes | n/a | n/a | **not run** | No physical device here; the sizes above are the simulated ones |
 | iOS | ⚠️ project files only | — | n/a | n/a | — | **Not compiled**: no macOS/Xcode here |
 
 ## Rule verification matrix

@@ -41,7 +41,7 @@ void main() {
         top: c(CardSuit.coppe, CardRank.cinque),
       );
       expect(e.canPlay(c(CardSuit.bastoni, CardRank.sette)), isFalse);
-      final result = e.playCard(c(CardSuit.bastoni, CardRank.sette));
+      final result = e.autoPlayCard(c(CardSuit.bastoni, CardRank.sette));
       expect(result.accepted, isFalse);
       expect(result.failure, GameFailure.illegalCard);
     });
@@ -74,7 +74,7 @@ void main() {
         ],
         top: c(CardSuit.coppe, CardRank.cinque),
       );
-      expect(e.playCard(c(CardSuit.coppe, CardRank.asso)).accepted, isTrue);
+      expect(e.autoPlayCard(c(CardSuit.coppe, CardRank.asso)).accepted, isTrue);
       expect(e.currentPlayer.id, 'p2', reason: 'p1 loses the turn');
     });
 
@@ -86,7 +86,7 @@ void main() {
         ],
         top: c(CardSuit.coppe, CardRank.cinque),
       );
-      e.playCard(c(CardSuit.coppe, CardRank.asso));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.asso));
       expect(e.currentPlayer.id, 'p0');
     });
   });
@@ -105,7 +105,7 @@ void main() {
             .map((i) => c(CardSuit.bastoni, CardRank.values[i]))
             .toList(),
       );
-      e.playCard(c(CardSuit.coppe, CardRank.due));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.due));
       expect(e.state.pendingDrawCount, 2);
       expect(e.state.chainLength, 1);
       expect(e.currentPlayer.id, 'p1');
@@ -139,11 +139,11 @@ void main() {
         drawPile: deck,
       );
 
-      e.playCard(c(CardSuit.coppe, CardRank.due));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.due));
       expect(e.state.pendingDrawCount, 2);
-      e.playCard(c(CardSuit.spade, CardRank.due));
+      e.autoPlayCard(c(CardSuit.spade, CardRank.due));
       expect(e.state.pendingDrawCount, 4);
-      e.playCard(c(CardSuit.denari, CardRank.due));
+      e.autoPlayCard(c(CardSuit.denari, CardRank.due));
       expect(e.state.pendingDrawCount, 6);
       expect(e.state.chainLength, 3);
 
@@ -214,7 +214,7 @@ void main() {
         top: c(CardSuit.coppe, CardRank.cinque),
       );
       expect(e.canPlay(c(CardSuit.spade, CardRank.cavallo)), isTrue);
-      e.playCard(c(CardSuit.spade, CardRank.cavallo));
+      e.autoPlayCard(c(CardSuit.spade, CardRank.cavallo));
       expect(e.state.status, GameStatus.awaitingSuitChoice);
       expect(e.currentPlayer.id, 'p0', reason: 'turn waits for the choice');
     });
@@ -227,7 +227,7 @@ void main() {
         ],
         top: c(CardSuit.coppe, CardRank.cinque),
       );
-      e.playCard(c(CardSuit.spade, CardRank.cavallo));
+      e.autoPlayCard(c(CardSuit.spade, CardRank.cavallo));
       e.chooseSuit(CardSuit.bastoni);
       expect(e.state.activeSuit, CardSuit.bastoni);
       expect(e.state.status, GameStatus.awaitingAction);
@@ -279,7 +279,7 @@ void main() {
       expect(e.state.drawnCard, c(CardSuit.coppe, CardRank.re));
       expect(e.currentPlayer.id, 'p0');
       expect(e.canEndTurn, isTrue);
-      e.playCard(c(CardSuit.coppe, CardRank.re));
+      e.autoPlayCard(c(CardSuit.coppe, CardRank.re));
       expect(e.currentPlayer.id, 'p1');
     });
 

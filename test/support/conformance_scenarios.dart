@@ -42,7 +42,7 @@ class ConformanceScenario {
   /// `winnerId`, `roundWinnerId`, `round`, `drawPileSize`,
   /// `discardPileSize`, `handSize.<id>`, `score.<id>`, `eliminated.<id>`,
   /// `hasDrawnThisTurn`, `drawnCard`, `penaltyResolvedThisTurn`,
-  /// `dealerSeat`, `dealerId`, `currentSeat`.
+  /// `lastCardDeclaredBy`, `dealerSeat`, `dealerId`, `currentSeat`.
   final Map<String, Object?> assertions;
 
   /// Event type names, in order, when the action is accepted.
@@ -67,7 +67,9 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §4.1',
     state: buildState(
       hands: [
-        [_c(_co, CardRank.re), _c(_sp, CardRank.tre)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_co, CardRank.re), _c(_sp, CardRank.tre), _c(_ba, CardRank.sette)],
         [_c(_de, CardRank.tre)],
       ],
       top: _c(_co, CardRank.cinque),
@@ -77,7 +79,7 @@ List<ConformanceScenario> conformanceScenarios() => [
       'currentPlayerId': 'p1',
       'topCard': 'coppe_re',
       'activeSuit': 'coppe',
-      'handSize.p0': 1,
+      'handSize.p0': 2,
       'version': 1,
       'status': 'awaitingAction',
     },
@@ -91,7 +93,13 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §4.2',
     state: buildState(
       hands: [
-        [_c(_ba, CardRank.cinque), _c(_sp, CardRank.tre)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [
+          _c(_ba, CardRank.cinque),
+          _c(_sp, CardRank.tre),
+          _c(_ba, CardRank.sette),
+        ],
         [_c(_de, CardRank.tre)],
       ],
       top: _c(_co, CardRank.cinque),
@@ -211,7 +219,9 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §5',
     state: buildState(
       hands: [
-        [_c(_co, CardRank.asso), _c(_co, CardRank.re)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_co, CardRank.asso), _c(_co, CardRank.re), _c(_ba, CardRank.sette)],
         [_c(_sp, CardRank.tre)],
       ],
       top: _c(_co, CardRank.cinque),
@@ -230,7 +240,9 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §5',
     state: buildState(
       hands: [
-        [_c(_co, CardRank.asso), _c(_co, CardRank.re)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_co, CardRank.asso), _c(_co, CardRank.re), _c(_ba, CardRank.sette)],
         [_c(_sp, CardRank.tre)],
         [_c(_de, CardRank.tre)],
       ],
@@ -250,7 +262,9 @@ List<ConformanceScenario> conformanceScenarios() => [
         [_c(_sp, CardRank.tre)],
         [_c(_de, CardRank.tre)],
         [_c(_ba, CardRank.tre)],
-        [_c(_co, CardRank.asso), _c(_co, CardRank.re)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_co, CardRank.asso), _c(_co, CardRank.re), _c(_ba, CardRank.sette)],
       ],
       top: _c(_co, CardRank.cinque),
       currentIndex: 3,
@@ -266,7 +280,9 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §6',
     state: buildState(
       hands: [
-        [_c(_co, CardRank.due), _c(_co, CardRank.re)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_co, CardRank.due), _c(_co, CardRank.re), _c(_ba, CardRank.sette)],
         [_c(_sp, CardRank.tre)],
       ],
       top: _c(_co, CardRank.cinque),
@@ -290,7 +306,9 @@ List<ConformanceScenario> conformanceScenarios() => [
     state: buildState(
       hands: [
         [_c(_co, CardRank.re)],
-        [_c(_sp, CardRank.due), _c(_sp, CardRank.tre)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_sp, CardRank.due), _c(_sp, CardRank.tre), _c(_ba, CardRank.sette)],
       ],
       top: _c(_co, CardRank.due),
       currentIndex: 1,
@@ -311,7 +329,9 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §6',
     state: buildState(
       hands: [
-        [_c(_ba, CardRank.due), _c(_co, CardRank.re)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_ba, CardRank.due), _c(_co, CardRank.re), _c(_ba, CardRank.sette)],
         [_c(_sp, CardRank.tre)],
         [_c(_de, CardRank.tre)],
       ],
@@ -404,7 +424,13 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §7',
     state: buildState(
       hands: [
-        [_c(_sp, CardRank.cavallo), _c(_sp, CardRank.re)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [
+          _c(_sp, CardRank.cavallo),
+          _c(_sp, CardRank.re),
+          _c(_ba, CardRank.sette),
+        ],
         [_c(_de, CardRank.tre)],
       ],
       top: _c(_co, CardRank.cinque),
@@ -446,7 +472,13 @@ List<ConformanceScenario> conformanceScenarios() => [
     rulesNote: 'GAME_SPEC §7',
     state: buildState(
       hands: [
-        [_c(_sp, CardRank.cavallo), _c(_sp, CardRank.re)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [
+          _c(_sp, CardRank.cavallo),
+          _c(_sp, CardRank.re),
+          _c(_ba, CardRank.sette),
+        ],
         [_c(_de, CardRank.tre)],
       ],
       top: _c(_co, CardRank.cinque),
@@ -500,7 +532,13 @@ List<ConformanceScenario> conformanceScenarios() => [
     state: buildState(
       hands: [
         [_c(_co, CardRank.re)],
-        [_c(_ba, CardRank.cavallo), _c(_sp, CardRank.tre)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [
+          _c(_ba, CardRank.cavallo),
+          _c(_sp, CardRank.tre),
+          _c(_ba, CardRank.sette),
+        ],
       ],
       top: _c(_sp, CardRank.due),
       discardBelowTop: [_c(_co, CardRank.due)],
@@ -531,7 +569,13 @@ List<ConformanceScenario> conformanceScenarios() => [
     state: buildState(
       hands: [
         [_c(_co, CardRank.re)],
-        [_c(_ba, CardRank.cavallo), _c(_sp, CardRank.tre)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [
+          _c(_ba, CardRank.cavallo),
+          _c(_sp, CardRank.tre),
+          _c(_ba, CardRank.sette),
+        ],
       ],
       top: _c(_sp, CardRank.due),
       discardBelowTop: [_c(_co, CardRank.due)],
@@ -1019,7 +1063,9 @@ List<ConformanceScenario> conformanceScenarios() => [
     state: buildState(
       hands: [
         [_c(_co, CardRank.re)],
-        [_c(_sp, CardRank.tre), _c(_co, CardRank.sei)],
+        // §16 — a third card, so this case stays about its own rule:
+        // from two, the play would also require an ULTIMA CARTA.
+        [_c(_sp, CardRank.tre), _c(_co, CardRank.sei), _c(_ba, CardRank.sette)],
       ],
       top: _c(_co, CardRank.due),
       currentIndex: 1,
@@ -1030,7 +1076,7 @@ List<ConformanceScenario> conformanceScenarios() => [
       'currentPlayerId': 'p0',
       'topCard': 'coppe_sei',
       'penaltyResolvedThisTurn': false,
-      'handSize.p1': 1,
+      'handSize.p1': 2,
     },
     expectedEvents: const ['CardPlayedEvent', 'TurnChangedEvent'],
   ),
@@ -1189,5 +1235,160 @@ List<ConformanceScenario> conformanceScenarios() => [
       'round': 2,
     },
     expectedEvents: const ['RoundStartedEvent', 'TurnChangedEvent'],
+  ),
+
+  // ---------------------------------------------------------- ultima carta
+  ConformanceScenario(
+    name: 'ultima_carta_required_before_two_to_one',
+    description:
+        'A legal play that would leave the actor one card is refused while '
+        'no ULTIMA CARTA has been declared. Nothing changes.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_co, CardRank.sette)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+    ),
+    action: PlayCardAction(playerId: 'p0', card: _c(_co, CardRank.re)),
+    expectedFailure: GameFailure.lastCardDeclarationRequired,
+  ),
+  ConformanceScenario(
+    name: 'ultima_carta_declaration_is_recorded',
+    description:
+        'The declaration records the seat, plays no card, draws nothing and '
+        'leaves the turn where it was.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_co, CardRank.sette)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+    ),
+    action: const DeclareLastCardAction(playerId: 'p0'),
+    assertions: {
+      'currentPlayerId': 'p0',
+      'status': 'awaitingAction',
+      'lastCardDeclaredBy': 'p0',
+      'handSize.p0': 2,
+      'topCard': 'coppe_cinque',
+      'version': 1,
+    },
+    expectedEvents: const ['LastCardDeclaredEvent'],
+  ),
+  ConformanceScenario(
+    name: 'ultima_carta_then_the_play_is_accepted',
+    description:
+        'With the declaration standing, the same play goes through and the '
+        'hand becomes exactly one card.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_co, CardRank.sette)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+    ).copyWith(lastCardDeclaredBy: 'p0'),
+    action: PlayCardAction(playerId: 'p0', card: _c(_co, CardRank.re)),
+    assertions: {
+      'currentPlayerId': 'p1',
+      'handSize.p0': 1,
+      // The turn moved on, so the declaration did not travel with it.
+      'lastCardDeclaredBy': null,
+      'topCard': 'coppe_re',
+    },
+    expectedEvents: const ['CardPlayedEvent', 'TurnChangedEvent'],
+  ),
+  ConformanceScenario(
+    name: 'ultima_carta_rejected_with_a_full_hand',
+    description:
+        'Declaring means nothing with more than two cards, and is refused.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_co, CardRank.sette), _c(_sp, CardRank.tre)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+    ),
+    action: const DeclareLastCardAction(playerId: 'p0'),
+    expectedFailure: GameFailure.lastCardDeclarationNotAllowed,
+  ),
+  ConformanceScenario(
+    name: 'ultima_carta_rejected_off_turn',
+    description: 'A seat that is not to act cannot declare.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_co, CardRank.sette)],
+        [_c(_de, CardRank.tre), _c(_de, CardRank.sette)],
+      ],
+      top: _c(_co, CardRank.cinque),
+    ),
+    action: const DeclareLastCardAction(playerId: 'p1'),
+    expectedFailure: GameFailure.notPlayersTurn,
+  ),
+  ConformanceScenario(
+    name: 'ultima_carta_rejected_with_no_legal_play',
+    description:
+        'Two cards but nothing playable: the declaration would be empty '
+        'talk, so it is refused.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_sp, CardRank.tre), _c(_ba, CardRank.sette)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+    ),
+    action: const DeclareLastCardAction(playerId: 'p0'),
+    expectedFailure: GameFailure.lastCardDeclarationNotAllowed,
+  ),
+  ConformanceScenario(
+    name: 'ultima_carta_cleared_by_drawing',
+    description:
+        'Drawing instead of playing puts a third card in the hand and the '
+        'declaration goes with it.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re), _c(_co, CardRank.sette)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      // Playable, so the turn stays with p0 (§8) and the declaration is seen
+      // to be cleared by the draw itself rather than by the turn changing.
+      drawPile: [_c(_co, CardRank.quattro)],
+    ).copyWith(lastCardDeclaredBy: 'p0'),
+    action: const DrawCardAction(playerId: 'p0'),
+    assertions: {
+      'currentPlayerId': 'p0',
+      'lastCardDeclaredBy': null,
+      'handSize.p0': 3,
+      'hasDrawnThisTurn': true,
+      'drawnCard': 'coppe_quattro',
+    },
+  ),
+  ConformanceScenario(
+    name: 'ultima_carta_not_needed_for_the_winning_card',
+    description:
+        'Playing the final card (1 -> 0) wins the round and asks for no '
+        'second announcement.',
+    rulesNote: 'GAME_SPEC §16',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [_c(_de, CardRank.tre)],
+      ],
+      top: _c(_co, CardRank.cinque),
+    ),
+    action: PlayCardAction(playerId: 'p0', card: _c(_co, CardRank.re)),
+    assertions: {
+      'status': 'roundOver',
+      'roundWinnerId': 'p0',
+      'handSize.p0': 0,
+    },
   ),
 ];

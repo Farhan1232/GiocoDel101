@@ -70,6 +70,7 @@ docs/                             Design, engine, schema, security, verification
 | Document | What it covers |
 |---|---|
 | `docs/GAME_SPEC.md` | Every rule, and the open questions for the client |
+| `docs/CLIENT_FINAL_CHANGE.md` | The final 2026-08-31 requests: Fante/Cavallo = 25, ULTIMA CARTA, large hands |
 | `docs/GAME_ENGINE.md` | The pure, deterministic rules engine |
 | `docs/ARCHITECTURE.md` | Layers, state management, the backend seam |
 | `docs/OFFLINE_MODE.md`, `docs/BOTS.md` | Bots, pause/resume, saves, tutorial, animations |
@@ -186,9 +187,10 @@ flutter run -d chrome --dart-define-from-file=env/supabase.dev.json
 
 ```bash
 flutter analyze
-flutter test                                         # 515 tests, ~50 s
-dart run tool/bot_simulation.dart                    # 270 bot matches, invariants (SIM_MATCHES=…)
-deno test --allow-read supabase/functions/match/     # 43 conformance fixtures + timeout policy
+flutter test                                         # 651 tests, ~60 s
+dart run tool/bot_simulation.dart                    # bot matches, invariants (SIM_MATCHES=…)
+deno test --allow-read supabase/functions/match/     # 59 conformance fixtures + timeout policy
+RULE_CHECK_SEATS=4 dart run tool/online_rule_check.dart   # §6b/§12/§12a/§16, live
 
 # Against the real dev project (five / two independent users):
 MATRIX_QUICK=1 dart run tool/online_matrix.dart      # ~13 min; omit MATRIX_QUICK for 2/3/4-player games (~30 min)

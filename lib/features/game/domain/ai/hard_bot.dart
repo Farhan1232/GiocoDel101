@@ -43,7 +43,7 @@ class HardBot extends NormalBot {
     return remaining < 0 ? 0 : remaining;
   }
 
-  /// True when this bot is one bad round away from being knocked out (§16).
+  /// True when this bot is one bad round away from being knocked out (§11).
   bool inDanger(BotView view) {
     final headroom = view.rules.targetScore - view.myScore;
     return headroom <= 20;

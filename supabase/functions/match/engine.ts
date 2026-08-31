@@ -8,7 +8,7 @@
 
 export type GameStateJson = Record<string, any>;
 export type GameActionJson = {
-  type: "playCard" | "drawCard" | "chooseSuit" | "pass" | "startNextRound" | "forfeit";
+  type: "playCard" | "drawCard" | "chooseSuit" | "pass" | "startNextRound" | "forfeit" | "declareLastCard";
   playerId: string;
   baseVersion?: number;
   card?: string;

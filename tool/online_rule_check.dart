@@ -122,6 +122,39 @@ Map<String, dynamic> action(String matchId, Map<String, dynamic> body) => {
   'action': body,
 };
 
+/// §16 — announces "ULTIMA CARTA" through the server when the seat about to
+/// play holds its last two cards. The client does exactly this when the
+/// player presses the button; a driver that skipped it would simply have its
+/// play refused, which is the point of the rule.
+///
+/// Returns the number of requests it made, so the caller's action count
+/// stays honest.
+Future<int> declareIfDue(String matchId, Seat actor) async {
+  if (!engine.canDeclareLastCard(viewFor(actor), actor.pid)) return 0;
+  final r = await actor.call(action(matchId, {'type': 'declareLastCard'}));
+  final ok = r['accepted'] == true;
+  check(
+    '§16 — the server accepted ULTIMA CARTA from ${actor.pid}',
+    ok,
+    // Only the interesting part: the whole reply is a wall of state.
+    ok ? 'v${r['version']} ${r['events']}' : (r['failure'] ?? r),
+  );
+  if (r['accepted'] == true) {
+    adopt(r, actor);
+    final st = public;
+    check(
+      '§16 — the declaration is published to the table',
+      st != null && st.lastCardDeclaredBy == actor.pid,
+      st?.lastCardDeclaredBy,
+    );
+    lastCardsProven++;
+  }
+  return 1;
+}
+
+/// How many ULTIMA CARTA announcements the run actually exercised.
+int lastCardsProven = 0;
+
 Future<void> main() async {
   final env = Platform.environment;
   final url = env['SUPABASE_URL'];
@@ -348,6 +381,7 @@ Future<void> main() async {
       }
 
       // …and the turn only moves on once the continuation is made.
+      if (legal.isNotEmpty) actions += await declareIfDue(matchId, actor);
       final follow = legal.isNotEmpty
           ? action(matchId, {'type': 'playCard', 'card': legal.first.id})
           : action(matchId, {'type': 'pass'});
@@ -385,6 +419,7 @@ Future<void> main() async {
           orElse: () => playable.first,
         ),
       );
+      actions += await declareIfDue(matchId, actor);
       body = {
         'type': 'playCard',
         'card': pick.id,
@@ -413,10 +448,16 @@ Future<void> main() async {
 
   stdout.writeln(
     '\n   $actions actions, $penaltiesProven paid chains proven, '
-    '$roundsProven round changes proven, $dealerRotationProven dealer moves',
+    '$roundsProven round changes proven, $dealerRotationProven dealer moves, '
+    '$lastCardsProven ultima carta declarations',
   );
   check('at least one +2 chain was paid and checked', penaltiesProven > 0);
   check('at least one round change was checked', roundsProven > 0);
+  check(
+    '§16 — at least one ULTIMA CARTA was declared and accepted',
+    lastCardsProven > 0,
+    '$lastCardsProven declarations',
+  );
 
   stdout.writeln('\n$_pass passed, $_fail failed');
   exit(_fail == 0 ? 0 : 1);

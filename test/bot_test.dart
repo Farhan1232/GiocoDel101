@@ -63,7 +63,7 @@ void main() {
             final decision = bot.decide(view);
             switch (decision.action) {
               case BotAction.play:
-                final result = engine.playCard(
+                final result = engine.autoPlayCard(
                   decision.card!,
                   chosenSuit: decision.suit,
                 );
@@ -330,7 +330,7 @@ void main() {
           final d = bot.decide(view);
           switch (d.action) {
             case BotAction.play:
-              engine.playCard(d.card!, chosenSuit: d.suit);
+              engine.autoPlayCard(d.card!, chosenSuit: d.suit);
             case BotAction.draw:
               engine.drawCard();
               if (engine.state.drawnCard == null && engine.canEndTurn) {

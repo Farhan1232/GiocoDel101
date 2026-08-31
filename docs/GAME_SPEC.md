@@ -34,21 +34,35 @@ the deterministic deck build):
 | Bastoni | Clubs |
 
 **Ranks** (`CardRank`, named in Italian in code — `asso, due, tre, quattro,
-cinque, sei, sette, fante, cavallo, re` — with the numeric value used by both
-matching and scoring):
+cinque, sei, sette, fante, cavallo, re`). **Rank** is the numeric order the
+matching rules use; **penalty** is what the card costs if it is still in your
+hand when a round ends (§10). They are the same number for every card except
+the two figures the client re-priced on 2026-08-31:
 
-| Rank | Key | Value |
-|---|---|---|
-| Asso | `asso` | 1 |
-| 2 | `due` | 2 |
-| 3 | `tre` | 3 |
-| 4 | `quattro` | 4 |
-| 5 | `cinque` | 5 |
-| 6 | `sei` | 6 |
-| 7 | `sette` | 7 |
-| Fante | `fante` | 8 |
-| Cavallo | `cavallo` | 9 |
-| Re | `re` | 10 |
+| Rank | Key | Rank value | Penalty (§10) |
+|---|---|---|---|
+| Asso | `asso` | 1 | 1 |
+| 2 | `due` | 2 | 2 |
+| 3 | `tre` | 3 | 3 |
+| 4 | `quattro` | 4 | 4 |
+| 5 | `cinque` | 5 | 5 |
+| 6 | `sei` | 6 | 6 |
+| 7 | `sette` | 7 | 7 |
+| Fante | `fante` | 8 | **25** |
+| Cavallo | `cavallo` | 9 | **25** |
+| Re | `re` | 10 | 10 |
+
+> **Fante and Cavallo are worth 25 — CONFIRMED 2026-08-31.** The client's
+> words: *"The 9 and the Jack should have a value of 25 points when they are
+> in the hand."* In this deck the "9" is the Cavallo and the "Jack" is the
+> Fante. The 25 is a **penalty only**: it changes nothing about how either
+> card is played. The Cavallo still ignores the active suit, still names a
+> new one (§7) and still blocks a chain (§6a); the Fante is still an ordinary
+> card matched by suit or rank (§4). `CardRank.cavallo.value` is still 9,
+> because that is its *rank*, and the matching rules read it.
+>
+> The values live once, in `GameRules.defaultScoreValues`, and are applied
+> once, by `ScorePolicy.handPenalty`. Nothing else prices a card.
 
 A card's stable id is `<suit>_<rank>` (`denari_asso`, `spade_cavallo`).
 
@@ -234,9 +248,16 @@ state version (see `docs/GAME_ENGINE.md` §8).
 A round ends the moment one player's hand is empty. That player is the round
 winner and scores nothing.
 
-Every other player scores **penalty points equal to the printed value of every
-card still in their hand**, using the table in §1 (Asso 1 … Re 10). These are
+Every other player scores **penalty points equal to the penalty value of every
+card still in their hand**, using the table in §1: pip cards at their printed
+rank (Asso 1 … Sette 7, Re 10) and the two figures at **25 each** — Fante 25,
+Cavallo 25 (confirmed by the client 2026-08-31). These are
 `GameRules.defaultScoreValues`; they are configurable but not invented.
+
+A hand of, say, Fante + Cavallo + Re is therefore worth 25 + 25 + 10 = **60**,
+and several figures accumulate normally. Under the 101 rules below this makes
+a figure genuinely dangerous to be caught holding, which is what the client
+asked for.
 
 ### 10a. An unresolved +2 when the round ends
 
@@ -329,7 +350,11 @@ leaderboard model exists (`LeaderboardEntry.points`) but **no points formula
 has been invented**. Session 3 must get this from the client before the
 leaderboard can show anything.
 
-## 12d. Forfeit — leaving a match for good (Session 4)
+## 15. Forfeit — leaving a match for good (Session 4)
+
+<!-- Numbered 15 because that is what `ForfeitAction` and
+     docs/ONLINE_MULTIPLAYER.md have always called it; the old "12d" heading
+     was the odd one out. -->
 
 A seat may **forfeit** at any moment of a live match (`ForfeitAction`): on
 or off turn, between rounds, while a suit is pending. Online this is what
@@ -347,6 +372,80 @@ Turn-timer expiry (§14.4) is still undefined by the client; the online
 server applies the documented policy in `docs/ONLINE_MULTIPLAYER.md`
 ("The turn clock and timeouts") — a server-made safe move, forfeit on the
 third strike — without changing any rule here.
+
+## 16. "ULTIMA CARTA" — declaring your last card — **CONFIRMED 2026-08-31**
+
+The client's words: *"Add a button so a player must declare ULTIMA CARTA when
+they reach their last card."*
+
+**The rule.** A play that would leave a player holding **exactly one card** —
+that is, a play made from a hand of **two** — is only legal if that player has
+already declared **ULTIMA CARTA** for the turn in progress
+(`DeclareLastCardAction`). Without the declaration the engine refuses the play
+with `GameFailure.lastCardDeclarationRequired`: no card leaves the hand,
+nothing is drawn, the turn does not move, the state version does not change.
+Declare, then send the same play again and it is accepted.
+
+**No penalty.** The client did not ask for one and none has been invented. An
+undeclared play is simply held back until the announcement is made.
+
+**When declaring is allowed.** `GameEngine.canDeclareLastCard` is the single
+predicate the button, the bots and the validator all read, so the button can
+never be offered for a declaration the engine would refuse, nor withheld for
+one it would accept. All of these must hold:
+
+- the rule is on (`GameRules.requireLastCardDeclaration`, default **true**);
+- the match is live and the round is not over;
+- it is this seat's turn and nothing else is pending (no Cavallo waiting for
+  its suit);
+- the seat holds **exactly two** cards;
+- at least one of them is **legally playable**, so a play really could take
+  the hand down to one;
+- the seat has not already declared this turn.
+
+Declaring at five cards, at ten, out of turn, for somebody else, with two
+cards but nothing legal to play, or twice in one turn is refused with
+`GameFailure.lastCardDeclarationNotAllowed` (or the ordinary
+`notPlayersTurn` / `invalidPlayer` / `roundOver` / `gameFinished` /
+`suitSelectionRequired`, whichever applies first).
+
+**What the declaration does.** It records the seat in
+`GameState.lastCardDeclaredBy` and emits `LastCardDeclaredEvent`. It plays no
+card, draws nothing, changes no hand and does not end the turn.
+
+**How long it lasts.** One turn, and only for the hand it was made for. It is
+cleared by:
+
+- the turn moving on (every `_advanceTurn`, so it never travels to the next
+  seat);
+- a new deal;
+- **drawing** — an ordinary draw or a penalty draw, because either puts more
+  cards in the hand and the seat is no longer about to reach its last card;
+- the declarer forfeiting.
+
+**Two to one, not one to zero.** The announcement is about *becoming* a
+one-card player. Playing the final card (1 → 0) wins the round and asks for no
+second announcement — the client asked for one declaration, not two.
+
+**Drawing never needs it.** A player holding two cards may draw without
+declaring anything; only an action that would leave exactly one card is
+gated.
+
+**Who enforces it.** The same engine, everywhere. Offline that is the local
+`GameEngine`; online it is the *server*, running this very engine compiled to
+JavaScript (`supabase/functions/match/engine.js`), which decides the actor's
+identity from the caller's seat and re-validates hand size, turn ownership and
+whether the declaration stands. A modified client cannot skip the
+announcement or make one for another seat.
+
+**What the other players see.** `lastCardDeclaredBy` is a seat id and nothing
+else. It survives redaction (`app_private.redact_game_state`), so every seat
+sees *"Stefano: ULTIMA CARTA!"* while hands stay private — no card identity is
+published by any part of this feature.
+
+**Save and resume.** `lastCardDeclaredBy` is serialised with the rest of the
+state. A save written before this rule restores with nobody declared, which is
+always a playable position: the seat to act can still declare and carry on.
 
 ## 13. Configurable rules summary
 
@@ -373,7 +472,8 @@ All in `GameRules`, all with the defaults above:
 | `roundStarterPolicy` | `previousRoundWinner` | **CONFIRMED 2026-08-31** (§12) |
 | `initialDirection` | `clockwise` | n/a — no reversing card |
 | `turnTimeLimitSeconds` | null | **undefined** (§14.4) |
-| `scoreValues` | Asso 1 … Re 10 | yes |
+| `requireLastCardDeclaration` | true | **CONFIRMED 2026-08-31** (§16) |
+| `scoreValues` | Asso 1…7, Re 10, **Fante 25, Cavallo 25** | **CONFIRMED 2026-08-31** (§1, §10) |
 
 A room carries its own `GameRules` (`RoomConfig.rules`), so the house rules a
 host picks travel with the match rather than living in the UI.

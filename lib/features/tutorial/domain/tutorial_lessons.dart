@@ -306,7 +306,8 @@ class TutorialLessons {
       ),
     ),
     // 8 — Centouno! Il tuo ultimo scarto chiude il round e porta Marco
-    // esattamente a 101: torna a zero.
+    // esattamente a 101: torna a zero. §10 — dal 2026-08-31 il Cavallo in
+    // mano vale 25, quindi il conto è 76 + 25.
     TutorialLesson(
       id: TutorialLessonId.centouno,
       steps: [ExpectCard(_coppeSette)],
@@ -316,9 +317,10 @@ class TutorialLessons {
         top: _opener,
         round: 3,
         score: 40,
-        opponentScore: 92,
+        opponentScore: 76,
         hand: [_coppeSette],
-        // Cavallo (9) is the only card left: 92 + 9 = 101 exactly.
+        // The Cavallo is the only card left and, since the client's
+        // 2026-08-31 price change, it is worth 25: 76 + 25 = 101 exactly.
         opponent: [_bastoniCavallo],
       ),
     ),

@@ -44,6 +44,15 @@ class ChainBreakCue extends TableCue {
   final int level;
 }
 
+/// §16 — a seat announced "ULTIMA CARTA". Everyone at the table hears it.
+class LastCardCue extends TableCue {
+  const LastCardCue(this.playerId, {required this.isViewer});
+  final String playerId;
+
+  /// True when the person at this device made the announcement.
+  final bool isViewer;
+}
+
 class SuitChosenCue extends TableCue {
   const SuitChosenCue(this.playerId, this.suit);
   final String playerId;
@@ -139,6 +148,11 @@ class TableCues {
         return event.cancelled
             ? ChainBreakCue(event.playerId, event.total, event.chainLength)
             : null;
+      case LastCardDeclaredEvent():
+        return LastCardCue(
+          event.playerId,
+          isViewer: isHumanSeat(event.playerId),
+        );
       case SuitChosenEvent():
         return SuitChosenCue(event.playerId, event.suit);
       case DeckRecycledEvent():

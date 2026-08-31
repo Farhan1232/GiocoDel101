@@ -253,6 +253,31 @@
   "joinRoomPaste": "Incolla",
   "joinRoomTitle": "Entra in una stanza",
   "largeCards": "Carte grandi",
+  "lastCardAnnounced": "{name}: ULTIMA CARTA!",
+  "@lastCardAnnounced": {
+    "description": "§16 — what the table shows when any seat announces.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lastCardButton": "ULTIMA CARTA",
+  "@lastCardButton": {
+    "description": "§16 — the button a player presses before the play that leaves them one card."
+  },
+  "lastCardDeclared": "ULTIMA CARTA!",
+  "@lastCardDeclared": {
+    "description": "§16 — success state on the button once the announcement is made."
+  },
+  "lastCardPrompt": "Dichiara ULTIMA CARTA prima di giocare.",
+  "@lastCardPrompt": {
+    "description": "§16 — shown when a play is refused because no announcement was made."
+  },
+  "lastCardSemantics": "Dichiara ultima carta",
+  "@lastCardSemantics": {
+    "description": "§16 — accessibility label for the button."
+  },
   "leaderboardAllTime": "Di sempre",
   "leaderboardEmpty": "La classifica sarà disponibile con il gioco online.",
   "leaderboardLoadFailed": "Impossibile caricare la classifica.",
@@ -680,7 +705,7 @@
   "tutCavalloPrompt": "Il Cavallo (il 9) si gioca sempre, su qualsiasi carta. Gioca il Cavallo di Spade.",
   "tutCavalloSuit": "Ora scegli il nuovo palo attivo: conviene quello di cui hai più carte.",
   "tutCavalloTitle": "Cavallo — cambia palo",
-  "tutCentounoDone": "92 + 9 = 101 esatti: {name} torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.",
+  "tutCentounoDone": "76 + 25 = 101 esatti: {name} torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.",
   "@tutCentounoDone": {
     "placeholders": {
       "name": {
@@ -688,7 +713,7 @@
       }
     }
   },
-  "tutCentounoPrompt": "Ultima carta! L’avversario ha 92 punti e un Cavallo (9) in mano. Gioca il 7 di Coppe e chiudi il round.",
+  "tutCentounoPrompt": "Ultima carta! L’avversario ha 76 punti e un Cavallo in mano, che vale 25. Gioca il 7 di Coppe e chiudi il round.",
   "tutCentounoTitle": "Centouno!",
   "tutChainDone": "+4! {name} ha pescato quattro carte. Le catene arrivano fino a +8.",
   "@tutChainDone": {

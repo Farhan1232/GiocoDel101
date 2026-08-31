@@ -382,7 +382,9 @@ class BotSimulator {
             violate(ViolationKind.illegalProposal, 'play without a card');
             break;
           }
-          final r = engine.playCard(card, chosenSuit: decision.suit);
+          // §16 — the simulator drives bots through the same declaring path
+          // the table does, so a run proves the rule as well as the bots.
+          final r = engine.autoPlayCard(card, chosenSuit: decision.suit);
           report?.actions++;
           if (!r.accepted) {
             violate(

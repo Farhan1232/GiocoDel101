@@ -1,6 +1,9 @@
 import 'package:gioco_del_101/features/game/domain/card_rank.dart';
 import 'package:gioco_del_101/features/game/domain/card_suit.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_engine.dart';
+import 'package:gioco_del_101/features/game/domain/engine/game_failure.dart';
 import 'package:gioco_del_101/features/game/domain/engine/game_session.dart';
+import 'package:gioco_del_101/features/game/domain/game_action.dart';
 import 'package:gioco_del_101/features/game/domain/game_card.dart';
 import 'package:gioco_del_101/features/game/domain/game_player.dart';
 import 'package:gioco_del_101/features/game/domain/game_rules.dart';
@@ -116,3 +119,27 @@ GameSession buildEngine({
     fillDeck: fillDeck,
   ),
 );
+
+/// §16 — sends the "ULTIMA CARTA" announcement when [action] is a play the
+/// engine would otherwise refuse for want of one, and returns the state to
+/// apply the play to.
+///
+/// A table always does this: a person taps the button, a bot goes through
+/// [GameSession.autoPlayCard]. Rule tests that are about *something else*
+/// (turn order, the Asso, the chain, scoring) use this so they exercise the
+/// shipped rules rather than a weakened copy, without restating §16 in every
+/// case. Tests about §16 itself build both actions explicitly and assert on
+/// what happens when the announcement is missing.
+GameState declaredIfNeeded(
+  GameState state,
+  GameAction action, {
+  GameEngine engine = const GameEngine(),
+}) {
+  if (action is! PlayCardAction) return state;
+  if (!engine.canDeclareLastCard(state, action.playerId)) return state;
+  final r = engine.applyAction(
+    state,
+    DeclareLastCardAction(playerId: action.playerId),
+  );
+  return r is ActionAccepted ? r.state : state;
+}

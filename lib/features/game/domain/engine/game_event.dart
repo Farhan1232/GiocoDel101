@@ -59,6 +59,13 @@ class ChainBlockedEvent extends GameEvent {
   final bool cancelled;
 }
 
+/// §16 — a seat announced "ULTIMA CARTA". Public: every player hears it,
+/// and it carries no card.
+class LastCardDeclaredEvent extends GameEvent {
+  const LastCardDeclaredEvent(this.playerId);
+  final String playerId;
+}
+
 class SuitChoiceRequestedEvent extends GameEvent {
   const SuitChoiceRequestedEvent(this.playerId, this.card);
   final String playerId;
@@ -133,6 +140,7 @@ extension GameEventName on GameEvent {
     ChainGrewEvent() => 'ChainGrewEvent',
     ChainResolvedEvent() => 'ChainResolvedEvent',
     ChainBlockedEvent() => 'ChainBlockedEvent',
+    LastCardDeclaredEvent() => 'LastCardDeclaredEvent',
     SuitChoiceRequestedEvent() => 'SuitChoiceRequestedEvent',
     SuitChosenEvent() => 'SuitChosenEvent',
     DeckRecycledEvent() => 'DeckRecycledEvent',

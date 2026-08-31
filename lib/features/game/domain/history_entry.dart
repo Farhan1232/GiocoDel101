@@ -13,6 +13,7 @@ enum HistoryEntryType {
   skip,
   suitChosen,
   chainBlocked,
+  lastCardDeclared,
   recycle,
   roundEnd,
   forfeit,

@@ -13,8 +13,11 @@ import '../support/engine_harness.dart';
 
 const engine = GameEngine();
 
+// §16 — the announcement goes first when a play would take the actor down
+// to one card, exactly as the table sends it. These cases are about
+// something else; `ultima_carta_test.dart` is about §16 itself.
 ActionAccepted ok(GameState s, GameAction a) {
-  final r = engine.applyAction(s, a);
+  final r = engine.applyAction(declaredIfNeeded(s, a), a);
   expect(r, isA<ActionAccepted>(), reason: '$r');
   return r as ActionAccepted;
 }
@@ -24,15 +27,16 @@ void main() {
   final win = c(CardSuit.coppe, CardRank.re);
 
   group('ScorePolicy (§10, §11)', () {
-    test('hand penalty is the sum of printed values', () {
+    test('hand penalty follows the confirmed value table', () {
       const p = ScorePolicy(GameRules());
+      // §10 — Asso 1 + Re 10 + Fante 25 (the client's 2026-08-31 price).
       expect(
         p.handPenalty([
           c(CardSuit.denari, CardRank.asso),
           c(CardSuit.denari, CardRank.re),
           c(CardSuit.spade, CardRank.fante),
         ]),
-        19,
+        36,
       );
       expect(p.handPenalty(const []), 0);
     });

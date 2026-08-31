@@ -563,6 +563,23 @@ class AppLocalizationsIt extends AppLocalizations {
   String get largeCards => 'Carte grandi';
 
   @override
+  String lastCardAnnounced(String name) {
+    return '$name: ULTIMA CARTA!';
+  }
+
+  @override
+  String get lastCardButton => 'ULTIMA CARTA';
+
+  @override
+  String get lastCardDeclared => 'ULTIMA CARTA!';
+
+  @override
+  String get lastCardPrompt => 'Dichiara ULTIMA CARTA prima di giocare.';
+
+  @override
+  String get lastCardSemantics => 'Dichiara ultima carta';
+
+  @override
   String get leaderboardAllTime => 'Di sempre';
 
   @override
@@ -1421,12 +1438,12 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String tutCentounoDone(String name) {
-    return '92 + 9 = 101 esatti: $name torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.';
+    return '76 + 25 = 101 esatti: $name torna a zero. Chi invece supera 101 viene eliminato. Vince chi resta per ultimo.';
   }
 
   @override
   String get tutCentounoPrompt =>
-      'Ultima carta! L’avversario ha 92 punti e un Cavallo (9) in mano. Gioca il 7 di Coppe e chiudi il round.';
+      'Ultima carta! L’avversario ha 76 punti e un Cavallo in mano, che vale 25. Gioca il 7 di Coppe e chiudi il round.';
 
   @override
   String get tutCentounoTitle => 'Centouno!';

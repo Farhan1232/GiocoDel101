@@ -74,6 +74,7 @@ class GameState {
     this.turnNumber = 0,
     this.hasDrawnThisTurn = false,
     this.penaltyResolvedThisTurn = false,
+    this.lastCardDeclaredBy,
     this.drawnCard,
     this.lastAction,
     this.version = 0,
@@ -100,7 +101,13 @@ class GameState {
            e.key: List<String>.unmodifiable(e.value),
        });
 
-  static const int schemaVersion = 2;
+  /// 3 — §16 ("ULTIMA CARTA") and the Fante/Cavallo = 25 price list. A state
+  /// written under an older schema is migrated on read; see [fromJson].
+  static const int schemaVersion = 3;
+
+  /// The last schema whose `rules.scoreValues` still held the printed values
+  /// (Fante 8, Cavallo 9) the client replaced on 2026-08-31.
+  static const int legacyScoreSchema = 2;
   static const int historyLimit = 40;
 
   /// Stable identifier of this match. Locally a random token; online, the
@@ -163,6 +170,17 @@ class GameState {
   /// still on turn for its one legal continuation. Cleared by the next turn
   /// change and by every deal.
   final bool penaltyResolvedThisTurn;
+
+  /// §16 — the seat that has declared "ULTIMA CARTA" for the turn now in
+  /// progress, or null when nobody has. Public information: it is exactly
+  /// what the other players are entitled to hear, and it says nothing about
+  /// *which* cards are held.
+  ///
+  /// Scoped to one turn. Every turn change and every deal clears it, and so
+  /// does anything that puts more cards in the declarer's hand, so a
+  /// declaration can never be spent on a later hand than the one it was
+  /// made for.
+  final String? lastCardDeclaredBy;
 
   /// §8 — set when a freshly drawn card is legal and may be played at once.
   final GameCard? drawnCard;
@@ -229,6 +247,9 @@ class GameState {
 
   bool get isPenaltyPending => pendingDrawCount > 0;
 
+  /// §16 — whether [playerId] currently holds a live "ULTIMA CARTA".
+  bool hasDeclaredLastCard(String playerId) => lastCardDeclaredBy == playerId;
+
   /// §8 — whether a play this turn is confined to the card just drawn.
   ///
   /// The restriction is a consequence of choosing to draw. Penalty cards are
@@ -284,6 +305,8 @@ class GameState {
     int? turnNumber,
     bool? hasDrawnThisTurn,
     bool? penaltyResolvedThisTurn,
+    String? lastCardDeclaredBy,
+    bool clearLastCardDeclaration = false,
     GameCard? drawnCard,
     bool clearDrawnCard = false,
     GameAction? lastAction,
@@ -321,6 +344,9 @@ class GameState {
     hasDrawnThisTurn: hasDrawnThisTurn ?? this.hasDrawnThisTurn,
     penaltyResolvedThisTurn:
         penaltyResolvedThisTurn ?? this.penaltyResolvedThisTurn,
+    lastCardDeclaredBy: clearLastCardDeclaration
+        ? null
+        : (lastCardDeclaredBy ?? this.lastCardDeclaredBy),
     drawnCard: clearDrawnCard ? null : (drawnCard ?? this.drawnCard),
     lastAction: lastAction ?? this.lastAction,
     version: version ?? this.version,
@@ -380,6 +406,7 @@ class GameState {
     'turnNumber': turnNumber,
     'hasDrawnThisTurn': hasDrawnThisTurn,
     'penaltyResolvedThisTurn': penaltyResolvedThisTurn,
+    'lastCardDeclaredBy': lastCardDeclaredBy,
     'drawnCard': drawnCard?.id,
     'lastAction': lastAction?.toJson(),
     'version': version,
@@ -439,7 +466,10 @@ class GameState {
       gameId: json['gameId'] as String? ?? '',
       mode: GameMode.fromKey(json['mode'] as String? ?? 'vsComputer'),
       rules: GameRules.fromJson(
-        (json['rules'] as Map?)?.cast<String, dynamic>() ?? const {},
+        _migrateRules(
+          (json['rules'] as Map?)?.cast<String, dynamic>() ?? const {},
+          (json['schema'] as num?)?.toInt() ?? 1,
+        ),
       ),
       players: players,
       round: (json['round'] as num?)?.toInt() ?? 1,
@@ -460,6 +490,10 @@ class GameState {
       hasDrawnThisTurn: json['hasDrawnThisTurn'] as bool? ?? false,
       penaltyResolvedThisTurn:
           json['penaltyResolvedThisTurn'] as bool? ?? false,
+      // Absent before §16: a restored match simply starts with nobody having
+      // declared, which is the safe state — the seat to act can still
+      // declare before it plays.
+      lastCardDeclaredBy: json['lastCardDeclaredBy'] as String?,
       drawnCard: json['drawnCard'] == null
           ? null
           : GameCard.fromJson(json['drawnCard']),
@@ -495,6 +529,31 @@ class GameState {
           ? RoundResult.fromJson(rawResult.cast<String, dynamic>())
           : null,
     );
+  }
+
+  /// Brings a rules block written under an older [schemaVersion] up to date.
+  ///
+  /// The only migration so far is the 2026-08-31 price change: a save from
+  /// schema ≤ [legacyScoreSchema] carries a `scoreValues` table that still
+  /// prices the Fante at 8 and the Cavallo at 9. Resuming such a match under
+  /// its own stale table would score the very cards the client re-priced at
+  /// the old rate, so the table is dropped and
+  /// [GameRules.defaultScoreValues] takes over.
+  ///
+  /// A table the *client* customised is left alone: only one that matches
+  /// the old printed defaults exactly is treated as un-migrated.
+  static Map<String, dynamic> _migrateRules(
+    Map<String, dynamic> rules,
+    int schema,
+  ) {
+    if (schema > legacyScoreSchema) return rules;
+    final raw = rules['scoreValues'];
+    if (raw is! Map) return rules;
+    final isPrintedDefaults = GameRules.legacyPrintedScoreValues.entries.every(
+      (e) => (raw[e.key.key] as num?)?.toInt() == e.value,
+    );
+    if (!isPrintedDefaults) return rules;
+    return {...rules}..remove('scoreValues');
   }
 
   @override

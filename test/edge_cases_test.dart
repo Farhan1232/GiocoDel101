@@ -122,7 +122,7 @@ void main() {
           }
           final playable = e.playableCardsFor(e.currentPlayer);
           if (playable.isNotEmpty) {
-            e.playCard(playable[rng.nextInt(playable.length)]);
+            e.autoPlayCard(playable[rng.nextInt(playable.length)]);
           } else if (e.canDraw) {
             e.drawCard();
             if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();
@@ -168,7 +168,7 @@ void main() {
         } else {
           final playable = e.playableCardsFor(e.currentPlayer);
           if (playable.isNotEmpty) {
-            e.playCard(playable.first);
+            e.autoPlayCard(playable.first);
           } else {
             e.drawCard();
             if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();
@@ -257,7 +257,7 @@ void main() {
         if (e.state.status != GameStatus.awaitingAction) break;
         final playable = e.playableCardsFor(e.currentPlayer);
         if (playable.isNotEmpty) {
-          e.playCard(playable.first);
+          e.autoPlayCard(playable.first);
         } else {
           e.drawCard();
           if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();
@@ -298,7 +298,7 @@ void main() {
       );
       final resumed = GameSession(GameState.fromJson(e.state.toJson()));
       expect(resumed.canPlay(c(CardSuit.coppe, CardRank.re)), isTrue);
-      resumed.playCard(c(CardSuit.coppe, CardRank.re));
+      resumed.autoPlayCard(c(CardSuit.coppe, CardRank.re));
       expect(resumed.currentPlayer.id, 'p1');
       expect(resumed.state.topCard, c(CardSuit.coppe, CardRank.re));
     });
@@ -311,7 +311,7 @@ void main() {
         ],
         top: c(CardSuit.coppe, CardRank.cinque),
       );
-      e.playCard(c(CardSuit.spade, CardRank.cavallo));
+      e.autoPlayCard(c(CardSuit.spade, CardRank.cavallo));
       expect(e.state.status, GameStatus.awaitingSuitChoice);
 
       final resumed = GameSession(GameState.fromJson(e.state.toJson()));
@@ -351,7 +351,7 @@ void main() {
         }
         final playable = e.playableCardsFor(e.currentPlayer);
         if (playable.isNotEmpty) {
-          e.playCard(playable.first);
+          e.autoPlayCard(playable.first);
         } else {
           e.drawCard();
           if (e.state.drawnCard == null && e.canEndTurn) e.endTurn();

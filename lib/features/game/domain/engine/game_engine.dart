@@ -160,6 +160,44 @@ class GameEngine {
       validateAction(state, PassAction(playerId: state.currentPlayerId)) ==
       null;
 
+  /// §16 — whether [playerId] may declare "ULTIMA CARTA" right now.
+  ///
+  /// True only when the declaration would mean something: the rule is on,
+  /// the match and round are live, it is this seat's turn, nothing else is
+  /// pending, the seat holds exactly two cards, at least one of them can
+  /// legally be played (so a play really can take the hand down to one),
+  /// and the seat has not already declared this turn.
+  ///
+  /// This is the single predicate the button, the bots and [validateAction]
+  /// all read, so the button can never be enabled for a declaration the
+  /// engine would refuse, nor disabled for one it would accept.
+  bool canDeclareLastCard(GameState state, String playerId) {
+    if (!state.rules.requireLastCardDeclaration) return false;
+    if (state.isFinished || state.isRoundOver) return false;
+    if (state.status != GameStatus.awaitingAction) return false;
+    if (state.currentPlayerId != playerId) return false;
+    final player = state.playerById(playerId);
+    if (player == null || player.eliminated) return false;
+    if (player.hand.length != lastCardThreshold) return false;
+    if (state.hasDeclaredLastCard(playerId)) return false;
+    return getPlayableCards(state, playerId).isNotEmpty;
+  }
+
+  /// §16 — whether playing [card] would be refused for want of a
+  /// declaration. Pure legality of the *announcement*, not of the card.
+  bool requiresLastCardDeclaration(GameState state, String playerId) {
+    if (!state.rules.requireLastCardDeclaration) return false;
+    final player = state.playerById(playerId);
+    if (player == null) return false;
+    // Only the 2 -> 1 step. Playing the final card (1 -> 0) wins the round
+    // and needs no second announcement.
+    return player.hand.length == lastCardThreshold &&
+        !state.hasDeclaredLastCard(playerId);
+  }
+
+  /// §16 — the hand size from which a play makes a one-card player.
+  static const int lastCardThreshold = 2;
+
   /// True when the current player has no legal answer to a live chain and
   /// simply has to take the cards (§6).
   bool mustTakePenalty(GameState state) =>
@@ -214,6 +252,12 @@ class GameEngine {
         if (state.restrictsPlayToDrawnCard && state.drawnCard != card) {
           return GameFailure.illegalCard;
         }
+        // §16 — last, so an illegal card is still reported as illegal rather
+        // than blamed on a missing announcement. The play is refused whole:
+        // no card leaves the hand and the turn does not move.
+        if (requiresLastCardDeclaration(state, actor.id)) {
+          return GameFailure.lastCardDeclarationRequired;
+        }
         return null;
 
       case DrawCardAction():
@@ -237,6 +281,14 @@ class GameEngine {
         if (state.isPenaltyPending) return GameFailure.drawRequired;
         if (rules.mustDrawBeforePassing && !state.hasDrawnThisTurn) {
           return GameFailure.drawRequired;
+        }
+        return null;
+
+      case DeclareLastCardAction():
+        if (awaitingSuit) return GameFailure.suitSelectionRequired;
+        // One predicate for the button and the rule, so they cannot drift.
+        if (!canDeclareLastCard(state, actor.id)) {
+          return GameFailure.lastCardDeclarationNotAllowed;
         }
         return null;
 
@@ -267,6 +319,7 @@ class GameEngine {
       DrawCardAction() => _draw(state, action, events),
       ChooseSuitAction() => _chooseSuit(state, action, events),
       PassAction() => _advanceTurn(state, 1, events),
+      DeclareLastCardAction() => _declareLastCard(state, action, events),
       StartNextRoundAction() => _startNextRound(state, events),
       ForfeitAction() => _forfeit(state, action, events),
     };
@@ -384,6 +437,27 @@ class GameEngine {
     return _advanceTurn(next, 1, events);
   }
 
+  // -------------------------------------------------------- ultima carta
+
+  /// §16 — records the announcement. Nothing else moves: no card is played,
+  /// no card is drawn, the turn does not advance and the hand is untouched.
+  /// The seat is simply now allowed to make the play that leaves it one card.
+  GameState _declareLastCard(
+    GameState s,
+    DeclareLastCardAction a,
+    List<GameEvent> events,
+  ) {
+    events.add(LastCardDeclaredEvent(a.playerId));
+    return s
+        .copyWith(lastCardDeclaredBy: a.playerId)
+        .withHistory(
+          HistoryEntry(
+            type: HistoryEntryType.lastCardDeclared,
+            playerId: a.playerId,
+          ),
+        );
+  }
+
   // ------------------------------------------------------------------ suit
 
   GameState _chooseSuit(
@@ -438,6 +512,9 @@ class GameEngine {
             // seat left with nothing playable can still pass out of the turn.
             hasDrawnThisTurn: true,
             penaltyResolvedThisTurn: true,
+            // §16 — the chain just put cards back in this hand, so whatever
+            // was announced about being down to one no longer holds.
+            clearLastCardDeclaration: true,
             clearDrawnCard: true,
             status: GameStatus.awaitingAction,
           )
@@ -462,7 +539,9 @@ class GameEngine {
     }
     final (afterDraw, drawn) = _drawInto(next, player.id, 1, events);
     next = afterDraw
-        .copyWith(hasDrawnThisTurn: true)
+        // §16 — drawing is not playing: a seat that had two cards and drew a
+        // third is no longer about to reach its last card.
+        .copyWith(hasDrawnThisTurn: true, clearLastCardDeclaration: true)
         .withHistory(
           HistoryEntry(
             type: HistoryEntryType.draw,
@@ -559,6 +638,9 @@ class GameEngine {
       currentSeat: _seatAfter(s, s.currentSeat, steps),
       hasDrawnThisTurn: false,
       penaltyResolvedThisTurn: false,
+      // §16 — a declaration is good for one turn only and never travels with
+      // the turn to the next seat.
+      clearLastCardDeclaration: true,
       clearDrawnCard: true,
       turnNumber: s.turnNumber + 1,
       status: GameStatus.awaitingAction,
@@ -775,7 +857,11 @@ class GameEngine {
 
     var next = s
         .withPlayer(player.copyWith(hand: const [], eliminated: true))
-        .copyWith(drawPile: [...player.hand, ...s.drawPile])
+        .copyWith(
+          drawPile: [...player.hand, ...s.drawPile],
+          // §16 — a seat that has left cannot be holding a last card.
+          clearLastCardDeclaration: s.hasDeclaredLastCard(player.id),
+        )
         .withHistory(
           HistoryEntry(
             type: HistoryEntryType.forfeit,
@@ -857,6 +943,7 @@ class GameEngine {
       turnNumber: 0,
       hasDrawnThisTurn: false,
       penaltyResolvedThisTurn: false,
+      clearLastCardDeclaration: true,
       clearDrawnCard: true,
       playedCards: const [],
       drawsByPlayer: const {},

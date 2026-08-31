@@ -405,7 +405,7 @@ void main() {
         final d = bot.decide(view);
         switch (d.action) {
           case BotAction.play:
-            session.playCard(d.card!, chosenSuit: d.suit);
+            session.autoPlayCard(d.card!, chosenSuit: d.suit);
           case BotAction.draw:
             session.drawCard();
           case BotAction.endTurn:

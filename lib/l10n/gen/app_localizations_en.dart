@@ -559,6 +559,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get largeCards => 'Large cards';
 
   @override
+  String lastCardAnnounced(String name) {
+    return '$name: LAST CARD!';
+  }
+
+  @override
+  String get lastCardButton => 'LAST CARD';
+
+  @override
+  String get lastCardDeclared => 'LAST CARD!';
+
+  @override
+  String get lastCardPrompt => 'Declare LAST CARD before you play.';
+
+  @override
+  String get lastCardSemantics => 'Declare last card';
+
+  @override
   String get leaderboardAllTime => 'All time';
 
   @override
@@ -1413,12 +1430,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tutCentounoDone(String name) {
-    return '92 + 9 = exactly 101: $name goes back to zero. Anyone who goes over 101 is eliminated. The last player standing wins.';
+    return '76 + 25 = exactly 101: $name goes back to zero. Anyone who goes over 101 is eliminated. The last player standing wins.';
   }
 
   @override
   String get tutCentounoPrompt =>
-      'Last card! Your opponent has 92 points and a Cavallo (9) in hand. Play the 7 of Cups and end the round.';
+      'Last card! Your opponent has 76 points and a Cavallo in hand, worth 25. Play the 7 of Cups and end the round.';
 
   @override
   String get tutCentounoTitle => 'One hundred and one!';

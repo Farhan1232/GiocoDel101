@@ -20,6 +20,7 @@ import 'package:gioco_del_101/features/game/domain/player_type.dart';
 import 'package:gioco_del_101/features/game/presentation/game_screen.dart';
 import 'package:gioco_del_101/core/storage/game_storage_service.dart';
 import 'package:gioco_del_101/core/storage/local_storage.dart';
+import 'package:gioco_del_101/app/localization/app_strings.dart';
 import 'package:gioco_del_101/app/theme/app_theme.dart';
 import 'package:gioco_del_101/features/game/presentation/widgets/hand_fan.dart';
 import 'package:gioco_del_101/features/game/presentation/widgets/seat_view.dart';
@@ -143,6 +144,8 @@ void main() {
         [
           const GameCard(CardSuit.coppe, CardRank.re),
           const GameCard(CardSuit.spade, CardRank.sette),
+          // Three cards: this case is about the tap, not about §16.
+          const GameCard(CardSuit.bastoni, CardRank.sei),
         ],
         [const GameCard(CardSuit.denari, CardRank.tre)],
       ],
@@ -169,6 +172,80 @@ void main() {
       isNot(contains(const GameCard(CardSuit.coppe, CardRank.re))),
     );
     expect(tester.takeException(), isNull);
+  });
+
+  group('ULTIMA CARTA (§16)', () {
+    testWidgets('the button appears at two cards, and the card cannot be '
+        'played until it is pressed', (tester) async {
+      final c = _seat(
+        hands: [
+          [
+            const GameCard(CardSuit.coppe, CardRank.re),
+            const GameCard(CardSuit.coppe, CardRank.sette),
+          ],
+          [const GameCard(CardSuit.denari, CardRank.tre)],
+        ],
+        top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      );
+      await _pumpTable(tester);
+
+      expect(c.canDeclareLastCard, isTrue);
+      expect(c.hasDeclaredLastCard, isFalse);
+      final button = find.text(Strings.s.lastCardButton);
+      expect(button, findsOneWidget);
+
+      // Tapping the card twice would normally play it; §16 holds it back.
+      await tester.tap(find.byKey(const ValueKey('hand_coppe_re')));
+      await _settle(tester, slices: 6);
+      await tester.tap(find.byKey(const ValueKey('hand_coppe_re')));
+      await _settle(tester, slices: 6);
+      expect(
+        c.state.playerById('p0')!.hand,
+        contains(const GameCard(CardSuit.coppe, CardRank.re)),
+        reason: 'the card must stay in hand until ULTIMA CARTA is declared',
+      );
+      expect(c.state.topCard, const GameCard(CardSuit.coppe, CardRank.cinque));
+      expect(c.state.version, 0);
+
+      // Press it, and the same play now goes through.
+      await tester.tap(button);
+      await _settle(tester);
+      expect(c.state.lastCardDeclaredBy, 'p0');
+      expect(c.hasDeclaredLastCard, isTrue);
+      expect(find.text(Strings.s.lastCardDeclared), findsOneWidget);
+      expect(find.text(Strings.s.lastCardButton), findsNothing);
+
+      // The refused attempt left the card selected, so one tap now plays it.
+      expect(c.selectedCard.value, const GameCard(CardSuit.coppe, CardRank.re));
+      await tester.tap(find.byKey(const ValueKey('hand_coppe_re')));
+      await _settle(tester);
+      // The card left the hand and exactly one is left; the opponent has
+      // since had its own turn, so the top card is no longer ours to assert.
+      expect(c.state.playerById('p0')!.hand, hasLength(1));
+      expect(
+        c.state.playerById('p0')!.hand,
+        isNot(contains(const GameCard(CardSuit.coppe, CardRank.re))),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the button is not offered with a full hand', (tester) async {
+      final c = _seat(
+        hands: [
+          [
+            const GameCard(CardSuit.coppe, CardRank.re),
+            const GameCard(CardSuit.coppe, CardRank.sette),
+            const GameCard(CardSuit.spade, CardRank.tre),
+          ],
+          [const GameCard(CardSuit.denari, CardRank.tre)],
+        ],
+        top: const GameCard(CardSuit.coppe, CardRank.cinque),
+      );
+      await _pumpTable(tester);
+      expect(c.canDeclareLastCard, isFalse);
+      expect(find.text(Strings.s.lastCardButton), findsNothing);
+      expect(find.text(Strings.s.lastCardDeclared), findsNothing);
+    });
   });
 
   testWidgets('an illegal card is refused and stays in hand', (tester) async {
@@ -205,6 +282,8 @@ void main() {
         [
           const GameCard(CardSuit.spade, CardRank.cavallo),
           const GameCard(CardSuit.spade, CardRank.re),
+          // Three cards: this case is about the ritual, not about §16.
+          const GameCard(CardSuit.bastoni, CardRank.sei),
         ],
         [const GameCard(CardSuit.denari, CardRank.tre)],
       ],

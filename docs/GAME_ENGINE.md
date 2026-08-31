@@ -77,6 +77,7 @@ The single serialisation root. Field list:
 | `turnNumber` | turns this round |
 | `hasDrawnThisTurn` / `drawnCard` | §8 draw discipline |
 | `penaltyResolvedThisTurn` | §6b — the seat to act has paid a chain and still holds its one legal continuation |
+| `lastCardDeclaredBy` | §16 — the seat that has declared "ULTIMA CARTA" for the turn in progress, or null. Public information; cleared by every turn change, every deal, every draw, and by the declarer forfeiting |
 | `lastAction` | the last accepted `GameAction` |
 | `version` | +1 per accepted action; actions may pin `baseVersion` |
 | `turnStartedAt` / `turnDeadlineAt` | epoch ms, set only when a caller supplies `now` |
@@ -86,7 +87,7 @@ The single serialisation root. Field list:
 
 Derived: `topCard`, `scores` (id → score), `hands`, `seatOrder`,
 `isPenaltyPending`, `isRoundOver`, `isFinished`, `totalCards`, `handOf(id)`,
-`playerById(id)`.
+`playerById(id)`, `hasDeclaredLastCard(id)`.
 
 All collections are unmodifiable. `copyWith` / `withPlayer` / `withHistory`
 are the only ways to derive a new state.
@@ -139,7 +140,8 @@ Sealed. Every one carries the actor's `playerId` and an optional
 | `ChooseSuitAction` | `suit` | own turn and `status == awaitingSuitChoice` |
 | `PassAction` | — | own turn, no chain pending, drew this turn (unless `mustDrawBeforePassing` is off) |
 | `StartNextRoundAction` | — | `status == roundOver`; any seated player or the `system` actor |
-| `ForfeitAction` | — | any live seat, at any moment before `finished` (GAME_SPEC §12c) |
+| `ForfeitAction` | — | any live seat, at any moment before `finished` (GAME_SPEC §15) |
+| `DeclareLastCardAction` | — | §16 — own turn, `awaitingAction`, **exactly two** cards in hand, at least one of them legally playable, not already declared this turn |
 
 JSON: `{"type": "playCard", "playerId": "p0", "card": "coppe_re",
 "chosenSuit": "denari", "baseVersion": 12}`. Round-trips exactly.
@@ -158,7 +160,14 @@ clients must always set `baseVersion`.
 `notPlayersTurn` · `cardNotOwned` · `illegalCard` · `drawRequired` ·
 `drawNotAllowed` · `suitSelectionRequired` · `suitSelectionNotPending` ·
 `invalidPlayer` · `gameFinished` · `roundOver` · `roundNotOver` ·
-`staleState` · `invalidState`
+`staleState` · `invalidState` · `lastCardDeclarationRequired` ·
+`lastCardDeclarationNotAllowed`
+
+The last two are §16. `lastCardDeclarationRequired` refuses a play that would
+leave the actor one card while no "ULTIMA CARTA" stands — it is checked
+**after** legality, so an illegal card is still reported as `illegalCard`.
+`lastCardDeclarationNotAllowed` refuses an announcement that would mean
+nothing (wrong hand size, nothing legal to play, already declared).
 
 `createGame` throws `GameSetupException` with `invalidPlayerCount`,
 `duplicatePlayer` or `invalidRules`.
@@ -293,8 +302,9 @@ no cards and are skipped in turn order.
 
 Confirmed by the client (GAME_SPEC §10–§11) and nothing more:
 
-- round winner scores 0; everyone else adds the printed value of each card
-  still in hand (`GameRules.scoreValues`);
+- round winner scores 0; everyone else adds the penalty value of each card
+  still in hand (`GameRules.scoreValues`): pip cards at their printed rank,
+  and — confirmed by the client on 2026-08-31 — **Fante 25 and Cavallo 25**;
 - exactly `targetScore` → score resets to 0 (`Exact101Event`);
 - above `targetScore` → eliminated (`PlayerEliminatedEvent`);
 - one live player left → `finished`, `winnerId` set (`MatchEndedEvent`).
@@ -316,7 +326,8 @@ rebuild the table from state alone.
 
 `CardPlayedEvent` · `CardsDrawnEvent(isPenalty)` · `TurnSkippedEvent` ·
 `ChainGrewEvent` · `ChainResolvedEvent` · `ChainBlockedEvent(cancelled)` ·
-`SuitChoiceRequestedEvent` · `SuitChosenEvent` · `DeckRecycledEvent` ·
+`LastCardDeclaredEvent` · `SuitChoiceRequestedEvent` · `SuitChosenEvent` ·
+`DeckRecycledEvent` ·
 `TurnChangedEvent` · `RoundStartedEvent` · `RoundEndedEvent(result)` ·
 `Exact101Event` · `PlayerEliminatedEvent` · `PlayerForfeitedEvent` ·
 `MatchEndedEvent`. Each has a stable wire `name` (`GameEventName`) —
@@ -406,12 +417,23 @@ final session = GameSession.newMatch(gameId:…, players:…, mode:…, seed:…
 session.listen((event) { … });
 session.apply(PlayCardAction(playerId: 'p0', card: card));   // ActionResult
 session.playCard(card) / drawCard() / endTurn() / chooseSuit(s) / startNextRound()
+session.declareLastCard()          // §16 — what the ULTIMA CARTA button sends
+session.autoPlayCard(card)         // §16 — declare-if-due, then play
 session.state   // the current immutable GameState
 ```
 
 It holds a `GameState`, forwards every move to `GameEngine.applyAction`,
 swaps in the new state on success and fans the events out to listeners. It
-contains no rules. `GameController` (application layer) owns one, the bots
+contains no rules.
+
+`autoPlayCard` is the move every **automated** seat makes — the offline bots,
+the Pass & Play bots, the tutorial's opponent and `BotSimulator`. It asks
+`GameEngine.canDeclareLastCard` and, when the answer is yes, sends a real
+`DeclareLastCardAction` before the play. It is a convenience over the same two
+actions a person's button tap and card tap produce, not a bypass: §16 has one
+implementation and bots go through it. A person's tap still calls plain
+`playCard`, so an undeclared play is refused and the UI asks for the button —
+which is the feature the client asked for. `GameController` (application layer) owns one, the bots
 read `BotViewFactory.forCurrentPlayer(session.state)`, persistence saves
 `session.state.toJson()`. An online client will hold a `GameSession` whose
 state is replaced by server snapshots instead of by the local engine.
@@ -422,8 +444,10 @@ state is replaced by server snapshots instead of by the local engine.
 
 The gameplay view **renders `GameState` and sends `GameAction`s**. It asks
 the engine what is legal (`getPlayableCards`, `canDraw`, `canPass`,
-`mustTakePenalty`) to highlight and enable controls; it never decides
-legality itself. Pass & Play (several local humans on one device) exercises
+`mustTakePenalty`, `canDeclareLastCard`) to highlight and enable controls; it
+never decides legality itself. The ULTIMA CARTA button is shown exactly when
+`canDeclareLastCard` is true, so it can never offer a declaration the engine
+would refuse. Pass & Play (several local humans on one device) exercises
 the real engine end-to-end with manual control of every seat.
 
 ---

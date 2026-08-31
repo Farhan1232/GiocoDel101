@@ -241,11 +241,46 @@ policy = presence only). There is no free-text chat.
   Function and the channels; `NoBackend…` versions keep the widget tests
   offline and honest.
 
+### ULTIMA CARTA over the wire (§16) — the final change, 2026-08-31
+
+The client asked for a button. Because a button on a client is not a rule, it
+is implemented as an **action the server judges**:
+
+```
+tap ULTIMA CARTA ──▶ OnlineMatchController.declareLastCard
+                       · engine.canDeclareLastCard on the local view (button state only)
+                     POST {op:"action", action:{type:"declareLastCard"}}
+                       · action.playerId := MY seat (as for every other action)
+                       · engine.applyAction — the server decides hand size,
+                         turn ownership, whether it was already declared
+                     ◀── {accepted, version, publicState{lastCardDeclaredBy}, …}
+```
+
+`declareLastCard` is in the Edge Function's `CLIENT_ACTIONS` whitelist and
+carries no payload — the actor is taken from the caller's seat, exactly as for
+`playCard`. A modified client therefore cannot declare for another player, out
+of turn, or with the wrong hand size, and cannot skip the announcement either:
+the server refuses the 2 → 1 play with `lastCardDeclarationRequired` and
+nothing changes.
+
+`GameState.lastCardDeclaredBy` is a **seat id**, which is precisely what the
+other players are entitled to hear. It rides the public snapshot through the
+same blacklist redaction as the fields below — no migration, no new private
+column, no RLS change — so every seat can show *"Stefano: ULTIMA CARTA!"*
+while hands stay private. No card identity is published by any part of this
+feature.
+
+VM/JS agreement is pinned by eight shared conformance fixtures
+(`ultima_carta_*`), replayed on the Dart VM by
+`test/engine/conformance_fixture_test.dart` and on the compiled JavaScript by
+`supabase/functions/match/engine_conformance_test.ts`.
+
 ### The 2026-08-31 rule change over the wire
 
-Both new state fields — `dealerSeat` (§12a) and `penaltyResolvedThisTurn`
-(§6b) — are **public information**, and `app_private.redact_game_state` is a
-blacklist (`state - 'seed' - 'drawPile' - 'drawnCard' - 'history'`), so both
+All three new state fields — `dealerSeat` (§12a), `penaltyResolvedThisTurn`
+(§6b) and `lastCardDeclaredBy` (§16) — are **public information**, and
+`app_private.redact_game_state` is a blacklist
+(`state - 'seed' - 'drawPile' - 'drawnCard' - 'history'`), so all three
 travel in the public snapshot with **no migration and no change to the
 security model**. Nothing was added to `match_private_state`, no policy was
 touched and no RLS was relaxed.
@@ -272,6 +307,11 @@ JavaScript.
 
 `tool/online_matrix.dart` — five independent authenticated clients against
 the dev project, playing complete 2/3/4-player matches and every attack in
-this document. `test/session4_online_test.dart` — the controller against an
-in-process fake server that runs the real engine. Results, with what did and
-did not run, are in `docs/SESSION_HANDOFF.md`.
+this document; it declares ULTIMA CARTA through the server like the app does
+and counts the declarations the server accepted.
+`tool/online_rule_check.dart` — the focused driver for the 2026-08-31 changes
+(§6b, §12, §12a, §16) at 2, 3 and 4 seats.
+`test/session4_online_test.dart` — the controller against an in-process fake
+server that runs the real engine, including the two §16 tamper cases (declare
+out of turn, play without declaring). Results, with what did and did not run,
+are in `docs/SESSION_HANDOFF.md`.

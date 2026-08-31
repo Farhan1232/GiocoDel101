@@ -158,6 +158,24 @@ class TutorialController extends TableController {
   @override
   bool get mustTakePenalty => false;
 
+  /// §16 — the same engine predicate the real table uses. No lesson brings
+  /// the learner down to two cards today, so it is simply never offered;
+  /// if one ever does, the button appears and works without a second
+  /// implementation.
+  @override
+  bool get canDeclareLastCard => canInteract && session.canDeclareLastCard;
+
+  @override
+  bool get hasDeclaredLastCard =>
+      state.hasDeclaredLastCard(TutorialSeats.humanId);
+
+  @override
+  Future<void> declareLastCard() async {
+    if (!canDeclareLastCard) return;
+    session.declareLastCard();
+    await _drain();
+  }
+
   final List<TableCue> _queue = [];
   late final VoidCallback _unsubscribe;
   bool _disposed = false;
@@ -273,7 +291,7 @@ class TutorialController extends TableController {
       final decision = _opponent.decide(BotViewFactory.forCurrentPlayer(state));
       switch (decision.action) {
         case BotAction.play:
-          session.playCard(decision.card!, chosenSuit: decision.suit);
+          session.autoPlayCard(decision.card!, chosenSuit: decision.suit);
         case BotAction.draw:
           session.drawCard();
           if (state.drawnCard != null) {
@@ -283,7 +301,7 @@ class TutorialController extends TableController {
               BotViewFactory.forCurrentPlayer(state),
             );
             if (again.action == BotAction.play && again.card != null) {
-              session.playCard(again.card!, chosenSuit: again.suit);
+              session.autoPlayCard(again.card!, chosenSuit: again.suit);
             } else if (session.canEndTurn) {
               session.endTurn();
             }
@@ -475,6 +493,8 @@ class TutorialController extends TableController {
         AudioService.instance.play(Sfx.cardSlide, volume: 0.8);
       case InvalidCue():
         AudioService.instance.play(Sfx.invalid);
+      case LastCardCue():
+        AudioService.instance.play(Sfx.suitSelect);
       case SuitChosenCue():
       case SkipCue():
       case TurnCue():

@@ -12,8 +12,11 @@ import '../support/engine_harness.dart';
 
 const engine = GameEngine();
 
+// §16 — the announcement goes first when a play would take the actor down
+// to one card, exactly as the table sends it. These cases are about
+// something else; `ultima_carta_test.dart` is about §16 itself.
 ActionAccepted ok(GameState s, GameAction a) {
-  final r = engine.applyAction(s, a);
+  final r = engine.applyAction(declaredIfNeeded(s, a), a);
   expect(r, isA<ActionAccepted>(), reason: '$r');
   return r as ActionAccepted;
 }

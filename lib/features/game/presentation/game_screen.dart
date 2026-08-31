@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ import '../../../core/widgets/icon_pill.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/network_banner.dart';
+import '../../../core/services/haptic_service.dart';
 import '../domain/table_session_status.dart';
 import 'widgets/turn_timer_ring.dart';
 import 'widgets/card_flight.dart';
@@ -192,6 +194,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         await _animateDeal(cue.seatIds, cue.handSize);
       case InvalidCue():
         await Future<void>.delayed(Motion.scale(AppDurations.micro));
+      case LastCardCue():
+        // §16 — a beat, so the announcement is read before the card moves.
+        await Future<void>.delayed(Motion.scale(AppDurations.quick));
       case SuitChosenCue():
         await Future<void>.delayed(Motion.scale(AppDurations.ambientShift));
       case TurnCue():
@@ -785,6 +790,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final canPass = c.canInteract && c.canEndTurn;
 
     final children = <Widget>[];
+    // §16 — "ULTIMA CARTA" leads the row: it is the one thing that has to
+    // happen before anything else this turn, and while it is showing there
+    // is nothing else on offer anyway (a seat holding two playable cards
+    // cannot draw a third or pass).
+    if (c.canDeclareLastCard || c.hasDeclaredLastCard) {
+      children.add(Expanded(child: _lastCardButton()));
+    }
     if (mustTake) {
       children.add(
         Expanded(
@@ -867,6 +879,88 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           onPlay: c.playCard,
           onReject: c.rejectCard,
         ),
+      ),
+    );
+  }
+
+  /// §16 — the announcement button.
+  ///
+  /// Two states and no third: offered while the engine would accept the
+  /// declaration, then a settled gold confirmation for the rest of the turn.
+  /// It is never shown as a disabled control the player can wonder about.
+  Widget _lastCardButton() {
+    final declared = c.hasDeclaredLastCard;
+    return Semantics(
+      button: !declared,
+      label: declared
+          ? Strings.s.lastCardDeclared
+          : Strings.s.lastCardSemantics,
+      excludeSemantics: true,
+      child: TweenAnimationBuilder<double>(
+        key: ValueKey(declared),
+        tween: Tween(begin: 0, end: 1),
+        duration: Motion.scale(AppDurations.quick),
+        curve: Curves.easeOutBack,
+        builder: (context, t, child) => Transform.scale(
+          // easeOutBack overshoots; a button may exceed 1, Opacity may not.
+          scale: 0.92 + t.clamp(0.0, 1.2) * 0.08,
+          child: child,
+        ),
+        child: declared
+            ? _lastCardBadge()
+            : PremiumButton(
+                label: Strings.s.lastCardButton,
+                size: ButtonSize.medium,
+                accent: AppColors.antiqueGold,
+                icon: AppIcon.hand,
+                onPressed: () {
+                  HapticService.instance.medium();
+                  unawaited(c.declareLastCard());
+                },
+              ),
+      ),
+    );
+  }
+
+  /// The settled state: the announcement is made and stays visible until the
+  /// turn moves on.
+  Widget _lastCardBadge() {
+    return Container(
+      height: 44,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+        color: AppColors.antiqueGold.withValues(alpha: 0.16),
+        border: Border.all(
+          color: AppColors.antiqueGold.withValues(alpha: 0.75),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AppIconView(
+            AppIcon.check,
+            size: 16,
+            color: AppColors.antiqueGold,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Flexible(
+            child: Text(
+              Strings.s.lastCardDeclared,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: AppText.ui,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.6,
+                color: AppColors.antiqueGold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

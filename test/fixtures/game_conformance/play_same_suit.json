@@ -9,7 +9,7 @@
     "card": "coppe_re"
   },
   "initialState": {
-    "schema": 2,
+    "schema": 3,
     "gameId": "test",
     "mode": "vsComputer",
     "rules": {
@@ -33,6 +33,7 @@
       "roundStarterPolicy": "previousRoundWinner",
       "initialDirection": "clockwise",
       "turnTimeLimitSeconds": null,
+      "requireLastCardDeclaration": true,
       "scoreValues": {
         "asso": 1,
         "due": 2,
@@ -41,8 +42,8 @@
         "cinque": 5,
         "sei": 6,
         "sette": 7,
-        "fante": 8,
-        "cavallo": 9,
+        "fante": 25,
+        "cavallo": 25,
         "re": 10
       }
     },
@@ -58,7 +59,8 @@
         "eliminated": false,
         "hand": [
           "coppe_re",
-          "spade_tre"
+          "spade_tre",
+          "bastoni_sette"
         ]
       },
       {
@@ -112,7 +114,6 @@
       "bastoni_quattro",
       "bastoni_cinque",
       "bastoni_sei",
-      "bastoni_sette",
       "bastoni_fante",
       "bastoni_cavallo",
       "bastoni_re"
@@ -129,6 +130,7 @@
     "turnNumber": 0,
     "hasDrawnThisTurn": false,
     "penaltyResolvedThisTurn": false,
+    "lastCardDeclaredBy": null,
     "drawnCard": null,
     "lastAction": null,
     "version": 0,
@@ -155,7 +157,7 @@
   },
   "expectedFailure": null,
   "expectedState": {
-    "schema": 2,
+    "schema": 3,
     "gameId": "test",
     "mode": "vsComputer",
     "rules": {
@@ -179,6 +181,7 @@
       "roundStarterPolicy": "previousRoundWinner",
       "initialDirection": "clockwise",
       "turnTimeLimitSeconds": null,
+      "requireLastCardDeclaration": true,
       "scoreValues": {
         "asso": 1,
         "due": 2,
@@ -187,8 +190,8 @@
         "cinque": 5,
         "sei": 6,
         "sette": 7,
-        "fante": 8,
-        "cavallo": 9,
+        "fante": 25,
+        "cavallo": 25,
         "re": 10
       }
     },
@@ -203,7 +206,8 @@
         "score": 0,
         "eliminated": false,
         "hand": [
-          "spade_tre"
+          "spade_tre",
+          "bastoni_sette"
         ]
       },
       {
@@ -257,7 +261,6 @@
       "bastoni_quattro",
       "bastoni_cinque",
       "bastoni_sei",
-      "bastoni_sette",
       "bastoni_fante",
       "bastoni_cavallo",
       "bastoni_re"
@@ -275,6 +278,7 @@
     "turnNumber": 1,
     "hasDrawnThisTurn": false,
     "penaltyResolvedThisTurn": false,
+    "lastCardDeclaredBy": null,
     "drawnCard": null,
     "lastAction": {
       "type": "playCard",
@@ -321,7 +325,7 @@
     "currentPlayerId": "p1",
     "topCard": "coppe_re",
     "activeSuit": "coppe",
-    "handSize.p0": 1,
+    "handSize.p0": 2,
     "version": 1,
     "status": "awaitingAction"
   }

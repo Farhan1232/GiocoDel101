@@ -65,6 +65,81 @@ what is still open.
 
 ---
 
+## 0b. Client FINAL change, 2026-08-31 — READ THIS SECOND
+
+Three more requests, closing the brief. Full account, with evidence, in
+**`docs/CLIENT_FINAL_CHANGE.md`**. All three delivered; nothing outside them
+was touched.
+
+1. **Fante and Cavallo are worth 25 points in the hand** (GAME_SPEC §1, §10).
+   The client's "9" is the Cavallo and their "Jack" is the Fante. One table,
+   `GameRules.defaultScoreValues`; `ScorePolicy.handPenalty` is still the only
+   thing that prices a card. **Penalty only** — the Cavallo still names a suit
+   and blocks a chain, the Fante is still an ordinary card, and
+   `CardRank.cavallo.value` is still 9 because that is its *rank*.
+   `GameState.schemaVersion` went 2 → **3** so a pre-change save is migrated
+   off the old price list instead of resuming under it.
+2. **"ULTIMA CARTA"** (GAME_SPEC §16 — the substantial change). A play from
+   **two** cards to **one** is refused with
+   `GameFailure.lastCardDeclarationRequired` unless the seat has declared this
+   turn. Implemented as `DeclareLastCardAction`, so the *server* enforces it
+   online with the same compiled engine — a modified client can neither skip
+   the announcement nor make one for another seat. New state:
+   `GameState.lastCardDeclaredBy` (a seat id, public, cleared by every turn
+   change, deal, draw and forfeit). New rule flag:
+   `GameRules.requireLastCardDeclaration` (default **true**). No penalty was
+   invented; the client did not ask for one. Bots, Pass & Play and the
+   tutorial go through `GameSession.autoPlayCard`, which sends the same two
+   actions a person's button and card tap produce — one implementation, no
+   bypass.
+3. **Large hands stay usable** (10 / 15 / 20 / 25+ cards). Two real defects
+   found and fixed: a card's tap area was its whole rectangle rather than the
+   strip its neighbour leaves visible, so past about nine cards a tap selected
+   the *wrong* card; and "selection lifts a card" actually moved it **down**
+   and out of the strip. `HandFan` now solves one `_FanGeometry` per build and
+   degrades in a fixed order — spacing, overlap, card width (never below a
+   readable 46 px, and only when it avoids scrolling), then scrolling with an
+   edge fade and the selected card scrolled into view.
+
+**No Supabase migration was needed again** — `lastCardDeclaredBy` is public and
+the redaction is a blacklist. RLS, private hands and the security model are
+untouched. `match_private_state` gained nothing.
+
+The `match` Edge Function **was deployed** to `GiocoDel101-Dev` (v6 → **v7**).
+Only the function changed. Rolling back is a redeploy from the previous commit.
+
+**Live proof that the rule is the server's, not the client's:** the first run
+of `tool/online_rule_check.dart` after the deploy failed with
+`FAIL server accepted playCard from p0 (lastCardDeclarationRequired)` — the
+tool had not been taught to declare. It now declares through the server like
+the app does, and passes: **2 players 28/28, 3 players 34/34, 4 players 24/24
+— 86 checks, 0 failures**, with 14 ULTIMA CARTA announcements accepted by the
+server and published to the table.
+
+Numbers after the change: **651 Flutter tests**, **66 Deno tests**, 59
+conformance fixtures (8 new for §16) replayed on both the Dart VM and the
+compiled JavaScript, bot simulation **540 matches / 140 247 actions / 0
+violations / 0 hangs / 0 illegal proposals**, both APKs building.
+
+`tool/online_matrix.dart` gained §16 assertions and declares through the
+server. Its **short form completed — 157 checks, every functional area
+green**. Its **full form did not finish in this environment**: the longest run
+reached **200 checks, 0 failures** (complete 2-player game, match result,
+rematch, reconnect, realtime, reactions, RLS, concurrency, hardening, turn
+timer, forfeit, quick match, into the 3-player game) before being cut off by
+process limits. The only assertions left unproven by it are its two
+*live-game coverage counters* — that a reshuffle and a Cavallo block each
+occurred at least once — and both rules are covered by conformance fixtures on
+the VM **and** the compiled JavaScript, and by the bot simulation. Re-run the
+full matrix from a normal shell to close that line.
+
+Two reporting fixes went into the matrix tool while doing this: its §16 check
+is now a global counter (like `_totalRecycles`), so it reports in the short
+form too; and the short form no longer reports RESHUFFLE / 9 BLOCK as
+*failures* when it skips the very games that produce them.
+
+---
+
 ## 0. What Session 6 found and fixed
 
 Four parallel read-only audits (server security, client performance,

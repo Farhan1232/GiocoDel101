@@ -60,6 +60,11 @@ sealed class GameAction {
         );
       case ForfeitAction.kind:
         return ForfeitAction(playerId: playerId, baseVersion: baseVersion);
+      case DeclareLastCardAction.kind:
+        return DeclareLastCardAction(
+          playerId: playerId,
+          baseVersion: baseVersion,
+        );
     }
     throw FormatException('Unknown action type: $type');
   }
@@ -224,6 +229,33 @@ class ForfeitAction extends GameAction {
 
   @override
   bool _samePayload(GameAction other) => other is ForfeitAction;
+
+  @override
+  int get _payloadHash => 0;
+}
+
+/// §16 — "ULTIMA CARTA": the actor announces that its next play will leave
+/// it holding a single card.
+///
+/// A first-class action, not a UI flag, because the rule is enforced by
+/// whoever owns the state: offline that is the local engine, online it is
+/// the server running the very same engine compiled to JavaScript. It
+/// changes no hand, plays no card and does not end the turn — it only
+/// records that the announcement was made, so the play that follows is
+/// allowed to go through.
+class DeclareLastCardAction extends GameAction {
+  const DeclareLastCardAction({required super.playerId, super.baseVersion});
+
+  static const String kind = 'declareLastCard';
+
+  @override
+  String get type => kind;
+
+  @override
+  Map<String, dynamic> _payload() => const {};
+
+  @override
+  bool _samePayload(GameAction other) => other is DeclareLastCardAction;
 
   @override
   int get _payloadHash => 0;

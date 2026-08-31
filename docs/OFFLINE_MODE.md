@@ -62,8 +62,8 @@ tell the drivers apart.
 into a `TableCue` through `TableCues.fromEvent` (`table_cue.dart`), the
 one mapping shared with the tutorial: `PlayCardCue`, `DrawCue`
 (with `isPenalty`), `SkipCue`, `ChainGrowCue`, `ChainBreakCue` (also for
-a cancelling Cavallo block), `SuitChosenCue`, `RecycleCue`, `InvalidCue`,
-`TurnCue`. `DealCue` is not an engine event: the engine deals in one step
+a cancelling Cavallo block), `LastCardCue` (§16), `SuitChosenCue`,
+`RecycleCue`, `InvalidCue`, `TurnCue`. `DealCue` is not an engine event: the engine deals in one step
 and the controller queues the cue itself so a round opens with cards
 leaving the stock. Cues drain in order; the view's `cuePlayer` animates
 each one and reports back (3 s timeout so a stalled view never blocks the
@@ -80,6 +80,36 @@ behind the handover card and waits for `confirmHandover()` (§67).
 `GameController.pause()` sets `paused`, opens a completer and saves.
 Bots check `_whilePaused()` after their thinking delay and before acting,
 so a bot never moves while the overlay is up; cues already queued finish.
+
+## ULTIMA CARTA offline — §16
+
+The same rule, the same engine, the same two actions, whoever is sitting
+there. There is no offline variant of §16 and no local shortcut.
+
+**A person** presses the button. `GameScreen._lastCardButton` is shown exactly
+while `TableController.canDeclareLastCard` is true (which is
+`GameEngine.canDeclareLastCard` plus "input is enabled"), and it sends
+`GameController.declareLastCard()` → `GameSession.declareLastCard()` →
+`DeclareLastCardAction`. Once declared it becomes a settled gold badge for the
+rest of the turn. If the player taps a card first, `GameController.playCard`
+refuses before touching the engine and banners *"Dichiara ULTIMA CARTA prima
+di giocare"* — the card stays selected, so pressing the button and tapping once
+more plays it.
+
+**A bot** goes through `GameSession.autoPlayCard`, which asks the engine
+whether the announcement is due and, if so, sends the very same
+`DeclareLastCardAction` before the play. Bots do not bypass the engine and do
+not get a private rule: `tool/bot_simulation.dart` drives them through this
+path, and a bot that skipped the announcement would show up there as an
+illegal proposal.
+
+**Pass & Play** is the person path for every seat, so each player at the
+device declares their own last card, and the handover card (§67) hides
+nothing else.
+
+The announcement is public: every seat sees *"{name}: ULTIMA CARTA!"* over
+the table (`LastCardCue` → `_announceLastCard`), respecting the sound and
+Reduce Motion settings like every other cue.
 
 ## Bots and the post-penalty continuation — §6b
 
@@ -120,17 +150,28 @@ resumable. The same happens from the round-result sheet.
 `GameStorageService` (`lib/core/storage/game_storage_service.dart`) writes
 `GameState.toJson()` under `StorageKeys.savedMatch`: the whole state,
 including hands, stock order, seed, history, `playedCards`, `voidSuits`,
-`drawsByPlayer`, `stats`, and — since 2026-08-31 — `dealerSeat` (§12a) and
-`penaltyResolvedThisTurn` (§6b).
+`drawsByPlayer`, `stats`, and — since 2026-08-31 — `dealerSeat` (§12a),
+`penaltyResolvedThisTurn` (§6b) and `lastCardDeclaredBy` (§16).
 
-Both are written and read back, so a match saved with the dealer three seats
-round, or in the middle of the continuation a player earned by paying a +2
-chain, resumes exactly where it was. **Older saves still load**: a missing
-`dealerSeat` reads back as seat 0, which is what dealt round 1 of every match,
-and an out-of-range one is treated the same way rather than throwing, so a
-corrupt dealer can never cost somebody their saved match. A missing
-`penaltyResolvedThisTurn` reads back false, the state any pre-existing save was
-actually in.
+All three are written and read back, so a match saved with the dealer three
+seats round, in the middle of the continuation a player earned by paying a +2
+chain, or with an ULTIMA CARTA already announced, resumes exactly where it
+was. **Older saves still load**: a missing `dealerSeat` reads back as seat 0,
+which is what dealt round 1 of every match, and an out-of-range one is treated
+the same way rather than throwing, so a corrupt dealer can never cost somebody
+their saved match. A missing `penaltyResolvedThisTurn` reads back false, the
+state any pre-existing save was actually in. A missing `lastCardDeclaredBy`
+reads back as "nobody has declared", which is always a playable position: the
+seat to act can still press the button and carry on, so no restore can leave a
+player stuck.
+
+**The 2026-08-31 price change and old saves.** `GameState.schemaVersion` is
+now **3**. A save written under schema 2 or earlier carries a `scoreValues`
+table that still prices the Fante at 8 and the Cavallo at 9; resuming it
+unchanged would score the very cards the client re-priced at the old rate. So
+`GameState._migrateRules` drops that table when — and only when — it matches
+the old printed defaults exactly, and `GameRules.defaultScoreValues` (Fante
+25, Cavallo 25) takes over. A table the *client* customised is left alone.
 
 | When | How |
 |---|---|
@@ -281,7 +322,17 @@ play offline bots" covers it.
 - `test/session5_screens_test.dart` — CPU fallback, pause overlay, tutorial
   overlay, missions and leaderboard screens.
 - `test/gameplay_widget_test.dart` — tapping, refusal, the Suit Ritual, the
-  reshuffle, the save round trip, the penalty button.
+  reshuffle, the save round trip, the penalty button, and §16: the button
+  appearing at two cards, the card refusing to be played until it is pressed,
+  and the play going through afterwards.
+- `test/ultima_carta_test.dart` — §16 end to end on the engine and on
+  `GameSession`: refusal and acceptance, every case where declaring means
+  nothing, the resets, the JSON round trip, the legacy save, and a full
+  bot-vs-bot match per difficulty that reaches a last card and never has a
+  play refused.
+- `test/large_hand_layout_test.dart` — the hand at 5/10/15/20/25 cards on four
+  device sizes: no overflow, every card reachable and tappable, no card drawn
+  below the readable minimum, and a selected card raised and on top.
 
 On 2026-08-30 `flutter test` over `bot_test.dart`, `bot_simulation_test.dart`,
 `session5_offline_test.dart` and `session5_tutorial_test.dart` passed

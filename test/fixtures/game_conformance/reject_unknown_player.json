@@ -7,7 +7,7 @@
     "playerId": "ghost"
   },
   "initialState": {
-    "schema": 2,
+    "schema": 3,
     "gameId": "test",
     "mode": "vsComputer",
     "rules": {
@@ -31,6 +31,7 @@
       "roundStarterPolicy": "previousRoundWinner",
       "initialDirection": "clockwise",
       "turnTimeLimitSeconds": null,
+      "requireLastCardDeclaration": true,
       "scoreValues": {
         "asso": 1,
         "due": 2,
@@ -39,8 +40,8 @@
         "cinque": 5,
         "sei": 6,
         "sette": 7,
-        "fante": 8,
-        "cavallo": 9,
+        "fante": 25,
+        "cavallo": 25,
         "re": 10
       }
     },
@@ -127,6 +128,7 @@
     "turnNumber": 0,
     "hasDrawnThisTurn": false,
     "penaltyResolvedThisTurn": false,
+    "lastCardDeclaredBy": null,
     "drawnCard": null,
     "lastAction": null,
     "version": 0,
@@ -153,7 +155,7 @@
   },
   "expectedFailure": "invalidPlayer",
   "expectedState": {
-    "schema": 2,
+    "schema": 3,
     "gameId": "test",
     "mode": "vsComputer",
     "rules": {
@@ -177,6 +179,7 @@
       "roundStarterPolicy": "previousRoundWinner",
       "initialDirection": "clockwise",
       "turnTimeLimitSeconds": null,
+      "requireLastCardDeclaration": true,
       "scoreValues": {
         "asso": 1,
         "due": 2,
@@ -185,8 +188,8 @@
         "cinque": 5,
         "sei": 6,
         "sette": 7,
-        "fante": 8,
-        "cavallo": 9,
+        "fante": 25,
+        "cavallo": 25,
         "re": 10
       }
     },
@@ -273,6 +276,7 @@
     "turnNumber": 0,
     "hasDrawnThisTurn": false,
     "penaltyResolvedThisTurn": false,
+    "lastCardDeclaredBy": null,
     "drawnCard": null,
     "lastAction": null,
     "version": 0,

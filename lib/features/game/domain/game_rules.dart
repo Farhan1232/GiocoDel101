@@ -104,6 +104,7 @@ class GameRules {
     this.roundStarterPolicy = RoundStarterPolicy.previousRoundWinner,
     this.initialDirection = TurnDirection.clockwise,
     this.turnTimeLimitSeconds,
+    this.requireLastCardDeclaration = true,
     this.scoreValues = defaultScoreValues,
   });
 
@@ -173,11 +174,44 @@ class GameRules {
   /// happens on expiry is *undefined* by the client and not implemented.
   final int? turnTimeLimitSeconds;
 
+  /// §16 — a player about to go down to one card must first declare
+  /// "ULTIMA CARTA". Confirmed by the client on 2026-08-31; a flag so the
+  /// rule lives here rather than in the engine, the UI and the server.
+  ///
+  /// No penalty is attached: an undeclared play is simply refused with
+  /// `GameFailure.lastCardDeclarationRequired` and nothing changes hands.
+  final bool requireLastCardDeclaration;
+
   /// §10 — penalty value of every rank left in hand at round end.
   final Map<CardRank, int> scoreValues;
 
-  /// Asso 1 … Re 10, matching the printed rank of each card.
+  /// Asso 1 … Re 10 by printed rank, with the two figures the client priced
+  /// separately on 2026-08-31: **Fante 25** and **Cavallo ("9") 25**.
+  ///
+  /// Only the penalty is worth 25. Neither card's *gameplay* changes: the
+  /// Cavallo is still the wild that names a suit and blocks a chain (§6a,
+  /// §7) and the Fante is still an ordinary card to play (§4).
   static const Map<CardRank, int> defaultScoreValues = {
+    CardRank.asso: 1,
+    CardRank.due: 2,
+    CardRank.tre: 3,
+    CardRank.quattro: 4,
+    CardRank.cinque: 5,
+    CardRank.sei: 6,
+    CardRank.sette: 7,
+    CardRank.fante: figureScoreValue,
+    CardRank.cavallo: figureScoreValue,
+    CardRank.re: 10,
+  };
+
+  /// §10 — what a Fante or a Cavallo left in hand costs. Confirmed by the
+  /// client; it lives here so no widget, bot or server path can restate it.
+  static const int figureScoreValue = 25;
+
+  /// The pre-2026-08-31 table (Fante 8, Cavallo 9). Kept so a save written
+  /// before the change can be recognised and migrated rather than resumed
+  /// under the old prices; never used to score a live match.
+  static const Map<CardRank, int> legacyPrintedScoreValues = {
     CardRank.asso: 1,
     CardRank.due: 2,
     CardRank.tre: 3,
@@ -216,6 +250,7 @@ class GameRules {
     TurnDirection? initialDirection,
     int? turnTimeLimitSeconds,
     bool clearTurnTimeLimit = false,
+    bool? requireLastCardDeclaration,
     Map<CardRank, int>? scoreValues,
   }) {
     return GameRules(
@@ -246,6 +281,8 @@ class GameRules {
       turnTimeLimitSeconds: clearTurnTimeLimit
           ? null
           : (turnTimeLimitSeconds ?? this.turnTimeLimitSeconds),
+      requireLastCardDeclaration:
+          requireLastCardDeclaration ?? this.requireLastCardDeclaration,
       scoreValues: scoreValues ?? this.scoreValues,
     );
   }
@@ -271,6 +308,7 @@ class GameRules {
     'roundStarterPolicy': roundStarterPolicy.key,
     'initialDirection': initialDirection.key,
     'turnTimeLimitSeconds': turnTimeLimitSeconds,
+    'requireLastCardDeclaration': requireLastCardDeclaration,
     'scoreValues': {
       for (final rank in CardRank.values)
         if (scoreValues.containsKey(rank)) rank.key: scoreValues[rank],
@@ -341,6 +379,11 @@ class GameRules {
           ? fallback.initialDirection
           : TurnDirection.fromKey(json['initialDirection'] as String),
       turnTimeLimitSeconds: (json['turnTimeLimitSeconds'] as num?)?.toInt(),
+      // Saves written before §16 carry no flag; the confirmed rule is on, so
+      // a resumed match plays by it exactly like a new one.
+      requireLastCardDeclaration:
+          json['requireLastCardDeclaration'] as bool? ??
+          fallback.requireLastCardDeclaration,
       scoreValues: scores,
     );
   }
@@ -379,7 +422,8 @@ class GameRules {
         other.starterCardPolicy != starterCardPolicy ||
         other.roundStarterPolicy != roundStarterPolicy ||
         other.initialDirection != initialDirection ||
-        other.turnTimeLimitSeconds != turnTimeLimitSeconds) {
+        other.turnTimeLimitSeconds != turnTimeLimitSeconds ||
+        other.requireLastCardDeclaration != requireLastCardDeclaration) {
       return false;
     }
     for (final rank in CardRank.values) {

@@ -161,6 +161,13 @@ class FakeServer implements OnlineMatchRepository {
         baseVersion: full.version,
       ),
       'pass' => PassAction(playerId: 'p0', baseVersion: full.version),
+      // §16 — the server builds the action from the CALLER's seat, exactly
+      // as supabase/functions/match/index.ts does; the client never says who
+      // it is.
+      'declareLastCard' => DeclareLastCardAction(
+        playerId: 'p0',
+        baseVersion: full.version,
+      ),
       'startNextRound' => StartNextRoundAction(
         playerId: 'p0',
         baseVersion: full.version,
@@ -344,9 +351,11 @@ void main() {
       () async {
         final (c, server) = await _boot(
           _table(
+            // Three cards: these cases are about the request path, not §16.
             handA: [
               _c(CardSuit.coppe, CardRank.re),
               _c(CardSuit.spade, CardRank.tre),
+              _c(CardSuit.bastoni, CardRank.sei),
             ],
             handB: [_c(CardSuit.denari, CardRank.tre)],
             top: _c(CardSuit.coppe, CardRank.cinque),
@@ -358,7 +367,10 @@ void main() {
         expect(server.sent.single.actionId, 'act-1');
         // The table now shows what the server answered.
         expect(c.version, 4);
-        expect(c.viewingPlayer.hand, [_c(CardSuit.spade, CardRank.tre)]);
+        expect(c.viewingPlayer.hand, [
+          _c(CardSuit.spade, CardRank.tre),
+          _c(CardSuit.bastoni, CardRank.sei),
+        ]);
         expect(c.state.topCard, _c(CardSuit.coppe, CardRank.re));
         expect(c.isHumanTurn, isFalse);
         c.onClose();
@@ -399,9 +411,11 @@ void main() {
       final (c, server) = await _boot(
         _table(
           handA: [_c(CardSuit.coppe, CardRank.re)],
+          // Three cards: p1's play here is about the lost hint, not §16.
           handB: [
             _c(CardSuit.denari, CardRank.cinque),
             _c(CardSuit.spade, CardRank.re),
+            _c(CardSuit.bastoni, CardRank.sei),
           ],
           top: _c(CardSuit.coppe, CardRank.cinque),
           currentSeat: 1,
@@ -433,9 +447,11 @@ void main() {
         final (c, server) = await _boot(
           _table(
             handA: [_c(CardSuit.coppe, CardRank.re)],
+            // Three cards: this case is about the Realtime diff, not §16.
             handB: [
               _c(CardSuit.coppe, CardRank.due),
               _c(CardSuit.spade, CardRank.re),
+              _c(CardSuit.bastoni, CardRank.sei),
             ],
             top: _c(CardSuit.coppe, CardRank.cinque),
             currentSeat: 1,
@@ -469,9 +485,11 @@ void main() {
       () async {
         final (c, server) = await _boot(
           _table(
+            // Three cards: these cases are about the request path, not §16.
             handA: [
               _c(CardSuit.spade, CardRank.cavallo),
               _c(CardSuit.spade, CardRank.tre),
+              _c(CardSuit.bastoni, CardRank.sei),
             ],
             handB: [_c(CardSuit.denari, CardRank.tre)],
             top: _c(CardSuit.coppe, CardRank.cinque),
@@ -730,6 +748,133 @@ void main() {
       final none = HomeController(GameStorageService(await _storage()));
       await none.refreshOnlineMatch();
       expect(none.activeOnlineMatchId.value, isNull);
+    });
+  });
+
+  group('ULTIMA CARTA online is the server\'s call (§16)', () {
+    Future<(OnlineMatchController, FakeServer)> twoCards() => _boot(
+      _table(
+        handA: [
+          _c(CardSuit.coppe, CardRank.re),
+          _c(CardSuit.coppe, CardRank.sette),
+        ],
+        handB: [_c(CardSuit.denari, CardRank.tre)],
+        top: _c(CardSuit.coppe, CardRank.cinque),
+      ),
+    );
+
+    test('an undeclared play never reaches the server', () async {
+      final (c, server) = await twoCards();
+      expect(c.canDeclareLastCard, isTrue);
+      expect(c.hasDeclaredLastCard, isFalse);
+
+      await c.playCard(_c(CardSuit.coppe, CardRank.re));
+      expect(server.sent, isEmpty);
+      expect(c.version, 3);
+      expect(c.viewingPlayer.hand, hasLength(2));
+      c.onClose();
+    });
+
+    test('declaring is a request; the server records it and every seat sees '
+        'it', () async {
+      final (c, server) = await twoCards();
+      await c.declareLastCard();
+
+      expect(server.sent.single.type, 'declareLastCard');
+      expect(server.sent.single.expectedVersion, 3);
+      expect(c.version, 4);
+      expect(c.hasDeclaredLastCard, isTrue);
+      // Public, and public is all it is: the opponent's snapshot carries the
+      // flag and still no card identities.
+      final theirs = server.snapshotFor(_userB).publicState;
+      expect(theirs.lastCardDeclaredBy, 'p0');
+      expect(theirs.playerById('p0')!.hand, isEmpty);
+      expect(theirs.playerById('p0')!.cardCount, 2);
+      expect(theirs.drawPile, isEmpty);
+      c.onClose();
+    });
+
+    test(
+      'and then the same play is accepted and the hand becomes one',
+      () async {
+        final (c, server) = await twoCards();
+        await c.declareLastCard();
+        await c.playCard(_c(CardSuit.coppe, CardRank.re));
+
+        expect(server.sent.map((r) => r.type), ['declareLastCard', 'playCard']);
+        expect(c.version, 5);
+        expect(c.viewingPlayer.hand, [_c(CardSuit.coppe, CardRank.sette)]);
+        expect(c.state.topCard, _c(CardSuit.coppe, CardRank.re));
+        // The turn moved on, so the announcement did not survive it.
+        expect(c.state.lastCardDeclaredBy, isNull);
+        expect(c.hasDeclaredLastCard, isFalse);
+        c.onClose();
+      },
+    );
+
+    test('a modified client cannot declare out of turn: the server refuses '
+        'it', () async {
+      final (c, server) = await _boot(
+        _table(
+          handA: [
+            _c(CardSuit.coppe, CardRank.re),
+            _c(CardSuit.coppe, CardRank.sette),
+          ],
+          handB: [
+            _c(CardSuit.denari, CardRank.tre),
+            _c(CardSuit.denari, CardRank.re),
+          ],
+          top: _c(CardSuit.coppe, CardRank.cinque),
+          currentSeat: 1,
+        ),
+      );
+      // Bypassing the button entirely, as a tampered build would.
+      final outcome = await server.send(
+        MatchActionRequest(
+          matchId: 'm1',
+          actionId: 'forged-1',
+          expectedVersion: 3,
+          type: 'declareLastCard',
+        ),
+      );
+      expect(outcome.accepted, isFalse);
+      expect(outcome.failure, GameFailure.notPlayersTurn.key);
+      expect(server.full.lastCardDeclaredBy, isNull);
+      c.onClose();
+    });
+
+    test('a modified client cannot skip the announcement either', () async {
+      final (c, server) = await twoCards();
+      final outcome = await server.send(
+        MatchActionRequest(
+          matchId: 'm1',
+          actionId: 'forged-2',
+          expectedVersion: 3,
+          type: 'playCard',
+          card: _c(CardSuit.coppe, CardRank.re),
+        ),
+      );
+      expect(outcome.accepted, isFalse);
+      expect(outcome.failure, GameFailure.lastCardDeclarationRequired.key);
+      expect(server.full.version, 3);
+      expect(server.full.handOf('p0'), hasLength(2));
+      c.onClose();
+    });
+
+    test('the button is not offered with a full hand', () async {
+      final (c, _) = await _boot(
+        _table(
+          handA: [
+            _c(CardSuit.coppe, CardRank.re),
+            _c(CardSuit.coppe, CardRank.sette),
+            _c(CardSuit.spade, CardRank.tre),
+          ],
+          handB: [_c(CardSuit.denari, CardRank.tre)],
+          top: _c(CardSuit.coppe, CardRank.cinque),
+        ),
+      );
+      expect(c.canDeclareLastCard, isFalse);
+      c.onClose();
     });
   });
 }

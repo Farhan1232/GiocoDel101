@@ -342,11 +342,38 @@ class GameController extends TableController {
       await _drain();
       return;
     }
+    // §16 — a person announces "ULTIMA CARTA" by pressing the button; the
+    // engine refuses the play until they have. Never auto-declare for them:
+    // the announcement is the feature.
+    if (session.canDeclareLastCard) {
+      HapticService.instance.error();
+      AudioService.instance.play(Sfx.invalid);
+      _showBanner(Strings.s.lastCardPrompt);
+      return;
+    }
     selectedCard.value = null;
     busy.value = true;
     session.playCard(card);
     await _drain();
     await _resumeFlow();
+  }
+
+  @override
+  bool get canDeclareLastCard => canInteract && session.canDeclareLastCard;
+
+  @override
+  bool get hasDeclaredLastCard =>
+      state.hasDeclaredLastCard(currentPlayer.id) && isHumanTurn;
+
+  @override
+  Future<void> declareLastCard() async {
+    if (!canDeclareLastCard) return;
+    busy.value = true;
+    session.declareLastCard();
+    HapticService.instance.medium();
+    await _drain();
+    busy.value = false;
+    revision.value++;
   }
 
   @override
@@ -501,7 +528,7 @@ class GameController extends TableController {
     final decision = bot.decide(view);
     switch (decision.action) {
       case BotAction.play:
-        final result = session.playCard(
+        final result = session.autoPlayCard(
           decision.card!,
           chosenSuit: decision.suit,
         );
@@ -527,7 +554,7 @@ class GameController extends TableController {
             BotViewFactory.forCurrentPlayer(session.state),
           );
           if (next.action == BotAction.play && next.card != null) {
-            session.playCard(next.card!, chosenSuit: next.suit);
+            session.autoPlayCard(next.card!, chosenSuit: next.suit);
           } else if (session.canEndTurn) {
             session.endTurn();
           }
@@ -546,13 +573,20 @@ class GameController extends TableController {
               BotViewFactory.forCurrentPlayer(session.state),
             );
             if (next.action == BotAction.play && next.card != null) {
-              session.playCard(next.card!, chosenSuit: next.suit);
+              session.autoPlayCard(next.card!, chosenSuit: next.suit);
             } else if (session.canEndTurn) {
               session.endTurn();
             }
           }
         }
     }
+  }
+
+  /// §16 — the public half of the announcement.
+  void _announceLastCard(String playerId) {
+    AudioService.instance.play(Sfx.suitSelect);
+    final who = state.playerById(playerId);
+    if (who != null) _showBanner(Strings.s.lastCardAnnounced(who.name));
   }
 
   /// §53 — bots pause long enough to feel deliberate, no longer.
@@ -625,6 +659,10 @@ class GameController extends TableController {
       case InvalidCue():
         AudioService.instance.play(Sfx.invalid);
         HapticService.instance.error();
+      case LastCardCue():
+        // §16 — everyone at the table hears the announcement, whoever made
+        // it. No card is named: only that a seat is down to its last one.
+        _announceLastCard(cue.playerId);
       case SuitChosenCue():
       case SkipCue():
       case TurnCue():

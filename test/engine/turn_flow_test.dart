@@ -11,8 +11,11 @@ import '../support/engine_harness.dart';
 
 const engine = GameEngine();
 
+// §16 — the announcement goes first when a play would take the actor down
+// to one card, exactly as the table sends it. These cases are about
+// something else; `ultima_carta_test.dart` is about §16 itself.
 GameState apply(GameState s, GameAction a) {
-  final r = engine.applyAction(s, a);
+  final r = engine.applyAction(declaredIfNeeded(s, a), a);
   expect(r, isA<ActionAccepted>(), reason: 'expected acceptance, got $r');
   return (r as ActionAccepted).state;
 }
@@ -121,7 +124,14 @@ void main() {
     test('turn number and version advance; lastAction is recorded', () {
       final s = buildState(
         hands: [
-          [c(CardSuit.coppe, CardRank.re), c(CardSuit.spade, CardRank.re)],
+          // Three cards, so this stays a test of one action's bookkeeping:
+          // from two the play would also need an ULTIMA CARTA (§16) and the
+          // version would advance twice.
+          [
+            c(CardSuit.coppe, CardRank.re),
+            c(CardSuit.spade, CardRank.re),
+            c(CardSuit.bastoni, CardRank.re),
+          ],
           [c(CardSuit.coppe, CardRank.tre)],
         ],
         top: co5,
@@ -290,7 +300,13 @@ void main() {
     test('stale version and duplicate submission', () {
       final s = buildState(
         hands: [
-          [c(CardSuit.coppe, CardRank.re), c(CardSuit.spade, CardRank.re)],
+          // Three cards: an ULTIMA CARTA (§16) would be a second action and
+          // this case is about one action's version bookkeeping.
+          [
+            c(CardSuit.coppe, CardRank.re),
+            c(CardSuit.spade, CardRank.re),
+            c(CardSuit.bastoni, CardRank.sette),
+          ],
           [c(CardSuit.coppe, CardRank.tre)],
         ],
         top: co5,
@@ -461,7 +477,13 @@ void main() {
     test('the turn clock is stamped only when a caller supplies a time', () {
       final s = buildState(
         hands: [
-          [c(CardSuit.coppe, CardRank.re), c(CardSuit.spade, CardRank.re)],
+          // Three cards, so the play is the only action and the clock is
+          // stamped by it rather than by a preceding §16 announcement.
+          [
+            c(CardSuit.coppe, CardRank.re),
+            c(CardSuit.spade, CardRank.re),
+            c(CardSuit.bastoni, CardRank.sette),
+          ],
           [c(CardSuit.coppe, CardRank.tre)],
         ],
         top: co5,

@@ -17,10 +17,10 @@ void main() {
   final top = c(CardSuit.coppe, CardRank.cinque);
 
   ActionAccepted playAsso(GameState s, String actor) {
-    final r = engine.applyAction(
-      s,
-      PlayCardAction(playerId: actor, card: asso),
-    );
+    final action = PlayCardAction(playerId: actor, card: asso);
+    // §16 — the announcement goes first when the play would take the actor
+    // down to one card, exactly as the table sends it.
+    final r = engine.applyAction(declaredIfNeeded(s, action), action);
     expect(r, isA<ActionAccepted>());
     return r as ActionAccepted;
   }
@@ -148,7 +148,12 @@ void main() {
       );
       final onAsso = buildState(
         hands: [
-          [c(CardSuit.spade, CardRank.asso), c(CardSuit.spade, CardRank.re)],
+          // Three cards: this case is about legality, not about §16.
+          [
+            c(CardSuit.spade, CardRank.asso),
+            c(CardSuit.spade, CardRank.re),
+            c(CardSuit.bastoni, CardRank.sette),
+          ],
           [c(CardSuit.denari, CardRank.tre)],
         ],
         top: c(CardSuit.coppe, CardRank.asso),
