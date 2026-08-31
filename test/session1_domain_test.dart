@@ -343,6 +343,8 @@ void main() {
         // Session 5 — the signature word and a unit string.
         'centounoTitle',
         'missionsReward',
+        // Session 7 — a loanword used as-is in Italian.
+        'premiumTitle',
       };
       final suspicious = <String>[];
       for (final key in it.keys.where((k) => !k.startsWith('@'))) {

@@ -603,11 +603,22 @@ class GameController extends TableController {
 
   // -------------------------------------------------------------- cue queue
 
+  bool _draining = false;
+
   Future<void> _drain() async {
-    while (_queue.isNotEmpty && !_disposed) {
-      final cue = _queue.removeAt(0);
-      _reactToCue(cue);
-      await _present(cue);
+    // Same re-entrancy guard as the online driver: two loops racing on one
+    // queue would double-animate and double-fire audio. A call landing while
+    // a drain runs simply leaves its cues for the running loop.
+    if (_draining) return;
+    _draining = true;
+    try {
+      while (_queue.isNotEmpty && !_disposed) {
+        final cue = _queue.removeAt(0);
+        _reactToCue(cue);
+        await _present(cue);
+      }
+    } finally {
+      _draining = false;
     }
     revision.value++;
     _persist();

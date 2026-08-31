@@ -1000,6 +1000,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playersCount => 'Players';
 
   @override
+  String get premiumActive => 'Premium active';
+
+  @override
+  String get premiumActiveBody =>
+      'Thank you! The purchase is tied to this account and to your device’s store.';
+
+  @override
+  String premiumBuyFor(String price) {
+    return 'Buy · $price';
+  }
+
+  @override
+  String get premiumCancelled => 'Purchase cancelled.';
+
+  @override
+  String get premiumFailed =>
+      'The purchase did not go through. Please try again.';
+
+  @override
+  String get premiumNetwork =>
+      'No connection. Check your network and try again.';
+
+  @override
+  String get premiumNothingToRestore =>
+      'No purchases to restore on this store account.';
+
+  @override
+  String get premiumOwnedElsewhere =>
+      'This purchase is already linked to another game profile.';
+
+  @override
+  String get premiumPending => 'Purchase in progress…';
+
+  @override
+  String get premiumProductMissing =>
+      'The product is not available in the store yet. Try again later.';
+
+  @override
+  String get premiumRestore => 'Restore purchases';
+
+  @override
+  String get premiumRestored => 'Purchases restored.';
+
+  @override
+  String get premiumSignInRequired =>
+      'Sign in with an account to complete the purchase.';
+
+  @override
+  String get premiumStoreUnavailable =>
+      'The store is not available on this device.';
+
+  @override
+  String get premiumSuccess => 'Purchase complete. Thank you!';
+
+  @override
+  String get premiumTitle => 'Premium';
+
+  @override
+  String get premiumVerificationUnavailable =>
+      'Purchase verification is not live yet. No payment is lost: please try again later.';
+
+  @override
+  String get premiumVerifying => 'Verifying the purchase…';
+
+  @override
+  String get premiumVerifyFailed =>
+      'The purchase could not be verified right now. It is not lost: please try again.';
+
+  @override
   String get profile => 'Profile';
 
   @override

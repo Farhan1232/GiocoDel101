@@ -191,6 +191,18 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
       await OnlineMatchLauncher.launch(matchId, replace: true);
     } on OnlineException catch (e) {
       _launched = false;
+      // The timers were cancelled above expecting to leave this screen; a
+      // failed launch stays on it, so the poll and the heartbeat must come
+      // back or the seat silently expires on the server.
+      final room = _room;
+      if (mounted && room != null) {
+        final rooms = Get.find<BackendServices>().rooms;
+        _refresh = Timer.periodic(const Duration(seconds: 5), (_) => _poll());
+        _heartbeat = Timer.periodic(
+          const Duration(seconds: 8),
+          (_) => rooms.heartbeat(room.id),
+        );
+      }
       if (mounted) setState(() => _error = _enterFailure(e));
     }
   }

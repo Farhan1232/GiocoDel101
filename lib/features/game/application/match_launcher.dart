@@ -46,7 +46,14 @@ class MatchLauncher {
     // The screens depend on the contract, not on the local driver.
     Get.put<TableController>(controller, permanent: true);
     if (replace) {
-      Get.offNamed<void>(AppRoutes.game);
+      // Pop back to Home before pushing the new table. A plain `offNamed`
+      // replaces only the result screen and leaves the *previous* `/game`
+      // route mounted underneath — one whole retained table per "Rivincita",
+      // which is exactly the long-session memory growth the client felt.
+      Get.offNamedUntil<void>(
+        AppRoutes.game,
+        (route) => route.settings.name == AppRoutes.home,
+      );
     } else {
       Get.toNamed<void>(AppRoutes.game);
     }

@@ -183,6 +183,10 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
     if (!mounted) return;
     if (room == null) {
       _matched = false;
+      // Leave the searching state first: `_search` refuses to run while
+      // `_searching` is true, and both timers are already cancelled — the
+      // screen would otherwise sit frozen on "searching" forever.
+      setState(() => _searching = false);
       unawaited(_search());
       return;
     }

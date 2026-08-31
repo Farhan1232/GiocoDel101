@@ -449,7 +449,12 @@ class CardFacePainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    if (_labelCache.length > 120) _labelCache.clear();
+    if (_labelCache.length > 120) {
+      for (final stale in _labelCache.values) {
+        stale.dispose(); // frees the laid-out native paragraphs promptly
+      }
+      _labelCache.clear();
+    }
     _labelCache[key] = painter;
     return painter;
   }

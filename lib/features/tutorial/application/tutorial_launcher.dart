@@ -36,4 +36,20 @@ class TutorialLauncher {
     Get.put<TableController>(controller, permanent: false);
     Get.toNamed<void>(AppRoutes.tutorial);
   }
+
+  /// Tears the guided table down when the player leaves it for good. The
+  /// registration is linked to whichever route was current at [launch] time
+  /// (from Home that is the never-disposed home route), so leaving the
+  /// tutorial must release it explicitly — otherwise its timers and session
+  /// listener survive, and the stale [TableController] key silently blocks
+  /// the next launcher's `Get.put`.
+  static void dismiss() {
+    if (Get.isRegistered<TableController>() &&
+        Get.find<TableController>() is TutorialController) {
+      Get.delete<TableController>(force: true);
+    }
+    if (Get.isRegistered<TutorialController>()) {
+      Get.delete<TutorialController>(force: true);
+    }
+  }
 }

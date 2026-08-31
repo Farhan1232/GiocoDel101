@@ -386,8 +386,13 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
     return MatchSubscription(
       close: () async {
         try {
-          await _client.removeChannel(rows);
-          await _client.removeChannel(channel);
+          // In parallel: on a half-open socket each unsubscribe waits out
+          // the leave-push timeout, and paying it twice sequentially left
+          // four channels alive for ~20 s after every app resume.
+          await Future.wait([
+            _client.removeChannel(rows),
+            _client.removeChannel(channel),
+          ]);
         } catch (e) {
           Log.d('match channel close: $e');
         }

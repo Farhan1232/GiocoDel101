@@ -9,6 +9,7 @@ import '../application/match_launcher.dart';
 import '../application/table_controller.dart';
 import '../../online/application/online_match_controller.dart';
 import '../../online/application/online_match_launcher.dart';
+import '../../tutorial/application/tutorial_launcher.dart';
 import '../../../core/widgets/app_dialog.dart';
 import '../../settings/application/settings_controller.dart';
 import '../application/table_cue.dart';
@@ -60,6 +61,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   final Map<String, GlobalKey> _seatKeys = {};
 
   final List<CardFlight> _flights = [];
+
+  /// Bumped when [_flights] changes. The flight layer is the only listener,
+  /// so the ~2×(cards dealt) updates of a deal repaint that one layer instead
+  /// of rebuilding the whole table each time.
+  final ValueNotifier<int> _flightsVersion = ValueNotifier<int>(0);
   final Set<String> _hidden = <String>{};
   int _flightId = 0;
 
@@ -110,8 +116,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     _resultWorker?.dispose();
     c.cuePlayer = null;
     for (final f in _flights) {
+      // Cancels each flight's TickerFuture, which resumes the corresponding
+      // `_fly` through its TickerCanceled branch — that continuation must
+      // not dispose the controller a second time.
       f.controller.dispose();
     }
+    _flightsVersion.dispose();
     super.dispose();
   }
 
@@ -214,19 +224,31 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     // Hide the card at its destination until the flight lands (§29).
     setState(() => _hidden.add(card.id));
 
-    await _fly(
-      card: card,
-      from: from,
-      to: to,
-      width: isViewer ? _handCardWidth : _tableCardWidth * 0.8,
-      startFaceUp: isViewer,
-      endFaceUp: true,
-      startAngle: isViewer ? 0 : (from.dx < to.dx ? 0.25 : -0.25),
-      endAngle: (math.Random(card.id.hashCode).nextDouble() - 0.5) * 0.22,
-      duration: AppDurations.cardPlay,
-    );
+    try {
+      await _fly(
+        card: card,
+        from: from,
+        to: to,
+        width: isViewer ? _handCardWidth : _tableCardWidth * 0.8,
+        startFaceUp: isViewer,
+        endFaceUp: true,
+        startAngle: isViewer ? 0 : (from.dx < to.dx ? 0.25 : -0.25),
+        endAngle: (math.Random(card.id.hashCode).nextDouble() - 0.5) * 0.22,
+        duration: AppDurations.cardPlay,
+      );
+    } finally {
+      _unhide([card.id]);
+    }
+  }
 
-    if (mounted) setState(() => _hidden.remove(card.id));
+  /// Every id put into [_hidden] must come back out on every path — a card
+  /// left in the set is invisible for the rest of the match.
+  void _unhide(Iterable<String> ids) {
+    if (!mounted) {
+      _hidden.removeAll(ids);
+      return;
+    }
+    setState(() => _hidden.removeAll(ids));
   }
 
   Future<void> _animateDraw(
@@ -247,28 +269,30 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     setState(() => _hidden.addAll(animated.map((e) => e.id)));
 
-    final futures = <Future<void>>[];
-    for (var i = 0; i < animated.length; i++) {
-      if (i > 0) {
-        await Future<void>.delayed(Motion.scale(AppDurations.penaltyStagger));
+    try {
+      final futures = <Future<void>>[];
+      for (var i = 0; i < animated.length; i++) {
+        if (!mounted) break;
+        if (i > 0) {
+          await Future<void>.delayed(Motion.scale(AppDurations.penaltyStagger));
+        }
+        futures.add(
+          _fly(
+            card: animated[i],
+            from: from,
+            to: to,
+            width: isViewer ? _handCardWidth * 0.92 : _opponentCardWidth * 1.6,
+            startFaceUp: false,
+            endFaceUp: isViewer,
+            startAngle: 0,
+            endAngle: isViewer ? 0 : 0.1,
+            duration: AppDurations.cardDraw,
+          ),
+        );
       }
-      futures.add(
-        _fly(
-          card: animated[i],
-          from: from,
-          to: to,
-          width: isViewer ? _handCardWidth * 0.92 : _opponentCardWidth * 1.6,
-          startFaceUp: false,
-          endFaceUp: isViewer,
-          startAngle: 0,
-          endAngle: isViewer ? 0 : 0.1,
-          duration: AppDurations.cardDraw,
-        ),
-      );
-    }
-    await Future.wait(futures);
-    if (mounted) {
-      setState(() => _hidden.removeAll(animated.map((e) => e.id)));
+      await Future.wait(futures);
+    } finally {
+      _unhide(animated.map((e) => e.id));
     }
   }
 
@@ -280,45 +304,55 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (from == null || seatIds.isEmpty) return;
     final viewer = c.viewingPlayer;
     final own = List<GameCard>.of(viewer.hand);
+    // A fresh round starts with a clean slate: any id a previous animation
+    // failed to release (a timed-out cue, an exception mid-stagger) would
+    // otherwise keep its card invisible forever.
+    _hidden.clear();
     setState(() => _hidden.addAll(own.map((e) => e.id)));
-    final futures = <Future<void>>[];
-    var ownIndex = 0;
-    var dealt = 0;
-    for (var round = 0; round < handSize; round++) {
-      for (final seatId in seatIds) {
-        if (!mounted) break;
-        if (dealt > 0) {
-          await Future<void>.delayed(
-            Motion.scale(const Duration(milliseconds: 70)),
+    try {
+      final futures = <Future<void>>[];
+      var ownIndex = 0;
+      var dealt = 0;
+      outer:
+      for (var round = 0; round < handSize; round++) {
+        for (final seatId in seatIds) {
+          if (!mounted) break outer;
+          if (dealt > 0) {
+            await Future<void>.delayed(
+              Motion.scale(const Duration(milliseconds: 70)),
+            );
+          }
+          dealt++;
+          final isViewer = seatId == viewer.id;
+          final GameCard card;
+          if (isViewer && ownIndex < own.length) {
+            card = own[ownIndex++];
+          } else {
+            card = c.state.topCard; // a face-down stand-in; never shown
+          }
+          futures.add(
+            _fly(
+              card: card,
+              from: from,
+              to: _seatCentre(seatId),
+              width: isViewer
+                  ? _handCardWidth * 0.92
+                  : _opponentCardWidth * 1.6,
+              startFaceUp: false,
+              endFaceUp: isViewer,
+              startAngle: 0,
+              endAngle: isViewer ? 0 : 0.1,
+              duration: AppDurations.cardDraw,
+            ).then((_) {
+              if (isViewer) _unhide([card.id]);
+            }),
           );
         }
-        dealt++;
-        final isViewer = seatId == viewer.id;
-        final GameCard card;
-        if (isViewer && ownIndex < own.length) {
-          card = own[ownIndex++];
-        } else {
-          card = c.state.topCard; // a face-down stand-in; never shown
-        }
-        futures.add(
-          _fly(
-            card: card,
-            from: from,
-            to: _seatCentre(seatId),
-            width: isViewer ? _handCardWidth * 0.92 : _opponentCardWidth * 1.6,
-            startFaceUp: false,
-            endFaceUp: isViewer,
-            startAngle: 0,
-            endAngle: isViewer ? 0 : 0.1,
-            duration: AppDurations.cardDraw,
-          ).then((_) {
-            if (isViewer && mounted) setState(() => _hidden.remove(card.id));
-          }),
-        );
       }
+      await Future.wait(futures);
+    } finally {
+      _unhide(own.map((e) => e.id));
     }
-    await Future.wait(futures);
-    if (mounted) setState(() => _hidden.removeAll(own.map((e) => e.id)));
   }
 
   /// §18 — the discard sweeping back under the stock. A handful of cards
@@ -383,14 +417,23 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       endAngle: endAngle,
       highContrast: settings.settings.highContrast,
     );
-    setState(() => _flights.add(flight));
-    await controller.forward();
-    if (mounted) {
-      setState(() => _flights.remove(flight));
-    } else {
+    _flights.add(flight);
+    _flightsVersion.value++;
+    var canceled = false;
+    try {
+      // `.orCancel` is load-bearing: a plain `forward()` future is never
+      // completed when the ticker is disposed, so a teardown mid-flight
+      // would strand this continuation — and everything it closes over —
+      // forever, one per airborne card, per exit.
+      await controller.forward().orCancel;
+    } on TickerCanceled {
+      // The screen's dispose() already released this controller.
+      canceled = true;
+    } finally {
       _flights.remove(flight);
+      if (mounted) _flightsVersion.value++;
     }
-    controller.dispose();
+    if (!canceled) controller.dispose();
   }
 
   // ------------------------------------------------------------------- exit
@@ -422,7 +465,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (!leave) return;
     await c.abandon();
     Get.until((route) => route.settings.name == AppRoutes.home);
-    if (c.isOnline) {
+    if (c.isTutorial) {
+      TutorialLauncher.dismiss();
+    } else if (c.isOnline) {
       OnlineMatchLauncher.dismiss();
     } else {
       MatchLauncher.dismiss();
@@ -471,7 +516,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              Positioned.fill(child: CardFlightLayer(flights: _flights)),
+              Positioned.fill(
+                child: ValueListenableBuilder<int>(
+                  valueListenable: _flightsVersion,
+                  builder: (_, _, _) =>
+                      CardFlightLayer(flights: List.of(_flights)),
+                ),
+              ),
               Positioned.fill(child: _bannerLayer()),
               if (c.pendingSuitChoice.value != null && c.isHumanTurn)
                 Positioned.fill(

@@ -155,8 +155,13 @@ class _HandFanState extends State<HandFan> with TickerProviderStateMixin {
 
   void _reject(GameCard card) {
     setState(() => _shakingCard = card);
-    _shake.forward(from: 0).whenComplete(() {
-      if (mounted) setState(() => _shakingCard = null);
+    // `whenCompleteOrCancel`: a second rapid tap restarts the controller,
+    // which *cancels* the previous TickerFuture — a plain `whenComplete`
+    // never fires on that path and left `_shakingCard` pinned.
+    _shake.forward(from: 0).whenCompleteOrCancel(() {
+      if (mounted && _shakingCard == card) {
+        setState(() => _shakingCard = null);
+      }
     });
     widget.onReject(card);
   }

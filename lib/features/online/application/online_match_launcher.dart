@@ -38,6 +38,13 @@ class OnlineMatchLauncher {
     if (Get.isRegistered<GameController>()) {
       Get.delete<GameController>(force: true);
     }
+    if (Get.isRegistered<TableController>()) {
+      // A stale local or tutorial registration left behind by another exit
+      // path. It must go now: `Get.put` keeps the existing instance when the
+      // key is occupied, so the online driver below would run with sockets
+      // and timers live but never reach the screen — and never be dismissed.
+      Get.delete<TableController>(force: true);
+    }
     // `permanent`: the launch replaces the lobby route, and GetX would
     // otherwise delete a route-scoped controller the moment that route is
     // popped — with the table still on screen. [dismiss] is the explicit

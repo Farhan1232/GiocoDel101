@@ -432,6 +432,32 @@
   "play": "PLAY",
   "playerName": "Your name",
   "playersCount": "Players",
+  "premiumActive": "Premium active",
+  "premiumActiveBody": "Thank you! The purchase is tied to this account and to your device’s store.",
+  "premiumBuyFor": "Buy · {price}",
+  "@premiumBuyFor": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "premiumCancelled": "Purchase cancelled.",
+  "premiumFailed": "The purchase did not go through. Please try again.",
+  "premiumNetwork": "No connection. Check your network and try again.",
+  "premiumNothingToRestore": "No purchases to restore on this store account.",
+  "premiumOwnedElsewhere": "This purchase is already linked to another game profile.",
+  "premiumPending": "Purchase in progress…",
+  "premiumProductMissing": "The product is not available in the store yet. Try again later.",
+  "premiumRestore": "Restore purchases",
+  "premiumRestored": "Purchases restored.",
+  "premiumSignInRequired": "Sign in with an account to complete the purchase.",
+  "premiumStoreUnavailable": "The store is not available on this device.",
+  "premiumSuccess": "Purchase complete. Thank you!",
+  "premiumTitle": "Premium",
+  "premiumVerificationUnavailable": "Purchase verification is not live yet. No payment is lost: please try again later.",
+  "premiumVerifying": "Verifying the purchase…",
+  "premiumVerifyFailed": "The purchase could not be verified right now. It is not lost: please try again.",
   "profile": "Profile",
   "profileBestStreak": "Best streak",
   "profileEdit": "Edit profile",

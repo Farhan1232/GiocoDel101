@@ -262,7 +262,9 @@ class OnlineMatchController extends TableController
     _subscription = null;
     _subscriptionGeneration++; // the old channel's callbacks fall silent
     unawaited(old?.close());
-    if (!_disposed) _subscribe();
+    // A finished match keeps no live channel (see _maybeFinish); an app
+    // resume on the result screen must not quietly open a new pair.
+    if (!_disposed && !_state.isFinished) _subscribe();
   }
 
   void _onChannelStatus(MatchChannelStatus status) {
@@ -353,6 +355,16 @@ class OnlineMatchController extends TableController
     if (snap.version < _version) {
       return; // an older read overtaken by a newer one
     }
+    if (snap.version == _version) {
+      // Nothing changed. The skew recalibration above is kept and the clock
+      // re-read, but the 6 s poll must not rebuild the whole table for a
+      // state the screen is already showing. `_maybeFinish` still runs — a
+      // match that was already finished when this controller loaded has no
+      // version bump left to trigger it.
+      _refreshClock();
+      _maybeFinish();
+      return;
+    }
     _applyNewState(view, snap.version, events: null);
   }
 
@@ -406,11 +418,22 @@ class OnlineMatchController extends TableController
 
   void _maybeFinish() {
     if (_state.isFinished) {
-      // Nothing left to time or to poll; the result screen asks for the
-      // rematch votes itself.
+      // Nothing left to time, poll or listen for; the result screen asks for
+      // the rematch votes itself (its own 3 s poll). Without the last two
+      // lines a dropped socket after the final trick kept re-arming the
+      // reconnect and opening fresh channel pairs for as long as the result
+      // screen stayed up.
       _clockTimer?.cancel();
       _poll?.cancel();
       _heartbeat?.cancel();
+      _reconnect?.cancel();
+      _reconnect = null;
+      final sub = _subscription;
+      if (sub != null) {
+        _subscription = null;
+        _subscriptionGeneration++; // silence the closing channel's farewell
+        unawaited(sub.close());
+      }
     }
     if (!_state.isFinished || _navigatedToResult) return;
     if (_state.lastRoundResult != null) {

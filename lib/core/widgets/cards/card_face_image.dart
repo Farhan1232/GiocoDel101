@@ -36,14 +36,26 @@ class CardFaceImage extends StatelessWidget {
   /// Unplayable cards sit back very slightly rather than being greyed out.
   final bool dimmed;
 
+  /// Pixel width the shipped faces are authored at. A decode may never be
+  /// keyed above it: `ResizeImage` clamps the actual decode to the source,
+  /// but keeps the *requested* width in the cache key — so keys past 360
+  /// would be duplicate full-resolution bitmaps under different names.
+  static const int sourceWidth = 360;
+
   /// Decode width in device pixels, rounded up to a step so that a card which
   /// animates through many intermediate sizes still shares one cache entry
   /// instead of decoding a new bitmap per frame.
+  ///
+  /// From 256 up the request snaps straight to [sourceWidth]: on a 2.6–4.0
+  /// device-pixel-ratio phone every hand and table card lands in that band,
+  /// and snapping means the whole deck costs exactly one full-quality entry
+  /// per card instead of several near-identical ones.
   static int decodeWidth(double width, double devicePixelRatio) {
     final physical = width * devicePixelRatio;
     const step = 64;
     final stepped = ((physical / step).ceil()) * step;
-    return stepped.clamp(step, 720);
+    if (stepped >= 256) return sourceWidth;
+    return stepped.clamp(step, sourceWidth);
   }
 
   Widget _fallback() => CustomPaint(
@@ -62,7 +74,11 @@ class CardFaceImage extends StatelessWidget {
     Widget face = Image.asset(
       card.asset.imagePath,
       fit: BoxFit.fill,
-      filterQuality: FilterQuality.medium,
+      // `low` is bilinear. `medium` would have Impeller build a mip chain per
+      // (card, size) — a raster-thread stall on first draw and ~a third more
+      // GPU memory per face — for a downscale that never exceeds ~1.4×,
+      // where bilinear is visually identical.
+      filterQuality: FilterQuality.low,
       cacheWidth: cacheWidth,
       gaplessPlayback: true,
       excludeFromSemantics: true,

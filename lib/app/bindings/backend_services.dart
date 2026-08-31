@@ -6,6 +6,7 @@ import '../../features/leaderboard/application/leaderboard_repository.dart';
 import '../../features/missions/application/missions_repository.dart';
 import '../../features/online/application/online_match_repository.dart';
 import '../../features/profile/application/profile_repository.dart';
+import '../../features/purchases/application/entitlement_repository.dart';
 import '../../features/rewards/application/daily_reward_repository.dart';
 import '../../features/rooms/application/rooms_repository.dart';
 
@@ -24,6 +25,7 @@ class BackendServices {
     required this.matches,
     required this.matchmaking,
     this.missions = const NoBackendMissionsRepository(),
+    this.entitlements = const NoBackendEntitlementRepository(),
   });
 
   factory BackendServices.none() => BackendServices(
@@ -45,6 +47,7 @@ class BackendServices {
     matches: SupabaseOnlineMatchRepository(client),
     matchmaking: SupabaseMatchmakingRepository(client),
     missions: SupabaseMissionsRepository(client),
+    entitlements: SupabaseEntitlementRepository(client),
   );
 
   final AuthGateway auth;
@@ -59,4 +62,8 @@ class BackendServices {
 
   /// §V — today's online missions and their server-judged claims.
   final MissionsRepository missions;
+
+  /// Premium: reads the player's own entitlement row; grants only ever come
+  /// from the `verify-purchase` Edge Function.
+  final EntitlementRepository entitlements;
 }

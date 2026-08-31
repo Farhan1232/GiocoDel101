@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/router/app_router.dart';
+import '../application/match_launcher.dart';
 import '../application/table_controller.dart';
 import '../../online/application/online_match_launcher.dart';
 import '../../settings/application/settings_controller.dart';
@@ -150,7 +151,14 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
   Future<void> _exit() async {
     await c.abandon();
     Get.until((route) => route.settings.name == AppRoutes.home);
-    if (c.isOnline) OnlineMatchLauncher.dismiss();
+    if (c.isOnline) {
+      OnlineMatchLauncher.dismiss();
+    } else {
+      // Without this a permanent GameController (session listener, save
+      // coalescer, reaction timers, the whole GameState) survived every
+      // exit taken from this sheet.
+      MatchLauncher.dismiss();
+    }
   }
 
   @override

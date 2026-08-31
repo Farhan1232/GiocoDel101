@@ -1006,6 +1006,74 @@ class AppLocalizationsIt extends AppLocalizations {
   String get playersCount => 'Giocatori';
 
   @override
+  String get premiumActive => 'Premium attivo';
+
+  @override
+  String get premiumActiveBody =>
+      'Grazie! L’acquisto è legato a questo account e allo store del tuo dispositivo.';
+
+  @override
+  String premiumBuyFor(String price) {
+    return 'Acquista · $price';
+  }
+
+  @override
+  String get premiumCancelled => 'Acquisto annullato.';
+
+  @override
+  String get premiumFailed => 'L’acquisto non è andato a buon fine. Riprova.';
+
+  @override
+  String get premiumNetwork =>
+      'Connessione assente. Controlla la rete e riprova.';
+
+  @override
+  String get premiumNothingToRestore =>
+      'Nessun acquisto da ripristinare su questo account dello store.';
+
+  @override
+  String get premiumOwnedElsewhere =>
+      'Questo acquisto risulta già associato a un altro profilo di gioco.';
+
+  @override
+  String get premiumPending => 'Acquisto in corso…';
+
+  @override
+  String get premiumProductMissing =>
+      'Il prodotto non è ancora disponibile nello store. Riprova più tardi.';
+
+  @override
+  String get premiumRestore => 'Ripristina acquisti';
+
+  @override
+  String get premiumRestored => 'Acquisti ripristinati.';
+
+  @override
+  String get premiumSignInRequired =>
+      'Accedi con un account per completare l’acquisto.';
+
+  @override
+  String get premiumStoreUnavailable =>
+      'Lo store non è disponibile su questo dispositivo.';
+
+  @override
+  String get premiumSuccess => 'Acquisto completato. Grazie!';
+
+  @override
+  String get premiumTitle => 'Premium';
+
+  @override
+  String get premiumVerificationUnavailable =>
+      'La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.';
+
+  @override
+  String get premiumVerifying => 'Verifica dell’acquisto…';
+
+  @override
+  String get premiumVerifyFailed =>
+      'Impossibile verificare l’acquisto in questo momento. L’acquisto non va perso: riprova.';
+
+  @override
   String get profile => 'Profilo';
 
   @override

@@ -35,33 +35,36 @@ enum Sfx {
 
 /// Plays the bundled sound set. All assets are local; nothing streams.
 ///
-/// A small pool of low-latency players lets card sounds overlap without
-/// allocating a player per effect. Every failure path is swallowed — audio
-/// is a nicety, never a reason to interrupt a match.
+/// One low-latency player per effect, created on first use and bounded by
+/// the [Sfx] catalogue. A player whose source never changes costs the
+/// Android backend one bookkeeping entry for the life of the app; the old
+/// round-robin pool re-assigned a source on almost every effect, and each
+/// re-assignment appended a native map entry that is only removed on
+/// release — an unbounded list over a long session. Every failure path is
+/// swallowed — audio is a nicety, never a reason to interrupt a match.
 class AudioService {
   AudioService._();
 
   static final AudioService instance = AudioService._();
 
-  static const int _poolSize = 5;
-  final List<AudioPlayer> _pool = [];
+  final Map<Sfx, AudioPlayer> _players = {};
   AudioPlayer? _music;
-  int _next = 0;
   bool _ready = false;
+  Future<void>? _initing;
 
   bool _soundEnabled = true;
   bool _musicEnabled = false;
   bool _musicShouldPlay = false;
 
-  Future<void> init() async {
+  Future<void> init() {
+    // Coalesce concurrent calls: a second `init` racing the first must not
+    // build a second set of native players.
+    return _initing ??= _init();
+  }
+
+  Future<void> _init() async {
     if (_ready) return;
     try {
-      for (var i = 0; i < _poolSize; i++) {
-        final player = AudioPlayer()
-          ..setReleaseMode(ReleaseMode.stop)
-          ..setPlayerMode(PlayerMode.lowLatency);
-        _pool.add(player);
-      }
       // Warm the cache so the first card played is not the slow one (§54).
       await AudioCache.instance.loadAll(
         Sfx.values.map((s) => 'audio/${s.file}').toList(),
@@ -70,6 +73,7 @@ class AudioService {
     } catch (error) {
       Log.d('Audio unavailable, continuing silently: $error');
       _ready = false;
+      _initing = null; // a later call may retry
     }
   }
 
@@ -88,9 +92,13 @@ class AudioService {
   bool get musicEnabled => _musicEnabled;
 
   void play(Sfx sfx, {double volume = 1.0}) {
-    if (!_soundEnabled || !_ready || _pool.isEmpty) return;
-    final player = _pool[_next];
-    _next = (_next + 1) % _pool.length;
+    if (!_soundEnabled || !_ready) return;
+    final player = _players.putIfAbsent(
+      sfx,
+      () => AudioPlayer()
+        ..setReleaseMode(ReleaseMode.stop)
+        ..setPlayerMode(PlayerMode.lowLatency),
+    );
     player
         .play(AssetSource('audio/${sfx.file}'), volume: volume.clamp(0.0, 1.0))
         .catchError((Object error) => Log.d('sfx: $error'));
@@ -122,7 +130,7 @@ class AudioService {
   Future<void> pauseAll() async {
     try {
       await _music?.pause();
-      for (final p in _pool) {
+      for (final p in _players.values) {
         await p.stop();
       }
     } catch (_) {
@@ -141,12 +149,13 @@ class AudioService {
   }
 
   Future<void> dispose() async {
-    for (final p in _pool) {
+    for (final p in _players.values) {
       await p.dispose();
     }
-    _pool.clear();
+    _players.clear();
     await _music?.dispose();
     _music = null;
     _ready = false;
+    _initing = null;
   }
 }

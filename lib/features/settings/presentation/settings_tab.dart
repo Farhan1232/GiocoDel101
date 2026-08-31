@@ -22,7 +22,10 @@ import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../auth/application/session_controller.dart';
+import '../../game/application/match_launcher.dart';
+import '../../online/application/online_match_launcher.dart';
 import '../../online/domain/online_status.dart';
+import '../../tutorial/application/tutorial_launcher.dart';
 import '../../profile/application/profile_controller.dart';
 
 /// §39 — the settings half.
@@ -455,6 +458,16 @@ class _SettingsTabState extends State<SettingsTab> {
             onTap: () => Get.toNamed<void>(AppRoutes.profile),
           ),
           SettingRow(
+            title: s.premiumTitle,
+            icon: AppIcon.trophy,
+            trailing: const AppIconView(
+              AppIcon.chevronDown,
+              size: 14,
+              color: AppColors.textMuted,
+            ),
+            onTap: () => Get.toNamed<void>(AppRoutes.premium),
+          ),
+          SettingRow(
             title: s.settingsPrivacy,
             icon: AppIcon.rules,
             trailing: const AppIconView(
@@ -530,6 +543,12 @@ class _SettingsTabState extends State<SettingsTab> {
       destructive: true,
     );
     if (!ok) return;
+    // Any table driver still registered (all three are exempt from GetX's
+    // route-scoped disposal) must not survive into the next account's
+    // session with its timers and channels.
+    MatchLauncher.dismiss();
+    OnlineMatchLauncher.dismiss();
+    TutorialLauncher.dismiss();
     await session.signOut();
     await Get.offAllNamed<void>(AppRoutes.authLanding);
   }

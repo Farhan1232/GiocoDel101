@@ -6,6 +6,7 @@ import 'app/app.dart';
 import 'app/bindings/backend_services.dart';
 import 'app/bindings/initial_binding.dart';
 import 'core/services/audio_service.dart';
+import 'features/purchases/application/purchase_store.dart';
 import 'core/services/supabase_bootstrap.dart';
 import 'core/storage/local_storage.dart';
 import 'features/online/domain/online_status.dart';
@@ -13,6 +14,13 @@ import 'core/utils/log.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // The forty printed faces settle at ~32 MB decoded (one 360-px entry per
+  // card, see CardFaceImage.decodeWidth). Flutter's default cache budget is
+  // 100 MiB — more than a mid-range phone can spare for card art on top of
+  // the Dart heap and the GPU textures. Cap it so the deck fits comfortably
+  // and anything beyond that is evicted instead of accumulating.
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 48 << 20;
 
   // The bundled faces are SIL Open Font License; register the text so it is
   // discoverable from the app itself, not just from the repository.
@@ -51,9 +59,18 @@ Future<void> main() async {
       ? BackendServices.none()
       : BackendServices.supabase(client);
 
+  // The billing plugin exists only where a store does. Everywhere else the
+  // purchase layer answers "store unavailable" instead of crashing.
+  final store =
+      !kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS)
+      ? InAppPurchaseStore()
+      : const UnavailablePurchaseStore();
+
   // Registered before the first frame so the app shell can read the chosen
   // language (and everything else) while it builds.
-  InitialBinding(storage, backend: backend).dependencies();
+  InitialBinding(storage, backend: backend, store: store).dependencies();
   // Audio warms up in the background: the splash must not wait on it (§24).
   unawaited(AudioService.instance.init());
 

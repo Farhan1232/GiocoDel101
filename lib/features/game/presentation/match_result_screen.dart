@@ -68,7 +68,14 @@ class _MatchResultScreenState extends State<MatchResultScreen> {
       _nextMatch ??= ever<String?>(online.nextMatchId, (id) {
         if (id != null && mounted) {
           _rematchPoll?.cancel();
-          unawaited(OnlineMatchLauncher.launch(id, replace: true));
+          // Swallowed on purpose: an unhandled async error here would be
+          // uncatchable, and the player can still leave with "Home".
+          unawaited(
+            OnlineMatchLauncher.launch(
+              id,
+              replace: true,
+            ).catchError((Object _) {}),
+          );
         }
       });
       return;

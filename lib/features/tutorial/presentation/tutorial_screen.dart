@@ -13,6 +13,7 @@ import '../../game/presentation/game_screen.dart';
 import '../../game/presentation/widgets/centouno_flourish.dart';
 import '../../settings/application/settings_controller.dart';
 import '../application/tutorial_controller.dart';
+import '../application/tutorial_launcher.dart';
 import '../domain/tutorial_lessons.dart';
 import 'tutorial_copy.dart';
 
@@ -187,6 +188,7 @@ class _TutorialOverlay extends StatelessWidget {
                     icon: AppIcon.play,
                     onPressed: () {
                       Get.until((r) => r.settings.name == AppRoutes.home);
+                      TutorialLauncher.dismiss();
                       Get.toNamed<void>(AppRoutes.setup);
                     },
                   ),
@@ -203,8 +205,10 @@ class _TutorialOverlay extends StatelessWidget {
                     variant: ButtonVariant.ghost,
                     size: ButtonSize.small,
                     icon: AppIcon.home,
-                    onPressed: () =>
-                        Get.until((r) => r.settings.name == AppRoutes.home),
+                    onPressed: () {
+                      Get.until((r) => r.settings.name == AppRoutes.home);
+                      TutorialLauncher.dismiss();
+                    },
                   ),
                 ],
               ),

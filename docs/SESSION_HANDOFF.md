@@ -1,8 +1,60 @@
-# Session Handoff — Session 6 → next phase (monetisation & stores)
+# Session Handoff — Session 7 → store publishing
 
-Date: 2026-08-30, plus the client change of **2026-08-31** (below). Branch:
-`feature/session-1-ui-foundation` (continued; the Session 6 commit sits on top
-of Session 5's `64388e3`).
+Date: 2026-08-31 (Session 7), on top of everything below. Branch:
+`feature/session-1-ui-foundation` (continued).
+
+---
+
+## 0z. Session 7 — crash/slowdown fixes + the purchase system. READ FIRST.
+
+The client reported the game "gradually slows down and eventually
+force-closes" on multiple physical phones, and asked for "integration of the
+purchase system". Both delivered:
+
+1. **Stability (P0)** — four deep audits found and fixed real, confirmed
+   leaks; the full account with evidence is
+   **`docs/PERFORMANCE_CRASH_AUDIT.md`**. Headlines: the offline "Rivincita"
+   retained one whole mounted table per rematch (`offNamed` → `offNamedUntil`);
+   card decodes were keyed up to 720 px for 360-px sources against an
+   unconfigured 100 MiB image cache (now capped at 48 MiB with decode keys
+   clamped to the source); a stale `TableController` registration could leave
+   a live, undismissable online controller (sockets + timers) running
+   invisibly forever; card-flight awaits stranded on teardown retained
+   disposed screens; the audioplayers backend grew a native entry per sound
+   played (now one fixed player per effect). Plus: finished online matches no
+   longer re-subscribe, the 6 s poll no longer rebuilds an unchanged table,
+   flights repaint one layer instead of the whole tree, and several stuck-UI
+   paths (matchmaking, lobby, rematch) now settle.
+   **No game rule, no schema, no wire format, no visual design changed.**
+   **PHYSICAL DEVICE CRASH REPRODUCTION NOT VERIFIED** — no device on this
+   machine; the client must re-test (instructions in the audit doc).
+
+2. **IAP** — official `in_app_purchase` (3.3.0), a permanent
+   `PurchaseController` owning the single purchase-stream subscription, a
+   `/premium` screen (store-priced, Italian primary), "Ripristina acquisti",
+   and server-authoritative entitlements: migration 12
+   (`user_entitlements` + `purchase_transactions`, RLS read-own-row, writes
+   only via service-role `srv_grant/revoke_entitlement`) and the
+   `verify-purchase` Edge Function (v1 on GiocoDel101-Dev) which verifies
+   with Google/Apple and answers `verification_unconfigured` — granting
+   nothing — until store credentials exist. Architecture:
+   **`docs/IAP_ARCHITECTURE.md`**; the client-side checklist (product ids,
+   consoles, secrets, signing): **`docs/IAP_STORE_SETUP.md`**.
+   Attack drill run live on dev (client writes, srv_ calls, replays,
+   cross-account reads — all refused); advisors show nothing new.
+   **STORE SANDBOX VERIFICATION PENDING** — needs Play Console /
+   App Store Connect, which only the client can provide.
+
+Numbers after Session 7: **712 Flutter tests** (25 new), **68 + 5 Deno
+tests**, bot simulation 270 matches / 72 488 actions / 0 violations /
+0 hangs, `flutter analyze` clean, both APKs + AAB building (still
+debug-signed — no `key.properties`). New tests:
+`test/session7_stability_test.dart`, `test/session7_iap_test.dart`,
+`supabase/functions/verify-purchase/verify_test.ts` (needs `--allow-env`).
+
+Supabase dev state: migrations **12 = 12**
+(`20260831181638_purchase_entitlements`), Edge Functions `match` v8
+(untouched) and `verify-purchase` v1.
 
 ---
 

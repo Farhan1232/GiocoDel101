@@ -1820,6 +1820,120 @@ abstract class AppLocalizations {
   /// **'Giocatori'**
   String get playersCount;
 
+  /// No description provided for @premiumActive.
+  ///
+  /// In it, this message translates to:
+  /// **'Premium attivo'**
+  String get premiumActive;
+
+  /// No description provided for @premiumActiveBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Grazie! L’acquisto è legato a questo account e allo store del tuo dispositivo.'**
+  String get premiumActiveBody;
+
+  /// No description provided for @premiumBuyFor.
+  ///
+  /// In it, this message translates to:
+  /// **'Acquista · {price}'**
+  String premiumBuyFor(String price);
+
+  /// No description provided for @premiumCancelled.
+  ///
+  /// In it, this message translates to:
+  /// **'Acquisto annullato.'**
+  String get premiumCancelled;
+
+  /// No description provided for @premiumFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'L’acquisto non è andato a buon fine. Riprova.'**
+  String get premiumFailed;
+
+  /// No description provided for @premiumNetwork.
+  ///
+  /// In it, this message translates to:
+  /// **'Connessione assente. Controlla la rete e riprova.'**
+  String get premiumNetwork;
+
+  /// No description provided for @premiumNothingToRestore.
+  ///
+  /// In it, this message translates to:
+  /// **'Nessun acquisto da ripristinare su questo account dello store.'**
+  String get premiumNothingToRestore;
+
+  /// No description provided for @premiumOwnedElsewhere.
+  ///
+  /// In it, this message translates to:
+  /// **'Questo acquisto risulta già associato a un altro profilo di gioco.'**
+  String get premiumOwnedElsewhere;
+
+  /// No description provided for @premiumPending.
+  ///
+  /// In it, this message translates to:
+  /// **'Acquisto in corso…'**
+  String get premiumPending;
+
+  /// No description provided for @premiumProductMissing.
+  ///
+  /// In it, this message translates to:
+  /// **'Il prodotto non è ancora disponibile nello store. Riprova più tardi.'**
+  String get premiumProductMissing;
+
+  /// No description provided for @premiumRestore.
+  ///
+  /// In it, this message translates to:
+  /// **'Ripristina acquisti'**
+  String get premiumRestore;
+
+  /// No description provided for @premiumRestored.
+  ///
+  /// In it, this message translates to:
+  /// **'Acquisti ripristinati.'**
+  String get premiumRestored;
+
+  /// No description provided for @premiumSignInRequired.
+  ///
+  /// In it, this message translates to:
+  /// **'Accedi con un account per completare l’acquisto.'**
+  String get premiumSignInRequired;
+
+  /// No description provided for @premiumStoreUnavailable.
+  ///
+  /// In it, this message translates to:
+  /// **'Lo store non è disponibile su questo dispositivo.'**
+  String get premiumStoreUnavailable;
+
+  /// No description provided for @premiumSuccess.
+  ///
+  /// In it, this message translates to:
+  /// **'Acquisto completato. Grazie!'**
+  String get premiumSuccess;
+
+  /// No description provided for @premiumTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Premium'**
+  String get premiumTitle;
+
+  /// No description provided for @premiumVerificationUnavailable.
+  ///
+  /// In it, this message translates to:
+  /// **'La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.'**
+  String get premiumVerificationUnavailable;
+
+  /// No description provided for @premiumVerifying.
+  ///
+  /// In it, this message translates to:
+  /// **'Verifica dell’acquisto…'**
+  String get premiumVerifying;
+
+  /// No description provided for @premiumVerifyFailed.
+  ///
+  /// In it, this message translates to:
+  /// **'Impossibile verificare l’acquisto in questo momento. L’acquisto non va perso: riprova.'**
+  String get premiumVerifyFailed;
+
   /// No description provided for @profile.
   ///
   /// In it, this message translates to:
