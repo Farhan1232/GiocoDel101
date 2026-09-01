@@ -1,11 +1,71 @@
-# Session Handoff — Session 8 → store consoles
+# Session Handoff — Session 9 → client re-test
 
-Date: 2026-09-01 (Session 8), on top of everything below. Branch:
+Date: 2026-09-01 (Session 9), on top of everything below. Branch:
 `feature/session-1-ui-foundation` (continued).
 
 ---
 
-## 0y. Session 8 — five cosmetic products, legal screens, delivery. READ FIRST.
+## 0z. Session 9 — the crash root cause. READ FIRST.
+
+A stability-only session: no rule, screen, IAP or backend change. The client
+reproduced, on several phones, a game that plays normally for seven or eight
+minutes and then slows down, sticks and force-closes, worse the longer the
+session and the higher the score, resuming where it stopped when reopened.
+
+**Root cause: every sound effect stranded a self-rescheduling frame callback,
+permanently.** `audioplayers` starts a `FramePositionUpdater` on every
+`play()`; `start()` does not check whether it is already running, so each call
+forks a new chain and orphans the one `stop()` could have cancelled — and
+nothing ever stops it, because Android's low-latency (SoundPool) backend has
+no completion listener at all. The table makes about **1.2 effects a second**,
+so seven or eight minutes is **five hundred-odd chains**, each holding the app
+at the display refresh rate and posting an un-awaited platform-channel call
+per frame. Measured: 500 effects → 500 stranded callbacks; after the fix, 0.
+Full evidence, measurements and the two secondary defects are in
+**docs/PERFORMANCE_CRASH_AUDIT.md** (the Session 9 half, at the top).
+
+Three fixes, all small, none visible in gameplay:
+
+1. `AudioService` detaches every player's position updater
+   (`positionUpdater = null`). Nothing in the game reads
+   `onPositionChanged`, and SoundPool could never have answered it.
+2. `AudioService.play` stops before playing, chained per effect. Without it
+   Android considers the dedicated player to be playing forever and **each
+   effect was audible exactly once per app run** — the table went silent
+   after its first few seconds. *Ask the client to confirm the sounds keep
+   coming; this one is diagnosed from the plugin source, not from hardware.*
+3. `RoundResultScreen` defers `stats.recordRound` to the end of the frame.
+   It used to assign a global `Rx` synchronously inside `initState`, which is
+   inside a build — "setState() called during build" on every round that
+   ended.
+
+**Why nine sessions of tests never saw it:** no test had ever executed one
+line of the sound path. `AudioService.init()` cannot reach a platform under
+`flutter test`, so `_ready` stayed false and `play()` returned immediately.
+`test/support/fake_audio_platform.dart` now stands the platform up — including
+`AndroidSoundPoolFake`, a line-for-line transcription of the Android plugin's
+player state machine — and the new long-session harness plays with the sound
+on, through the real route table.
+
+New gates: `test/session9_audio_stability_test.dart` (5),
+`test/session9_round_transition_test.dart` (3),
+`test/session9_long_session_stress_test.dart` (1, ~50 s — 170 windows, ~500
+effects, 13 rounds, 2 matches). All of them fail against the pre-fix code; the
+long-session one trips at window 12, about thirty seconds in.
+
+Gates, all green: format clean (also fixed a pre-existing drift in
+`tool/generate_legal_html.dart`), `flutter analyze` clean, **746/746** Flutter
+tests (737 before), 68/68 + 6/6 Deno, bot simulation 270 matches / 72 488
+actions / 0 violations / 0 hangs, release APK built (60 MB, debug key — there
+is still no `android/key.properties`).
+
+**Open:** physical-device confirmation. Ask the client for one long sitting,
+several rounds, a high score, **with the sound on** — that is the condition
+the defect needs.
+
+---
+
+## 0y. Session 8 — five cosmetic products, legal screens, delivery.
 
 The finalization session. The client's business model is settled: **five
 optional COSMETIC one-time purchases**, no subscription, no pay-to-win, the
