@@ -7,7 +7,7 @@
     "playerId": "p0"
   },
   "initialState": {
-    "schema": 3,
+    "schema": 4,
     "gameId": "test",
     "mode": "vsComputer",
     "rules": {
@@ -40,7 +40,7 @@
         "cinque": 5,
         "sei": 6,
         "sette": 7,
-        "fante": 25,
+        "fante": 8,
         "cavallo": 25,
         "re": 10
       }
@@ -155,7 +155,7 @@
   },
   "expectedFailure": "roundNotOver",
   "expectedState": {
-    "schema": 3,
+    "schema": 4,
     "gameId": "test",
     "mode": "vsComputer",
     "rules": {
@@ -188,7 +188,7 @@
         "cinque": 5,
         "sei": 6,
         "sette": 7,
-        "fante": 25,
+        "fante": 8,
         "cavallo": 25,
         "re": 10
       }

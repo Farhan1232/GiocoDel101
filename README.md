@@ -71,6 +71,7 @@ docs/                             Design, engine, schema, security, verification
 |---|---|
 | `docs/GAME_SPEC.md` | Every rule, and the open questions for the client |
 | `docs/CLIENT_FINAL_CHANGE.md` | The final 2026-08-31 requests: Fante/Cavallo = 25, ULTIMA CARTA, large hands |
+| `docs/CLIENT_SCORING_CORRECTION_2026_09_01.md` | The 2026-09-01 scoring correction: Fante 8, Cavallo 25, Re 10 |
 | `docs/GAME_ENGINE.md` | The pure, deterministic rules engine |
 | `docs/ARCHITECTURE.md` | Layers, state management, the backend seam |
 | `docs/OFFLINE_MODE.md`, `docs/BOTS.md` | Bots, pause/resume, saves, tutorial, animations |

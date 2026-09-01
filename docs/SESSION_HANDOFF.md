@@ -260,6 +260,11 @@ was touched.
    `CardRank.cavallo.value` is still 9 because that is its *rank*.
    `GameState.schemaVersion` went 2 → **3** so a pre-change save is migrated
    off the old price list instead of resuming under it.
+
+   > **Superseded 2026-09-01.** The client clarified the table: **Fante 8**,
+   > Cavallo 25, Re 10. Schema went 3 → **4** and the migration now recognises
+   > both superseded price lists. See
+   > `docs/CLIENT_SCORING_CORRECTION_2026_09_01.md`.
 2. **"ULTIMA CARTA"** (GAME_SPEC §16 — the substantial change). A play from
    **two** cards to **one** is refused with
    `GameFailure.lastCardDeclarationRequired` unless the seat has declared this

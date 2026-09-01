@@ -1712,7 +1712,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutorialScoringBody =>
-      'At the end of a round every card left is worth its number: Ace 1, Jack 8, Knight 9, King 10. The points add to your total.';
+      'At the end of a round every card left is worth its number — Ace 1, Jack 8, King 10 — except the Knight, which costs 25. The points add to your total.';
 
   @override
   String get tutorialTitle => 'Interactive tutorial';

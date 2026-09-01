@@ -48,18 +48,21 @@ the two figures the client re-priced on 2026-08-31:
 | 5 | `cinque` | 5 | 5 |
 | 6 | `sei` | 6 | 6 |
 | 7 | `sette` | 7 | 7 |
-| Fante | `fante` | 8 | **25** |
+| Fante | `fante` | 8 | 8 |
 | Cavallo | `cavallo` | 9 | **25** |
 | Re | `re` | 10 | 10 |
 
-> **Fante and Cavallo are worth 25 — CONFIRMED 2026-08-31.** The client's
-> words: *"The 9 and the Jack should have a value of 25 points when they are
-> in the hand."* In this deck the "9" is the Cavallo and the "Jack" is the
-> Fante. The 25 is a **penalty only**: it changes nothing about how either
-> card is played. The Cavallo still ignores the active suit, still names a
-> new one (§7) and still blocks a chain (§6a); the Fante is still an ordinary
-> card matched by suit or rank (§4). `CardRank.cavallo.value` is still 9,
-> because that is its *rank*, and the matching rules read it.
+> **Only the Cavallo is worth 25 — CONFIRMED 2026-09-01.** On 2026-08-31 the
+> client asked for *"The 9 and the Jack should have a value of 25 points when
+> they are in the hand"* and both figures were priced at 25. On 2026-09-01
+> they clarified the table: **Fante 8, Cavallo 25, Re 10**. The Fante is back
+> to its printed number; the Cavallo keeps the 25.
+>
+> The 25 is a **penalty only**: it changes nothing about how the Cavallo is
+> played. It still ignores the active suit, still names a new one (§7) and
+> still blocks a chain (§6a); the Fante is still an ordinary card matched by
+> suit or rank (§4). `CardRank.cavallo.value` is still 9, because that is its
+> *rank*, and the matching rules read it.
 >
 > The values live once, in `GameRules.defaultScoreValues`, and are applied
 > once, by `ScorePolicy.handPenalty`. Nothing else prices a card.
@@ -280,13 +283,13 @@ winner and scores nothing.
 
 Every other player scores **penalty points equal to the penalty value of every
 card still in their hand**, using the table in §1: pip cards at their printed
-rank (Asso 1 … Sette 7, Re 10) and the two figures at **25 each** — Fante 25,
-Cavallo 25 (confirmed by the client 2026-08-31). These are
-`GameRules.defaultScoreValues`; they are configurable but not invented.
+rank (Asso 1 … Sette 7, Fante 8, Re 10) and the Cavallo at **25** (confirmed
+by the client 2026-09-01). These are `GameRules.defaultScoreValues`; they are
+configurable but not invented.
 
-A hand of, say, Fante + Cavallo + Re is therefore worth 25 + 25 + 10 = **60**,
-and several figures accumulate normally. Under the 101 rules below this makes
-a figure genuinely dangerous to be caught holding, which is what the client
+A hand of, say, Fante + Cavallo + Re is therefore worth 8 + 25 + 10 = **43**,
+and several Cavalli accumulate normally. Under the 101 rules below this makes
+the Cavallo genuinely dangerous to be caught holding, which is what the client
 asked for.
 
 ### 10a. An unresolved +2 when the round ends
@@ -506,7 +509,7 @@ All in `GameRules`, all with the defaults above:
 | `initialDirection` | `clockwise` | n/a — no reversing card |
 | `turnTimeLimitSeconds` | null | **undefined** (§14.4) |
 | `requireLastCardDeclaration` | true | **CONFIRMED 2026-08-31** (§16) |
-| `scoreValues` | Asso 1…7, Re 10, **Fante 25, Cavallo 25** | **CONFIRMED 2026-08-31** (§1, §10) |
+| `scoreValues` | Asso 1…7, Fante 8, Re 10, **Cavallo 25** | **CONFIRMED 2026-09-01** (§1, §10) |
 
 A room carries its own `GameRules` (`RoomConfig.rules`), so the house rules a
 host picks travel with the match rather than living in the UI.
