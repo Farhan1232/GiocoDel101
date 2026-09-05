@@ -1,0 +1,53 @@
+Carte Napoletane — 40-card Neapolitan deck
+==========================================
+
+Source
+------
+Wikimedia Commons, "Carte napoletane al completo.jpg"
+https://commons.wikimedia.org/wiki/File:Carte_napoletane_al_completo.jpg
+Original file: 3507 x 2398 JPEG, uploaded 2009-09-06 by Commons user "Florixc".
+
+Licence
+-------
+Public domain ({{PD-old}}).
+
+The Commons API reports, for this file:
+
+    License            = pd
+    LicenseShortName   = Public domain
+    UsageTerms         = Public domain
+    Copyrighted        = False
+    AttributionRequired = false
+    Restrictions       = (none)
+
+The artwork is the traditional Neapolitan (Naples) pattern, an anonymous
+nineteenth-century design long out of copyright. A faithful photographic
+reproduction of a two-dimensional public-domain work attracts no new
+copyright of its own (Bridgeman v. Corel; Wikimedia Commons reuse policy),
+so the scan carries no separate rights either.
+
+There is no attribution requirement and no share-alike obligation. The files
+may be used in this commercial application without restriction. The credit
+above is recorded as good practice, not as a licence condition.
+
+What was done to it
+-------------------
+The single source image is a 10 x 4 grid holding all forty cards. Each card
+was extracted programmatically:
+
+  * the printed artwork of each cell was isolated by connected-component
+    analysis, so neighbouring cards' edge lines and scanner speckle are not
+    carried over;
+  * every card's artwork was composited, at one common scale, onto a white
+    card of identical size (400 x 620 px, ratio 1.55, matching
+    CardMetrics.aspect);
+  * the result was resampled to 360 x 558 px and encoded as WebP, quality 92.
+
+No artwork was redrawn, recoloured or restyled. Scale is uniform across the
+deck, so a coin on the Sette is the same size as a coin on the Due.
+
+Contents — 40 files, one per card
+---------------------------------
+Suits   : denari, coppe, bastoni, spade
+Ranks   : asso, due, tre, quattro, cinque, sei, sette, fante, cavallo, re
+Naming  : <suit>_<rank>.webp, matching GameCard.id exactly.

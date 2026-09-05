@@ -1,0 +1,732 @@
+{
+  "@@locale": "en",
+  "accountGuestLabel": "Guest",
+  "accountGuestUpgradeHint": "Create an account to keep your progress on every device.",
+  "accountSignedInAs": "Signed in as {name}",
+  "accountSignedOut": "Not signed in",
+  "achCatenaBody": "Take a chain of 2s up to +6",
+  "achCatenaTitle": "Chain!",
+  "achCentounoBody": "Land on exactly 101 and go back to zero",
+  "achCentounoTitle": "One Hundred and One!",
+  "achImbattibileBody": "Win five matches in a row",
+  "achImbattibileTitle": "Unbeatable",
+  "achLocked": "Locked",
+  "achMaestroNoveBody": "Win after choosing all four suits with the Knight",
+  "achMaestroNoveTitle": "Master of the Nine",
+  "achManoPerfettaBody": "Win a round without drawing a single card",
+  "achManoPerfettaTitle": "Perfect Hand",
+  "achOffline": "Unlocked offline",
+  "achOnline": "Unlocked online",
+  "achPrimaVittoriaBody": "Win your first match",
+  "achPrimaVittoriaTitle": "First Win",
+  "achServerHint": "Online achievements are validated by the server; offline ones stay on this device.",
+  "achSfidanteBody": "Complete a Daily Challenge",
+  "achSfidanteTitle": "Challenger",
+  "achVendettaBody": "Win the very next match after a defeat",
+  "achVendettaTitle": "Vendetta",
+  "achVeteranoBody": "Complete 25 matches",
+  "achVeteranoTitle": "Veteran",
+  "achievements": "Achievements",
+  "activeSuit": "Active suit",
+  "advancedRules": "Advanced rules",
+  "animationFast": "Fast",
+  "animationNormal": "Normal",
+  "animationSpeed": "Animation speed",
+  "appName": "Gioco del 101",
+  "appTagline": "The Neapolitan classic, reimagined",
+  "authBackendPending": "Sign-in becomes active once the online service is connected.",
+  "authConfirmEmailBody": "We sent a confirmation link to {email}. Open it, then sign in.",
+  "authConfirmEmailTitle": "Check your email",
+  "authContinueWithApple": "Continue with Apple",
+  "authContinueWithGoogle": "Continue with Google",
+  "authErrorEmailTaken": "An account with this email already exists.",
+  "authErrorGuestDisabled": "Guest access is not enabled on this server.",
+  "authErrorInvalidCredentials": "Email or password is not correct.",
+  "authErrorNetwork": "No connection. Check your network and try again.",
+  "authErrorRateLimited": "Too many attempts. Wait a moment and try again.",
+  "authErrorUnknown": "Something went wrong while signing in.",
+  "authErrorWeakPassword": "Choose a stronger password.",
+  "authGuestFailed": "We couldn't start a guest session.",
+  "authGuestHint": "You can create an account at any time.",
+  "authPlayAsGuest": "PLAY AS GUEST",
+  "authRegister": "Sign up",
+  "authSignIn": "Sign in",
+  "authSocialUnavailable": "Social sign-in is not enabled yet.",
+  "authSubtitle": "Sign in to play online and keep your progress.",
+  "authTitle": "Welcome",
+  "bestComeback": "Best comeback",
+  "botThinking": "Thinking…",
+  "cancel": "Cancel",
+  "cardBack": "Card back",
+  "cardName": "{rank} of {suit}",
+  "@cardName": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      },
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSemanticsNotPlayable": "{card}, not playable now",
+  "@cardSemanticsNotPlayable": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSemanticsPlayable": "{card}, playable",
+  "@cardSemanticsPlayable": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "cardsLeft": "cards",
+  "cardsPlayed": "Cards played",
+  "centounoBody": "{name} is back to zero",
+  "@centounoBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "centounoTitle": "CENTOUNO!",
+  "challengeEdgeBody": "Start at 80 points against a hard opponent. One bad round and you are out.",
+  "challengeEdgeTitle": "On the edge",
+  "challengeFullBody": "Four players, hard opponents, no voluntary draw.",
+  "challengeFullTitle": "Full table",
+  "challengeStormBody": "An 8-card hand and unleashed chains of twos. Survive the storm.",
+  "challengeStormTitle": "Storm of twos",
+  "challengeTightBody": "Only 3 cards each. Few choices, no room for error.",
+  "challengeTightTitle": "Tight hand",
+  "challengeZeroBody": "Start at 94 points: find exactly 7 points and return to zero.",
+  "challengeZeroTitle": "Back to zero",
+  "chooseSuit": "Choose the suit",
+  "coachDraw": "No legal card? Tap the deck to draw.",
+  "coachFateRing": "The ring shows how far you are from 101. Exactly 101 sends you back to zero.",
+  "coachMatch": "Play a card of the same suit or value.",
+  "coachSpecials": "Ace skips the turn, 2 makes you draw, Knight changes suit.",
+  "commonBack": "Back",
+  "commonClose": "Close",
+  "commonComingSoon": "Coming soon",
+  "commonEmptyTitle": "Nothing here yet",
+  "commonErrorBody": "We could not complete that. Please try again.",
+  "commonErrorTitle": "Something went wrong",
+  "commonLoading": "Loading…",
+  "commonNext": "Next",
+  "commonOff": "Off",
+  "commonOn": "On",
+  "commonOptional": "optional",
+  "commonRetry": "Retry",
+  "commonSave": "Save",
+  "commonSkip": "Skip",
+  "commonStart": "Start",
+  "confirm": "Confirm",
+  "continueGame": "Continue",
+  "createRoomCta": "CREATE ROOM",
+  "createRoomHouseRules": "House rules",
+  "createRoomName": "Room name",
+  "createRoomNameHint": "e.g. Marco's table",
+  "createRoomPrivate": "Private room",
+  "createRoomPrivateHint": "Joinable by code only",
+  "createRoomTimer": "Turn timer",
+  "createRoomTimerOff": "Off",
+  "createRoomTimerSeconds": "{seconds} seconds",
+  "createRoomTitle": "Create a room",
+  "dailyChallenge": "Daily Challenge",
+  "dailyChallengeDone": "Challenge complete",
+  "dailyReward": "Reward",
+  "dailyRewardBalance": "{coins} coins",
+  "dailyRewardBody": "Come back every day — the reward grows up to the seventh.",
+  "dailyRewardClaim": "CLAIM",
+  "dailyRewardClaimFailed": "Could not claim the reward. Try again.",
+  "dailyRewardClaimed": "Claimed",
+  "dailyRewardClaimedToday": "Claimed today. Come back tomorrow!",
+  "dailyRewardDay": "Day {day}",
+  "dailyRewardGuestHint": "Create an account to claim daily rewards.",
+  "dailyRewardTitle": "Daily reward",
+  "dailyRewardTomorrow": "Come back tomorrow",
+  "dealerBadge": "DEALER",
+  "@dealerBadge": {
+    "description": "Badge on the seat that dealt the current round (§12a)."
+  },
+  "deckTaglineIncisoOro": "The house engraving, finished in gold.",
+  "deckTaglineNapoletane": "The authentic Neapolitan cards.",
+  "defaultDifficulty": "Default difficulty",
+  "difficulty": "Difficulty",
+  "difficultyEasy": "Easy",
+  "difficultyHard": "Hard",
+  "difficultyNormal": "Normal",
+  "discardPile": "Discard",
+  "discardTop": "Discard: {card}",
+  "@discardTop": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "drawCard": "Draw",
+  "drawPile": "Deck",
+  "editProfileAvatar": "Choose an avatar",
+  "editProfileTitle": "Edit profile",
+  "eliminated": "ELIMINATED",
+  "exit": "Leave",
+  "exitBody": "The match will be saved automatically.",
+  "exitTitle": "Leave the match?",
+  "exitToMenu": "Exit to Menu",
+  "fieldConfirmPassword": "Confirm password",
+  "fieldEmail": "Email",
+  "fieldNickname": "Nickname",
+  "fieldPassword": "Password",
+  "finalPoints": "Final points",
+  "forgotBackToLogin": "Back to sign in",
+  "forgotBody": "Enter your email and we will send you a link to reset your password.",
+  "forgotCta": "SEND LINK",
+  "forgotSentBody": "If an account exists for {email}, a reset link is on its way.",
+  "forgotSentTitle": "Email sent",
+  "forgotTitle": "Reset your password",
+  "gadgetTaglineSigillo": "A golden seal pressed into the felt.",
+  "gotIt": "Got it",
+  "haptics": "Vibration",
+  "hidePassword": "Hide password",
+  "highContrast": "High contrast",
+  "home": "Home",
+  "homeCreateRoom": "CREATE ROOM",
+  "homeJoinRoom": "JOIN A ROOM",
+  "homeLeaderboard": "Leaderboard",
+  "homeMissions": "Missions",
+  "homeMissionsHint": "Today's objectives",
+  "homePlayOffline": "PLAY OFFLINE",
+  "homePlayOnline": "PLAY ONLINE",
+  "homeQuickMatch": "QUICK MATCH",
+  "howToPlay": "How to Play",
+  "howToPlayHint": "The rules in a minute",
+  "imReady": "I'M READY",
+  "joinRoomBody": "Enter the six-character code the host gave you.",
+  "joinRoomCta": "JOIN",
+  "joinRoomInvalid": "The code must be six characters",
+  "joinRoomPaste": "Paste",
+  "joinRoomTitle": "Join a room",
+  "largeCards": "Large cards",
+  "lastCardAnnounced": "{name}: LAST CARD!",
+  "lastCardButton": "LAST CARD",
+  "lastCardDeclared": "LAST CARD!",
+  "lastCardPrompt": "Declare LAST CARD before you play.",
+  "lastCardSemantics": "Declare last card",
+  "leaderboardAllTime": "All time",
+  "leaderboardEmpty": "The leaderboard arrives with online play.",
+  "leaderboardLoadFailed": "Could not load the leaderboard.",
+  "leaderboardLoadMore": "Load more",
+  "leaderboardNoScoresYet": "No scores yet — play online matches to appear here.",
+  "leaderboardNotRanked": "You are not ranked yet: play online to get on the board.",
+  "leaderboardPoints": "Points",
+  "leaderboardRank": "Rank",
+  "leaderboardTitle": "Leaderboard",
+  "leaderboardWeekly": "Weekly",
+  "leaderboardYourRank": "Your rank",
+  "legalLastUpdated": "Last updated: {date}",
+  "@legalLastUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lobbyAway": "Away",
+  "lobbyCopied": "Code copied",
+  "lobbyEmptySlot": "Waiting for a player",
+  "lobbyHost": "Host",
+  "lobbyLeave": "Leave room",
+  "lobbyNotReady": "Not ready",
+  "lobbyNotReadyToggle": "Not ready",
+  "lobbyReady": "Ready",
+  "lobbyReadyToggle": "I’m ready",
+  "lobbyRoomCode": "Room code",
+  "lobbyShare": "Share code",
+  "lobbyStart": "START MATCH",
+  "lobbyStartFailed": "Could not start: {reason}",
+  "@lobbyStartFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "lobbyStartPending": "The match starts once every seat is taken and every player is ready.",
+  "lobbyStarting": "The match is about to start…",
+  "lobbyTitle": "Lobby",
+  "lobbyWaitingForHost": "Waiting for the host to start…",
+  "lobbyWaitingForPlayers": "Waiting for more players…",
+  "locked": "Locked",
+  "loginCta": "SIGN IN",
+  "loginForgot": "Forgot your password?",
+  "loginNoAccount": "No account yet?",
+  "loginTitle": "Sign in",
+  "longestChain": "Longest chain",
+  "matchWinner": "WINNER",
+  "matchmakingBusy": "You already have a match in progress.",
+  "matchmakingCancel": "Cancel search",
+  "matchmakingCpuHint": "No other players for now. You can play offline against the computer right away: it does not count for the leaderboard.",
+  "matchmakingCpuOffer": "Continue against CPU",
+  "matchmakingElapsed": "Waiting {seconds}s",
+  "matchmakingFound": "{found} of {total} players",
+  "matchmakingMatched": "Table found!",
+  "matchmakingPlayers": "Players at the table",
+  "matchmakingSearch": "Find a match",
+  "matchmakingSearching": "Looking for real players for a table of {count}…",
+  "@matchmakingSearching": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchmakingTitle": "Searching",
+  "missionBlockTwo": "{n, plural, =1{Block one +2 with a Cavallo} other{Block {n} +2s with a Cavallo}}",
+  "@missionBlockTwo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionOnlineMatch": "{n, plural, =1{Complete one online match} other{Complete {n} online matches}}",
+  "@missionOnlineMatch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionPlayAces": "{n, plural, =1{Play one Ace} other{Play {n} Aces}}",
+  "@missionPlayAces": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionPlayMatches": "{n, plural, =1{Play one match} other{Play {n} matches}}",
+  "@missionPlayMatches": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionPlayTwos": "{n, plural, =1{Play one 2} other{Play {n} 2s}}",
+  "@missionPlayTwos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionUseNine": "{n, plural, =1{Use one Cavallo (9)} other{Use {n} Cavalli (9)}}",
+  "@missionUseNine": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionWinMatch": "{n, plural, =1{Win one match} other{Win {n} matches}}",
+  "@missionWinMatch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsClaim": "CLAIM",
+  "missionsClaimFailed": "Could not claim the reward.",
+  "missionsClaimed": "Claimed",
+  "missionsCycleHint": "New missions every day, on a seven-day cycle.",
+  "missionsEmpty": "No missions today.",
+  "missionsLoadFailed": "Could not load the online missions.",
+  "missionsOffline": "Offline (this device)",
+  "missionsOnline": "Online missions",
+  "missionsOnlineOnly": "Online only",
+  "missionsProgress": "{done}/{total} complete",
+  "@missionsProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsReward": "+{xp} XP",
+  "@missionsReward": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsSignInHint": "Sign in for online missions: the experience goes on your profile.",
+  "missionsTitle": "Today’s missions",
+  "mode": "Mode",
+  "modePassAndPlay": "Pass & Play",
+  "modeVsComputer": "Versus computer",
+  "music": "Music",
+  "networkOffline": "No connection",
+  "networkReconnecting": "Reconnecting…",
+  "newGame": "New Game",
+  "newMatch": "New Match",
+  "nextRound": "Next Round",
+  "noStatsYet": "Play a match to start collecting data.",
+  "onboard1Body": "A traditional 40-card deck — Coins, Cups, Swords and Clubs — drawn by hand for the screen.",
+  "onboard1Title": "Neapolitan cards",
+  "onboard2Body": "The Ace skips a turn, the 2 makes you draw, the Knight changes suit. Landing on exactly 101 resets your score.",
+  "onboard2Title": "The 101 rules",
+  "onboard3Body": "Create a room, share the code and take on two to four players online.",
+  "onboard3Title": "Play with friends",
+  "onlineCreateRoomHint": "Invite friends with a code",
+  "onlineDisconnected": "Connection lost. Trying to reconnect...",
+  "onlineForfeit": "Leave",
+  "onlineForfeitBody": "The match will count as a loss and you cannot rejoin.",
+  "onlineForfeitTitle": "Leave the match?",
+  "onlineJoinRoomHint": "Got a code? Jump straight in",
+  "onlineMatchAbandoned": "The match was abandoned",
+  "onlineMoveRefused": "Illegal move.",
+  "onlineMoveStale": "The table had changed: try again",
+  "onlineNotYourTurn": "It is not your turn.",
+  "onlineOpponentLeft": "{name} left the match",
+  "@onlineOpponentLeft": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineQuickMatchHint": "We find you an open table",
+  "onlineRejoinMatch": "Rejoin the match",
+  "onlineRejoinMatchHint": "An online match is waiting for you",
+  "onlineRematchWaiting": "Waiting for the others ({votes}/{needed})",
+  "@onlineRematchWaiting": {
+    "placeholders": {
+      "votes": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineSignInRequired": "Sign in or play as a guest to use online features.",
+  "onlineTitle": "Play online",
+  "onlineTurnSeconds": "{seconds}s",
+  "@onlineTurnSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineUnavailableRetry": "The online service cannot be reached. Offline play is still available.",
+  "passPhoneHint": "Cards stay face down until you tap",
+  "passPhoneTo": "PASS THE PHONE TO {name}",
+  "passTurn": "Pass",
+  "pauseHint": "The match is on hold: your opponents are waiting.",
+  "pauseResume": "Resume",
+  "pauseTitle": "Paused",
+  "penalty": "Penalty",
+  "play": "PLAY",
+  "playerName": "Your name",
+  "playersCount": "Players",
+  "premiumBuyFor": "Buy · {price}",
+  "@premiumBuyFor": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "premiumCancelled": "Purchase cancelled.",
+  "premiumFailed": "The purchase did not go through. Please try again.",
+  "premiumNetwork": "No connection. Check your network and try again.",
+  "premiumNothingToRestore": "No purchases to restore on this store account.",
+  "premiumOwnedElsewhere": "This purchase is already linked to another game profile.",
+  "premiumPending": "Purchase in progress…",
+  "premiumProductMissing": "The product is not available in the store yet. Try again later.",
+  "premiumRestore": "Restore purchases",
+  "premiumRestored": "Purchases restored.",
+  "premiumSignInRequired": "Sign in with an account to complete the purchase.",
+  "premiumStoreUnavailable": "The store is not available on this device.",
+  "premiumSuccess": "Purchase complete. Thank you!",
+  "premiumVerificationUnavailable": "Purchase verification is not live yet. No payment is lost: please try again later.",
+  "premiumVerifyFailed": "The purchase could not be verified right now. It is not lost: please try again.",
+  "premiumVerifying": "Verifying the purchase…",
+  "profile": "Profile",
+  "profileBestStreak": "Best streak",
+  "profileEdit": "Edit profile",
+  "profileLevelValue": "Level {level}",
+  "profileLosses": "Losses",
+  "profileMatches": "Matches",
+  "profileNextLevel": "Next level: {level}",
+  "@profileNextLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "profileNicknameTaken": "That nickname is already taken.",
+  "profileRating": "Rating",
+  "profileSaveFailed": "Could not save your profile. Try again.",
+  "profileWinRate": "Win rate",
+  "profileWins": "Wins",
+  "profileXpProgress": "{current} / {target} XP",
+  "profileXpToNext": "{xp} XP to go",
+  "@profileXpToNext": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "rankAce": "Ace",
+  "rankCavallo": "Knight",
+  "rankFante": "Jack",
+  "rankRe": "King",
+  "reaction1": "Nice move!",
+  "reaction2": "Go on!",
+  "reaction3": "Lucky you!",
+  "reaction4": "Nooo!",
+  "reaction5": "Your turn!",
+  "reaction6": "Draw!",
+  "reaction7": "Well played!",
+  "reaction8": "Rematch!",
+  "reactionAhahaha": "Ahahaha! 😂",
+  "reactionBellaMossa": "Nice move! 😎",
+  "reactionBravo": "Bravo! 👏",
+  "reactionCheFortuna": "Lucky! 🍀",
+  "reactionCiao": "Ciao! 👋",
+  "reactionGg": "GG! 🤝",
+  "reactionMammaMia": "Mamma mia! 😱",
+  "reactionRateLimited": "Wait a moment before the next reaction",
+  "reactionRivincita": "Rematch? 🔁",
+  "reactions": "Reactions",
+  "reduceMotion": "Reduce motion",
+  "rematch": "Rematch",
+  "replayAgain": "Replay",
+  "replayLastHand": "Replay last hand",
+  "resetStatistics": "Reset statistics",
+  "resetStatisticsBody": "All local progress will be erased. Continue?",
+  "resumeMatch": "Continue match",
+  "resumeMatchHint": "Pick up where you left off",
+  "roomAlreadyInMatch": "You already have an online match in progress. Rejoin the table or leave it before opening another.",
+  "roomAlreadyStarted": "The match has already started.",
+  "roomCreateFailed": "Could not open the room. Try again.",
+  "roomFull": "That room is full.",
+  "roomJoinFailed": "Could not join the room. Try again.",
+  "roomNotFound": "Room not found.",
+  "round": "Round",
+  "roundComplete": "ROUND COMPLETE",
+  "roundWinner": "Round winner",
+  "roundsPlayed": "Rounds played",
+  "ruleEliminate": "Elimination past 101",
+  "ruleEliminateHint": "Going over 101 knocks you out",
+  "ruleExactReset": "Back to zero at 101",
+  "ruleExactResetHint": "Exactly 101 resets your score",
+  "ruleNineBlock": "Cavallo versus the 2",
+  "ruleNineBlockCancel": "Cancels the chain",
+  "ruleNineBlockDisabled": "Not allowed",
+  "ruleNineBlockPassOn": "Passes the chain on",
+  "ruleStackTwos": "Stacking 2s",
+  "ruleStackTwosHint": "2s can be chained",
+  "ruleVoluntaryDraw": "Voluntary draw",
+  "ruleVoluntaryDrawHint": "You may draw even holding a card",
+  "ruleWildNine": "Cavallo always playable",
+  "ruleWildNineHint": "The 9 changes suit at any time",
+  "rulesActiveTitle": "Rules for this match",
+  "savedFrom101": "SAFE!",
+  "sectionSettings": "SETTINGS",
+  "sectionStatistics": "STATISTICS",
+  "sessionExpired": "Session expired. Sign in again.",
+  "settings": "Settings",
+  "settingsAccount": "ACCOUNT",
+  "settingsGuestLogoutBody": "You are a guest: signing out loses this account and its online progress for good.",
+  "settingsLanguage": "Language",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageItalian": "Italian",
+  "settingsLogout": "Sign out",
+  "settingsLogoutBody": "You will be signed out on this device. Progress saved to your account stays.",
+  "settingsLogoutGuest": "Sign out (guest account)",
+  "settingsPrivacy": "Privacy policy",
+  "settingsTerms": "Terms of service",
+  "setupOtherPlayers": "Other players",
+  "setupPlayerN": "Player {n}",
+  "@setupPlayerN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "setupResetRules": "Reset rules",
+  "shopFootnote": "One-time, permanent, cosmetic-only purchases. The full game stays free. Prices are managed by your device’s store.",
+  "shopInUse": "In use",
+  "shopIntro": "Optional cosmetics. No gameplay advantage: tables, deck, back and ornaments are beauty only.",
+  "shopItemCardBackGold": "Gold Card Back",
+  "shopItemCardBackGoldBody": "A struck-gold back for your cards. The faces stay the authentic Neapolitan ones.",
+  "shopItemDeckSpecial": "Special Deck",
+  "shopItemDeckSpecialBody": "The house engraved deck, finished in gold. The classic Neapolitan deck always stays available.",
+  "shopItemGadget": "101 Seal",
+  "shopItemGadgetBody": "A gilded laurel seal pressed into the table felt.",
+  "shopItemTableClassic": "Classic Table",
+  "shopItemTableClassicBody": "The old circolo: green baize on dark walnut.",
+  "shopItemTableGold": "Gold Table",
+  "shopItemTableGoldBody": "A grand-salon table: struck-gold felt under warm light.",
+  "shopItemUnavailable": "Not available in the store yet. Try again later.",
+  "shopOwned": "Unlocked",
+  "shopRemove": "Remove",
+  "shopTitle": "Shop",
+  "shopUse": "Use",
+  "showPassword": "Show password",
+  "signupCta": "SIGN UP",
+  "signupHaveAccount": "Already have an account?",
+  "signupTitle": "Create an account",
+  "soundEffects": "Sound effects",
+  "startMatch": "START MATCH",
+  "startingHand": "Starting cards",
+  "statAces": "Aces used",
+  "statBestStreak": "Best streak",
+  "statCards": "Cards played",
+  "statChain": "Longest chain",
+  "statComeback": "Biggest comeback",
+  "statFavouriteSuit": "Favourite suit",
+  "statMatches": "Matches played",
+  "statOnlineMatches": "Online matches",
+  "statResets": "Returns from 101",
+  "statRoundsWon": "Rounds won",
+  "statStreak": "Current streak",
+  "statTwos": "+2 cards played",
+  "statWinRate": "Win rate",
+  "statWins": "Matches won",
+  "statistics": "Statistics",
+  "statsOfflineHeading": "OFFLINE — THIS DEVICE",
+  "statsOfflineHint": "Matches against the computer never touch the online leaderboard.",
+  "statsOnlineHeading": "ONLINE — PROFILE",
+  "suitBastoni": "Clubs",
+  "suitCoppe": "Cups",
+  "suitDenari": "Coins",
+  "suitSpade": "Swords",
+  "tableRules": "Rules",
+  "tableTaglineClassico": "Green baize, dark walnut, quiet.",
+  "tableTaglineMaiolica": "Mediterranean ceramic, cobalt and sun",
+  "tableTaglineNapoli": "Antique gold over the sleeping gulf",
+  "tableTaglineOro": "Struck gold under chandelier light.",
+  "tableTaglineVesuvio": "Warm ash and terracotta glow",
+  "tableTheme": "Table",
+  "takePenalty": "Take",
+  "turnSkipped": "TURN SKIPPED",
+  "tutAceDone": "{name} skipped a turn. With two players, the Ace hands the turn straight back to you.",
+  "@tutAceDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutAcePrompt": "Play the Ace of Cups: your opponent loses their turn.",
+  "tutAceTitle": "Ace — skip",
+  "tutBlockDone": "The Cavallo is also your defence against 2s. Use it wisely: there are only four in the deck.",
+  "tutBlockPrompt": "A 2 is aimed at you and you have no 2 to answer. Play the Cavallo of Clubs to cancel the chain.",
+  "tutBlockSuit": "Chain cancelled: nobody draws. Choose the suit.",
+  "tutBlockTitle": "Cavallo versus the 2",
+  "tutCavalloDone": "The active suit is now {suit}. The Cavallo does not set its own suit: it sets the one you choose.",
+  "@tutCavalloDone": {
+    "placeholders": {
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "tutCavalloPrompt": "The Cavallo (the 9) can always be played, on anything. Play the Cavallo of Swords.",
+  "tutCavalloSuit": "Now name the new active suit: the one you hold most of is usually best.",
+  "tutCavalloTitle": "Cavallo — change suit",
+  "tutCentounoDone": "76 + 25 = exactly 101: {name} goes back to zero. Anyone who goes over 101 is eliminated. The last player standing wins.",
+  "@tutCentounoDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutCentounoPrompt": "Last card! Your opponent has 76 points and a Cavallo in hand, worth 25. Play the 7 of Cups and end the round.",
+  "tutCentounoTitle": "One hundred and one!",
+  "tutChainDone": "+4! {name} drew four cards. Chains go all the way up to +8.",
+  "@tutChainDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutChainPrompt": "Your opponent played a 2 against you: answer with the 2 of Swords and the penalty rises to +4.",
+  "tutChainTitle": "Stacking 2s",
+  "tutDrawingDone": "Had the drawn card not been playable, the turn would have passed with Pass.",
+  "tutDrawingPlay": "You drew the 6 of Cups: it can be played at once. Play it.",
+  "tutDrawingPrompt": "No card in your hand can be played. Tap the stock (or Draw) to take a card.",
+  "tutDrawingTitle": "Drawing",
+  "tutFirstCardDone": "Perfect. Every card played must follow the active suit or the value of the card on top of the discards.",
+  "tutFirstCardPrompt": "The 5 of Cups is on top of the discard pile. You may play a Cup or another 5: double-tap a highlighted card.",
+  "tutFirstCardTitle": "Suit or value",
+  "tutTwoDone": "{name} had no 2: they drew two cards and lost their turn.",
+  "@tutTwoDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tutTwoPrompt": "Play the 2 of Cups: your opponent must draw two cards unless they answer with another 2.",
+  "tutTwoTitle": "Two — draw two",
+  "tutorial101": "Exactly 101",
+  "tutorial101Body": "Landing on exactly 101 resets your score to zero. It is the twist that can turn a whole match around.",
+  "tutorialAce": "Ace — skip the turn",
+  "tutorialAceBody": "The Ace makes the next player lose their turn. With two players, the turn comes straight back to you.",
+  "tutorialCavallo": "Knight — change suit",
+  "tutorialCavalloBody": "The Knight (9) can be played at any moment and lets you choose the new active suit with the Suit Ritual.",
+  "tutorialCompleteBody": "You know every special card and the 101. Now it’s your turn.",
+  "tutorialCompleteTitle": "Tutorial complete!",
+  "tutorialDraw": "Drawing",
+  "tutorialDrawBody": "With no playable card you draw from the deck. If the drawn card is legal you may play it at once, otherwise the turn passes.",
+  "tutorialExitBody": "You can start it again from the beginning any time.",
+  "tutorialExitTitle": "Leave the tutorial?",
+  "tutorialFinish": "Finish",
+  "tutorialGoal": "Goal",
+  "tutorialGoalBody": "Empty your hand before the others. The cards left in your opponents' hands become penalty points: go over 101 and you are out, land on exactly 101 and you go back to zero.",
+  "tutorialHint": "Learn by playing, one rule at a time",
+  "tutorialHintFollow": "Follow the hint: play the highlighted card.",
+  "tutorialMatch": "Suit or value",
+  "tutorialMatchBody": "You may play a card of the active suit, or one of the same value as the card on top of the discard pile.",
+  "tutorialOver101": "Past 101",
+  "tutorialOver101Body": "Going over 101 means leaving the match. Whoever manages the high cards best stays in.",
+  "tutorialPlayNow": "PLAY AGAINST THE COMPUTER",
+  "tutorialReplay": "Replay the tutorial",
+  "tutorialScoring": "Scoring",
+  "tutorialScoringBody": "At the end of a round every card left is worth its number: Ace 1, Jack 8, Knight 9, King 10. The points add to your total.",
+  "tutorialTitle": "Interactive tutorial",
+  "tutorialTwo": "Two — draw two",
+  "tutorialTwoBody": "The 2 forces the next player to draw two cards. Holding another 2 they can raise: +4, +6, +8. Whoever stops draws the lot and loses the turn.",
+  "tutorialWin": "Winning the match",
+  "tutorialWinBody": "The match ends when a single player is left standing. That player wins the Gioco del 101.",
+  "valEmailInvalid": "Enter a valid email address",
+  "valNicknameLong": "The nickname can be at most 16 characters",
+  "valNicknameShort": "The nickname must be at least 3 characters",
+  "valPasswordMismatch": "The passwords do not match",
+  "valPasswordShort": "The password must be at least 8 characters",
+  "valRequired": "This field is required",
+  "yourTurn": "YOUR TURN"
+}

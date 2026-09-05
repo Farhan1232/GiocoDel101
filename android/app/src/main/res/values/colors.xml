@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Midnight navy (#0B1020): the window behind the first frame. -->
+    <color name="launch_background">#0B1020</color>
+</resources>
