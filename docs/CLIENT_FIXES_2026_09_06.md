@@ -43,11 +43,20 @@ payload.
 ## 2. "The online game does not work"
 
 The same cause: no room could be created, so there was never a code, so
-nobody could join. With (1) fixed the whole flow works — verified end to end
-through the real UI (sign up → create → share code → join → ready → start →
-play) and, at the protocol level, by `tool/online_matrix.dart`: **233 of 235
-checks pass**, including full 2-, 3- and 4-player matches, quick match,
-rematch, reconnect, turn timers, forfeits and the security drill.
+nobody could join.
+
+With (1) fixed the whole flow works. It was driven through the **real app**
+(the Flutter build, in a browser, two independent accounts): register →
+Create room → a real six-letter code → the other player types the code →
+Ready → Start → both players sit at a dealt table with their own hands and
+the turn clock running. Every step passed, including "no stuck
+'Riconnessione…' banner".
+
+At the protocol level `tool/online_matrix.dart` runs **233 of 235 checks
+green** against the live project — full 2-, 3- and 4-player matches, quick
+match, rematch, reconnect, turn timers, forfeits and the security drill. The
+two that fail are the private-channel ones described at the end of this
+document.
 
 One more online defect was found and fixed on the way:
 
@@ -93,6 +102,12 @@ Two causes, both fixed.
 The three free tables (Napoli Notte, Maiolica, Vesuvio), the opponents' names
 and the eight preset reactions stay Italian on purpose: they are proper names
 and the flavour of the game.
+
+One Italian string is left that the app cannot translate: a guest account is
+given the nickname **`Ospite-XXXX`** by the database when the account is
+created, and that nickname is what other players see. Changing it needs a
+migration on the profiles trigger — say the word and it becomes `Guest-XXXX`
+for players whose device is in English.
 
 ## 5. "Tapping a locked card does nothing"
 
