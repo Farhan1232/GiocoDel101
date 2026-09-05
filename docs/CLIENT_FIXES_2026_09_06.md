@@ -116,7 +116,8 @@ locked table, card back and cosmetic answers:
 
 * **earned** cosmetics say which achievement unlocks them;
 * **paid** cosmetics open the Shop scrolled to that exact item, ringed in
-  gold, with the store's payment sheet already opening;
+  gold, and hand it straight to the store's payment sheet — as soon as the
+  store has actually returned that product, which needs §7;
 * **signed out**, they lead to sign-in/registration first — a purchase is
   granted to an account and to nothing else — and once signed in the app
   carries straight on to the item they tapped.
