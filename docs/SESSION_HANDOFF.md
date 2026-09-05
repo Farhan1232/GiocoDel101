@@ -1,4 +1,52 @@
+# Session Handoff — Session 9 → the client's seven reports
+
+Date: 2026-09-06 (Session 9), on top of everything below.
+
+---
+
+## 0x. Session 9 — the client's seven reports. READ FIRST.
+
+Full account, written for the client: **`docs/CLIENT_FIXES_2026_09_06.md`**.
+The one thing to carry forward:
+
+**`create_room` was refused for every room the app tried to open.** The
+server validates house rules against an allow-list
+(`app_private.sanitize_room_rules`); `GameRules.toJson()` gained
+`requireLastCardDeclaration` after that list was written, so every call came
+back `invalid_rules` — Create Room could only ever show an error, and with no
+code there was no way into an online match at all. The app now sends
+`GameRules.toRoomJson()` (`GameRules.onlineRoomRuleKeys`), migration
+`20260906090000_room_rules_last_card.sql` widens the server's list for a
+fresh deploy (**not yet applied to GiocoDel101-Dev**), and
+`test/session9_client_fixes_test.dart` reads the SQL so the two cannot drift
+again. Nothing that exercised the backend before sent the app's real payload:
+`tool/online_matrix.dart` builds its own minimal rules object and the Flutter
+tests use a fake rooms repository.
+
+Also in this session: the reactions/presence channel no longer decides
+whether the online table shows as connected (the row-change channel does —
+the project's private `match:<id>` channel is currently refused for real
+members, which had every table stuck on "Riconnessione…"); Create Room, Join
+Room and Cerca partita offer sign-in instead of leading a signed-out player
+nowhere; the language switch rebuilds the whole tree and the paid tables and
+the default player name are translated; a locked cosmetic opens the shop on
+that item, through sign-in first when there is no account; Google/Apple
+buttons removed; "coming soon" copy replaced with what is actually true.
+
+Numbers after Session 9: **749 Flutter tests**, `flutter analyze` clean,
+`tool/online_matrix.dart` 233/235 against the live project (the 2 failures
+are the private-channel ones), 2- and 3-player tables driven end to end
+through the real UI in a browser. Version **1.0.1+2**.
+
+**Still external**: the five products in the store consoles, the Play
+service-account JSON + package name on `verify-purchase` (it answers
+`verification_unconfigured` today — checked live), owner legal details, and
+a decision on the private Realtime channel.
+
+---
+
 # Session Handoff — Session 8 → store consoles
+
 
 Date: 2026-09-01 (Session 8), on top of everything below. Branch:
 `feature/session-1-ui-foundation` (continued).

@@ -46,11 +46,13 @@ The same cause: no room could be created, so there was never a code, so
 nobody could join.
 
 With (1) fixed the whole flow works. It was driven through the **real app**
-(the Flutter build, in a browser, two independent accounts): register →
-Create room → a real six-letter code → the other player types the code →
-Ready → Start → both players sit at a dealt table with their own hands and
-the turn clock running. Every step passed, including "no stuck
-'Riconnessione…' banner".
+(the Flutter build, in a browser, each player a separate account and a
+separate browser profile): register → Create room → a real six-letter code →
+the other players type the code → Pronto → Inizia la partita → everyone sits
+at a dealt table with their own hand and the turn clock running. Run for a
+**2-player** and a **3-player** table; every step passed, including "no stuck
+'Riconnessione…' banner". Four players take the identical path and are
+covered protocol-side below (35/35 checks).
 
 At the protocol level `tool/online_matrix.dart` runs **233 of 235 checks
 green** against the live project — full 2-, 3- and 4-player matches, quick
