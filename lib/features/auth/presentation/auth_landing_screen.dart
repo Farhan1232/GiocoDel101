@@ -14,6 +14,7 @@ import '../../online/domain/online_status.dart';
 import '../../settings/application/settings_controller.dart';
 import '../application/session_controller.dart';
 import '../domain/auth_session.dart';
+import '../../purchases/presentation/cosmetic_gate.dart';
 import 'auth_error_copy.dart';
 
 /// §C — the choice between playing now and having an account.
@@ -22,8 +23,9 @@ import 'auth_error_copy.dart';
 /// configured. If that fails the player is told why and still reaches the
 /// offline game — signed out, with every online surface saying so.
 ///
-/// The social buttons are drawn but explicitly inert: tapping one says so
-/// rather than starting a flow that cannot finish.
+/// Email and password are the only credentials the app accepts: the Google
+/// and Apple buttons were removed at the owner's request, and no social
+/// provider is enabled on the auth server either.
 class AuthLandingScreen extends StatefulWidget {
   const AuthLandingScreen({super.key});
 
@@ -56,6 +58,9 @@ class _AuthLandingScreenState extends State<AuthLandingScreen> {
       );
     }
     await Get.offAllNamed<void>(AppRoutes.home);
+    // A guest is a real account: if they got here from a locked cosmetic,
+    // continue to it.
+    await CosmeticGate.resumeAfterSignIn();
   }
 
   @override
@@ -115,27 +120,10 @@ class _AuthLandingScreenState extends State<AuthLandingScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.xxl),
-            const PanelDivider(),
-            const SizedBox(height: AppSpacing.md),
-            _social(s.authContinueWithGoogle, s),
-            const SizedBox(height: AppSpacing.sm),
-            _social(s.authContinueWithApple, s),
             const SizedBox(height: AppSpacing.xl),
           ],
         );
       }),
     );
   }
-
-  Widget _social(String label, AppLocalizations s) => PremiumButton(
-    label: label,
-    variant: ButtonVariant.ghost,
-    size: ButtonSize.medium,
-    onPressed: () => AppDialog.notice(
-      title: label,
-      body: s.authSocialUnavailable,
-      dismissLabel: s.gotIt,
-    ),
-  );
 }

@@ -162,17 +162,59 @@ class SettingsController extends GetxController {
   Future<void> setPlayerName(String value) {
     final trimmed = value.trim();
     return _update(
-      settings.copyWith(playerName: trimmed.isEmpty ? 'Giocatore' : trimmed),
+      settings.copyWith(
+        playerName: trimmed.isEmpty ? defaultPlayerName(locale) : trimmed,
+      ),
     );
   }
 
   Future<void> setAvatar(String id) => _update(settings.copyWith(avatarId: id));
 
-  /// §9 — Italian and English. Rebuilds the whole tree through [locale].
+  /// "Giocatore" / "Player" — the name a player carries until they pick one.
+  /// Read for a specific locale rather than the active one so [setLocale] can
+  /// tell "still the default" from "deliberately chosen".
+  static String defaultPlayerName(Locale locale) =>
+      lookupAppLocalizations(Strings.resolve(locale)).defaultPlayerName;
+
+  /// §9 — Italian and English.
   Future<void> setLocale(Locale value) async {
     final resolved = Strings.resolve(value);
-    if (resolved.languageCode == settings.localeCode) return;
-    await _update(settings.copyWith(localeCode: resolved.languageCode));
+    final previous = Strings.resolve(Locale(settings.localeCode));
+    if (resolved.languageCode == previous.languageCode) return;
+
+    // A player who never renamed themselves is called "Giocatore" in Italian
+    // and "Player" in English; a name they chose is never touched.
+    var next = settings.copyWith(localeCode: resolved.languageCode);
+    if (settings.playerName == defaultPlayerName(previous)) {
+      next = next.copyWith(playerName: defaultPlayerName(resolved));
+    }
+    await _update(next);
+
+    // Screens read their copy from `Strings.s`, a plain static — not an
+    // observable — so only the widgets that happen to sit inside an Obx on
+    // these settings would rebuild. Everything else (screen titles, labels
+    // built by a parent, routes still on the stack) would keep the language
+    // it was built in. Marking the whole tree dirty is what makes the switch
+    // total, which is the whole point of a language switch.
+    _rebuildEverything();
+  }
+
+  /// Marks every mounted widget as needing a build.
+  ///
+  /// The same walk `Element.reassemble` does for a hot reload, without the
+  /// binding-level ceremony around it: `WidgetsBinding.performReassemble`
+  /// (what `Get.forceAppUpdate()` calls) pumps frames of its own, which
+  /// collides with a widget test driving its own pumps. This is synchronous,
+  /// costs one rebuild of the tree, and happens only when someone changes
+  /// the language.
+  static void _rebuildEverything() {
+    void visit(Element element) {
+      element.markNeedsBuild();
+      element.visitChildren(visit);
+    }
+
+    final root = WidgetsBinding.instance.rootElement;
+    if (root != null) visit(root);
   }
 
   Future<void> completeOnboarding() =>

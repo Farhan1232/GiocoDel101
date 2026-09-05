@@ -24,6 +24,7 @@ import '../../../core/widgets/icon_pill.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../../core/widgets/segmented_control.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../purchases/presentation/cosmetic_gate.dart';
 
 /// §26 Screen 3 — one clean setup screen, advanced rules folded away.
 class SetupScreen extends StatefulWidget {
@@ -305,7 +306,12 @@ class _SetupScreenState extends State<SetupScreen> {
           final unlocked = _settings.isThemeUnlocked(t.id);
           final selected = _settings.settings.themeId == t.id;
           return GestureDetector(
-            onTap: unlocked ? () => _settings.setTheme(t.id) : null,
+            onTap: unlocked
+                ? () => _settings.setTheme(t.id)
+                : () => CosmeticGate.openLocked(
+                    entitlementId: t.entitlementId,
+                    achievementId: t.unlockAchievementId,
+                  ),
             child: AnimatedContainer(
               duration: Motion.scale(AppDurations.quick),
               width: 132,
@@ -375,7 +381,7 @@ class _SetupScreenState extends State<SetupScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          t.name,
+                          t.displayName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppText.body.copyWith(

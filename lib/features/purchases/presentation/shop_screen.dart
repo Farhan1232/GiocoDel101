@@ -8,6 +8,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/card_backs.dart';
 import '../../../app/theme/deck_styles.dart';
 import '../../../app/theme/table_themes.dart';
+import '../../../core/constants/app_durations.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_panel.dart';
@@ -24,6 +25,7 @@ import '../../settings/application/settings_controller.dart';
 import '../application/purchase_controller.dart';
 import '../domain/entitlement.dart';
 import '../domain/shop_catalog.dart';
+import 'cosmetic_gate.dart';
 
 /// §shop — the Negozio.
 ///
@@ -46,12 +48,55 @@ class _ShopScreenState extends State<ShopScreen> {
   final PurchaseController c = Get.find<PurchaseController>();
   final SettingsController settings = Get.find<SettingsController>();
 
+  /// Set when the shop was opened by tapping a locked cosmetic
+  /// (`Get.toNamed(AppRoutes.shop, arguments: productId)`). That item is
+  /// scrolled to, outlined, and its purchase is started as soon as the store
+  /// has answered — the tap the player made WAS "I want to buy this one".
+  String? _target;
+  bool _targetHandled = false;
+  final Map<String, GlobalKey> _cardKeys = {
+    for (final p in ShopCatalog.products) p.id: GlobalKey(),
+  };
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) c.load();
+    final args = Get.arguments;
+    _target = args is String && ShopCatalog.byId(args) != null ? args : null;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await c.load();
+      if (mounted) await _openTarget();
     });
+  }
+
+  /// Brings the tapped item into view and hands it to the store. Runs once:
+  /// a failed or cancelled purchase leaves the player on the shop, in
+  /// control, rather than re-opening the payment sheet under their thumb.
+  Future<void> _openTarget() async {
+    final target = _target;
+    if (target == null || _targetHandled || !mounted) return;
+    _targetHandled = true;
+
+    // The cards only exist once `load()` has moved the phase off `loading`;
+    // wait for the frame that paints them or there is nothing to scroll to.
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+
+    final key = _cardKeys[target];
+    final box = key?.currentContext;
+    if (box != null && box.mounted) {
+      await Scrollable.ensureVisible(
+        box,
+        duration: AppDurations.screenTransition,
+        alignment: 0.1,
+      );
+    }
+    if (!mounted) return;
+    if (!_signedIn) return;
+    if (c.owns(ShopCatalog.byId(target)!.entitlement)) return;
+    if (c.products[target] == null) return;
+    await c.buy(target);
   }
 
   bool get _signedIn => Get.find<SessionController>().isSignedIn;
@@ -97,7 +142,25 @@ class _ShopScreenState extends State<ShopScreen> {
               const SizedBox(height: AppSpacing.md),
               _statusBanner(s),
               for (final product in ShopCatalog.products) ...[
-                _itemCard(s, product),
+                // The item the player came here to buy is ringed in gold so
+                // the shop opens on an answer to their tap, not on a wall of
+                // five identical cards.
+                Container(
+                  key: _cardKeys[product.id],
+                  decoration: product.id == _target
+                      ? BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            AppRadii.lg + 3,
+                          ),
+                          border: Border.all(
+                            color: AppColors.antiqueGold,
+                            width: 2,
+                          ),
+                        )
+                      : null,
+                  padding: EdgeInsets.all(product.id == _target ? 3 : 0),
+                  child: _itemCard(s, product),
+                ),
                 const SizedBox(height: AppSpacing.md),
               ],
               PremiumButton(
@@ -253,9 +316,15 @@ class _ShopScreenState extends State<ShopScreen> {
                   : s.premiumBuyFor(store!.price),
               icon: AppIcon.check,
               size: ButtonSize.small,
-              onPressed: _signedIn && !busyThis
+              // Signed out, Buy is not dead: it asks for the account the
+              // entitlement would be granted to, and comes back here.
+              onPressed: busyThis
+                  ? null
+                  : _signedIn
                   ? () => c.buy(product.id)
-                  : null,
+                  : () => CosmeticGate.openLocked(
+                      entitlementId: product.entitlement,
+                    ),
             ),
         ],
       ),

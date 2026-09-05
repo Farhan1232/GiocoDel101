@@ -129,12 +129,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get authConfirmEmailTitle => 'Controlla la tua email';
 
   @override
-  String get authContinueWithApple => 'Continua con Apple';
-
-  @override
-  String get authContinueWithGoogle => 'Continua con Google';
-
-  @override
   String get authErrorEmailTaken => 'Esiste già un account con questa email.';
 
   @override
@@ -172,9 +166,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get authSignIn => 'Accedi';
-
-  @override
-  String get authSocialUnavailable => 'L’accesso social non è ancora attivo.';
 
   @override
   String get authSubtitle =>
@@ -281,9 +272,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get commonClose => 'Chiudi';
-
-  @override
-  String get commonComingSoon => 'Disponibile a breve';
 
   @override
   String get commonEmptyTitle => 'Non c’è ancora nulla';
@@ -417,6 +405,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get defaultDifficulty => 'Difficoltà predefinita';
+
+  @override
+  String get defaultPlayerName => 'Giocatore';
 
   @override
   String get difficulty => 'Difficoltà';
@@ -882,6 +873,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get music => 'Musica';
 
   @override
+  String get networkNotConfigured => 'Servizio online non configurato';
+
+  @override
   String get networkOffline => 'Nessuna connessione';
 
   @override
@@ -1047,7 +1041,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get premiumProductMissing =>
-      'Il prodotto non è ancora disponibile nello store. Riprova più tardi.';
+      'Lo store non ha restituito questo prodotto. Riprova.';
 
   @override
   String get premiumRestore => 'Ripristina acquisti';
@@ -1068,7 +1062,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get premiumVerificationUnavailable =>
-      'La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.';
+      'Il server non è riuscito a verificare l’acquisto con lo store. Nessun addebito è perso: riprova.';
 
   @override
   String get premiumVerifyFailed =>
@@ -1401,7 +1395,10 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get shopItemUnavailable =>
-      'Non ancora disponibile nello store. Riprova più tardi.';
+      'Lo store non ha restituito questo articolo su questo dispositivo. Riprova.';
+
+  @override
+  String get shopOpeningPurchase => 'Apertura dell’acquisto…';
 
   @override
   String get shopOwned => 'Sbloccato';
@@ -1410,7 +1407,19 @@ class AppLocalizationsIt extends AppLocalizations {
   String get shopRemove => 'Rimuovi';
 
   @override
+  String get shopSignInRequiredTitle => 'Serve un account';
+
+  @override
+  String get shopSignInToBuyBody =>
+      'Gli acquisti sono legati a un account. Accedi o registrati, poi tocca di nuovo l’oggetto per completare l’acquisto.';
+
+  @override
   String get shopTitle => 'Negozio';
+
+  @override
+  String shopUnlockWithAchievement(String achievement) {
+    return 'Si sblocca completando l’obiettivo «$achievement».';
+  }
 
   @override
   String get shopUse => 'Usa';

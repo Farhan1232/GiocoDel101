@@ -71,7 +71,7 @@ class AuthFormScaffold extends StatelessWidget {
         await onConfirmation?.call(outcome);
       case AuthFailed(code: AuthErrorCode.unavailable):
         await AppDialog.notice(
-          title: s.commonComingSoon,
+          title: s.commonErrorTitle,
           body: s.authBackendPending,
           dismissLabel: s.gotIt,
         );

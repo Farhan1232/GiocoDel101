@@ -46,11 +46,17 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
       OnlineStatus.isConfigured && Get.find<SessionController>().isSignedIn;
 
   /// With a signed-in session the room is created on the server and the
-  /// lobby receives the real row (code included). Otherwise the lobby is
-  /// shown with the config alone and says the service is not connected.
+  /// lobby receives the real row (code included). A signed-out player is sent
+  /// to the account screens — a room belongs to an account, and the lobby
+  /// they used to land in could never open one. Without a backend at all the
+  /// lobby is still shown with the config alone and says so.
   Future<void> _create(RoomConfig config) async {
     if (_creating) return;
     if (!_canCreateOnline) {
+      if (OnlineStatus.isConfigured) {
+        await _askToSignIn();
+        return;
+      }
       await Get.toNamed<void>(AppRoutes.roomLobby, arguments: config);
       return;
     }
@@ -71,6 +77,19 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     } finally {
       if (mounted) setState(() => _creating = false);
     }
+  }
+
+  /// Offers the account screens, then goes there. Nothing is created on the
+  /// player's behalf: they come back and press Create again, signed in.
+  Future<void> _askToSignIn() async {
+    final s = Strings.s;
+    final go = await AppDialog.confirm(
+      title: s.onlineSignInRequired,
+      body: s.authSubtitle,
+      confirmLabel: s.authSignIn,
+      cancelLabel: s.cancel,
+    );
+    if (go) await Get.toNamed<void>(AppRoutes.authLanding);
   }
 
   @override
@@ -205,7 +224,11 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              _canCreateOnline ? s.lobbyStartPending : s.authBackendPending,
+              _canCreateOnline
+                  ? s.lobbyStartPending
+                  : OnlineStatus.isConfigured
+                  ? s.onlineSignInRequired
+                  : s.authBackendPending,
               style: AppText.caption.copyWith(color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),

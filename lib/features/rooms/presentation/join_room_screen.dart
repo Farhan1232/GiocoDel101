@@ -116,7 +116,11 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                _canJoinOnline ? s.lobbyStartPending : s.authBackendPending,
+                _canJoinOnline
+                    ? s.lobbyStartPending
+                    : OnlineStatus.isConfigured
+                    ? s.onlineSignInRequired
+                    : s.authBackendPending,
                 style: AppText.caption.copyWith(color: AppColors.textMuted),
                 textAlign: TextAlign.center,
               ),
@@ -132,6 +136,19 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_joining) return;
     if (!_canJoinOnline) {
+      // Configured but signed out: a seat belongs to an account, so offer the
+      // account screens rather than a lobby that can never fill.
+      if (OnlineStatus.isConfigured) {
+        final s = Strings.s;
+        final go = await AppDialog.confirm(
+          title: s.onlineSignInRequired,
+          body: s.authSubtitle,
+          confirmLabel: s.authSignIn,
+          cancelLabel: s.cancel,
+        );
+        if (go) await Get.toNamed<void>(AppRoutes.authLanding);
+        return;
+      }
       await Get.toNamed<void>(AppRoutes.roomLobby, arguments: _value);
       return;
     }

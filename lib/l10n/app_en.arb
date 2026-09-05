@@ -37,8 +37,6 @@
   "authBackendPending": "Sign-in becomes active once the online service is connected.",
   "authConfirmEmailBody": "We sent a confirmation link to {email}. Open it, then sign in.",
   "authConfirmEmailTitle": "Check your email",
-  "authContinueWithApple": "Continue with Apple",
-  "authContinueWithGoogle": "Continue with Google",
   "authErrorEmailTaken": "An account with this email already exists.",
   "authErrorGuestDisabled": "Guest access is not enabled on this server.",
   "authErrorInvalidCredentials": "Email or password is not correct.",
@@ -51,7 +49,6 @@
   "authPlayAsGuest": "PLAY AS GUEST",
   "authRegister": "Sign up",
   "authSignIn": "Sign in",
-  "authSocialUnavailable": "Social sign-in is not enabled yet.",
   "authSubtitle": "Sign in to play online and keep your progress.",
   "authTitle": "Welcome",
   "bestComeback": "Best comeback",
@@ -113,7 +110,6 @@
   "coachSpecials": "Ace skips the turn, 2 makes you draw, Knight changes suit.",
   "commonBack": "Back",
   "commonClose": "Close",
-  "commonComingSoon": "Coming soon",
   "commonEmptyTitle": "Nothing here yet",
   "commonErrorBody": "We could not complete that. Please try again.",
   "commonErrorTitle": "Something went wrong",
@@ -158,6 +154,10 @@
   "deckTaglineIncisoOro": "The house engraving, finished in gold.",
   "deckTaglineNapoletane": "The authentic Neapolitan cards.",
   "defaultDifficulty": "Default difficulty",
+  "defaultPlayerName": "Player",
+  "@defaultPlayerName": {
+    "description": "Name a player carries until they choose one of their own."
+  },
   "difficulty": "Difficulty",
   "difficultyEasy": "Easy",
   "difficultyHard": "Hard",
@@ -378,6 +378,10 @@
   "modePassAndPlay": "Pass & Play",
   "modeVsComputer": "Versus computer",
   "music": "Music",
+  "networkNotConfigured": "Online service not configured",
+  "@networkNotConfigured": {
+    "description": "Banner shown by a build with no online backend compiled in."
+  },
   "networkOffline": "No connection",
   "networkReconnecting": "Reconnecting…",
   "newGame": "New Game",
@@ -457,13 +461,13 @@
   "premiumNothingToRestore": "No purchases to restore on this store account.",
   "premiumOwnedElsewhere": "This purchase is already linked to another game profile.",
   "premiumPending": "Purchase in progress…",
-  "premiumProductMissing": "The product is not available in the store yet. Try again later.",
+  "premiumProductMissing": "The store did not return this product. Please try again.",
   "premiumRestore": "Restore purchases",
   "premiumRestored": "Purchases restored.",
   "premiumSignInRequired": "Sign in with an account to complete the purchase.",
   "premiumStoreUnavailable": "The store is not available on this device.",
   "premiumSuccess": "Purchase complete. Thank you!",
-  "premiumVerificationUnavailable": "Purchase verification is not live yet. No payment is lost: please try again later.",
+  "premiumVerificationUnavailable": "The server could not verify the purchase with the store. No payment is lost: please try again.",
   "premiumVerifyFailed": "The purchase could not be verified right now. It is not lost: please try again.",
   "premiumVerifying": "Verifying the purchase…",
   "profile": "Profile",
@@ -587,10 +591,31 @@
   "shopItemTableClassicBody": "The old circolo: green baize on dark walnut.",
   "shopItemTableGold": "Gold Table",
   "shopItemTableGoldBody": "A grand-salon table: struck-gold felt under warm light.",
-  "shopItemUnavailable": "Not available in the store yet. Try again later.",
+  "shopItemUnavailable": "The store did not return this item on this device. Please try again.",
+  "shopOpeningPurchase": "Opening the purchase…",
+  "@shopOpeningPurchase": {
+    "description": "Shown while the store's own payment sheet is being opened for a chosen item."
+  },
   "shopOwned": "Unlocked",
   "shopRemove": "Remove",
+  "shopSignInRequiredTitle": "An account is needed",
+  "@shopSignInRequiredTitle": {
+    "description": "Title of the dialog shown when a signed-out player taps a paid cosmetic."
+  },
+  "shopSignInToBuyBody": "Purchases are tied to an account. Sign in or sign up, then tap the item again to complete the purchase.",
+  "@shopSignInToBuyBody": {
+    "description": "Body of the dialog shown when a signed-out player taps a paid cosmetic."
+  },
   "shopTitle": "Shop",
+  "shopUnlockWithAchievement": "Unlocked by completing the “{achievement}” achievement.",
+  "@shopUnlockWithAchievement": {
+    "description": "Explains which achievement unlocks a free cosmetic.",
+    "placeholders": {
+      "achievement": {
+        "type": "String"
+      }
+    }
+  },
   "shopUse": "Use",
   "showPassword": "Show password",
   "signupCta": "SIGN UP",

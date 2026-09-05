@@ -10,6 +10,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/motion.dart';
+import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/avatar_medallion.dart';
 import '../../../core/widgets/premium_button.dart';
@@ -113,7 +114,22 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
   }
 
   Future<void> _search() async {
-    if (!_canSearch || _searching) return;
+    if (_searching) return;
+    if (!_canSearch) {
+      // The button used to be dead here, which read as "the search is
+      // broken". Configured but signed out has an answer: sign in.
+      if (OnlineStatus.isConfigured) {
+        final s = Strings.s;
+        final go = await AppDialog.confirm(
+          title: s.onlineSignInRequired,
+          body: s.authSubtitle,
+          confirmLabel: s.authSignIn,
+          cancelLabel: s.cancel,
+        );
+        if (go) await Get.toNamed<void>(AppRoutes.authLanding);
+      }
+      return;
+    }
     setState(() {
       _searching = true;
       _error = null;
@@ -316,7 +332,7 @@ class _MatchmakingScreenState extends State<MatchmakingScreen>
               PremiumButton(
                 label: s.matchmakingSearch,
                 accent: accent,
-                onPressed: _canSearch ? _search : null,
+                onPressed: OnlineStatus.isConfigured ? _search : null,
               ),
             const SizedBox(height: AppSpacing.sm),
             PremiumButton(

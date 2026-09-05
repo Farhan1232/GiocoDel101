@@ -32,7 +32,7 @@ class OnlineModeScreen extends StatelessWidget {
           : NetworkStatusBanner(
               status: NetworkStatus.offline,
               connectingLabel: s.networkReconnecting,
-              offlineLabel: s.commonComingSoon,
+              offlineLabel: s.networkNotConfigured,
             ),
       child: Obx(() {
         final accent = settings.theme.accent;

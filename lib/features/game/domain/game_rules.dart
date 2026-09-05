@@ -287,6 +287,52 @@ class GameRules {
     );
   }
 
+  /// The rule keys an online room may carry over the wire.
+  ///
+  /// `app_private.sanitize_room_rules` on the server is an ALLOW-LIST: one key
+  /// it does not know and the whole `create_room` call is refused with
+  /// `invalid_rules` — which is how every Create Room tap came back as
+  /// "Impossibile aprire la stanza". `requireLastCardDeclaration` reached
+  /// [toJson] after that function was written and is deliberately absent here
+  /// so the app speaks the contract the deployed backend actually accepts; the
+  /// engine that deals the match defaults it to the same value the app uses,
+  /// so nothing about how a room plays changes.
+  ///
+  /// Adding a rule to [toJson] does NOT put it on the wire: add it here *and*
+  /// to the SQL allow-list, in that order, and only once the migration is
+  /// deployed. `test/session9_client_fixes_test.dart` guards both directions.
+  static const Set<String> onlineRoomRuleKeys = {
+    'minPlayers',
+    'maxPlayers',
+    'startingHandSize',
+    'allowVoluntaryDraw',
+    'playDrawnCardImmediately',
+    'restrictPlayToDrawnCard',
+    'stackDrawTwos',
+    'wildNineCanAlwaysPlay',
+    'nineBlockMode',
+    'nineBlockChangesSuit',
+    'exact101ResetsToZero',
+    'eliminateAbove101',
+    'targetScore',
+    'mustDrawBeforePassing',
+    'drawTwoPenalty',
+    'pendingPenaltyAppliesAfterWin',
+    'starterCardPolicy',
+    'roundStarterPolicy',
+    'initialDirection',
+    'turnTimeLimitSeconds',
+    'scoreValues',
+  };
+
+  /// [toJson] narrowed to what an online room accepts — see
+  /// [onlineRoomRuleKeys]. Used by `create_room` and nothing else; saving a
+  /// match locally still stores every rule.
+  Map<String, dynamic> toRoomJson() => {
+    for (final entry in toJson().entries)
+      if (onlineRoomRuleKeys.contains(entry.key)) entry.key: entry.value,
+  };
+
   Map<String, dynamic> toJson() => {
     'minPlayers': minPlayers,
     'maxPlayers': maxPlayers,

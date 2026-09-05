@@ -63,7 +63,7 @@ class SupabaseRoomsRepository implements RoomsRepository {
         'p_max_players': config.playerCount,
         'p_is_private': config.isPrivate,
         'p_turn_timer_seconds': config.turnTimer.seconds,
-        'p_rules': config.rules.toJson(),
+        'p_rules': config.rules.toRoomJson(),
       },
     );
     final room = RemoteRoom.fromJson(row);

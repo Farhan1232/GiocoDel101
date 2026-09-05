@@ -330,7 +330,7 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
           : NetworkStatusBanner(
               status: NetworkStatus.offline,
               connectingLabel: s.networkReconnecting,
-              offlineLabel: s.commonComingSoon,
+              offlineLabel: s.networkNotConfigured,
             ),
       child: Obx(() {
         final accent = _settings.theme.accent;

@@ -13,6 +13,7 @@ import '../../settings/application/settings_controller.dart';
 import '../application/auth_controller.dart';
 import '../application/session_controller.dart';
 import '../domain/auth_validators.dart';
+import '../../purchases/presentation/cosmetic_gate.dart';
 import 'auth_form_scaffold.dart';
 
 /// §E — nickname, email and a confirmed password.
@@ -170,6 +171,8 @@ class _SignupScreenState extends State<SignupScreen> {
         // The server owns the nickname now; keep the local copy in step.
         await settings.setPlayerName(_nickname.text);
         await Get.offAllNamed<void>(AppRoutes.home);
+        // If they came here from a locked cosmetic, finish that purchase.
+        await CosmeticGate.resumeAfterSignIn();
       },
       onConfirmation: (outcome) async {
         final s = Strings.s;

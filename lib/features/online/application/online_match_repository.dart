@@ -331,10 +331,19 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
           // Status/deadline changes carry no version: force a re-read.
           callback: (_) => onStateChanged(-1),
         )
+        // The rows channel IS the game: every state change reaches the table
+        // through it, so it — and not the reactions channel — decides whether
+        // the player is shown as connected.
         .subscribe((status, error) {
           if (error != null) Log.d('match rows channel $status: $error');
-          if (status == sb.RealtimeSubscribeStatus.subscribed) {
-            onStateChanged(-1); // catch up on anything missed while joining
+          switch (status) {
+            case sb.RealtimeSubscribeStatus.subscribed:
+              onStatus(MatchChannelStatus.connected);
+              onStateChanged(-1); // catch up on anything missed while joining
+            case sb.RealtimeSubscribeStatus.closed:
+            case sb.RealtimeSubscribeStatus.channelError:
+            case sb.RealtimeSubscribeStatus.timedOut:
+              onStatus(MatchChannelStatus.disconnected);
           }
         });
 
@@ -367,10 +376,16 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
         onPresence(ids);
       });
     }
+    // Reactions and presence are an ORNAMENT on a match, not its transport.
+    // While this channel drove the connection banner, a project whose
+    // realtime.messages policies refuse the join left every online table
+    // saying "Riconnessione…" forever and tearing both channels down on a
+    // backoff — a game that was in fact working perfectly, reported as
+    // broken. A failure here now costs exactly what it should: no reactions,
+    // no presence dots.
     channel.subscribe((status, error) {
       switch (status) {
         case sb.RealtimeSubscribeStatus.subscribed:
-          onStatus(MatchChannelStatus.connected);
           final me = currentUserId;
           if (me != null) {
             unawaited(channel.track({'userId': me}));
@@ -378,8 +393,7 @@ class SupabaseOnlineMatchRepository implements OnlineMatchRepository {
         case sb.RealtimeSubscribeStatus.closed:
         case sb.RealtimeSubscribeStatus.channelError:
         case sb.RealtimeSubscribeStatus.timedOut:
-          Log.d('match channel $status ${error ?? ''}');
-          onStatus(MatchChannelStatus.disconnected);
+          Log.d('match reactions channel $status ${error ?? ''}');
       }
     });
     onStatus(MatchChannelStatus.connecting);

@@ -51,8 +51,6 @@
     }
   },
   "authConfirmEmailTitle": "Controlla la tua email",
-  "authContinueWithApple": "Continua con Apple",
-  "authContinueWithGoogle": "Continua con Google",
   "authErrorEmailTaken": "Esiste già un account con questa email.",
   "authErrorGuestDisabled": "L’accesso ospite non è attivo su questo server.",
   "authErrorInvalidCredentials": "Email o password non corretti.",
@@ -65,7 +63,6 @@
   "authPlayAsGuest": "GIOCA COME OSPITE",
   "authRegister": "Registrati",
   "authSignIn": "Accedi",
-  "authSocialUnavailable": "L’accesso social non è ancora attivo.",
   "authSubtitle": "Accedi per giocare online e conservare i tuoi progressi.",
   "authTitle": "Benvenuto",
   "bestComeback": "Miglior rimonta",
@@ -127,7 +124,6 @@
   "coachSpecials": "Asso salta il turno, 2 fa pescare, Cavallo cambia palo.",
   "commonBack": "Indietro",
   "commonClose": "Chiudi",
-  "commonComingSoon": "Disponibile a breve",
   "commonEmptyTitle": "Non c’è ancora nulla",
   "commonErrorBody": "Non siamo riusciti a completare l’operazione. Riprova.",
   "commonErrorTitle": "Qualcosa è andato storto",
@@ -193,6 +189,10 @@
   "deckTaglineIncisoOro": "L’incisione della casa, rifinita in oro.",
   "deckTaglineNapoletane": "Le autentiche carte napoletane.",
   "defaultDifficulty": "Difficoltà predefinita",
+  "defaultPlayerName": "Giocatore",
+  "@defaultPlayerName": {
+    "description": "Name a player carries until they choose one of their own."
+  },
   "difficulty": "Difficoltà",
   "difficultyEasy": "Facile",
   "difficultyHard": "Difficile",
@@ -457,6 +457,10 @@
   "modePassAndPlay": "Passa & Gioca",
   "modeVsComputer": "Contro il computer",
   "music": "Musica",
+  "networkNotConfigured": "Servizio online non configurato",
+  "@networkNotConfigured": {
+    "description": "Banner shown by a build with no online backend compiled in."
+  },
   "networkOffline": "Nessuna connessione",
   "networkReconnecting": "Riconnessione…",
   "newGame": "Nuova Partita",
@@ -543,13 +547,13 @@
   "premiumNothingToRestore": "Nessun acquisto da ripristinare su questo account dello store.",
   "premiumOwnedElsewhere": "Questo acquisto risulta già associato a un altro profilo di gioco.",
   "premiumPending": "Acquisto in corso…",
-  "premiumProductMissing": "Il prodotto non è ancora disponibile nello store. Riprova più tardi.",
+  "premiumProductMissing": "Lo store non ha restituito questo prodotto. Riprova.",
   "premiumRestore": "Ripristina acquisti",
   "premiumRestored": "Acquisti ripristinati.",
   "premiumSignInRequired": "Accedi con un account per completare l’acquisto.",
   "premiumStoreUnavailable": "Lo store non è disponibile su questo dispositivo.",
   "premiumSuccess": "Acquisto completato. Grazie!",
-  "premiumVerificationUnavailable": "La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.",
+  "premiumVerificationUnavailable": "Il server non è riuscito a verificare l’acquisto con lo store. Nessun addebito è perso: riprova.",
   "premiumVerifyFailed": "Impossibile verificare l’acquisto in questo momento. L’acquisto non va perso: riprova.",
   "premiumVerifying": "Verifica dell’acquisto…",
   "profile": "Profilo",
@@ -690,10 +694,31 @@
   "shopItemTableClassicBody": "Il circolo di una volta: panno verde su noce scuro.",
   "shopItemTableGold": "Tavolo Oro",
   "shopItemTableGoldBody": "Un tavolo da gran salone: panno d’oro battuto sotto luce calda.",
-  "shopItemUnavailable": "Non ancora disponibile nello store. Riprova più tardi.",
+  "shopItemUnavailable": "Lo store non ha restituito questo articolo su questo dispositivo. Riprova.",
+  "shopOpeningPurchase": "Apertura dell’acquisto…",
+  "@shopOpeningPurchase": {
+    "description": "Shown while the store's own payment sheet is being opened for a chosen item."
+  },
   "shopOwned": "Sbloccato",
   "shopRemove": "Rimuovi",
+  "shopSignInRequiredTitle": "Serve un account",
+  "@shopSignInRequiredTitle": {
+    "description": "Title of the dialog shown when a signed-out player taps a paid cosmetic."
+  },
+  "shopSignInToBuyBody": "Gli acquisti sono legati a un account. Accedi o registrati, poi tocca di nuovo l’oggetto per completare l’acquisto.",
+  "@shopSignInToBuyBody": {
+    "description": "Body of the dialog shown when a signed-out player taps a paid cosmetic."
+  },
   "shopTitle": "Negozio",
+  "shopUnlockWithAchievement": "Si sblocca completando l’obiettivo «{achievement}».",
+  "@shopUnlockWithAchievement": {
+    "description": "Explains which achievement unlocks a free cosmetic.",
+    "placeholders": {
+      "achievement": {
+        "type": "String"
+      }
+    }
+  },
   "shopUse": "Usa",
   "showPassword": "Mostra la password",
   "signupCta": "REGISTRATI",

@@ -27,6 +27,7 @@ import '../../online/application/online_match_launcher.dart';
 import '../../online/domain/online_status.dart';
 import '../../tutorial/application/tutorial_launcher.dart';
 import '../../profile/application/profile_controller.dart';
+import '../../purchases/presentation/cosmetic_gate.dart';
 
 /// §39 — the settings half.
 class SettingsTab extends StatefulWidget {
@@ -258,7 +259,12 @@ class _SettingsTabState extends State<SettingsTab> {
                     final unlocked = c.isThemeUnlocked(t.id);
                     final selected = v.themeId == t.id;
                     return GestureDetector(
-                      onTap: unlocked ? () => c.setTheme(t.id) : null,
+                      onTap: unlocked
+                          ? () => c.setTheme(t.id)
+                          : () => CosmeticGate.openLocked(
+                              entitlementId: t.entitlementId,
+                              achievementId: t.unlockAchievementId,
+                            ),
                       child: Container(
                         width: 112,
                         padding: const EdgeInsets.all(AppSpacing.sm),
@@ -295,7 +301,7 @@ class _SettingsTabState extends State<SettingsTab> {
                             else
                               const SizedBox(height: 14),
                             Text(
-                              t.name,
+                              t.displayName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppText.caption.copyWith(
@@ -324,7 +330,12 @@ class _SettingsTabState extends State<SettingsTab> {
                     final unlocked = c.isCardBackUnlocked(b.id);
                     final selected = v.cardBackId == b.id;
                     return GestureDetector(
-                      onTap: unlocked ? () => c.setCardBack(b.id) : null,
+                      onTap: unlocked
+                          ? () => c.setCardBack(b.id)
+                          : () => CosmeticGate.openLocked(
+                              entitlementId: b.entitlementId,
+                              achievementId: b.unlockAchievementId,
+                            ),
                       child: Opacity(
                         opacity: unlocked ? 1 : 0.4,
                         child: Container(

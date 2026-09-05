@@ -11,6 +11,7 @@ import '../../../core/widgets/premium_button.dart';
 import '../application/auth_controller.dart';
 import '../application/session_controller.dart';
 import '../domain/auth_validators.dart';
+import '../../purchases/presentation/cosmetic_gate.dart';
 import 'auth_form_scaffold.dart';
 
 /// §D — email and password, validated locally, authenticated by Supabase.
@@ -131,6 +132,10 @@ class _LoginScreenState extends State<LoginScreen> {
     auth: _auth,
     action: () =>
         _auth.session.signIn(email: _email.text, password: _password.text),
-    onSuccess: (_) async => Get.offAllNamed<void>(AppRoutes.home),
+    onSuccess: (_) async {
+      await Get.offAllNamed<void>(AppRoutes.home);
+      // If they came here from a locked cosmetic, finish that purchase.
+      await CosmeticGate.resumeAfterSignIn();
+    },
   );
 }

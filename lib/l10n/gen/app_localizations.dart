@@ -320,18 +320,6 @@ abstract class AppLocalizations {
   /// **'Controlla la tua email'**
   String get authConfirmEmailTitle;
 
-  /// No description provided for @authContinueWithApple.
-  ///
-  /// In it, this message translates to:
-  /// **'Continua con Apple'**
-  String get authContinueWithApple;
-
-  /// No description provided for @authContinueWithGoogle.
-  ///
-  /// In it, this message translates to:
-  /// **'Continua con Google'**
-  String get authContinueWithGoogle;
-
   /// No description provided for @authErrorEmailTaken.
   ///
   /// In it, this message translates to:
@@ -403,12 +391,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Accedi'**
   String get authSignIn;
-
-  /// No description provided for @authSocialUnavailable.
-  ///
-  /// In it, this message translates to:
-  /// **'L’accesso social non è ancora attivo.'**
-  String get authSocialUnavailable;
 
   /// No description provided for @authSubtitle.
   ///
@@ -589,12 +571,6 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Chiudi'**
   String get commonClose;
-
-  /// No description provided for @commonComingSoon.
-  ///
-  /// In it, this message translates to:
-  /// **'Disponibile a breve'**
-  String get commonComingSoon;
 
   /// No description provided for @commonEmptyTitle.
   ///
@@ -841,6 +817,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Difficoltà predefinita'**
   String get defaultDifficulty;
+
+  /// Name a player carries until they choose one of their own.
+  ///
+  /// In it, this message translates to:
+  /// **'Giocatore'**
+  String get defaultPlayerName;
 
   /// No description provided for @difficulty.
   ///
@@ -1598,6 +1580,12 @@ abstract class AppLocalizations {
   /// **'Musica'**
   String get music;
 
+  /// Banner shown by a build with no online backend compiled in.
+  ///
+  /// In it, this message translates to:
+  /// **'Servizio online non configurato'**
+  String get networkNotConfigured;
+
   /// No description provided for @networkOffline.
   ///
   /// In it, this message translates to:
@@ -1889,7 +1877,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumProductMissing.
   ///
   /// In it, this message translates to:
-  /// **'Il prodotto non è ancora disponibile nello store. Riprova più tardi.'**
+  /// **'Lo store non ha restituito questo prodotto. Riprova.'**
   String get premiumProductMissing;
 
   /// No description provided for @premiumRestore.
@@ -1925,7 +1913,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumVerificationUnavailable.
   ///
   /// In it, this message translates to:
-  /// **'La verifica degli acquisti non è ancora attiva. Nessun addebito è andato perso: riprova più tardi.'**
+  /// **'Il server non è riuscito a verificare l’acquisto con lo store. Nessun addebito è perso: riprova.'**
   String get premiumVerificationUnavailable;
 
   /// No description provided for @premiumVerifyFailed.
@@ -2543,8 +2531,14 @@ abstract class AppLocalizations {
   /// No description provided for @shopItemUnavailable.
   ///
   /// In it, this message translates to:
-  /// **'Non ancora disponibile nello store. Riprova più tardi.'**
+  /// **'Lo store non ha restituito questo articolo su questo dispositivo. Riprova.'**
   String get shopItemUnavailable;
+
+  /// Shown while the store's own payment sheet is being opened for a chosen item.
+  ///
+  /// In it, this message translates to:
+  /// **'Apertura dell’acquisto…'**
+  String get shopOpeningPurchase;
 
   /// No description provided for @shopOwned.
   ///
@@ -2558,11 +2552,29 @@ abstract class AppLocalizations {
   /// **'Rimuovi'**
   String get shopRemove;
 
+  /// Title of the dialog shown when a signed-out player taps a paid cosmetic.
+  ///
+  /// In it, this message translates to:
+  /// **'Serve un account'**
+  String get shopSignInRequiredTitle;
+
+  /// Body of the dialog shown when a signed-out player taps a paid cosmetic.
+  ///
+  /// In it, this message translates to:
+  /// **'Gli acquisti sono legati a un account. Accedi o registrati, poi tocca di nuovo l’oggetto per completare l’acquisto.'**
+  String get shopSignInToBuyBody;
+
   /// No description provided for @shopTitle.
   ///
   /// In it, this message translates to:
   /// **'Negozio'**
   String get shopTitle;
+
+  /// Explains which achievement unlocks a free cosmetic.
+  ///
+  /// In it, this message translates to:
+  /// **'Si sblocca completando l’obiettivo «{achievement}».'**
+  String shopUnlockWithAchievement(String achievement);
 
   /// No description provided for @shopUse.
   ///

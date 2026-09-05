@@ -25,7 +25,20 @@ class TableTheme {
   });
 
   final String id;
+
+  /// The identifier-level name. Napoli Notte, Maiolica and Vesuvio are
+  /// proper names and read the same in both languages; the two shop tables
+  /// are descriptive, so [displayName] translates those.
   final String name;
+
+  /// The name as the player reads it, in the language they chose. The two
+  /// paid tables reuse the shop's own translated titles so a table is never
+  /// called one thing in the Negozio and another in Impostazioni.
+  String get displayName => switch (id) {
+    'tavolo_oro' => Strings.s.shopItemTableGold,
+    'tavolo_classico' => Strings.s.shopItemTableClassic,
+    _ => name,
+  };
 
   /// One line of mood under the name on the setup screen.
   String get tagline => switch (id) {

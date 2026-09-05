@@ -128,12 +128,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authConfirmEmailTitle => 'Check your email';
 
   @override
-  String get authContinueWithApple => 'Continue with Apple';
-
-  @override
-  String get authContinueWithGoogle => 'Continue with Google';
-
-  @override
   String get authErrorEmailTaken =>
       'An account with this email already exists.';
 
@@ -172,9 +166,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authSignIn => 'Sign in';
-
-  @override
-  String get authSocialUnavailable => 'Social sign-in is not enabled yet.';
 
   @override
   String get authSubtitle => 'Sign in to play online and keep your progress.';
@@ -280,9 +271,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonClose => 'Close';
-
-  @override
-  String get commonComingSoon => 'Coming soon';
 
   @override
   String get commonEmptyTitle => 'Nothing here yet';
@@ -414,6 +402,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defaultDifficulty => 'Default difficulty';
+
+  @override
+  String get defaultPlayerName => 'Player';
 
   @override
   String get difficulty => 'Difficulty';
@@ -877,6 +868,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get music => 'Music';
 
   @override
+  String get networkNotConfigured => 'Online service not configured';
+
+  @override
   String get networkOffline => 'No connection';
 
   @override
@@ -1042,7 +1036,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumProductMissing =>
-      'The product is not available in the store yet. Try again later.';
+      'The store did not return this product. Please try again.';
 
   @override
   String get premiumRestore => 'Restore purchases';
@@ -1063,7 +1057,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumVerificationUnavailable =>
-      'Purchase verification is not live yet. No payment is lost: please try again later.';
+      'The server could not verify the purchase with the store. No payment is lost: please try again.';
 
   @override
   String get premiumVerifyFailed =>
@@ -1395,7 +1389,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopItemUnavailable =>
-      'Not available in the store yet. Try again later.';
+      'The store did not return this item on this device. Please try again.';
+
+  @override
+  String get shopOpeningPurchase => 'Opening the purchase…';
 
   @override
   String get shopOwned => 'Unlocked';
@@ -1404,7 +1401,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopRemove => 'Remove';
 
   @override
+  String get shopSignInRequiredTitle => 'An account is needed';
+
+  @override
+  String get shopSignInToBuyBody =>
+      'Purchases are tied to an account. Sign in or sign up, then tap the item again to complete the purchase.';
+
+  @override
   String get shopTitle => 'Shop';
+
+  @override
+  String shopUnlockWithAchievement(String achievement) {
+    return 'Unlocked by completing the “$achievement” achievement.';
+  }
 
   @override
   String get shopUse => 'Use';

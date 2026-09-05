@@ -1,7 +1,7 @@
 name: gioco_del_101
 description: "Gioco del 101 — a premium offline Neapolitan card game."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.12.0
