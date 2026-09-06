@@ -143,15 +143,36 @@ class PurchaseController extends GetxController {
     }
   }
 
-  /// Starts the store's own payment sheet for one product. The outcome
-  /// arrives on the purchase stream, not here.
-  Future<void> buy(String productId) async {
-    final p = products[productId];
-    if (p == null ||
-        phase.value == PurchasePhase.purchasing ||
+  /// Starts the store's own payment sheet for one product.
+  ///
+  /// Returns null when the sheet was handed to the store — the outcome then
+  /// arrives on the purchase stream, not here — or the reason it could not
+  /// be opened. It used to return silently when the store had no metadata
+  /// for the product, which is exactly the state a shop is in before its
+  /// products are configured: the tap did nothing and said nothing. A
+  /// purchase that cannot start now always explains itself.
+  Future<PurchaseError?> buy(String productId) async {
+    if (phase.value == PurchasePhase.purchasing ||
         phase.value == PurchasePhase.verifying) {
-      return;
+      return null; // one sheet at a time; the one in flight still counts
     }
+
+    var p = products[productId];
+    if (p == null) {
+      // Metadata can simply not have arrived yet — a cold start, a dropped
+      // connection, a store that woke up late. Ask once more before giving
+      // the player bad news.
+      await load();
+      p = products[productId];
+    }
+    if (p == null) {
+      final reason = phase.value == PurchasePhase.storeUnavailable
+          ? PurchaseError.storeUnavailable
+          : PurchaseError.productMissing;
+      _fail(reason);
+      return reason;
+    }
+
     busyProductId.value = productId;
     phase.value = PurchasePhase.purchasing;
     lastError.value = null;
@@ -160,7 +181,9 @@ class PurchaseController extends GetxController {
     } catch (e) {
       Log.d('purchase buy: $e');
       _fail(PurchaseError.paymentFailed);
+      return PurchaseError.paymentFailed;
     }
+    return null;
   }
 
   /// "Ripristina acquisti". Restorations arrive on the purchase stream (one

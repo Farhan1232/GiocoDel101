@@ -10,6 +10,7 @@
 // object and so never noticed. These tests read the real SQL and hold the two
 // sides together, so the next rule added cannot silently repeat it.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -31,6 +32,10 @@ import 'package:gioco_del_101/features/auth/domain/auth_session.dart';
 import 'package:gioco_del_101/features/auth/presentation/auth_landing_screen.dart';
 import 'package:gioco_del_101/features/legal/domain/legal_content.dart';
 import 'package:gioco_del_101/features/game/domain/game_rules.dart';
+import 'package:gioco_del_101/features/purchases/application/entitlement_repository.dart';
+import 'package:gioco_del_101/features/purchases/application/purchase_controller.dart';
+import 'package:gioco_del_101/features/purchases/application/purchase_store.dart';
+import 'package:gioco_del_101/features/purchases/domain/entitlement.dart';
 import 'package:gioco_del_101/features/purchases/domain/shop_catalog.dart';
 import 'package:gioco_del_101/features/settings/application/settings_controller.dart';
 
@@ -195,6 +200,67 @@ void main() {
     });
   });
 
+  group('the shop can always be pressed (§iap)', () {
+    test('a product the store has not returned still buys, and says why',
+        () async {
+      await _boot();
+      // A store that answers "I have none of these" — exactly the state of a
+      // shop whose products are not configured in the console yet.
+      final store = _EmptyStore();
+      final controller = PurchaseController(
+        store: store,
+        entitlements: _NoEntitlements(),
+      )..onInit();
+      addTearDown(controller.onClose);
+
+      await controller.load();
+      expect(controller.phase.value, PurchasePhase.ready);
+
+      // The old behaviour returned null and left the player with silence.
+      final failure = await controller.buy(ShopCatalog.tableGoldId);
+      expect(failure, PurchaseError.productMissing);
+      expect(controller.lastError.value, PurchaseError.productMissing);
+      expect(store.buys, isEmpty, reason: 'nothing can be charged');
+    });
+
+    test('no store at all is reported as no store, not a missing product',
+        () async {
+      await _boot();
+      final controller = PurchaseController(
+        store: _NoStore(),
+        entitlements: _NoEntitlements(),
+      )..onInit();
+      addTearDown(controller.onClose);
+
+      expect(
+        await controller.buy(ShopCatalog.tableGoldId),
+        PurchaseError.storeUnavailable,
+      );
+    });
+
+    test('a product the store knows is handed straight to it', () async {
+      await _boot();
+      final store = _StockedStore();
+      final controller = PurchaseController(
+        store: store,
+        entitlements: _NoEntitlements(),
+      )..onInit();
+      addTearDown(controller.onClose);
+
+      await controller.load();
+      expect(await controller.buy(ShopCatalog.tableGoldId), isNull);
+      expect(store.buys, [ShopCatalog.tableGoldId]);
+    });
+
+    test('every product has an indicative price to show before the store '
+        'answers', () {
+      expect(ShopCatalog.indicativePrice, isNotEmpty);
+      // It must never be mistaken for the real thing in code: the store's
+      // price wins wherever one exists.
+      expect(ShopCatalog.products, hasLength(5));
+    });
+  });
+
   group('deleting the account (§privacy, Play account-deletion policy)', () {
     test('the migration exposes exactly one self-service RPC', () {
       final sql = File(
@@ -276,4 +342,68 @@ void main() {
       }
     });
   });
+}
+
+/// A store that is present but knows none of the products — a console where
+/// the five items have not been created yet.
+class _EmptyStore implements PurchaseStore {
+  final List<String> buys = [];
+  final _events = StreamController<List<StorePurchase>>.broadcast();
+
+  @override
+  Future<bool> isAvailable() async => true;
+
+  @override
+  Future<StoreProducts> queryProducts(Set<String> ids) async =>
+      StoreProducts(found: const [], notFound: ids.toList());
+
+  @override
+  Stream<List<StorePurchase>> get purchases => _events.stream;
+
+  @override
+  Future<void> buyNonConsumable(StoreProduct product) async {
+    buys.add(product.id);
+  }
+
+  @override
+  Future<void> restorePurchases() async {}
+
+  @override
+  Future<void> complete(StorePurchase purchase) async {}
+}
+
+/// No billing on this device at all.
+class _NoStore extends _EmptyStore {
+  @override
+  Future<bool> isAvailable() async => false;
+}
+
+/// A console with the five products live.
+class _StockedStore extends _EmptyStore {
+  @override
+  Future<StoreProducts> queryProducts(Set<String> ids) async => StoreProducts(
+    found: [
+      for (final id in ids)
+        StoreProduct(
+          id: id,
+          title: id,
+          description: '',
+          price: 'STORE-PRICE',
+        ),
+    ],
+    notFound: const [],
+  );
+}
+
+class _NoEntitlements implements EntitlementRepository {
+  @override
+  Future<List<OwnedEntitlement>> status() async => const [];
+
+  @override
+  Future<OwnedEntitlement> verify({
+    required String platform,
+    required String productId,
+    required String verificationData,
+    String? transactionId,
+  }) async => throw const PurchaseException(PurchaseError.verificationFailed);
 }

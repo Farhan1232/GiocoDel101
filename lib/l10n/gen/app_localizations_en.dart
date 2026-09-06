@@ -1363,6 +1363,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupResetRules => 'Reset rules';
 
   @override
+  String get shopCannotBuyTitle => 'Cannot open the payment';
+
+  @override
   String get shopFootnote =>
       'One-time, permanent, cosmetic-only purchases. The full game stays free. Prices are managed by your device’s store.';
 
@@ -1409,14 +1412,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'A grand-salon table: struck-gold felt under warm light.';
 
   @override
-  String get shopItemUnavailable =>
-      'The store did not return this item on this device. Please try again.';
-
-  @override
   String get shopOpeningPurchase => 'Opening the purchase…';
 
   @override
   String get shopOwned => 'Unlocked';
+
+  @override
+  String shopPriceIndicative(String price) {
+    return '$price · indicative price';
+  }
+
+  @override
+  String shopProductMissingBody(String id) {
+    return 'Google Play is answering, but it does not know this product:\n\n$id\n\nCreate it in Play Console with exactly this id, as a one-time in-app product, set it to ACTIVE, and install the app from a test track with an account on the license-testers list.';
+  }
 
   @override
   String get shopRemove => 'Remove';
@@ -1427,6 +1436,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shopSignInToBuyBody =>
       'Purchases are tied to an account. Sign in or sign up, then tap the item again to complete the purchase.';
+
+  @override
+  String get shopStoreMissingBody =>
+      'Google Play is not answering on this device. Payment only works when the app was installed from Google Play (the internal testing track counts), the Play Store app is present and you are signed in to a Google account. A hand-installed APK cannot open the payment sheet.';
+
+  @override
+  String get shopTapToBuy => 'Tap an item to buy it';
 
   @override
   String get shopTitle => 'Shop';

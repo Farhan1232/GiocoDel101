@@ -128,7 +128,12 @@ class InAppPurchaseStore implements PurchaseStore {
   @override
   Future<void> buyNonConsumable(StoreProduct product) async {
     final details = product.details;
-    if (details == null) return;
+    if (details == null) {
+      // Only reachable if a StoreProduct were built without the plugin
+      // object behind it. Returning quietly here would look to the caller
+      // exactly like a payment sheet that opened, so it says so instead.
+      throw StateError('no ProductDetails for ${product.id}');
+    }
     await _plugin.buyNonConsumable(
       purchaseParam: PurchaseParam(productDetails: details),
     );

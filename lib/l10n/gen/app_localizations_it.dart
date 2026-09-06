@@ -1369,6 +1369,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get setupResetRules => 'Ripristina regole';
 
   @override
+  String get shopCannotBuyTitle => 'Non posso aprire il pagamento';
+
+  @override
   String get shopFootnote =>
       'Acquisti una tantum, permanenti e solo estetici. Il gioco completo resta gratuito. I prezzi sono gestiti dallo store del dispositivo.';
 
@@ -1415,14 +1418,20 @@ class AppLocalizationsIt extends AppLocalizations {
       'Un tavolo da gran salone: panno d’oro battuto sotto luce calda.';
 
   @override
-  String get shopItemUnavailable =>
-      'Lo store non ha restituito questo articolo su questo dispositivo. Riprova.';
-
-  @override
   String get shopOpeningPurchase => 'Apertura dell’acquisto…';
 
   @override
   String get shopOwned => 'Sbloccato';
+
+  @override
+  String shopPriceIndicative(String price) {
+    return '$price · prezzo indicativo';
+  }
+
+  @override
+  String shopProductMissingBody(String id) {
+    return 'Google Play risponde, ma non conosce questo prodotto:\n\n$id\n\nCrealo nella Play Console con esattamente questo identificativo, come prodotto in-app una tantum, mettilo su ATTIVO, e installa l’app da un canale di prova con un account inserito fra i tester delle licenze.';
+  }
 
   @override
   String get shopRemove => 'Rimuovi';
@@ -1433,6 +1442,13 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get shopSignInToBuyBody =>
       'Gli acquisti sono legati a un account. Accedi o registrati, poi tocca di nuovo l’oggetto per completare l’acquisto.';
+
+  @override
+  String get shopStoreMissingBody =>
+      'Google Play non risponde su questo dispositivo. Il pagamento funziona solo se l’app è stata installata da Google Play (anche dal canale di test interno), il Play Store è presente e sei connesso con un account Google. Un APK installato a mano non può aprire il pagamento.';
+
+  @override
+  String get shopTapToBuy => 'Tocca un oggetto per acquistarlo';
 
   @override
   String get shopTitle => 'Negozio';

@@ -99,6 +99,14 @@ class ShopCatalog {
     ),
   ];
 
+  /// What a card shows before Google Play has answered with the real price.
+  ///
+  /// The store's own localized `ProductDetails.price` always wins and is what
+  /// the player is actually charged — this is a label so a card can be read
+  /// and tapped while the products are still being configured in the console,
+  /// nothing more. It is never used to complete a purchase.
+  static const String indicativePrice = '€4,99';
+
   static Set<String> get productIds => {for (final p in products) p.id};
 
   static ShopProduct? byId(String id) {

@@ -10,6 +10,7 @@ import '../../../app/theme/deck_styles.dart';
 import '../../../app/theme/table_themes.dart';
 import '../../../core/constants/app_durations.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_panel.dart';
 import '../../../core/widgets/cards/card_back_painter.dart';
@@ -54,6 +55,10 @@ class _ShopScreenState extends State<ShopScreen> {
   /// has answered — the tap the player made WAS "I want to buy this one".
   String? _target;
   bool _targetHandled = false;
+
+  /// The card the player has their eye on: ringed in gold. Set by the
+  /// locked-cosmetic route that opened the shop, and by any tap.
+  String? _selected;
   final Map<String, GlobalKey> _cardKeys = {
     for (final p in ShopCatalog.products) p.id: GlobalKey(),
   };
@@ -63,6 +68,7 @@ class _ShopScreenState extends State<ShopScreen> {
     super.initState();
     final args = Get.arguments;
     _target = args is String && ShopCatalog.byId(args) != null ? args : null;
+    _selected = _target;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       await c.load();
@@ -125,6 +131,11 @@ class _ShopScreenState extends State<ShopScreen> {
                 s.shopIntro,
                 style: AppText.bodySmall.copyWith(color: AppColors.textMuted),
               ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                s.shopTapToBuy,
+                style: AppText.caption.copyWith(color: AppColors.antiqueGold),
+              ),
               if (!_signedIn) ...[
                 const SizedBox(height: AppSpacing.md),
                 _notice(s.premiumSignInRequired, icon: AppIcon.players),
@@ -147,7 +158,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 // five identical cards.
                 Container(
                   key: _cardKeys[product.id],
-                  decoration: product.id == _target
+                  decoration: product.id == _selected
                       ? BoxDecoration(
                           borderRadius: BorderRadius.circular(
                             AppRadii.lg + 3,
@@ -158,7 +169,7 @@ class _ShopScreenState extends State<ShopScreen> {
                           ),
                         )
                       : null,
-                  padding: EdgeInsets.all(product.id == _target ? 3 : 0),
+                  padding: EdgeInsets.all(product.id == _selected ? 3 : 0),
                   child: _itemCard(s, product),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -247,10 +258,10 @@ class _ShopScreenState extends State<ShopScreen> {
   Widget _itemCard(AppLocalizations s, ShopProduct product) {
     final owned = c.owns(product.entitlement);
     final store = c.products[product.id];
-    final unavailable = !owned && store == null;
     final busyThis = c.busyProductId.value == product.id;
 
     return AppPanel(
+      onTap: owned ? null : () => _buy(product),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -301,33 +312,59 @@ class _ShopScreenState extends State<ShopScreen> {
           const SizedBox(height: AppSpacing.md),
           if (owned)
             _selectionControl(s, product)
-          else if (unavailable)
-            Text(
-              s.shopItemUnavailable,
-              textAlign: TextAlign.center,
-              style: AppText.caption.copyWith(color: AppColors.textMuted),
-            )
-          else
+          else ...[
             PremiumButton(
-              // The one and only price the player ever sees: the store's own
-              // localized metadata for this product.
+              // The store's own localized price whenever it has answered.
+              // Before that — a shop whose products are still being set up —
+              // the card carries an openly indicative figure so it can be
+              // read and pressed, and the press says what is missing.
               label: busyThis
                   ? s.premiumPending
-                  : s.premiumBuyFor(store!.price),
+                  : s.premiumBuyFor(
+                      store?.price ?? ShopCatalog.indicativePrice,
+                    ),
               icon: AppIcon.check,
               size: ButtonSize.small,
-              // Signed out, Buy is not dead: it asks for the account the
-              // entitlement would be granted to, and comes back here.
-              onPressed: busyThis
-                  ? null
-                  : _signedIn
-                  ? () => c.buy(product.id)
-                  : () => CosmeticGate.openLocked(
-                      entitlementId: product.entitlement,
-                    ),
+              onPressed: busyThis ? null : () => _buy(product),
             ),
+            if (store == null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                s.shopPriceIndicative(ShopCatalog.indicativePrice),
+                textAlign: TextAlign.center,
+                style: AppText.caption.copyWith(color: AppColors.textMuted),
+              ),
+            ],
+          ],
         ],
       ),
+    );
+  }
+
+  /// One tap, one answer. Signed out it asks for the account the entitlement
+  /// would be granted to; otherwise it hands the product to the store and,
+  /// if the sheet cannot open, names the precise reason — which used to be
+  /// the silence the player was left with.
+  Future<void> _buy(ShopProduct product) async {
+    setState(() => _selected = product.id);
+    final s = Strings.s;
+
+    if (!_signedIn) {
+      await CosmeticGate.openLocked(entitlementId: product.entitlement);
+      return;
+    }
+
+    final failure = await c.buy(product.id);
+    if (failure == null || !mounted) return;
+
+    await AppDialog.notice(
+      title: s.shopCannotBuyTitle,
+      body: switch (failure) {
+        PurchaseError.storeUnavailable => s.shopStoreMissingBody,
+        PurchaseError.productMissing => s.shopProductMissingBody(product.id),
+        _ => _errorText(s, failure),
+      },
+      dismissLabel: s.gotIt,
     );
   }
 

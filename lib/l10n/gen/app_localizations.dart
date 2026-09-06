@@ -2486,6 +2486,12 @@ abstract class AppLocalizations {
   /// **'Ripristina regole'**
   String get setupResetRules;
 
+  /// Title of the dialog shown when the store cannot open a payment sheet.
+  ///
+  /// In it, this message translates to:
+  /// **'Non posso aprire il pagamento'**
+  String get shopCannotBuyTitle;
+
   /// No description provided for @shopFootnote.
   ///
   /// In it, this message translates to:
@@ -2564,12 +2570,6 @@ abstract class AppLocalizations {
   /// **'Un tavolo da gran salone: panno d’oro battuto sotto luce calda.'**
   String get shopItemTableGoldBody;
 
-  /// No description provided for @shopItemUnavailable.
-  ///
-  /// In it, this message translates to:
-  /// **'Lo store non ha restituito questo articolo su questo dispositivo. Riprova.'**
-  String get shopItemUnavailable;
-
   /// Shown while the store's own payment sheet is being opened for a chosen item.
   ///
   /// In it, this message translates to:
@@ -2581,6 +2581,18 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Sbloccato'**
   String get shopOwned;
+
+  /// Price label used before the store has reported its own price.
+  ///
+  /// In it, this message translates to:
+  /// **'{price} · prezzo indicativo'**
+  String shopPriceIndicative(String price);
+
+  /// Play answered but does not know this product id.
+  ///
+  /// In it, this message translates to:
+  /// **'Google Play risponde, ma non conosce questo prodotto:\n\n{id}\n\nCrealo nella Play Console con esattamente questo identificativo, come prodotto in-app una tantum, mettilo su ATTIVO, e installa l’app da un canale di prova con un account inserito fra i tester delle licenze.'**
+  String shopProductMissingBody(String id);
 
   /// No description provided for @shopRemove.
   ///
@@ -2599,6 +2611,18 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Gli acquisti sono legati a un account. Accedi o registrati, poi tocca di nuovo l’oggetto per completare l’acquisto.'**
   String get shopSignInToBuyBody;
+
+  /// Play Billing itself is unreachable on this device.
+  ///
+  /// In it, this message translates to:
+  /// **'Google Play non risponde su questo dispositivo. Il pagamento funziona solo se l’app è stata installata da Google Play (anche dal canale di test interno), il Play Store è presente e sei connesso con un account Google. Un APK installato a mano non può aprire il pagamento.'**
+  String get shopStoreMissingBody;
+
+  /// Hint under the shop intro telling the player the cards are tappable.
+  ///
+  /// In it, this message translates to:
+  /// **'Tocca un oggetto per acquistarlo'**
+  String get shopTapToBuy;
 
   /// No description provided for @shopTitle.
   ///

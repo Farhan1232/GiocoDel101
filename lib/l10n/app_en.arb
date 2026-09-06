@@ -602,6 +602,10 @@
     }
   },
   "setupResetRules": "Reset rules",
+  "shopCannotBuyTitle": "Cannot open the payment",
+  "@shopCannotBuyTitle": {
+    "description": "Title of the dialog shown when the store cannot open a payment sheet."
+  },
   "shopFootnote": "One-time, permanent, cosmetic-only purchases. The full game stays free. Prices are managed by your device’s store.",
   "shopInUse": "In use",
   "shopIntro": "Optional cosmetics. No gameplay advantage: tables, deck, back and ornaments are beauty only.",
@@ -615,12 +619,29 @@
   "shopItemTableClassicBody": "The old circolo: green baize on dark walnut.",
   "shopItemTableGold": "Gold Table",
   "shopItemTableGoldBody": "A grand-salon table: struck-gold felt under warm light.",
-  "shopItemUnavailable": "The store did not return this item on this device. Please try again.",
   "shopOpeningPurchase": "Opening the purchase…",
   "@shopOpeningPurchase": {
     "description": "Shown while the store's own payment sheet is being opened for a chosen item."
   },
   "shopOwned": "Unlocked",
+  "shopPriceIndicative": "{price} · indicative price",
+  "@shopPriceIndicative": {
+    "description": "Price label used before the store has reported its own price.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "shopProductMissingBody": "Google Play is answering, but it does not know this product:\n\n{id}\n\nCreate it in Play Console with exactly this id, as a one-time in-app product, set it to ACTIVE, and install the app from a test track with an account on the license-testers list.",
+  "@shopProductMissingBody": {
+    "description": "Play answered but does not know this product id.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "shopRemove": "Remove",
   "shopSignInRequiredTitle": "An account is needed",
   "@shopSignInRequiredTitle": {
@@ -629,6 +650,14 @@
   "shopSignInToBuyBody": "Purchases are tied to an account. Sign in or sign up, then tap the item again to complete the purchase.",
   "@shopSignInToBuyBody": {
     "description": "Body of the dialog shown when a signed-out player taps a paid cosmetic."
+  },
+  "shopStoreMissingBody": "Google Play is not answering on this device. Payment only works when the app was installed from Google Play (the internal testing track counts), the Play Store app is present and you are signed in to a Google account. A hand-installed APK cannot open the payment sheet.",
+  "@shopStoreMissingBody": {
+    "description": "Play Billing itself is unreachable on this device."
+  },
+  "shopTapToBuy": "Tap an item to buy it",
+  "@shopTapToBuy": {
+    "description": "Hint under the shop intro telling the player the cards are tappable."
   },
   "shopTitle": "Shop",
   "shopUnlockWithAchievement": "Unlocked by completing the “{achievement}” achievement.",

@@ -219,6 +219,23 @@ saved offline games never leave the device.
 | News app | No |
 | Advertising ID | **Not used** — the app declares no `AD_ID` permission |
 
+## 11b. Why the payment sheet does not open before all this is done
+
+Worth stating plainly, because it costs people days: **Google Play Billing
+only answers an app that Play itself installed.** An APK copied onto the
+phone and opened from the file manager can never show a payment sheet, no
+matter what the code does. The same is true before the products exist and are
+ACTIVE in the console.
+
+The shop no longer hides that. Every card carries a real Buy button with an
+indicative €4,99, and pressing one either opens the store's sheet or says
+exactly which of the two preconditions is missing — naming the product id on
+screen when the console does not know it yet.
+
+So the order that works is: create the products (§12) → upload to Internal
+testing (§14) → install **from the Play link** → add yourself as a license
+tester (§13) → buy.
+
 ## 12. Monetisation → In-app products
 
 Create **five** products, all type **"In-app product" → one-time (managed)**.
