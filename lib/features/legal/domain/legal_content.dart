@@ -85,8 +85,10 @@ class LegalContent {
     sections: [
       LegalSection(
         '1. Il servizio',
-        'Gioco del 101 è un gioco di carte napoletane digitale offerto da '
-            '$_entity. Comprende partite offline contro il computer, la '
+        'Gioco del 101 (identificativo Android '
+            '`it.giocodel101.gioco_del_101`, identificativo iOS '
+            '`it.giocodel101.giocoDel101`) è un gioco di carte napoletane '
+            'digitale offerto da $_entity. Comprende partite offline contro il computer, la '
             'modalità Passa e Gioca e partite online multigiocatore (2–4 '
             'giocatori) tramite stanze private e partita rapida. Il gioco '
             'completo — regole, modalità, partite online e offline — è '
@@ -194,8 +196,9 @@ class LegalContent {
     sections: [
       LegalSection(
         '1. The service',
-        'Gioco del 101 is a digital Neapolitan card game offered by '
-            '$_entity. It includes offline play against the computer, Pass & '
+        'Gioco del 101 (Android id `it.giocodel101.gioco_del_101`, iOS id '
+            '`it.giocodel101.giocoDel101`) is a digital Neapolitan card '
+            'game offered by $_entity. It includes offline play against the computer, Pass & '
             'Play, and online multiplayer (2–4 players) through private '
             'rooms and quick match. The full game — rules, modes, online and '
             'offline play — is free.',
@@ -303,7 +306,11 @@ class LegalContent {
     sections: [
       LegalSection(
         '1. Titolare del trattamento',
-        'Titolare del trattamento è $_entity. ${_privacyContactIt()}',
+        'Questa informativa riguarda l’applicazione «Gioco del 101» '
+            '(identificativo Android `it.giocodel101.gioco_del_101`, '
+            'identificativo iOS `it.giocodel101.giocoDel101`) e i servizi '
+            'online collegati.\n'
+            'Titolare del trattamento è $_entity. ${_privacyContactIt()}',
       ),
       const LegalSection(
         '2. Quali dati trattiamo',
@@ -383,8 +390,25 @@ class LegalContent {
             'l’account e i dati collegati, usa il contatto indicato in '
             'questa informativa.',
       ),
+      LegalSection(
+        '9. Come eliminare l’account e i dati',
+        'Puoi chiedere in qualsiasi momento l’eliminazione dell’account e '
+            'dei dati collegati. Scrivi dall’indirizzo email dell’account, '
+            'oppure indicando il nickname per un account ospite, al '
+            'contatto privacy riportato al punto 13. Entro 30 giorni '
+            'eliminiamo: account e credenziali, nickname e avatar, '
+            'statistiche online, obiettivi, missioni e posizione in '
+            'classifica, e le partite collegate al tuo account. '
+            'Restano soltanto le registrazioni degli acquisti richieste '
+            'dagli obblighi contabili e di legge, e i log tecnici di '
+            'sicurezza per il loro breve periodo di conservazione. '
+            'I dati che non lasciano mai il dispositivo — preferenze, '
+            'statistiche offline, partite salvate — si eliminano '
+            'disinstallando l’app o cancellando i suoi dati dalle '
+            'impostazioni del telefono.',
+      ),
       const LegalSection(
-        '9. Minori',
+        '10. Minori',
         'Il gioco è un passatempo di carte adatto a un pubblico generale e '
             'non è rivolto specificamente ai bambini. Gli acquisti '
             'richiedono l’account dello store del dispositivo, i cui '
@@ -392,19 +416,19 @@ class LegalContent {
             'limiti di spesa) restano validi.',
       ),
       const LegalSection(
-        '10. Trasferimenti internazionali',
+        '11. Trasferimenti internazionali',
         'I server dei fornitori possono trovarsi in paesi diversi dal tuo. '
             'In tal caso il trasferimento avviene con le garanzie previste '
             'dalla normativa applicabile (ad esempio clausole contrattuali '
             'standard).',
       ),
       const LegalSection(
-        '11. Modifiche a questa informativa',
+        '12. Modifiche a questa informativa',
         'Aggiorneremo questa informativa quando cambia il modo in cui '
             'trattiamo i dati. La versione in vigore è sempre disponibile '
             'nell’app con la sua data di aggiornamento.',
       ),
-      LegalSection('12. Contatti', _privacyContactIt()),
+      LegalSection('13. Contatti', _privacyContactIt()),
     ],
   );
 
@@ -413,7 +437,10 @@ class LegalContent {
     sections: [
       LegalSection(
         '1. Data controller',
-        'The data controller is $_entity. ${_privacyContactEn()}',
+        'This policy covers the application “Gioco del 101” (Android id '
+            '`it.giocodel101.gioco_del_101`, iOS id '
+            '`it.giocodel101.giocoDel101`) and its online services.\n'
+            'The data controller is $_entity. ${_privacyContactEn()}',
       ),
       const LegalSection(
         '2. What data we process',
@@ -487,26 +514,41 @@ class LegalContent {
             'exercise these rights — including deleting your account and '
             'its data — use the contact given in this policy.',
       ),
+      LegalSection(
+        '9. Deleting your account and your data',
+        'You can ask for your account and its data to be deleted at any '
+            'time. Write to the privacy contact in section 13 from the '
+            'account’s email address, or quoting the nickname for a guest '
+            'account. Within 30 days we erase: the account and its '
+            'credentials, nickname and avatar, online statistics, '
+            'achievements, missions and leaderboard position, and the '
+            'matches tied to your account. Only purchase records required '
+            'by accounting and legal obligations remain, together with '
+            'technical security logs for their short retention period. '
+            'Data that never leaves the device — preferences, offline '
+            'statistics, saved games — is removed by uninstalling the app '
+            'or clearing its data in the phone’s settings.',
+      ),
       const LegalSection(
-        '9. Children',
+        '10. Children',
         'The game is a card pastime for a general audience and is not '
             'directed specifically at children. Purchases require the '
             'device store account, whose parental controls (purchase '
             'approval, spending limits) continue to apply.',
       ),
       const LegalSection(
-        '10. International transfers',
+        '11. International transfers',
         'Provider servers may be located in countries other than yours. '
             'Where that happens, transfers rely on the safeguards provided '
             'by applicable law (for example standard contractual clauses).',
       ),
       const LegalSection(
-        '11. Changes to this policy',
+        '12. Changes to this policy',
         'We will update this policy whenever the way we process data '
             'changes. The current version is always available in the app '
             'with its update date.',
       ),
-      LegalSection('12. Contact', _privacyContactEn()),
+      LegalSection('13. Contact', _privacyContactEn()),
     ],
   );
 }
