@@ -261,6 +261,53 @@ void main() {
     });
   });
 
+  group('complimentary accounts (§iap)', () {
+    test('the grant covers every product the shop sells, and never expires',
+        () {
+      final sql = File(
+        'supabase/migrations/20260906170000_comp_accounts.sql',
+      ).readAsStringSync();
+      for (final p in ShopCatalog.products) {
+        expect(sql, contains("'${p.entitlement}'"), reason: p.entitlement);
+        expect(sql, contains("'${p.id}'"), reason: p.id);
+      }
+      // Lifetime: the app treats a null expiry as "forever".
+      expect(sql, contains('expires_at  = null'));
+      // Marked as what it is, so a comp can be told from a real receipt.
+      expect(sql, contains("'sandbox'"));
+    });
+
+    test('it is server-side only — nothing in the app grants anything', () {
+      final lib = Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart'));
+      for (final f in lib) {
+        final text = f.readAsStringSync();
+        expect(
+          text.contains('comp_accounts') ||
+              text.contains('grant_comp_entitlements'),
+          isFalse,
+          reason: '${f.path} must not know about complimentary accounts',
+        );
+      }
+    });
+
+    test('the allow-list lives where no client can reach it', () {
+      final sql = File(
+        'supabase/migrations/20260906170000_comp_accounts.sql',
+      ).readAsStringSync();
+      expect(sql, contains('app_private.comp_accounts'));
+      expect(
+        sql,
+        contains(
+          'revoke all on function app_private.grant_comp_entitlements(uuid) '
+          'from public, anon, authenticated',
+        ),
+      );
+    });
+  });
+
   group('deleting the account (§privacy, Play account-deletion policy)', () {
     test('the migration exposes exactly one self-service RPC', () {
       final sql = File(
