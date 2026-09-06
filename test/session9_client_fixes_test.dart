@@ -26,7 +26,10 @@ import 'package:gioco_del_101/app/theme/card_backs.dart';
 import 'package:gioco_del_101/app/theme/table_themes.dart';
 import 'package:gioco_del_101/core/storage/local_storage.dart';
 import 'package:gioco_del_101/core/utils/motion.dart';
+import 'package:gioco_del_101/features/auth/domain/auth_gateway.dart';
+import 'package:gioco_del_101/features/auth/domain/auth_session.dart';
 import 'package:gioco_del_101/features/auth/presentation/auth_landing_screen.dart';
+import 'package:gioco_del_101/features/legal/domain/legal_content.dart';
 import 'package:gioco_del_101/features/game/domain/game_rules.dart';
 import 'package:gioco_del_101/features/purchases/domain/shop_catalog.dart';
 import 'package:gioco_del_101/features/settings/application/settings_controller.dart';
@@ -189,6 +192,50 @@ void main() {
       // A table nobody sells keeps its proper name in both languages.
       expect(TableThemes.byId('napoli_notte').displayName, 'Napoli Notte');
       Strings.use(const Locale('it'));
+    });
+  });
+
+  group('deleting the account (§privacy, Play account-deletion policy)', () {
+    test('the migration exposes exactly one self-service RPC', () {
+      final sql = File(
+        'supabase/migrations/20260906140000_delete_my_account.sql',
+      ).readAsStringSync();
+      // It must act on auth.uid() alone: an id parameter would let a signed-in
+      // player delete somebody else.
+      expect(sql, contains('delete_my_account()'));
+      expect(sql, contains('auth.uid()'));
+      expect(sql, contains('delete from auth.users where id = v_user'));
+      expect(sql, contains('security definer'));
+      // A live match must stop it; a lobby seat is merely vacated.
+      expect(sql, contains('assert_not_in_match'));
+      expect(sql, contains('leave_all_lobbies'));
+      // anon must never reach it.
+      expect(sql, contains('revoke all on function public.delete_my_account()'));
+      expect(sql, contains('grant execute on function public.delete_my_account() to authenticated'));
+    });
+
+    test('without a backend there is no account to delete', () async {
+      final gateway = NoBackendAuthGateway();
+      expect(await gateway.deleteAccount(), AccountDeletion.unavailable);
+    });
+
+    test('the privacy policy names the in-app route, in both languages', () {
+      for (final locale in const ['it', 'en']) {
+        final section = LegalContent.privacy(locale).sections.firstWhere(
+          (s) => s.title.contains('9.'),
+        );
+        expect(
+          section.title.toLowerCase(),
+          anyOf(contains('elimin'), contains('delet')),
+          reason: locale,
+        );
+        // Play looks for a route a user can actually follow.
+        expect(
+          section.body,
+          anyOf(contains('Impostazioni'), contains('Settings')),
+          reason: locale,
+        );
+      }
     });
   });
 

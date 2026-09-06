@@ -38,6 +38,27 @@ enum AuthErrorCode {
   unknown,
 }
 
+/// What happened when the player asked for their account to be erased.
+///
+/// Deletion is not an [AuthOutcome]: it succeeds by leaving nobody signed in,
+/// and its one interesting refusal — a match still in progress — has nothing
+/// to do with credentials.
+enum AccountDeletion {
+  /// The account and everything it owned is gone.
+  done,
+
+  /// Still seated at a live online match. Deleting would pull the seat out
+  /// from under the other players, so the server refuses until it ends.
+  inLiveMatch,
+
+  notSignedIn,
+  network,
+
+  /// No backend is compiled in, so there is no account to delete.
+  unavailable,
+  unknown,
+}
+
 /// The outcome of one auth call. Exactly one of the three.
 sealed class AuthOutcome {
   const AuthOutcome();

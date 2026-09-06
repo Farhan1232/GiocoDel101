@@ -78,6 +78,19 @@ class SessionController extends GetxController {
     }
   }
 
+  /// Erases the account. On success nobody is signed in — and that is a
+  /// deliberate sign-out, so the "session expired" notice must not fire.
+  Future<AccountDeletion> deleteAccount() async {
+    _signingOut = true;
+    try {
+      final result = await gateway.deleteAccount();
+      if (result == AccountDeletion.done) session.value = null;
+      return result;
+    } finally {
+      _signingOut = false;
+    }
+  }
+
   Future<AuthOutcome> _adopt(Future<AuthOutcome> call) async {
     final outcome = await call;
     if (outcome is AuthSuccess) session.value = outcome.session;

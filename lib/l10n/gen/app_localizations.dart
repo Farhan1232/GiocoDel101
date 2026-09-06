@@ -2378,6 +2378,42 @@ abstract class AppLocalizations {
   /// **'ACCOUNT'**
   String get settingsAccount;
 
+  /// Row and dialog title for erasing the account.
+  ///
+  /// In it, this message translates to:
+  /// **'Elimina account'**
+  String get settingsDeleteAccount;
+
+  /// Explains exactly what deleting the account removes.
+  ///
+  /// In it, this message translates to:
+  /// **'Vengono eliminati definitivamente il tuo account, il nickname, le statistiche online, gli obiettivi, le missioni e la posizione in classifica. Gli acquisti restano legati al tuo account dello store e possono essere ripristinati su un nuovo account. L’operazione non è reversibile.'**
+  String get settingsDeleteAccountBody;
+
+  /// The destructive confirm button.
+  ///
+  /// In it, this message translates to:
+  /// **'Elimina definitivamente'**
+  String get settingsDeleteAccountConfirm;
+
+  /// Shown once the account has been erased.
+  ///
+  /// In it, this message translates to:
+  /// **'Account eliminato.'**
+  String get settingsDeleteAccountDone;
+
+  /// Generic failure while deleting the account.
+  ///
+  /// In it, this message translates to:
+  /// **'Non siamo riusciti a eliminare l’account. Riprova.'**
+  String get settingsDeleteAccountFailed;
+
+  /// Refusal: the player is still seated at a live online match.
+  ///
+  /// In it, this message translates to:
+  /// **'Sei ancora in una partita online. Finiscila o abbandonala, poi riprova.'**
+  String get settingsDeleteAccountInMatch;
+
   /// No description provided for @settingsGuestLogoutBody.
   ///
   /// In it, this message translates to:

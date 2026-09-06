@@ -22,6 +22,7 @@ import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/premium_button.dart';
 import '../../auth/application/session_controller.dart';
+import '../../auth/domain/auth_session.dart';
 import '../../game/application/match_launcher.dart';
 import '../../online/application/online_match_launcher.dart';
 import '../../online/domain/online_status.dart';
@@ -532,6 +533,19 @@ class _SettingsTabState extends State<SettingsTab> {
                 onPressed: () => _signOut(session),
               );
             }),
+            // Erasing the account is offered only to someone who has one.
+            Obx(() {
+              if (session.session.value == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.sm),
+                child: PremiumButton(
+                  label: s.settingsDeleteAccount,
+                  variant: ButtonVariant.ghost,
+                  size: ButtonSize.small,
+                  onPressed: () => _deleteAccount(session),
+                ),
+              );
+            }),
           ],
         ],
       ),
@@ -555,6 +569,48 @@ class _SettingsTabState extends State<SettingsTab> {
     OnlineMatchLauncher.dismiss();
     TutorialLauncher.dismiss();
     await session.signOut();
+    await Get.offAllNamed<void>(AppRoutes.authLanding);
+  }
+
+  /// §privacy — erases the account, which Google Play requires an app that
+  /// creates accounts to offer. The dialog says in full what goes; there is
+  /// no undo, so it asks once and plainly rather than twice and vaguely.
+  Future<void> _deleteAccount(SessionController session) async {
+    final s = Strings.s;
+    final ok = await AppDialog.confirm(
+      title: s.settingsDeleteAccount,
+      body: s.settingsDeleteAccountBody,
+      confirmLabel: s.settingsDeleteAccountConfirm,
+      cancelLabel: s.cancel,
+      destructive: true,
+    );
+    if (!ok) return;
+
+    final result = await session.deleteAccount();
+    if (result != AccountDeletion.done) {
+      await AppDialog.notice(
+        title: s.commonErrorTitle,
+        body: switch (result) {
+          AccountDeletion.inLiveMatch => s.settingsDeleteAccountInMatch,
+          AccountDeletion.network => s.premiumNetwork,
+          AccountDeletion.notSignedIn => s.onlineSignInRequired,
+          _ => s.settingsDeleteAccountFailed,
+        },
+        dismissLabel: s.gotIt,
+      );
+      return;
+    }
+
+    // Same teardown as signing out: no driver may survive with its timers
+    // and channels into a session that no longer has an account behind it.
+    MatchLauncher.dismiss();
+    OnlineMatchLauncher.dismiss();
+    TutorialLauncher.dismiss();
+    await AppDialog.notice(
+      title: s.settingsDeleteAccount,
+      body: s.settingsDeleteAccountDone,
+      dismissLabel: s.gotIt,
+    );
     await Get.offAllNamed<void>(AppRoutes.authLanding);
   }
 }

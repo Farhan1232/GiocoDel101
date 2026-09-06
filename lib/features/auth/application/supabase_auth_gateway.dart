@@ -102,6 +102,35 @@ class SupabaseAuthGateway implements AuthGateway {
     }
   }
 
+  @override
+  Future<AccountDeletion> deleteAccount() async {
+    try {
+      // The server acts on `auth.uid()` and nothing else, so there is no id
+      // to pass and none to tamper with. Everything the account owns goes
+      // with it through the cascade from `auth.users`.
+      await _client.rpc<void>('delete_my_account');
+    } on sb.PostgrestException catch (error) {
+      Log.d('auth: delete ${error.code} ${error.message}');
+      final m = error.message;
+      if (m.contains('already_in_match')) return AccountDeletion.inLiveMatch;
+      if (m.contains('not_authenticated') || error.code == '42501') {
+        return AccountDeletion.notSignedIn;
+      }
+      return AccountDeletion.unknown;
+    } on SocketException {
+      return AccountDeletion.network;
+    } on TimeoutException {
+      return AccountDeletion.network;
+    } catch (error) {
+      Log.d('auth: delete $error');
+      return AccountDeletion.unknown;
+    }
+    // The account is gone, so the token is already worthless; this only
+    // clears it from the device. It cannot fail in a way that matters.
+    await signOut();
+    return AccountDeletion.done;
+  }
+
   Future<AuthOutcome> _guard(Future<AuthOutcome> Function() call) async {
     try {
       return await call();

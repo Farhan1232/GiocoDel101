@@ -1308,6 +1308,27 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsAccount => 'ACCOUNT';
 
   @override
+  String get settingsDeleteAccount => 'Elimina account';
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'Vengono eliminati definitivamente il tuo account, il nickname, le statistiche online, gli obiettivi, le missioni e la posizione in classifica. Gli acquisti restano legati al tuo account dello store e possono essere ripristinati su un nuovo account. L’operazione non è reversibile.';
+
+  @override
+  String get settingsDeleteAccountConfirm => 'Elimina definitivamente';
+
+  @override
+  String get settingsDeleteAccountDone => 'Account eliminato.';
+
+  @override
+  String get settingsDeleteAccountFailed =>
+      'Non siamo riusciti a eliminare l’account. Riprova.';
+
+  @override
+  String get settingsDeleteAccountInMatch =>
+      'Sei ancora in una partita online. Finiscila o abbandonala, poi riprova.';
+
+  @override
   String get settingsGuestLogoutBody =>
       'Sei un ospite: uscendo perderai questo account e i suoi progressi online per sempre.';
 

@@ -77,6 +77,9 @@ class _SignedInGateway implements AuthGateway {
       const AuthSuccess(session);
   @override
   Future<void> signOut() async {}
+
+  @override
+  Future<AccountDeletion> deleteAccount() async => AccountDeletion.done;
 }
 
 /// A queue where nobody else ever shows up.

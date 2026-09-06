@@ -403,4 +403,10 @@ class _FlakyGateway implements AuthGateway {
     _current = null;
     _changes.add(null);
   }
+
+  @override
+  Future<AccountDeletion> deleteAccount() async {
+    await signOut();
+    return AccountDeletion.done;
+  }
 }

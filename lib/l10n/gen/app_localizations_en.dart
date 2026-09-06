@@ -1302,6 +1302,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAccount => 'ACCOUNT';
 
   @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'This permanently deletes your account, nickname, online statistics, achievements, missions and leaderboard position. Purchases stay tied to your store account and can be restored on a new one. This cannot be undone.';
+
+  @override
+  String get settingsDeleteAccountConfirm => 'Delete permanently';
+
+  @override
+  String get settingsDeleteAccountDone => 'Account deleted.';
+
+  @override
+  String get settingsDeleteAccountFailed =>
+      'We could not delete the account. Please try again.';
+
+  @override
+  String get settingsDeleteAccountInMatch =>
+      'You are still in an online match. Finish or leave it, then try again.';
+
+  @override
   String get settingsGuestLogoutBody =>
       'You are a guest: signing out loses this account and its online progress for good.';
 

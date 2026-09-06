@@ -662,6 +662,30 @@
   "sessionExpired": "Sessione scaduta. Accedi di nuovo.",
   "settings": "Impostazioni",
   "settingsAccount": "ACCOUNT",
+  "settingsDeleteAccount": "Elimina account",
+  "@settingsDeleteAccount": {
+    "description": "Row and dialog title for erasing the account."
+  },
+  "settingsDeleteAccountBody": "Vengono eliminati definitivamente il tuo account, il nickname, le statistiche online, gli obiettivi, le missioni e la posizione in classifica. Gli acquisti restano legati al tuo account dello store e possono essere ripristinati su un nuovo account. L’operazione non è reversibile.",
+  "@settingsDeleteAccountBody": {
+    "description": "Explains exactly what deleting the account removes."
+  },
+  "settingsDeleteAccountConfirm": "Elimina definitivamente",
+  "@settingsDeleteAccountConfirm": {
+    "description": "The destructive confirm button."
+  },
+  "settingsDeleteAccountDone": "Account eliminato.",
+  "@settingsDeleteAccountDone": {
+    "description": "Shown once the account has been erased."
+  },
+  "settingsDeleteAccountFailed": "Non siamo riusciti a eliminare l’account. Riprova.",
+  "@settingsDeleteAccountFailed": {
+    "description": "Generic failure while deleting the account."
+  },
+  "settingsDeleteAccountInMatch": "Sei ancora in una partita online. Finiscila o abbandonala, poi riprova.",
+  "@settingsDeleteAccountInMatch": {
+    "description": "Refusal: the player is still seated at a live online match."
+  },
   "settingsGuestLogoutBody": "Sei un ospite: uscendo perderai questo account e i suoi progressi online per sempre.",
   "settingsLanguage": "Lingua",
   "settingsLanguageEnglish": "Inglese",

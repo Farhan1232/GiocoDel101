@@ -11,12 +11,13 @@ signed `CN=Gioco del 101`.
 
 ## 0. Two blockers to clear before you start
 
-**a) Account deletion — Play will reject without it.**
-The app lets people create accounts, so Google requires *both* an in-app way
-to delete the account and a **publicly reachable web page** that explains how
-to request deletion. The app has neither today. This is code work (an
-"Elimina account" row in Impostazioni plus a server function) — a few hours.
-Tell me and I will build it.
+**a) Account deletion — done.**
+Google requires an app that creates accounts to offer deletion both in the app
+and on a public web page. Both now exist: **Impostazioni → ACCOUNT → Elimina
+account** erases the account immediately (server RPC `delete_my_account`,
+deployed and tested against the live project), and section 9 of the privacy
+policy describes the route for the web side. Nothing left to do here beyond
+hosting the policy.
 
 **b) A hosted privacy policy URL.**
 Play refuses the form without one. `documentation/privacy-policy.html` is the
@@ -189,8 +190,7 @@ declaration and stricter data rules — avoid it unless you want that audience.
 **Does your app collect or share any of the required user data types? → Yes**
 **Is all of the data encrypted in transit? → Yes**
 **Do you provide a way for users to request that their data is deleted? → Yes**
-(only after §0(a) exists — this is the question that makes account deletion
-mandatory)
+(true now: the in-app route plus the policy page — see §0(a))
 
 Declare exactly these, all **collected, NOT shared** (Supabase and Google are
 processors acting on your behalf, which Play does not count as sharing):

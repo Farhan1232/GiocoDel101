@@ -35,6 +35,11 @@ abstract class AuthGateway {
   Future<AuthOutcome> sendPasswordReset(String email);
 
   Future<void> signOut();
+
+  /// Erases the signed-in account and everything it owns, then leaves the
+  /// device signed out. Google Play requires an app that creates accounts to
+  /// offer this from inside the app.
+  Future<AccountDeletion> deleteAccount();
 }
 
 /// The gateway used when there is nothing to authenticate against.
@@ -77,4 +82,7 @@ class NoBackendAuthGateway implements AuthGateway {
 
   @override
   Future<void> signOut() async {}
+
+  @override
+  Future<AccountDeletion> deleteAccount() async => AccountDeletion.unavailable;
 }

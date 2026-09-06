@@ -79,6 +79,19 @@ class FakeAuthGateway implements AuthGateway {
     calls.add('signOut');
     _current = null;
   }
+
+  /// What the server will answer next. The default is a clean deletion.
+  AccountDeletion deletion = AccountDeletion.done;
+
+  @override
+  Future<AccountDeletion> deleteAccount() async {
+    calls.add('deleteAccount');
+    if (deletion == AccountDeletion.done) {
+      _current = null;
+      calls.add('signOut');
+    }
+    return deletion;
+  }
 }
 
 const _guest = AuthSession(userId: 'u-guest', isGuest: true);
