@@ -897,7 +897,7 @@
   "tutorialPlayNow": "GIOCA CONTRO IL COMPUTER",
   "tutorialReplay": "Rifai il tutorial",
   "tutorialScoring": "Punteggio",
-  "tutorialScoringBody": "A fine round ogni carta rimasta vale il suo numero: Asso 1, Fante 8, Cavallo 9, Re 10. I punti si sommano al totale.",
+  "tutorialScoringBody": "A fine round ogni carta rimasta vale il suo numero: Asso 1, Re 10. Fante e Cavallo valgono 25 ciascuno. I punti si sommano al totale.",
   "tutorialTitle": "Tutorial interattivo",
   "tutorialTwo": "Due — pesca due",
   "tutorialTwoBody": "Il 2 obbliga il prossimo a pescare due carte. Se ha un altro 2 può rilanciare: +4, +6, +8. Chi si ferma pesca tutto e perde il turno.",
