@@ -49,7 +49,9 @@ import 'package:gioco_del_101/app/theme/card_backs.dart';
 import 'package:gioco_del_101/core/widgets/cards/playing_card.dart';
 import 'package:gioco_del_101/features/achievements/presentation/achievements_screen.dart';
 import 'package:gioco_del_101/features/auth/presentation/auth_landing_screen.dart';
+import 'package:gioco_del_101/features/auth/presentation/forgot_password_screen.dart';
 import 'package:gioco_del_101/features/auth/presentation/login_screen.dart';
+import 'package:gioco_del_101/features/auth/presentation/reset_password_screen.dart';
 import 'package:gioco_del_101/features/auth/presentation/signup_screen.dart';
 import 'package:gioco_del_101/features/leaderboard/presentation/leaderboard_screen.dart';
 import 'package:gioco_del_101/features/onboarding/presentation/onboarding_screen.dart';
@@ -373,6 +375,8 @@ void main() {
           _frame(const AuthLandingScreen()),
           _frame(const LoginScreen()),
           _frame(const SignupScreen()),
+          _frame(const ForgotPasswordScreen()),
+          _frame(const ResetPasswordScreen()),
         ]);
 
       case 'rooms':

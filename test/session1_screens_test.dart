@@ -236,13 +236,18 @@ void main() {
       expect(find.text(s.leaderboardEmpty), findsOneWidget);
     });
 
-    testWidgets('the daily reward cannot be claimed yet', (tester) async {
+    testWidgets('the daily reward says why it cannot be claimed yet', (
+      tester,
+    ) async {
       await _render(tester, const DailyRewardScreen(), sizes.first);
       final s = Strings.s;
+      // Pressable on purpose: a button that does nothing explains nothing,
+      // so the refusal is spoken instead of being a greyed-out rectangle.
       final claim = tester.widget<PremiumButton>(
         find.widgetWithText(PremiumButton, s.dailyRewardClaim),
       );
-      expect(claim.onPressed, isNull);
+      expect(claim.onPressed, isNotNull);
+      expect(find.text(s.authBackendPending), findsOneWidget);
     });
   });
 

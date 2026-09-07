@@ -118,18 +118,23 @@ class ScreenScaffold extends StatelessWidget {
             const SizedBox(width: 44),
           Expanded(
             // Italian titles run longer than English ones; shrink to fit
-            // rather than ellipsing a screen's own name.
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                title ?? '',
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: AppText.screenTitle.copyWith(
-                  fontSize: 18,
-                  color: theme.isLight
-                      ? AppColors.inkDeep
-                      : AppColors.textPrimary,
+            // rather than ellipsing a screen's own name. The gutter keeps a
+            // full-width title off the back button instead of letting the
+            // two touch ("Ricompensa giornaliera" did).
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title ?? '',
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  style: AppText.screenTitle.copyWith(
+                    fontSize: 18,
+                    color: theme.isLight
+                        ? AppColors.inkDeep
+                        : AppColors.textPrimary,
+                  ),
                 ),
               ),
             ),
