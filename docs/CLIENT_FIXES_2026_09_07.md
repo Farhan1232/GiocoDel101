@@ -27,11 +27,11 @@ other half.
   `it.giocodel101://reset-password`, overridable at build time.
 - The Android manifest and the iOS `Info.plist` claim that URL, so the phone
   hands it to the game instead of to a browser.
-- `supabase/config.toml` lists it in the redirect allow-list. **This one
-  change has to be applied to the Supabase project** — the dashboard field
-  or `supabase config push`; until it is, Supabase substitutes the Site URL
-  and the link still dead-ends. `docs/PASSWORD_RESET.md` has both routes and
-  a one-line curl that proves which is in effect.
+- `supabase/config.toml` lists it in the redirect allow-list, and that was
+  **applied to the live project on 2026-09-07** and verified: the URL now
+  comes back in Supabase's `location` header instead of being replaced by
+  the Site URL. `docs/PASSWORD_RESET.md` has the one-line curl that proves
+  it, for the next project.
 - A new **"Nuova password"** screen: new password, confirmation, the same
   validation as sign-up, and the account is signed in with it immediately.
 - The app shell opens that screen by itself when a reset link is opened, and
@@ -115,10 +115,10 @@ What was verified, what is missing, and the order to run closed testing in:
 
 ## What the owner still has to do
 
-1. **Supabase → Redirect URLs**: add `it.giocodel101://reset-password`
-   (or `supabase config push`). Password reset is not finished without it.
-2. **Supabase → SMTP**: the built-in sender is a development one and will
-   not deliver reset mail to real testers.
+1. ~~**Supabase → Redirect URLs**~~ — done on 2026-09-07 and verified live.
+2. **Supabase → SMTP**: the built-in sender **refuses to deliver to any
+   address that is not on the project's team**, so reset mail will not reach
+   testers until a provider is connected.
 3. **`verify-purchase` secrets**: `GOOGLE_SERVICE_ACCOUNT_JSON` and
    `ANDROID_PACKAGE_NAME`, from a Play service account.
 4. **Play Console**: the five products active, license testers configured,

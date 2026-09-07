@@ -53,11 +53,20 @@ the URL against each other, so they cannot drift apart silently.
 
 ## Two settings on the Supabase project
 
-### 1. Allow the redirect (required — the link will not work without it)
+### 1. Allow the redirect — **done on 2026-09-07**
 
 Supabase refuses any `redirect_to` it was not told about and quietly
 substitutes the Site URL instead, which is exactly the failure this release
-fixes. Add the URL once:
+fixes.
+
+`it.giocodel101://reset-password` was pushed to **GiocoDel101-Dev** with
+`supabase config push` on 2026-09-07 and verified live: the allow-listed URL
+now comes back in the `location` header while an unlisted one is still
+replaced by the Site URL. The auth diff was that one line; nothing else on
+the project changed.
+
+It is recorded here because **a new project needs it again**. To add it by
+hand:
 
 **Dashboard** → Authentication → URL Configuration → **Redirect URLs** → add
 
