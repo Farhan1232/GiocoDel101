@@ -350,6 +350,18 @@ abstract class AppLocalizations {
   /// **'Troppi tentativi. Attendi un momento e riprova.'**
   String get authErrorRateLimited;
 
+  /// No description provided for @authErrorResetLinkExpired.
+  ///
+  /// In it, this message translates to:
+  /// **'Il link non è più valido. Richiedine uno nuovo.'**
+  String get authErrorResetLinkExpired;
+
+  /// No description provided for @authErrorSamePassword.
+  ///
+  /// In it, this message translates to:
+  /// **'La nuova password è uguale a quella attuale. Scegline un’altra.'**
+  String get authErrorSamePassword;
+
   /// No description provided for @authErrorUnknown.
   ///
   /// In it, this message translates to:
@@ -794,6 +806,18 @@ abstract class AppLocalizations {
   /// **'Torna domani'**
   String get dailyRewardTomorrow;
 
+  /// No description provided for @dailyRewardWonBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Hai ricevuto {coins} monete.'**
+  String dailyRewardWonBody(int coins);
+
+  /// No description provided for @dailyRewardWonTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Ricompensa ritirata'**
+  String get dailyRewardWonTitle;
+
   /// Badge on the seat that dealt the current round (§12a).
   ///
   /// In it, this message translates to:
@@ -932,6 +956,12 @@ abstract class AppLocalizations {
   /// **'Nickname'**
   String get fieldNickname;
 
+  /// No description provided for @fieldNewPassword.
+  ///
+  /// In it, this message translates to:
+  /// **'Nuova password'**
+  String get fieldNewPassword;
+
   /// No description provided for @fieldPassword.
   ///
   /// In it, this message translates to:
@@ -967,6 +997,12 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Se esiste un account per {email}, il link per reimpostare la password è in arrivo.'**
   String forgotSentBody(String email);
+
+  /// No description provided for @forgotSentHint.
+  ///
+  /// In it, this message translates to:
+  /// **'Apri il link su questo telefono, entro un’ora.'**
+  String get forgotSentHint;
 
   /// No description provided for @forgotSentTitle.
   ///
@@ -2191,6 +2227,42 @@ abstract class AppLocalizations {
   /// In it, this message translates to:
   /// **'Continua da dove eri rimasto'**
   String get resumeMatchHint;
+
+  /// No description provided for @resetLinkExpiredBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Il link per reimpostare la password non è più valido: è già stato usato, è scaduto, oppure è stato aperto su un altro dispositivo. Richiedine uno nuovo dalla schermata di accesso.'**
+  String get resetLinkExpiredBody;
+
+  /// No description provided for @resetPasswordBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Scegli la nuova password del tuo account.'**
+  String get resetPasswordBody;
+
+  /// No description provided for @resetPasswordCta.
+  ///
+  /// In it, this message translates to:
+  /// **'SALVA LA PASSWORD'**
+  String get resetPasswordCta;
+
+  /// No description provided for @resetPasswordDoneBody.
+  ///
+  /// In it, this message translates to:
+  /// **'Da ora accedi con la nuova password. Su questo telefono sei già dentro.'**
+  String get resetPasswordDoneBody;
+
+  /// No description provided for @resetPasswordDoneTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Password aggiornata'**
+  String get resetPasswordDoneTitle;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In it, this message translates to:
+  /// **'Nuova password'**
+  String get resetPasswordTitle;
 
   /// No description provided for @roomAlreadyInMatch.
   ///

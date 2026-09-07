@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import '../core/utils/motion.dart';
 import '../core/widgets/app_dialog.dart';
 import '../features/auth/application/session_controller.dart';
+import '../features/auth/domain/auth_gateway.dart';
 
 import '../features/game/application/game_controller.dart';
 import '../features/settings/application/settings_controller.dart';
@@ -33,6 +34,7 @@ class GiocoDel101App extends StatefulWidget {
 class _GiocoDel101AppState extends State<GiocoDel101App>
     with WidgetsBindingObserver {
   Worker? _sessionWatch;
+  Worker? _recoveryWatch;
 
   @override
   void initState() {
@@ -52,12 +54,47 @@ class _GiocoDel101AppState extends State<GiocoDel101App>
           ),
         );
       });
+      // A reset link brings the player back into the app from their mail
+      // client. Whatever screen the app happened to be on, this is the one
+      // thing they came to do — so it is shown, and a dead link is named
+      // rather than dropped.
+      _recoveryWatch = ever<PasswordRecovery?>(sessions.recovery, (event) {
+        if (event == null) return;
+        sessions.recovery.value = null;
+        unawaited(_answerResetLink(event));
+      });
+    }
+  }
+
+  /// Says what became of a reset link, once there is a screen to say it on.
+  ///
+  /// A link opened from cold reaches the app while the splash is still
+  /// running, and the splash ends by *replacing* whatever route is on top —
+  /// so anything pushed before it fires is thrown away. Waiting it out is
+  /// what keeps the cold-start path working; the bound is there so a stuck
+  /// splash cannot hold the message forever.
+  Future<void> _answerResetLink(PasswordRecovery event) async {
+    for (var i = 0; i < 40 && Get.currentRoute == AppRoutes.splash; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    if (!mounted) return;
+    final s = Strings.s;
+    switch (event) {
+      case PasswordRecovery.ready:
+        await Get.toNamed<void>(AppRoutes.resetPassword);
+      case PasswordRecovery.linkInvalid:
+        await AppDialog.notice(
+          title: s.commonErrorTitle,
+          body: s.resetLinkExpiredBody,
+          dismissLabel: s.gotIt,
+        );
     }
   }
 
   @override
   void dispose() {
     _sessionWatch?.dispose();
+    _recoveryWatch?.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

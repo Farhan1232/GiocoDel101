@@ -12,6 +12,7 @@ import '../../features/game/presentation/setup_screen.dart';
 import '../../features/achievements/presentation/achievements_screen.dart';
 import '../../features/auth/presentation/auth_landing_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
+import '../../features/auth/presentation/reset_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
@@ -44,6 +45,7 @@ class AppRoutes {
   static const String login = '/auth/login';
   static const String signup = '/auth/signup';
   static const String forgotPassword = '/auth/forgot-password';
+  static const String resetPassword = '/auth/reset-password';
 
   static const String home = '/home';
 
@@ -217,6 +219,12 @@ class AppPages {
     GetPage(
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordScreen(),
+      customTransition: _DepthTransition(from: 0.96, slide: 0.05),
+      transitionDuration: _d,
+    ),
+    GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => const ResetPasswordScreen(),
       customTransition: _DepthTransition(from: 0.96, slide: 0.05),
       transitionDuration: _d,
     ),

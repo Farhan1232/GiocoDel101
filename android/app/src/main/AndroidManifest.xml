@@ -27,6 +27,22 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- The password-reset link. Supabase redirects the browser to
+                 this URL after the emailed link is verified; Android hands it
+                 back to this activity, supabase_flutter exchanges the code it
+                 carries, and the app opens the "new password" screen.
+
+                 The scheme must match SupabaseEnv.passwordResetRedirect AND
+                 be listed in the project's redirect allow-list
+                 (supabase/config.toml, auth.additional_redirect_urls) — with
+                 either missing, Supabase substitutes the Site URL and the
+                 link never reaches the app. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="it.giocodel101" android:host="reset-password"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

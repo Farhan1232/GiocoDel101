@@ -95,7 +95,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final s = Strings.s;
       await AppDialog.notice(
         title: s.forgotSentTitle,
-        body: s.forgotSentBody(_email.text.trim()),
+        // The link is bound to this device by PKCE and lives an hour, so say
+        // so here rather than let the player discover it in a browser on
+        // their laptop.
+        body: '${s.forgotSentBody(_email.text.trim())}\n\n${s.forgotSentHint}',
         dismissLabel: s.gotIt,
       );
       _auth.reset();

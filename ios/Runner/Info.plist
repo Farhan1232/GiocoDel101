@@ -47,6 +47,24 @@
 			</array>
 		</dict>
 	</dict>
+	<!-- The password-reset link: Supabase redirects here after the emailed
+	     link is verified, iOS hands the URL to the app, and supabase_flutter
+	     exchanges the code it carries. Must match
+	     SupabaseEnv.passwordResetRedirect and the project's redirect
+	     allow-list (supabase/config.toml). -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>it.giocodel101.passwordReset</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>it.giocodel101</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

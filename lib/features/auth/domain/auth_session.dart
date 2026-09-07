@@ -35,6 +35,15 @@ enum AuthErrorCode {
 
   /// Anonymous sign-ins are switched off on the server.
   guestDisabled,
+
+  /// The new password is the one already on the account. Supabase refuses it
+  /// rather than pretending the change happened.
+  samePassword,
+
+  /// The reset link is spent: expired, already used, or opened on a phone
+  /// that never asked for it (the link and the device that requested it are
+  /// bound together by PKCE).
+  resetLinkExpired,
   unknown,
 }
 

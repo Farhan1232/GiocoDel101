@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../../online/domain/online_status.dart';
+import '../../../core/config/supabase_env.dart';
 import '../domain/auth_gateway.dart';
 import '../domain/auth_session.dart';
 import '../../../core/utils/log.dart';
+import 'password_reset_link.dart';
 
 /// [AuthGateway] over Supabase Auth.
 ///
@@ -31,6 +33,31 @@ class SupabaseAuthGateway implements AuthGateway {
   Stream<AuthSession?> get changes => _auth.onAuthStateChange
       .map((state) => _toSession(state.session))
       .distinct();
+
+  /// A reset link redeemed, or refused.
+  ///
+  /// Both arrive on the same stream and neither is a plain event: success is
+  /// the `passwordRecovery` change supabase_flutter raises after exchanging
+  /// the code, and failure is an *error* on that stream. An auth error can
+  /// also come from an unrelated token refresh, so one is only read as a dead
+  /// link when [PasswordResetLink] saw a link arrive moments earlier.
+  @override
+  Stream<PasswordRecovery> get passwordRecovery =>
+      _auth.onAuthStateChange.transform(
+        StreamTransformer<sb.AuthState, PasswordRecovery>.fromHandlers(
+          handleData: (state, sink) {
+            if (state.event != sb.AuthChangeEvent.passwordRecovery) return;
+            PasswordResetLink.consume();
+            sink.add(PasswordRecovery.ready);
+          },
+          handleError: (error, stackTrace, sink) {
+            if (!PasswordResetLink.isPending) return;
+            PasswordResetLink.consume();
+            Log.d('auth: reset link refused: $error');
+            sink.add(PasswordRecovery.linkInvalid);
+          },
+        ),
+      );
 
   static AuthSession? _toSession(sb.Session? session) {
     final user = session?.user;
@@ -87,9 +114,32 @@ class SupabaseAuthGateway implements AuthGateway {
 
   @override
   Future<AuthOutcome> sendPasswordReset(String email) => _guard(() async {
-    await _auth.resetPasswordForEmail(email.trim());
+    // The redirect is what brings the player back into the app: without it
+    // Supabase falls back to the project's Site URL and the link dead-ends in
+    // a browser. It must also be in the project's redirect allow-list
+    // (supabase/config.toml) or Supabase substitutes the Site URL anyway.
+    await _auth.resetPasswordForEmail(
+      email.trim(),
+      redirectTo: SupabaseEnv.passwordResetRedirect,
+    );
     // There is no session to return; success is "the request was accepted".
     return const AuthNeedsConfirmation('');
+  });
+
+  @override
+  Future<AuthOutcome> updatePassword(String password) => _guard(() async {
+    final response = await _auth.updateUser(
+      sb.UserAttributes(password: password),
+    );
+    if (response.user == null) return const AuthFailed(AuthErrorCode.unknown);
+    // The recovery session becomes an ordinary one: the player is signed in
+    // with the password they just chose, and nothing asks them to type it
+    // again to prove it worked.
+    final session = _toSession(_auth.currentSession);
+    if (session == null) {
+      return const AuthFailed(AuthErrorCode.resetLinkExpired);
+    }
+    return AuthSuccess(session);
   });
 
   @override
@@ -174,6 +224,13 @@ class SupabaseAuthGateway implements AuthGateway {
         return AuthErrorCode.rateLimited;
       case 'anonymous_provider_disabled':
         return AuthErrorCode.guestDisabled;
+      case 'same_password':
+        return AuthErrorCode.samePassword;
+      case 'otp_expired':
+      case 'flow_state_expired':
+      case 'flow_state_not_found':
+      case 'session_not_found':
+        return AuthErrorCode.resetLinkExpired;
     }
     switch (error.statusCode) {
       case '400':

@@ -11,6 +11,8 @@ extension AuthErrorCopy on AppLocalizations {
     AuthErrorCode.network => authErrorNetwork,
     AuthErrorCode.rateLimited => authErrorRateLimited,
     AuthErrorCode.guestDisabled => authErrorGuestDisabled,
+    AuthErrorCode.samePassword => authErrorSamePassword,
+    AuthErrorCode.resetLinkExpired => authErrorResetLinkExpired,
     AuthErrorCode.unknown => authErrorUnknown,
   };
 }

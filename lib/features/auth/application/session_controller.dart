@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../../../core/utils/log.dart';
 import '../domain/auth_gateway.dart';
 import '../domain/auth_session.dart';
 
@@ -22,7 +23,13 @@ class SessionController extends GetxController {
   /// app shell shows "Sessione scaduta" and lowers it again.
   final RxBool expired = false.obs;
 
+  /// Set when the app is opened through a password-reset link — with the
+  /// recovery session live, or with the news that the link is spent. The app
+  /// shell reads it, acts on it, and lowers it again.
+  final Rxn<PasswordRecovery> recovery = Rxn<PasswordRecovery>();
+
   StreamSubscription<AuthSession?>? _sub;
+  StreamSubscription<PasswordRecovery>? _recoverySub;
   bool _signingOut = false;
 
   AuthSession? get current => session.value;
@@ -37,11 +44,22 @@ class SessionController extends GetxController {
     // so what the gateway reports here is the real restored state — the
     // splash never has to wait on a second round trip.
     session.value = gateway.current;
-    _sub = gateway.changes.listen((next) {
-      final had = session.value != null;
-      session.value = next;
-      if (had && next == null && !_signingOut) expired.value = true;
-    });
+    _sub = gateway.changes.listen(
+      (next) {
+        final had = session.value != null;
+        session.value = next;
+        if (had && next == null && !_signingOut) expired.value = true;
+      },
+      // Supabase reports some failures — a refresh it could not make, a deep
+      // link it could not redeem — as an error on this stream. It is not a
+      // session change and must not become an unhandled one: the session
+      // stands until the backend actually takes it away.
+      onError: (Object error) => Log.d('auth: stream $error'),
+    );
+    _recoverySub = gateway.passwordRecovery.listen(
+      (event) => recovery.value = event,
+      onError: (Object error) => Log.d('auth: recovery stream $error'),
+    );
   }
 
   Future<AuthOutcome> signUp({
@@ -67,6 +85,9 @@ class SessionController extends GetxController {
 
   Future<AuthOutcome> sendPasswordReset(String email) =>
       gateway.sendPasswordReset(email);
+
+  Future<AuthOutcome> updatePassword(String password) =>
+      _adopt(gateway.updatePassword(password));
 
   Future<void> signOut() async {
     _signingOut = true;
@@ -100,6 +121,7 @@ class SessionController extends GetxController {
   @override
   void onClose() {
     _sub?.cancel();
+    _recoverySub?.cancel();
     super.onClose();
   }
 }

@@ -147,6 +147,14 @@ class AppLocalizationsIt extends AppLocalizations {
       'Troppi tentativi. Attendi un momento e riprova.';
 
   @override
+  String get authErrorResetLinkExpired =>
+      'Il link non è più valido. Richiedine uno nuovo.';
+
+  @override
+  String get authErrorSamePassword =>
+      'La nuova password è uguale a quella attuale. Scegline un’altra.';
+
+  @override
   String get authErrorUnknown => 'Qualcosa è andato storto durante l’accesso.';
 
   @override
@@ -395,6 +403,14 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dailyRewardTomorrow => 'Torna domani';
 
   @override
+  String dailyRewardWonBody(int coins) {
+    return 'Hai ricevuto $coins monete.';
+  }
+
+  @override
+  String get dailyRewardWonTitle => 'Ricompensa ritirata';
+
+  @override
   String get dealerBadge => 'MAZZIERE';
 
   @override
@@ -466,6 +482,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get fieldNickname => 'Nickname';
 
   @override
+  String get fieldNewPassword => 'Nuova password';
+
+  @override
   String get fieldPassword => 'Password';
 
   @override
@@ -485,6 +504,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String forgotSentBody(String email) {
     return 'Se esiste un account per $email, il link per reimpostare la password è in arrivo.';
   }
+
+  @override
+  String get forgotSentHint => 'Apri il link su questo telefono, entro un’ora.';
 
   @override
   String get forgotSentTitle => 'Email inviata';
@@ -1212,6 +1234,26 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get resumeMatchHint => 'Continua da dove eri rimasto';
+
+  @override
+  String get resetLinkExpiredBody =>
+      'Il link per reimpostare la password non è più valido: è già stato usato, è scaduto, oppure è stato aperto su un altro dispositivo. Richiedine uno nuovo dalla schermata di accesso.';
+
+  @override
+  String get resetPasswordBody => 'Scegli la nuova password del tuo account.';
+
+  @override
+  String get resetPasswordCta => 'SALVA LA PASSWORD';
+
+  @override
+  String get resetPasswordDoneBody =>
+      'Da ora accedi con la nuova password. Su questo telefono sei già dentro.';
+
+  @override
+  String get resetPasswordDoneTitle => 'Password aggiornata';
+
+  @override
+  String get resetPasswordTitle => 'Nuova password';
 
   @override
   String get roomAlreadyInMatch =>

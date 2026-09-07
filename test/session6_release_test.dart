@@ -399,6 +399,14 @@ class _FlakyGateway implements AuthGateway {
       const AuthFailed(AuthErrorCode.unavailable);
 
   @override
+  Future<AuthOutcome> updatePassword(String password) async =>
+      const AuthFailed(AuthErrorCode.unavailable);
+
+  @override
+  Stream<PasswordRecovery> get passwordRecovery =>
+      const Stream<PasswordRecovery>.empty();
+
+  @override
   Future<void> signOut() async {
     _current = null;
     _changes.add(null);

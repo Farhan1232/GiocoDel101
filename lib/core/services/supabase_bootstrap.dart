@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../features/auth/application/password_reset_link.dart';
 import '../config/supabase_env.dart';
 import '../utils/log.dart';
 
@@ -19,8 +20,16 @@ class SupabaseBootstrap {
       final supabase = await Supabase.initialize(
         url: SupabaseEnv.url,
         publishableKey: SupabaseEnv.publishableKey,
-        authOptions: const FlutterAuthClientOptions(
+        authOptions: FlutterAuthClientOptions(
           authFlowType: AuthFlowType.pkce,
+          // The client still decides which links it acts on — this only lets
+          // the app see one go past, so a reset link that fails to exchange
+          // can be explained instead of silently doing nothing.
+          detectSessionInUriPredicate: (uri) {
+            final isCallback = PasswordResetLink.isAuthCallback(uri);
+            if (isCallback) PasswordResetLink.observe();
+            return isCallback;
+          },
         ),
         debug: false,
       );

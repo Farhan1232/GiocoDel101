@@ -56,6 +56,8 @@
   "authErrorInvalidCredentials": "Email o password non corretti.",
   "authErrorNetwork": "Nessuna connessione. Controlla la rete e riprova.",
   "authErrorRateLimited": "Troppi tentativi. Attendi un momento e riprova.",
+  "authErrorResetLinkExpired": "Il link non è più valido. Richiedine uno nuovo.",
+  "authErrorSamePassword": "La nuova password è uguale a quella attuale. Scegline un’altra.",
   "authErrorUnknown": "Qualcosa è andato storto durante l’accesso.",
   "authErrorWeakPassword": "Scegli una password più sicura.",
   "authGuestFailed": "Impossibile avviare la sessione ospite.",
@@ -182,6 +184,15 @@
   "dailyRewardGuestHint": "Crea un account per riscuotere i premi giornalieri.",
   "dailyRewardTitle": "Ricompensa giornaliera",
   "dailyRewardTomorrow": "Torna domani",
+  "dailyRewardWonBody": "Hai ricevuto {coins} monete.",
+  "@dailyRewardWonBody": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyRewardWonTitle": "Ricompensa ritirata",
   "dealerBadge": "MAZZIERE",
   "@dealerBadge": {
     "description": "Badge on the seat that dealt the current round (§12a)."
@@ -218,6 +229,7 @@
   "fieldConfirmPassword": "Conferma password",
   "fieldEmail": "Email",
   "fieldNickname": "Nickname",
+  "fieldNewPassword": "Nuova password",
   "fieldPassword": "Password",
   "finalPoints": "Punti finali",
   "forgotBackToLogin": "Torna all’accesso",
@@ -231,6 +243,7 @@
       }
     }
   },
+  "forgotSentHint": "Apri il link su questo telefono, entro un’ora.",
   "forgotSentTitle": "Email inviata",
   "forgotTitle": "Recupera la password",
   "gadgetTaglineSigillo": "Un sigillo dorato impresso nel panno.",
@@ -631,6 +644,12 @@
   "resetStatisticsBody": "Tutti i progressi locali verranno cancellati. Vuoi continuare?",
   "resumeMatch": "Continua partita",
   "resumeMatchHint": "Continua da dove eri rimasto",
+  "resetLinkExpiredBody": "Il link per reimpostare la password non è più valido: è già stato usato, è scaduto, oppure è stato aperto su un altro dispositivo. Richiedine uno nuovo dalla schermata di accesso.",
+  "resetPasswordBody": "Scegli la nuova password del tuo account.",
+  "resetPasswordCta": "SALVA LA PASSWORD",
+  "resetPasswordDoneBody": "Da ora accedi con la nuova password. Su questo telefono sei già dentro.",
+  "resetPasswordDoneTitle": "Password aggiornata",
+  "resetPasswordTitle": "Nuova password",
   "roomAlreadyInMatch": "Hai già una partita online in corso. Rientra al tavolo o abbandonala prima di aprirne un’altra.",
   "roomAlreadyStarted": "La partita è già iniziata.",
   "roomCreateFailed": "Impossibile aprire la stanza. Riprova.",

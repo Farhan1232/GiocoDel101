@@ -37,10 +37,18 @@ class FakeAuthGateway implements AuthGateway {
   @override
   Stream<AuthSession?> get changes => _changes.stream;
 
+  final StreamController<PasswordRecovery> _recovery =
+      StreamController<PasswordRecovery>.broadcast();
+
+  @override
+  Stream<PasswordRecovery> get passwordRecovery => _recovery.stream;
+
   void emit(AuthSession? session) {
     _current = session;
     _changes.add(session);
   }
+
+  void emitRecovery(PasswordRecovery event) => _recovery.add(event);
 
   @override
   Future<AuthOutcome> signUp({
@@ -71,6 +79,12 @@ class FakeAuthGateway implements AuthGateway {
   @override
   Future<AuthOutcome> sendPasswordReset(String email) async {
     calls.add('reset:$email');
+    return next;
+  }
+
+  @override
+  Future<AuthOutcome> updatePassword(String password) async {
+    calls.add('updatePassword:$password');
     return next;
   }
 

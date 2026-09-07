@@ -76,6 +76,12 @@ class _SignedInGateway implements AuthGateway {
   Future<AuthOutcome> sendPasswordReset(String email) async =>
       const AuthSuccess(session);
   @override
+  Future<AuthOutcome> updatePassword(String password) async =>
+      const AuthSuccess(session);
+  @override
+  Stream<PasswordRecovery> get passwordRecovery =>
+      const Stream<PasswordRecovery>.empty();
+  @override
   Future<void> signOut() async {}
 
   @override
