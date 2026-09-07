@@ -101,12 +101,23 @@ key.
 
 ## 4. Payments
 
-The app and the database are ready; the **server verification credentials
-are still not set**, which was checked against the live function today —
-it answers `503 verification_unconfigured`. Closed testing cannot start
-before that is fixed, because Google refunds any purchase the app has not
-acknowledged within three days, and the app refuses to acknowledge a
-purchase it could not verify.
+The client's Google service-account key arrived during the session and is
+now **installed on the `verify-purchase` function**, along with
+`ANDROID_PACKAGE_NAME`. Google accepts the key. **Play does not yet accept
+the account**: it can see the app but is not permitted to read its orders
+(`purchases.products.get` → 401), which is precisely what verification does.
+One checkbox in Play Console — "View financial data, orders, and
+cancellation survey responses" — and it is live; nothing needs rebuilding.
+
+The function was also corrected while proving this: a 401/403 from Play used
+to fall through as a bare `500 internal`, so a *configuration* fault looked
+like a broken purchase. It now reports itself honestly and names the missing
+permission in the log. `tool/play_access_check.ts` answers the question in
+one command, without buying anything.
+
+Closed testing still cannot start until that permission lands, because
+Google refunds any purchase the app has not acknowledged within three days,
+and the app refuses to acknowledge a purchase it could not verify.
 
 What was verified, what is missing, and the order to run closed testing in:
 `docs/PAYMENTS_LIVE_STATUS_2026_09_07.md`.
@@ -119,7 +130,8 @@ What was verified, what is missing, and the order to run closed testing in:
 2. **Supabase → SMTP**: the built-in sender **refuses to deliver to any
    address that is not on the project's team**, so reset mail will not reach
    testers until a provider is connected.
-3. **`verify-purchase` secrets**: `GOOGLE_SERVICE_ACCOUNT_JSON` and
-   `ANDROID_PACKAGE_NAME`, from a Play service account.
+3. ~~**`verify-purchase` secrets**~~ — installed on 2026-09-07. What remains
+   is **Play Console → Users and permissions →** give the service account
+   **View financial data** for this app.
 4. **Play Console**: the five products active, license testers configured,
    1.0.2+3 uploaded to the closed track.

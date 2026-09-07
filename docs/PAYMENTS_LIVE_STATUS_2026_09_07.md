@@ -4,13 +4,14 @@ The client's question was: *"the payment integration is okay because I have
 already enabled one-time payment and added ids, is it okay? Just real-time
 testing left."*
 
-Half of it is okay. The **app** and the **database** are ready and were
-re-checked against the live project today. The **server-side verification
-credentials are still missing**, and that is not a detail: with them absent
-the app refuses to unlock anything a tester buys, and Google refunds the
-purchase three days later. Everything needed to fix it is in
-[§ The one blocker](#the-one-blocker) and takes about fifteen minutes in two
-consoles.
+Almost. The **app**, the **database** and now the **server credentials** are
+all in place and were checked against the live systems today. What is left is
+a single checkbox in Play Console: the service account is **not permitted to
+read this app's orders**, so Play refuses it and nothing can be verified.
+
+The client's Google service-account key arrived and **is installed** on the
+`verify-purchase` function. Google accepts the key; Play does not yet accept
+the account. See [§ The one blocker](#the-one-blocker).
 
 ---
 
@@ -18,8 +19,11 @@ consoles.
 
 | Check | Result |
 | --- | --- |
-| `verify-purchase` Edge Function deployed | **Yes** — ACTIVE, version 2 |
-| `verify-purchase` answers a real request | **503 `verification_unconfigured`** ← the blocker |
+| `verify-purchase` Edge Function deployed | **Yes** — ACTIVE |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` + `ANDROID_PACKAGE_NAME` | **set** on the function |
+| The key itself | **valid** — Google issues an `androidpublisher` token for it |
+| Service account ↔ app link | **works** — `edits.insert` answers 200 |
+| Service account ↔ **orders** | **refused** — `purchases.products.get` answers **401** ← the blocker |
 | Product allow-list on the server | the same five ids as the app (`verify.ts`) |
 | Android package id | `it.giocodel101.gioco_del_101` (`android/app/build.gradle.kts`) |
 | Google Play Billing Library | **8.0.0** (via `in_app_purchase_android` 0.5.3) — current, accepted by Play |
@@ -28,57 +32,59 @@ consoles.
 | Grant path end to end | 5 active rows for the owner's complimentary account — the read + unlock path works |
 | Release signing | upload keystore, `CN=Gioco del 101` (not the debug key) |
 
-The exact probe, so it can be repeated:
+Run the check yourself, any time, in one command:
 
 ```
-POST https://<project>.supabase.co/functions/v1/verify-purchase
-Authorization: Bearer <any signed-in user's JWT>
-{"platform":"android","productId":"gioco101_table_gold",
- "verificationData":"...","transactionId":"..."}
-
-→ HTTP 503  {"error":"verification_unconfigured"}
+deno run --allow-read --allow-net tool/play_access_check.ts <key.json>
 ```
 
-`verification_unconfigured` is the function saying, truthfully, *"I have no
-Google credentials, so I will not pretend a purchase is real."* It is the
-designed behaviour, not a bug — but it must be switched off before anyone
-tests a payment.
+It signs exactly the JWT the server signs and asks Play about a fake purchase
+token, which separates the two failures that look identical from inside the
+app:
+
+| Play answers | Meaning |
+| --- | --- |
+| **400 / 404** | Play knows us and rejected the fake token → **verification is live** |
+| **401 / 403** | Play refused the *service account* → the console grant is missing |
+
+Today it answers 401, so `verify-purchase` answers `503
+verification_unconfigured` and the app says "verification not live yet" —
+truthfully, and deliberately: the function would rather refuse than pretend a
+purchase is real.
 
 ---
 
 ## The one blocker
 
-The `verify-purchase` function needs two environment values. They live only
-on the server — never in the app, never in the repository.
+**Already done** (2026-09-07): the key
+`gioco101-play-billing-276@gioco-del-101.iam.gserviceaccount.com` is installed
+on the function as `GOOGLE_SERVICE_ACCOUNT_JSON`, with
+`ANDROID_PACKAGE_NAME=it.giocodel101.gioco_del_101`. Both live only on the
+server — never in the app, never in this repository. **Keep the key file out
+of git and off shared drives**: anyone holding it can read this app's order
+data.
 
-```
-GOOGLE_SERVICE_ACCOUNT_JSON   the Play service-account key, the JSON verbatim
-ANDROID_PACKAGE_NAME          it.giocodel101.gioco_del_101
-```
+**What is left is one checkbox in Play Console.**
 
-**Google Cloud / Play Console**
+The account is linked and can already see the app — the API lets it open an
+edit. What it cannot do is read orders, which is exactly what verification
+is:
 
-1. Play Console → Setup → **API access** → link a Google Cloud project.
-2. Create a **service account**, then create a **JSON key** for it.
-3. Play Console → Users and permissions → invite that service account with
-   **View financial data** and **Manage orders and subscriptions** for this
-   app. (Permission changes can take a few hours to take effect — do this
-   first, not last.)
+> `purchases.products.get` → **401 · The current user has insufficient
+> permissions to perform the requested operation.**
 
-**Supabase**
-
-```
-supabase secrets set \
-  GOOGLE_SERVICE_ACCOUNT_JSON="$(cat play-service-account.json)" \
-  ANDROID_PACKAGE_NAME=it.giocodel101.gioco_del_101 \
-  --project-ref fnyllrjchbqfrzezfeso
-```
-
-(or Dashboard → Edge Functions → verify-purchase → Secrets.)
-
-Then repeat the probe above. A configured function answers **402
-`verification_failed`** for the fake token instead of 503 — that is the
-"credentials are live" signal, and the moment closed testing can start.
+1. Play Console → **Users and permissions**.
+2. Find `gioco101-play-billing-276@gioco-del-101.iam.gserviceaccount.com`.
+   If it is not listed, **Invite new user** with that address.
+3. Open it → **App permissions** → add **Gioco del 101** → tick
+   **"View financial data, orders, and cancellation survey responses"**.
+   ("Manage orders and subscriptions" additionally allows refunds later; it
+   is not needed for verification.)
+4. Save. Google usually applies it within minutes, occasionally up to 24
+   hours.
+5. Re-run `tool/play_access_check.ts`. When it prints **VERIFICATION IS
+   LIVE**, closed testing can start. Nothing needs rebuilding or
+   redeploying — the server picks it up on the next purchase.
 
 ### Why it cannot wait until after the test
 
@@ -93,6 +99,8 @@ will be refunded seventy-two hours later. Set the credentials first.
 
 ## Still to confirm in Play Console (nobody outside the console can see it)
 
+- [ ] The service account has **View financial data** for this app (the
+      blocker above — `tool/play_access_check.ts` tells you when it lands).
 - [ ] The five products exist with these **exact** ids and are **Active**:
       `gioco101_table_gold`, `gioco101_table_classic`,
       `gioco101_deck_special`, `gioco101_cardback_gold`,
@@ -111,7 +119,8 @@ shop card reads "not yet available in the store" and says so when tapped.
 
 ## The closed-testing run, in order
 
-1. Set the two secrets above; re-run the probe until it answers 402.
+1. Grant the financial permission above; re-run
+   `tool/play_access_check.ts` until it prints VERIFICATION IS LIVE.
 2. Upload `app-release.aab` (1.0.2+3) to the **closed testing** track,
    roll it out, and wait for it to go live for testers.
 3. On a real device, signed in with a **license tester** Google account,

@@ -102,6 +102,19 @@ export async function verifyGoogle(req: VerifyRequest): Promise<StoreVerdict> {
       reason: `google ${res.status}`,
     };
   }
+  // 401/403 is Play refusing *us*, not refusing the purchase: the service
+  // account is not permitted to read this app's orders. That is a server
+  // configuration fault and must not be reported as a bad purchase — the
+  // player did nothing wrong and the tester is owed the honest "not live
+  // yet". Grant the account "View financial data, orders and cancellation
+  // survey responses" in Play Console → Users and permissions.
+  if (res.status === 401 || res.status === 403) {
+    console.error(
+      `verify-purchase: Play refused the service account (${res.status}) — ` +
+        `it needs financial access to ${packageName}`,
+    );
+    throw new Unconfigured();
+  }
   if (!res.ok) throw new Error(`google verify: ${res.status}`);
   const p = await res.json();
   // purchaseState: 0 purchased, 1 canceled, 2 pending.
