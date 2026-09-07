@@ -65,11 +65,17 @@ fixes. Add the URL once:
 it.giocodel101://reset-password
 ```
 
-**or** apply the value already committed to `supabase/config.toml`:
+The dashboard field is the safe route and takes ten seconds. The value is
+also committed to `supabase/config.toml`, so it can be applied with
 
 ```
 supabase config push --project-ref fnyllrjchbqfrzezfeso
 ```
+
+— but note that this pushes the **whole `[auth]` block** of the file, not
+just the one line, so anything changed in the dashboard and never mirrored
+back into `config.toml` would be overwritten. Prefer the dashboard unless
+the file is known to be in step with the project.
 
 To check it took, without sending any mail — an allow-listed URL comes back
 in the `location` header, a rejected one is replaced by the Site URL:

@@ -71,6 +71,21 @@ And claiming itself:
 - The button stops spinning before the dialog appears, instead of spinning
   behind it.
 
+**The server side was checked live, not just read.** A throwaway account was
+created against the real project, and it walked the whole ladder:
+
+```
+my_daily_reward_status  → streak 0, can_claim true, coins 0
+claim_daily_reward      → day 1, amount 10
+my_daily_reward_status  → streak 1, claimed_today true, coins 10
+claim_daily_reward      → refused: already_claimed
+delete_my_account       → 204, and the reward row went with it
+```
+
+So claiming works, the streak advances, a second claim on the same day is
+refused by the database rather than by the app, and the amounts are the
+server's. The test account was deleted afterwards; the project is as it was.
+
 ## 3. The build
 
 `1.0.1+2` → **`1.0.2+3`**. Play needs the build number to go up; 3 follows
