@@ -115,9 +115,12 @@ like a broken purchase. It now reports itself honestly and names the missing
 permission in the log. `tool/play_access_check.ts` answers the question in
 one command, without buying anything.
 
-Closed testing still cannot start until that permission lands, because
-Google refunds any purchase the app has not acknowledged within three days,
-and the app refuses to acknowledge a purchase it could not verify.
+**That permission was granted on 2026-09-08 and payments are now live.**
+Verified end to end the same day: Play answers 400 for a fake token instead
+of 401, `verify-purchase` answers `402 verification_failed` instead of 503,
+an id outside the five is refused before any store call, an unauthenticated
+call is refused, and the probes granted nothing — the entitlement table is
+untouched. Real purchases will now be verified with Google and granted.
 
 What was verified, what is missing, and the order to run closed testing in:
 `docs/PAYMENTS_LIVE_STATUS_2026_09_07.md`.
@@ -130,8 +133,7 @@ What was verified, what is missing, and the order to run closed testing in:
 2. **Supabase → SMTP**: the built-in sender **refuses to deliver to any
    address that is not on the project's team**, so reset mail will not reach
    testers until a provider is connected.
-3. ~~**`verify-purchase` secrets**~~ — installed on 2026-09-07. What remains
-   is **Play Console → Users and permissions →** give the service account
-   **View financial data** for this app.
+3. ~~**`verify-purchase` secrets**~~ — installed 2026-09-07, and the Play
+   financial permission granted 2026-09-08. Payments verified live.
 4. **Play Console**: the five products active, license testers configured,
    1.0.2+3 uploaded to the closed track.
