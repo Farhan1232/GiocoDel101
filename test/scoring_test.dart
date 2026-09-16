@@ -20,39 +20,66 @@ void main() {
           const GameCard(CardSuit.spade, CardRank.cavallo),
           const GameCard(CardSuit.bastoni, CardRank.fante),
         ]),
-        // §10 — pip cards by printed rank; Cavallo and Fante 25 each, the
-        // client's 2026-08-31 change.
-        1 + 10 + 25 + 25,
+        // §10 — every rank by its printed number except the Cavallo, which
+        // the client priced at 25 (confirmed 2026-09-01).
+        1 + 10 + 25 + 8,
       );
     });
 
-    test('the Fante and the Cavallo are the two 25-point cards', () {
+    test('the Cavallo is the only 25-point card (client, 2026-09-01)', () {
+      // Each figure on its own.
       expect(
         scorer.handPenalty([const GameCard(CardSuit.spade, CardRank.fante)]),
-        25,
+        8,
+        reason: 'Fante = 8',
       );
       expect(
         scorer.handPenalty([const GameCard(CardSuit.coppe, CardRank.cavallo)]),
         25,
+        reason: 'Cavallo = 25',
       );
+      expect(
+        scorer.handPenalty([const GameCard(CardSuit.denari, CardRank.re)]),
+        10,
+        reason: 'Re = 10',
+      );
+      // The three together.
       expect(
         scorer.handPenalty([
           const GameCard(CardSuit.spade, CardRank.fante),
           const GameCard(CardSuit.coppe, CardRank.cavallo),
+          const GameCard(CardSuit.denari, CardRank.re),
         ]),
-        50,
+        43,
+        reason: 'Fante 8 + Cavallo 25 + Re 10',
       );
-      // Several of each accumulate; nothing else moved.
+      // Pairs of each accumulate.
       expect(
         scorer.handPenalty([
           const GameCard(CardSuit.spade, CardRank.fante),
           const GameCard(CardSuit.denari, CardRank.fante),
+        ]),
+        16,
+        reason: 'two Fanti',
+      );
+      expect(
+        scorer.handPenalty([
           const GameCard(CardSuit.coppe, CardRank.cavallo),
           const GameCard(CardSuit.bastoni, CardRank.cavallo),
-          const GameCard(CardSuit.coppe, CardRank.re),
         ]),
-        4 * 25 + 10,
+        50,
+        reason: 'two Cavalli',
       );
+      expect(
+        scorer.handPenalty([
+          const GameCard(CardSuit.spade, CardRank.fante),
+          const GameCard(CardSuit.coppe, CardRank.cavallo),
+        ]),
+        33,
+        reason: 'Fante 8 + Cavallo 25',
+      );
+      // Nothing else moved: every other rank is worth its printed number,
+      // and the Fante is back among them.
       for (final rank in [
         CardRank.asso,
         CardRank.due,
@@ -61,6 +88,7 @@ void main() {
         CardRank.cinque,
         CardRank.sei,
         CardRank.sette,
+        CardRank.fante,
         CardRank.re,
       ]) {
         expect(
@@ -69,6 +97,8 @@ void main() {
           reason: '${rank.key} keeps its printed value',
         );
       }
+      // The Cavallo's rank identity is untouched — only its price is 25.
+      expect(CardRank.cavallo.value, 9);
     });
 
     test('an empty hand is worth nothing', () {
@@ -158,8 +188,8 @@ void main() {
         10,
         reason: 'winner adds nothing',
       );
-      // §10 — the Fante is 25, so p1 pays 3 + 25.
-      expect(e.state.playerById('p1')!.score, 20 + 3 + 25);
+      // §10 — the Fante is worth its printed 8, so p1 pays 3 + 8.
+      expect(e.state.playerById('p1')!.score, 20 + 3 + 8);
       expect(e.state.playerById('p2')!.score, 30 + 7);
       expect(result.rows, hasLength(3));
     });

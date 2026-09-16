@@ -315,7 +315,8 @@ Confirmed by the client (GAME_SPEC §10–§11) and nothing more:
 
 - round winner scores 0; everyone else adds the penalty value of each card
   still in hand (`GameRules.scoreValues`): pip cards at their printed rank,
-  and — confirmed by the client on 2026-08-31 — **Fante 25 and Cavallo 25**;
+  and — confirmed by the client on 2026-09-01 — **Cavallo 25** (the Fante is
+  worth its printed 8);
 - exactly `targetScore` → score resets to 0 (`Exact101Event`);
 - above `targetScore` → eliminated (`PlayerEliminatedEvent`);
 - one live player left → `finished`, `winnerId` set (`MatchEndedEvent`).

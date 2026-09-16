@@ -280,6 +280,76 @@ void main() {
       },
     );
 
+    // §10 — the client re-priced the figures twice. A resumed save must
+    // score by the *current* table, never by the one baked into its own
+    // rules block, or a match started before the correction would go on
+    // charging 25 for a Fante.
+    group('legacy score tables are migrated on read', () {
+      Map<String, dynamic> save(int schema, Map<String, int>? scoreValues) => {
+        'schema': schema,
+        'players': [
+          {'id': 'p0', 'name': 'A', 'type': 'humanLocal', 'hand': []},
+          {'id': 'p1', 'name': 'B', 'type': 'bot', 'hand': []},
+        ],
+        'discardPile': ['coppe_cinque'],
+        'activeSuit': 'coppe',
+        if (scoreValues != null) 'rules': {'scoreValues': scoreValues},
+      };
+
+      Map<String, int> encode(Map<CardRank, int> t) => {
+        for (final e in t.entries) e.key.key: e.value,
+      };
+
+      void expectCurrentPrices(GameRules rules, String reason) {
+        expect(rules.valueOf(CardRank.fante), 8, reason: 'Fante 8 — $reason');
+        expect(
+          rules.valueOf(CardRank.cavallo),
+          25,
+          reason: 'Cavallo 25 — $reason',
+        );
+        expect(rules.valueOf(CardRank.re), 10, reason: 'Re 10 — $reason');
+      }
+
+      test('a schema-3 save stops charging 25 for a Fante', () {
+        final s = GameState.fromJson(
+          save(3, encode(GameRules.legacyFigureScoreValues)),
+        );
+        expectCurrentPrices(s.rules, 'schema 3');
+      });
+
+      test('a pre-2026-08-31 save is migrated too', () {
+        final s = GameState.fromJson(
+          save(2, encode(GameRules.legacyPrintedScoreValues)),
+        );
+        expectCurrentPrices(s.rules, 'schema 2');
+      });
+
+      test('a save with no rules block simply takes the defaults', () {
+        expectCurrentPrices(
+          GameState.fromJson(save(1, null)).rules,
+          'schema 1',
+        );
+      });
+
+      test('a genuinely customised table survives untouched', () {
+        final custom = Map<CardRank, int>.of(GameRules.defaultScoreValues)
+          ..[CardRank.fante] = 40;
+        final s = GameState.fromJson(save(2, encode(custom)));
+        expect(
+          s.rules.valueOf(CardRank.fante),
+          40,
+          reason: 'not a superseded default, so not dropped',
+        );
+      });
+
+      test('a save written by this build is left alone', () {
+        final s = GameState.fromJson(
+          save(GameState.schemaVersion, encode(GameRules.defaultScoreValues)),
+        );
+        expectCurrentPrices(s.rules, 'current schema');
+      });
+    });
+
     test('GameState — corrupt input is rejected with FormatException', () {
       Map<String, dynamic> base() => {
         'players': [

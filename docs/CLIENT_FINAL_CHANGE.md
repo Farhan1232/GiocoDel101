@@ -5,7 +5,7 @@ three are delivered; nothing outside them was changed.
 
 | # | The client asked for | Status |
 |---|---|---|
-| 1 | *"The 9 and the Jack should have a value of 25 points when they are in the hand."* | **Done** — Fante 25, Cavallo 25, penalty only |
+| 1 | *"The 9 and the Jack should have a value of 25 points when they are in the hand."* | **Done** — then **superseded 2026-09-01**: Fante 8, Cavallo 25, Re 10 (see `docs/CLIENT_SCORING_CORRECTION_2026_09_01.md`) |
 | 2 | *"Add a button so a player must declare ULTIMA CARTA when they reach their last card."* | **Done** — a real engine rule, enforced by the server online |
 | 3 | *"When a player has around ten cards, or draws many cards, not all cards are visible."* | **Done** — the hand is usable at 5, 10, 15, 20 and 25+ cards |
 
@@ -18,6 +18,11 @@ dealer rotation — is untouched and re-verified.
 ---
 
 ## 1. Fante and Cavallo are worth 25
+
+> **Superseded on 2026-09-01.** The client clarified the hand scoring:
+> **Fante 8, Cavallo 25, Re 10**. Only the Cavallo keeps the 25. This section
+> is kept as the record of the 2026-08-31 request; the current table and its
+> migration are described in `docs/CLIENT_SCORING_CORRECTION_2026_09_01.md`.
 
 ### What changed
 

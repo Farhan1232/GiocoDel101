@@ -731,6 +731,35 @@ List<ConformanceScenario> conformanceScenarios() => [
     expectedEvents: const ['CardPlayedEvent', 'RoundEndedEvent'],
   ),
   ConformanceScenario(
+    name: 'round_end_figure_prices',
+    description:
+        'A hand of Fante + Cavallo + Re at round end costs 8 + 25 + 10 = '
+        '43; only the Cavallo carries the 25.',
+    rulesNote: 'GAME_SPEC §10',
+    state: buildState(
+      hands: [
+        [_c(_co, CardRank.re)],
+        [
+          _c(_de, CardRank.fante),
+          _c(_sp, CardRank.cavallo),
+          _c(_de, CardRank.re),
+        ],
+        [_c(_ba, CardRank.fante), _c(_co, CardRank.fante)],
+      ],
+      top: _c(_co, CardRank.cinque),
+      scores: [0, 0, 0],
+    ),
+    action: PlayCardAction(playerId: 'p0', card: _c(_co, CardRank.re)),
+    assertions: {
+      'status': 'roundOver',
+      'roundWinnerId': 'p0',
+      'score.p0': 0,
+      'score.p1': 43,
+      'score.p2': 16,
+    },
+    expectedEvents: const ['CardPlayedEvent', 'RoundEndedEvent'],
+  ),
+  ConformanceScenario(
     name: 'round_end_exact_101_resets',
     description: 'Landing on exactly 101 resets that player to zero.',
     rulesNote: 'GAME_SPEC §11',

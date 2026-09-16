@@ -1805,7 +1805,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get tutorialScoringBody =>
-      'A fine round ogni carta rimasta vale il suo numero: Asso 1, Re 10. Fante e Cavallo valgono 25 ciascuno. I punti si sommano al totale.';
+      'A fine round ogni carta rimasta vale il suo numero — Asso 1, Fante 8, Re 10 — tranne il Cavallo, che vale 25. I punti si sommano al totale.';
 
   @override
   String get tutorialTitle => 'Tutorial interattivo';

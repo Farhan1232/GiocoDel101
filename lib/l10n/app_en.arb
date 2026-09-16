@@ -806,7 +806,7 @@
   "tutorialPlayNow": "PLAY AGAINST THE COMPUTER",
   "tutorialReplay": "Replay the tutorial",
   "tutorialScoring": "Scoring",
-  "tutorialScoringBody": "At the end of a round every card left is worth its number: Ace 1, King 10. The Jack and the Knight are worth 25 each. The points add to your total.",
+  "tutorialScoringBody": "At the end of a round every card left is worth its number — Ace 1, Jack 8, King 10 — except the Knight, which costs 25. The points add to your total.",
   "tutorialTitle": "Interactive tutorial",
   "tutorialTwo": "Two — draw two",
   "tutorialTwoBody": "The 2 forces the next player to draw two cards. Holding another 2 they can raise: +4, +6, +8. Whoever stops draws the lot and loses the turn.",

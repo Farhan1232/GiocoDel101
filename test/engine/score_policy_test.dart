@@ -29,12 +29,21 @@ void main() {
   group('ScorePolicy (§10, §11)', () {
     test('hand penalty follows the confirmed value table', () {
       const p = ScorePolicy(GameRules());
-      // §10 — Asso 1 + Re 10 + Fante 25 (the client's 2026-08-31 price).
+      // §10 — Asso 1 + Re 10 + Fante 8 (the client's 2026-09-01 price:
+      // the Fante is back to its printed number, only the Cavallo is 25).
       expect(
         p.handPenalty([
           c(CardSuit.denari, CardRank.asso),
           c(CardSuit.denari, CardRank.re),
           c(CardSuit.spade, CardRank.fante),
+        ]),
+        19,
+      );
+      expect(
+        p.handPenalty([
+          c(CardSuit.denari, CardRank.asso),
+          c(CardSuit.denari, CardRank.re),
+          c(CardSuit.spade, CardRank.cavallo),
         ]),
         36,
       );

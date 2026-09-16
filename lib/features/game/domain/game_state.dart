@@ -101,13 +101,15 @@ class GameState {
            e.key: List<String>.unmodifiable(e.value),
        });
 
-  /// 3 — §16 ("ULTIMA CARTA") and the Fante/Cavallo = 25 price list. A state
-  /// written under an older schema is migrated on read; see [fromJson].
-  static const int schemaVersion = 3;
+  /// 4 — the 2026-09-01 correction: only the Cavallo costs 25, the Fante is
+  /// back to its printed 8. A state written under an older schema is
+  /// migrated on read; see [fromJson].
+  static const int schemaVersion = 4;
 
-  /// The last schema whose `rules.scoreValues` still held the printed values
-  /// (Fante 8, Cavallo 9) the client replaced on 2026-08-31.
-  static const int legacyScoreSchema = 2;
+  /// The last schema whose `rules.scoreValues` still held a price list this
+  /// build has superseded — schema ≤ 2 the printed table (Fante 8,
+  /// Cavallo 9), schema 3 the short-lived Fante 25 / Cavallo 25 table.
+  static const int legacyScoreSchema = 3;
   static const int historyLimit = 40;
 
   /// Stable identifier of this match. Locally a random token; online, the
@@ -575,15 +577,15 @@ class GameState {
 
   /// Brings a rules block written under an older [schemaVersion] up to date.
   ///
-  /// The only migration so far is the 2026-08-31 price change: a save from
-  /// schema ≤ [legacyScoreSchema] carries a `scoreValues` table that still
-  /// prices the Fante at 8 and the Cavallo at 9. Resuming such a match under
-  /// its own stale table would score the very cards the client re-priced at
-  /// the old rate, so the table is dropped and
+  /// Every migration so far is a price change: a save from schema ≤ 2
+  /// carries the printed table (Fante 8, Cavallo 9) and one from schema 3
+  /// the 2026-08-31 table (Fante 25, Cavallo 25). Resuming such a match
+  /// under its own stale table would score the very cards the client
+  /// re-priced at the old rate, so the table is dropped and
   /// [GameRules.defaultScoreValues] takes over.
   ///
-  /// A table the *client* customised is left alone: only one that matches
-  /// the old printed defaults exactly is treated as un-migrated.
+  /// A table the *client* customised is left alone: only one that matches a
+  /// superseded default exactly is treated as un-migrated.
   static Map<String, dynamic> _migrateRules(
     Map<String, dynamic> rules,
     int schema,
@@ -591,10 +593,12 @@ class GameState {
     if (schema > legacyScoreSchema) return rules;
     final raw = rules['scoreValues'];
     if (raw is! Map) return rules;
-    final isPrintedDefaults = GameRules.legacyPrintedScoreValues.entries.every(
-      (e) => (raw[e.key.key] as num?)?.toInt() == e.value,
+    final isSupersededDefault = GameRules.supersededScoreValues.any(
+      (table) => table.entries.every(
+        (e) => (raw[e.key.key] as num?)?.toInt() == e.value,
+      ),
     );
-    if (!isPrintedDefaults) return rules;
+    if (!isSupersededDefault) return rules;
     return {...rules}..remove('scoreValues');
   }
 

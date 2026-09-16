@@ -185,12 +185,13 @@ class GameRules {
   /// §10 — penalty value of every rank left in hand at round end.
   final Map<CardRank, int> scoreValues;
 
-  /// Asso 1 … Re 10 by printed rank, with the two figures the client priced
-  /// separately on 2026-08-31: **Fante 25** and **Cavallo ("9") 25**.
+  /// Asso 1 … Re 10 by printed rank, with the one card the client priced
+  /// separately on 2026-09-01: the **Cavallo ("9") 25**. The Fante keeps its
+  /// printed **8** and the Re its printed **10**.
   ///
-  /// Only the penalty is worth 25. Neither card's *gameplay* changes: the
-  /// Cavallo is still the wild that names a suit and blocks a chain (§6a,
-  /// §7) and the Fante is still an ordinary card to play (§4).
+  /// Only the penalty is worth 25, and only the Cavallo's. Its *gameplay* is
+  /// unchanged: it is still the wild that names a suit and blocks a chain
+  /// (§6a, §7), and the Fante is still an ordinary card to play (§4).
   static const Map<CardRank, int> defaultScoreValues = {
     CardRank.asso: 1,
     CardRank.due: 2,
@@ -199,14 +200,15 @@ class GameRules {
     CardRank.cinque: 5,
     CardRank.sei: 6,
     CardRank.sette: 7,
-    CardRank.fante: figureScoreValue,
-    CardRank.cavallo: figureScoreValue,
+    CardRank.fante: 8,
+    CardRank.cavallo: cavalloScoreValue,
     CardRank.re: 10,
   };
 
-  /// §10 — what a Fante or a Cavallo left in hand costs. Confirmed by the
-  /// client; it lives here so no widget, bot or server path can restate it.
-  static const int figureScoreValue = 25;
+  /// §10 — what a Cavallo left in hand costs. Confirmed by the client on
+  /// 2026-09-01; it lives here so no widget, bot or server path can restate
+  /// it. Every other rank is worth its printed number.
+  static const int cavalloScoreValue = 25;
 
   /// The pre-2026-08-31 table (Fante 8, Cavallo 9). Kept so a save written
   /// before the change can be recognised and migrated rather than resumed
@@ -223,6 +225,32 @@ class GameRules {
     CardRank.cavallo: 9,
     CardRank.re: 10,
   };
+
+  /// The 2026-08-31 table, which priced *both* figures at 25. Superseded on
+  /// 2026-09-01 when the client put the Fante back to its printed 8. Kept
+  /// for the same reason as [legacyPrintedScoreValues]: a save written under
+  /// schema 3 carries it and must not go on charging 25 for a Fante.
+  static const Map<CardRank, int> legacyFigureScoreValues = {
+    CardRank.asso: 1,
+    CardRank.due: 2,
+    CardRank.tre: 3,
+    CardRank.quattro: 4,
+    CardRank.cinque: 5,
+    CardRank.sei: 6,
+    CardRank.sette: 7,
+    CardRank.fante: 25,
+    CardRank.cavallo: 25,
+    CardRank.re: 10,
+  };
+
+  /// Every default table this build has superseded. A saved `scoreValues`
+  /// block matching one of them exactly was written by an older build and is
+  /// dropped on read so [defaultScoreValues] takes over; a table the client
+  /// genuinely customised matches none of them and is left alone.
+  static const List<Map<CardRank, int>> supersededScoreValues = [
+    legacyFigureScoreValues,
+    legacyPrintedScoreValues,
+  ];
 
   int valueOf(CardRank rank) => scoreValues[rank] ?? rank.value;
 

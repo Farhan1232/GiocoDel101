@@ -3251,7 +3251,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialScoringBody.
   ///
   /// In it, this message translates to:
-  /// **'A fine round ogni carta rimasta vale il suo numero: Asso 1, Re 10. Fante e Cavallo valgono 25 ciascuno. I punti si sommano al totale.'**
+  /// **'A fine round ogni carta rimasta vale il suo numero — Asso 1, Fante 8, Re 10 — tranne il Cavallo, che vale 25. I punti si sommano al totale.'**
   String get tutorialScoringBody;
 
   /// No description provided for @tutorialTitle.
