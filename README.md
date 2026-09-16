@@ -17,7 +17,7 @@ zero. Asso skips, Due draws two (and chains), the Cavallo changes the suit.
 | Backend | Supabase (`supabase_flutter ^2.17`): Auth, Postgres + RLS, Realtime, one Edge Function |
 | Localisation | `gen_l10n`, Italian template (`lib/l10n/app_it.arb`) + English |
 | Package id | `it.giocodel101.gioco_del_101` |
-| Tests | 746 Flutter tests, 74 Deno tests, bot simulation, a long-session stress harness, two real-backend regression tools |
+| Tests | 796 Flutter tests, 75 Deno tests, bot simulation, a long-session stress harness, two real-backend regression tools |
 
 Documentation for every part lives in `docs/`; the final state of the
 project, with what was and was not verified, is
@@ -188,7 +188,7 @@ flutter run -d chrome --dart-define-from-file=env/supabase.dev.json
 
 ```bash
 flutter analyze
-flutter test                                         # 746 tests, ~160 s
+flutter test                                         # 796 tests, ~125 s
 dart run tool/bot_simulation.dart                    # bot matches, invariants (SIM_MATCHES=…)
 deno test --allow-read supabase/functions/match/     # 61 conformance fixtures + timeout policy
 deno test --allow-read --allow-env supabase/functions/verify-purchase/   # --allow-env is required

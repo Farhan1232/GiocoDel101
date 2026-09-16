@@ -1,3 +1,49 @@
+# Session Handoff — 2026-09-16 → one line of history, release 1.0.3+4
+
+Date: 2026-09-16, on top of everything below.
+
+---
+
+## 0w. Two fixes were missing from the Play Store build. READ FIRST.
+
+The working copy was rebuilt on 2026-09-06 from
+`GiocoDel101_Final_Delivery/GiocoDel101_Source.zip`. That zip is exactly
+GitHub commit `1644ab3` (Session 8, 2026-09-01 01:43) — the three commits
+pushed to GitHub `main` after it were never in it, so every build made from
+the working copy since (1.0.1+2, 1.0.2+3, the one on the Play Store) shipped
+without them:
+
+1. **`f5b6c7b` — the long-session freeze and force-close** (audioplayers
+   strands one frame callback per sound effect; see the Session 9 crash-fix
+   section below and docs/PERFORMANCE_CRASH_AUDIT.md).
+2. **`54a4356` — the client's 2026-09-01 scoring correction:** Fante 8,
+   Cavallo 25, Re 10. The app and the live `match` function were still
+   charging 25 for a Fante (docs/CLIENT_SCORING_CORRECTION_2026_09_01.md).
+3. `a86714a` — docs/ANDROID_SIGNING.md.
+
+All three are now carried forward on top of the Session 9/10 work, and the
+GitHub history is joined to this one with a no-change merge (`git merge -s
+ours`), so `main` moves forward without a force push and nothing on GitHub
+is lost. `engine.js` was recompiled from this tree (not copied from
+`54a4356`, whose engine predates Session 9's room rules); the regenerated
+conformance fixtures matched the merged ones byte for byte. Only the
+tutorial scoring sentence was taken from that commit's string tables.
+
+Gates: `flutter analyze` clean, **796/796** Flutter tests (780 before),
+Deno 69 + 6, bot simulation 270 matches / 0 violations / 0 hangs. The
+`dart format` drift in six files predates this and was left alone.
+Version **1.0.3+4**.
+
+**Open — the live server.** The deployed `match` function still prices the
+Fante at 25 until `supabase functions deploy match` is run with this
+`engine.js`. Once it is, quick matches and rooms created by 1.0.3+4 score
+Fante 8. An older app still sends its own default price list with
+`create_room`, so a private room opened from 1.0.2+3 keeps Fante 25 until
+that player updates. Older apps read the newer (schema 4) state without
+trouble — `GameState.fromJson` never refuses a newer schema.
+
+---
+
 # Session Handoff — Session 9 → the client's seven reports
 
 Date: 2026-09-06 (Session 9), on top of everything below.
