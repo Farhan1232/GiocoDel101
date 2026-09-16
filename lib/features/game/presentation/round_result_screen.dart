@@ -64,13 +64,28 @@ class _RoundResultScreenState extends State<RoundResultScreen> {
         );
     if (!c.isOnline) {
       // Online, the server is the only bookkeeper (docs/SECURITY.md).
-      unawaited(
-        stats.recordRound(
-          match: c.state,
-          result: result,
-          humanId: c.humanIds.first,
-        ),
-      );
+      //
+      // Deferred to the end of the frame on purpose. `recordRound` reaches
+      // `StatsController._commit`, whose first statement assigns a global
+      // `Rx` — and that runs *synchronously*, before the first `await`.
+      // `initState` runs inside a build, so that assignment marked every
+      // `Obx` watching lifetime statistics dirty in the middle of the build
+      // that was mounting this very screen (the home screen sits mounted
+      // under the table and watches two of them). Flutter asserted
+      // "setState() or markNeedsBuild() called during build" on every round
+      // that ended. No `mounted` guard: the round must be recorded whether
+      // or not this sheet is still up.
+      //
+      // The match and the seat are read now, not in the callback: the round
+      // must be scored against the table as it stood when this sheet opened,
+      // whatever has happened by the time the frame ends.
+      final scored = c.state;
+      final humanId = c.humanIds.first;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(
+          stats.recordRound(match: scored, result: result, humanId: humanId),
+        );
+      });
     }
     if (c.lastRoundResult.value == null) {
       // Opened for a round that is already over and dealt: nothing to show.

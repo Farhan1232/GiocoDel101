@@ -17,7 +17,7 @@ zero. Asso skips, Due draws two (and chains), the Cavallo changes the suit.
 | Backend | Supabase (`supabase_flutter ^2.17`): Auth, Postgres + RLS, Realtime, one Edge Function |
 | Localisation | `gen_l10n`, Italian template (`lib/l10n/app_it.arb`) + English |
 | Package id | `it.giocodel101.gioco_del_101` |
-| Tests | 515 Flutter tests, 50 Deno tests, bot simulation, two real-backend regression tools |
+| Tests | 746 Flutter tests, 74 Deno tests, bot simulation, a long-session stress harness, two real-backend regression tools |
 
 Documentation for every part lives in `docs/`; the final state of the
 project, with what was and was not verified, is
@@ -187,9 +187,10 @@ flutter run -d chrome --dart-define-from-file=env/supabase.dev.json
 
 ```bash
 flutter analyze
-flutter test                                         # 684 tests, ~85 s
+flutter test                                         # 746 tests, ~160 s
 dart run tool/bot_simulation.dart                    # bot matches, invariants (SIM_MATCHES=…)
 deno test --allow-read supabase/functions/match/     # 61 conformance fixtures + timeout policy
+deno test --allow-read --allow-env supabase/functions/verify-purchase/   # --allow-env is required
 RULE_CHECK_SEATS=4 dart run tool/online_rule_check.dart   # §3/§6b/§12/§12a/§16, live
 
 # Against the real dev project (five / two independent users):
@@ -201,6 +202,13 @@ flutter build web --dart-define-from-file=env/supabase.dev.json
 (cd build/web && python3 -m http.server 8787 --bind 127.0.0.1 &)
 UI_HOST_PASSWORD=… deno run -A tool/ui_drive_web.ts <outDir>
 ```
+
+`test/session9_long_session_stress_test.dart` is the long-session guard: it
+drives the real route table for ~500 sound effects of continuous play **with
+the audio path switched on** (`test/support/fake_audio_platform.dart` stands
+the plugin up) and asserts nothing accumulates. That blind spot — no test had
+ever executed one line of the sound path — is what hid the crash the client
+reported; see docs/PERFORMANCE_CRASH_AUDIT.md.
 
 `test/tools/*` are tools, not tests (`render_previews.dart` draws the
 contact sheets in `preview/`; `generate_conformance_fixtures.dart`

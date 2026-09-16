@@ -14,10 +14,8 @@ import 'dart:io';
 import 'package:gioco_del_101/features/legal/domain/legal_content.dart';
 import 'package:gioco_del_101/core/legal/legal_config.dart';
 
-String _escape(String s) => s
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+String _escape(String s) =>
+    s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
 String _document({
   required LegalDocument it,
